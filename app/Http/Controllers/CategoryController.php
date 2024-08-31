@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Language;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
-class LanguagesController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $languages = Language::all();
+        $categorys = Category::all();
 
-        return view('languages.index', compact('languages'));
+        return view('categorys.index', compact('categorys'));
     }
 
     /**
@@ -22,7 +22,7 @@ class LanguagesController extends Controller
      */
     public function create()
     {
-        return view('languages.create');
+        return view('categorys.create');
     }
 
     /**
@@ -30,11 +30,11 @@ class LanguagesController extends Controller
      */
     public function store(Request $request)
     {
-        Language::create(request()->all());
+        Category::create(request()->all());
 
         session()->flash('success', 'Successfully Created');
 
-        return redirect()->route('languages.index');
+        return redirect()->route('categorys.index');
     }
 
     /**
@@ -50,9 +50,9 @@ class LanguagesController extends Controller
      */
     public function edit(string $id)
     {
-        $language = Language::find($id);
+        $category = Category::find($id);
 
-        return view('languages.edit', compact('language'));
+        return view('categorys.edit', compact('category'));
     }
 
     /**
@@ -60,11 +60,11 @@ class LanguagesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $language = Language::find($id);
+        $category = Category::find($id);
 
-        $language->update(request()->all());
+        $category->update(request()->all());
 
-        return redirect()->route('languages.index');
+        return redirect()->route('categorys.index');
     }
 
     /**
@@ -72,11 +72,11 @@ class LanguagesController extends Controller
      */
     public function destroy(string $id)
     {
-        Language::find($id)
+        Category::find($id)
             ->delete();
 
         session()->flash('success', 'Successfully Deleted');
 
-        return redirect()->route('languages.index');
+        return redirect()->route('categorys.index');
     }
 }

@@ -6,11 +6,28 @@ return [
             'name' => 'ITI Database',
             'route' => 'languages.index',
             'icon' => 'fas fa-tachometer-alt',
-            'related' => ['admin.dashboard']
+            'related' => ['admin.dashboard'],
+            'sub-menus' => [
+                [
+                    'name' => 'Language',
+                    'route' => 'languages.index',
+                    'icon' => 'fas fa-tachometer-alt',
+                ],
+                [
+                    'name' => 'Main Category',
+                    'route' => 'category.index',
+                    'icon' => 'fas fa-tachometer-alt',
+                ],
+                [
+                    'name' => 'Sub-Category',
+                    'route' => 'languages.index',
+                    'icon' => 'fas fa-tachometer-alt',
+                ],
+            ]
         ],
         [
             'name' => 'Quiz',
-            'route' => 'makers.index',
+            'route' => 'languages.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'makers.create',
@@ -20,7 +37,7 @@ return [
         ],
         [
             'name' => 'CBT',
-            'route' => 'carmodels.index',
+            'route' => 'languages.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'carmodels.create',
@@ -30,7 +47,7 @@ return [
         ],
         [
             'name' => 'Question Bank',
-            'route' => 'caryears.index',
+            'route' => 'languages.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'caryears.create',
@@ -40,7 +57,7 @@ return [
         ],
         [
             'name' => 'User List',
-            'route' => 'carvariants.index',
+            'route' => 'languages.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'carvariants.create',
@@ -50,7 +67,7 @@ return [
         ],
         [
             'name' => 'Admin',
-            'route' => 'carvariants.index',
+            'route' => 'languages.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'carvariants.create',
