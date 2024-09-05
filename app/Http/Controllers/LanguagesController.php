@@ -30,6 +30,10 @@ class LanguagesController extends Controller
      */
     public function store(Request $request)
     {
+        request()->validate([
+            'name' => 'required'
+        ]);
+
         Language::create(request()->all());
 
         session()->flash('success', 'Successfully Created');
@@ -60,6 +64,10 @@ class LanguagesController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        request()->validate([
+            'name' => 'required'
+        ]);
+        
         $language = Language::find($id);
 
         $language->update(request()->all());

@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LanguagesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubCategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +33,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('languages', LanguagesController::class);
 
     Route::resource('category', CategoryController::class);
+
+    Route::resource('sub-category', SubCategoryController::class);
+
+    Route::get('users', [ProfileController::class, 'users'])
+        ->name('users.index');
 });
 
 require __DIR__ . '/auth.php';

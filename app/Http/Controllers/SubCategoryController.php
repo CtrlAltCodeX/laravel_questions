@@ -3,20 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Language;
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class SubCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $categorys = Category::with('language')
+        $sub_categories = SubCategory::with('category')
             ->get();
 
-        return view('categorys.index', compact('categorys'));
+        return view('sub-category.index', compact('sub_categories'));
     }
 
     /**
@@ -24,9 +24,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $languages = Language::all();
+        $categories = Category::all();
 
-        return view('categorys.create', compact('languages'));
+        return view('sub-category.create', compact('categories'));
     }
 
     /**
@@ -35,15 +35,13 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         request()->validate([
+            'category_id' => 'required',
             'name' => 'required',
-            'language_id' => 'required'
         ]);
 
-        Category::create(request()->all());
+        SubCategory::create(request()->all());
 
-        session()->flash('success', 'Category Successfully Created');
-
-        return redirect()->route('category.index');
+        return redirect()->route('sub-category.index');
     }
 
     /**
@@ -59,11 +57,11 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        $category = Category::find($id);
+        $sub_categories = SubCategory::find($id);
 
-        $languages = Language::all();
+        $categories = Category::all();
 
-        return view('categorys.edit', compact('category', 'languages'));
+        return view('sub-category.edit', compact('sub_categories', 'categories'));
     }
 
     /**
@@ -72,15 +70,14 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         request()->validate([
+            'category_id' => 'required',
             'name' => 'required',
-            'language_id' => 'required'
         ]);
+        
+        SubCategory::find($id)
+            ->update(request()->all());
 
-        $category = Category::find($id);
-
-        $category->update(request()->all());
-
-        return redirect()->route('category.index');
+        return redirect()->route('sub-category.index');
     }
 
     /**
@@ -88,11 +85,9 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        Category::find($id)
+        SubCategory::find($id)
             ->delete();
 
-        session()->flash('success', 'Category Successfully Deleted');
-
-        return redirect()->route('category.index');
+        return redirect()->route('sub-category.index');
     }
 }

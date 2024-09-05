@@ -20,7 +20,7 @@ return [
                 ],
                 [
                     'name' => 'Sub-Category',
-                    'route' => 'languages.index',
+                    'route' => 'sub-category.index',
                     'icon' => 'fas fa-tachometer-alt',
                 ],
             ]
@@ -57,7 +57,7 @@ return [
         ],
         [
             'name' => 'User List',
-            'route' => 'languages.index',
+            'route' => 'users.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'carvariants.create',
