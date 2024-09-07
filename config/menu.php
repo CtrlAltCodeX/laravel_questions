@@ -23,6 +23,16 @@ return [
                     'route' => 'sub-category.index',
                     'icon' => 'fas fa-tachometer-alt',
                 ],
+                [
+                    'name' => 'Subject',
+                    'route' => 'subject.index',
+                    'icon' => 'fas fa-tachometer-alt',
+                ],
+                [
+                    'name' => 'Topic',
+                    'route' => 'topic.index',
+                    'icon' => 'fas fa-tachometer-alt',
+                ],
             ]
         ],
         [
@@ -47,7 +57,7 @@ return [
         ],
         [
             'name' => 'Question Bank',
-            'route' => 'languages.index',
+            'route' => 'question.index',
             'icon' => 'fa fa-circle text-warning',
             'related' => [
                 'caryears.create',
