@@ -4,6 +4,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LanguagesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TopicController;
+use App\Http\Controllers\QuestionBankController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +38,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('category', CategoryController::class);
 
     Route::resource('sub-category', SubCategoryController::class);
+
+    Route::resource('subject', SubjectController::class);
+
+    Route::resource('topic', TopicController::class);
+
+    Route::resource('question', QuestionBankController::class);
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
