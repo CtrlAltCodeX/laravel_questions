@@ -13,9 +13,8 @@
 <form action="{{ route('question.update',  $questionBank->id) }}" method="POST">
     @csrf
     @method('PUT')
-    <div class="flex justify-between">
-        <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
-
+    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
+    <div class="grid gap-5 grid-cols-5">
         @foreach ($dropdown_list as $moduleName => $module)
             @php 
                 $id = strtolower(Str::slug($moduleName, '_')); 

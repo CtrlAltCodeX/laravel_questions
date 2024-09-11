@@ -46,10 +46,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('question', QuestionBankController::class);
 
     Route::get('/get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
+
     Route::get('/get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
+
     Route::get('/get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
+
     Route::get('/get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
-    Route::get('/get-questions', [QuestionBankController::class, 'getQuestions']);
+
+    Route::get('questions', [QuestionBankController::class, 'getQuestions'])
+        ->name("questions");
+
     Route::post('/question/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
 
     Route::get('users', [ProfileController::class, 'users'])

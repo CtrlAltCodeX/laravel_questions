@@ -8,96 +8,63 @@
     'Select Topic' => [],
 ]
 @endphp
+
 @section('content')
-
-{{-- @php dd($questionBank) @endphp  --}}
-
-<div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
-    <a href="{{ route('question.create') }}" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
-
-{{-- 
-    @foreach ($dropdown_list as $moduleName => $module)
-        @php $id = strtolower(Str::slug($moduleName, '_')); @endphp
-        <div class="mb-5">
-            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{$moduleName}}</label>
-                <select id="{{ $id }}" name="module[{{trim(explode('Select', $moduleName)[1])}}][]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="">{{$moduleName}}</option>
-                @foreach($module as $item)
-                    <option value="{{$item->id}}">{{$item->name}}</option>
-                @endforeach
-            </select>
+<div class="w-10/12">
+    <div class="flex justify-between">
+        <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
+        <a href="{{ route('question.create') }}" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
+    </div>
+    
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">#</th>
+                        <th scope="col" class="px-6 py-3">Language</th>
+                        <th scope="col" class="px-6 py-3">Category</th>
+                        <th scope="col" class="px-6 py-3">Sub Category</th>
+                        <th scope="col" class="px-6 py-3">Subject</th>
+                        <th scope="col" class="px-6 py-3">Topic</th>
+                        <th scope="col" class="px-6 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($questionBank as $qb)
+                    <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->id}}
+                        </th>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->language->name ?? ''}}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->category->name ?? ''}}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->subCategory->name ?? ''}}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->subject->name ?? ''}}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{$qb->topic->name ?? ''}}
+                        </td>
+                        <td class="px-6 py-4 flex gap-4">
+                            <a href="{{ route('question.edit', $qb->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <form action="{{ route('question.destroy', $qb->id) }}" method='POST'>
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    @endforeach --}}
-</div>
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
-
-
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    #
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Language
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Category
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Sub Category
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Subject
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Topic
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Action
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($questionBank as $qb)
-            <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->id}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->language->name ?? ''}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->category->name ?? ''}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->subCategory->name ?? ''}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->subject->name ?? ''}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$qb->topic->name ?? ''}}
-                </th>
-
-                <td class="px-6 py-4 flex gap-4">
-                    <a href="{{ route('question.edit', $qb->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-
-                    <form action="{{ route('question.destroy', $qb->id) }}" method='POST'>
-                        @csrf
-                        @method('DELETE')
-                        <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>    
-{{-- 
-    <div class="flex justify-end gap-x-5 mt-5">
-        <button type="button" id="edit-button" onclick="window.location.href='{{route('question.edit', '1')}}'" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button>
-    </div> --}}
+    </div>
 </div>
 @endsection
 
@@ -261,8 +228,6 @@ $(document).ready(function() {
             alert('Please select a question to edit');
         }
     });
-
-
 });
 </script>
 @endsection

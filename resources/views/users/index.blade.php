@@ -36,7 +36,7 @@
                 </th>
 
                 <td class="px-6 py-4 flex gap-4">
-                    <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                    <!-- <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a> -->
                     <form action="#" method='POST'>
                         @csrf
                         @method('DELETE')
