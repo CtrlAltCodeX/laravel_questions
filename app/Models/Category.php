@@ -11,6 +11,14 @@ class Category extends Model
 
     protected $guarded = [];
 
+    protected $table = 'categories';
+
+    protected $fillable = [
+        'name',
+        'language_id',
+        'photo'
+    ];
+
     public function language()
     {
         return $this->belongsTo(Language::class);

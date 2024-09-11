@@ -37,7 +37,18 @@ class TopicController extends Controller
             'subject_id' => 'required'
         ]);
 
-        Topic::create(request()->all());
+        $topic = Topic::create(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $topic->photo = $fileName;
+
+            $topic->save();
+        }
+
 
         session()->flash('success', 'Topic Successfully Created');
 
@@ -74,7 +85,20 @@ class TopicController extends Controller
             'subject_id' => 'required'
         ]);
 
-        Topic::find($id)->update(request()->all());
+        $topic =  Topic::find($id);
+        
+        $topic->update(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $topic->photo = $fileName;
+
+            $topic->save();
+        }
+
 
         session()->flash('success', 'Topic Successfully Updated');
 

@@ -37,7 +37,17 @@ class SubjectController extends Controller
             'sub_category_id' => 'required'
         ]);
 
-        Subject::create(request()->all());
+        $subject = Subject::create(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $subject->photo = $fileName;
+
+            $subject->save();
+        }
 
         session()->flash('success', 'Subject Successfully Created');
 
@@ -77,6 +87,17 @@ class SubjectController extends Controller
         
         $subject = Subject::find($id);
         $subject->update(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $subject->photo = $fileName;
+
+            $subject->save();
+        }
+
 
         session()->flash('success', 'Subject Successfully Updated');
 

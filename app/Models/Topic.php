@@ -11,6 +11,14 @@ class Topic extends Model
 
     protected $guarded = [];
 
+    protected $table = 'topics';
+
+    protected $fillable = [
+        'name',
+        'subject_id',
+        'photo'
+    ];
+
     public function subject()
     {
         return $this->belongsTo(Subject::class);

@@ -18,7 +18,8 @@
 
         @foreach ($dropdown_list as $moduleName => $module)
             @php 
-                $id = strtolower(Str::slug($moduleName, '_'));
+                $id = strtolower(Str::slug($moduleName, '_')); 
+                $moduleKey = trim(explode('Select', $moduleName)[1]);
                 $selectedId = null;
                 switch ($moduleName) {
                     case 'Select Language':
@@ -40,35 +41,51 @@
             @endphp
             <div class="mb-5">
                 <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{$moduleName}}</label>
-                    <select id="{{ $id }}" name="module[{{trim(explode('Select', $moduleName)[1])}}][]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <select id="{{ $id }}" name="module[{{ $moduleKey }}][]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">{{$moduleName}}</option>
                     @foreach($module as $item)
                         <option value="{{$item->id}}" {{$item->id == $selectedId ? 'selected' : ''}}>{{$item->name}}</option>
                     @endforeach
                 </select>
+                @error('module.' . $moduleKey)
+                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                @enderror
             </div>
         @endforeach
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
 
-        <div class="grid grid-cols-8 text-center gap-x-10">
+        <div class="grid grid-cols-12 text-center gap-x-10">
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Id</label>
+            <label class="block text-sm font-medium text-gray-900 dark:text-white">Photo</label>
+            <label class="block text-sm font-medium text-gray-900 dark:text-white">PhotoLink</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Question</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Option A</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Option B</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Option C</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Option D</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Answer</label>
+            <label class="block text-sm font-medium text-gray-900 dark:text-white">Notes</label>
+            <label class="block text-sm font-medium text-gray-900 dark:text-white">Level</label>
         </div>
 
         <div id="input-rows">
             @foreach ($questions as $question)
-                <div class="grid grid-cols-8 text-center gap-x-10 input-row my-5">
+                <div class="grid grid-cols-12 text-center gap-x-10 input-row my-5">
                         
                     <input type="hidden" name="id[]" value="{{ $question->id }}" />
                     
                     <input type="text" disabled class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $question->id }}" />
-                    
+                                        
+                    <div class="relative">
+                        <input type="file" accept="image/*" class="file-input" id="fileInput{{ $question->id }}" name="photo[]" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer;" />
+                        <button type="button" id="fileButton{{ $question->id }}" class="bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            {{ $question->photo ? (strlen($question->photo) > 5 ? substr($question->photo, 0, 5).'...' : $question->photo) : '' }}
+                        </button>
+                    </div>
+
+                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="photo_link[]" value="{{ $question->photo_link }}" />
+
                     <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="question[]" value="{{ $question->question }}" />
                     
                     <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_a[]" value="{{ $question->option_a }}" />
@@ -80,14 +97,15 @@
                     <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_d[]" value="{{ $question->option_d }}" />
                     
                     <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="answer[]" value="{{ $question->answer }}" />
+
+                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="notes[]" value="{{ $question->notes }}" />
                     
-                    <button id="remove-question-{{$question->id}}" type="button" class="text-white remove-question bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Remove</button>
+                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="level[]" value="{{ $question->level }}" />
+                    
+                    <button id="remove-question-{{$question->id}}" type="button" class="text-white remove-question bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Remove</button>
                     
                 </div>
             @endforeach
-                
-            
-            
         </div>
         <div class="flex justify-end gap-x-5">
             <button type="button" id="add-row" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Add</button>
@@ -165,6 +183,27 @@ $(document).ready(function() {
         $('#select_topic').html('<option value="">Select Topic</option>');
         filteredTopics.forEach(function(topic) {
             $('#select_topic').append('<option value="' + topic.id + '">' + topic.name + '</option>');
+        });
+    });
+
+    $('.file-input').each(function() {
+        var fileInput = $(this);
+        var questionId = fileInput.attr('id').replace('fileInput', '');
+        var fileButton = $('#fileButton' + questionId);
+
+        fileInput.on('change', function(event) {
+            var file = event.target.files[0];
+            if (file) {
+                // Get the file name and truncate it to 5 characters
+                var fileName = file.name.substring(0, 5) + (file.name.length > 5 ? '...' : '');
+                // Update the button text with the file name
+                fileButton.text(fileName);
+            }
+        });
+
+        // Trigger file input click when button is clicked
+        fileButton.on('click', function() {
+            fileInput.click();
         });
     });
 
