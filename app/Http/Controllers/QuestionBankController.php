@@ -27,12 +27,14 @@ class QuestionBankController extends Controller
             'topic'
         )->get();
 
+        $questions = Question::with('question_bank')->get();
+
         $languages = Language::all();
         $categories = Category::all();
         $subCategories = SubCategory::all();
         $subjects = Subject::all();
         $topics = Topic::all();
-        return view('question-bank.index', compact('questionBank', 'languages', 'categories', 'subCategories', 'subjects', 'topics'));
+        return view('question-bank.index', compact('questionBank', 'questions', 'languages', 'categories', 'subCategories', 'subjects', 'topics'));
     }
 
     /**
@@ -136,7 +138,7 @@ class QuestionBankController extends Controller
     public function edit(string $id)
     {
         
-        $questionBank = QuestionBank::where('id', $id)->get()->first();
+        $question = Question::where('id', $id)->with('question_bank') ->first();
 
         $questions = Question::where('question_bank_id', $id)->get();
         
@@ -150,7 +152,7 @@ class QuestionBankController extends Controller
         
         $topics = Topic::all();
         
-        return view('question-bank.edit', compact('questions', 'questionBank', 'languages', 'categories', 'subCategories', 'subjects', 'topics'));
+        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics'));
     }
 
     /**
@@ -185,7 +187,8 @@ class QuestionBankController extends Controller
         $data = $request->all();
 
         
-        $questionBank = QuestionBank::findOrFail($id);
+        $question = Question::findOrFail($id);
+        $questionBank = QuestionBank::findOrFail($question->question_bank_id);
         
         $questionBank->update([
             'language_id' => $request['module']['Language'][0],
@@ -202,7 +205,7 @@ class QuestionBankController extends Controller
                 ['id' => $data['id'][$index]],
                 [
                     'question' => $question,
-                    'photo' => $data['photo'][$index],
+                    'photo' => $data['photo'][$index] ?? null,
                     'photo_link' => $data['photo_link'][$index],
                     'notes' => $data['notes'][$index],
                     'level' => $data['level'][$index],
@@ -211,7 +214,7 @@ class QuestionBankController extends Controller
                     'option_c' => $data['option_c'][$index],
                     'option_d' => $data['option_d'][$index],
                     'answer' => $data['answer'][$index],
-                    'question_bank_id' => $id
+                    'question_bank_id' => $questionBank->id
                 ]
             );
         
