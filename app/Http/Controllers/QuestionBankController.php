@@ -62,9 +62,32 @@ class QuestionBankController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
+        $rules = [];
+
+        foreach ($request->input('module') as $moduleKey => $moduleValues) {
+            $rules['module.' . $moduleKey] = 'required|array|min:1';
+        }
+
+        $request->validate($rules);
+
+        $request->validate([
+            'question' => 'required',
+            'option_a' => 'required',
+            'option_b' => 'required',
+            'option_c' => 'required',
+            'option_d' => 'required',
+            'answer' => 'required',
+        ], [
+            'question.required' => 'The question field is required.',
+            'option_a.required' => 'The option a field is required.',
+            'option_b.required' => 'The option b field is required.',
+            'option_c.required' => 'The option c field is required.',
+            'option_d.required' => 'The option d field is required.',
+            'answer.required' => 'The answer field is required.',
+        ]);
 
         $data = $request->all();
-        // dd($data);
 
         $questionBank = QuestionBank::updateOrCreate([
             'language_id' => $data['module']['Language'][0],
@@ -76,8 +99,14 @@ class QuestionBankController extends Controller
         
         foreach ($data['question'] as $index => $question) {
             
-            Question::updateOrCreate([
+            Question::updateOrCreate(
+                ['id' => $data['id'][$index]],
+                [
                 'question' => $question,
+                'photo' => $data['photo'][$index],
+                'photo_link' => $data['photo_link'][$index],
+                'notes' => $data['notes'][$index],
+                'level' => $data['level'][$index],
                 'option_a' => $data['option_a'][$index],
                 'option_b' => $data['option_b'][$index],
                 'option_c' => $data['option_c'][$index],
@@ -128,7 +157,15 @@ class QuestionBankController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {   
+    {
+        $rules = [];
+
+        foreach ($request->input('module') as $moduleKey => $moduleValues) {
+            $rules['module.' . $moduleKey] = 'required|array|min:1';
+        }
+
+        $request->validate($rules);
+
         $request->validate([
             'question' => 'required',
             'option_a' => 'required',
@@ -136,11 +173,18 @@ class QuestionBankController extends Controller
             'option_c' => 'required',
             'option_d' => 'required',
             'answer' => 'required',
+        ], [
+            'question.required' => 'The question field is required.',
+            'option_a.required' => 'The option a field is required.',
+            'option_b.required' => 'The option b field is required.',
+            'option_c.required' => 'The option c field is required.',
+            'option_d.required' => 'The option d field is required.',
+            'answer.required' => 'The answer field is required.',
         ]);
 
         $data = $request->all();
 
-
+        
         $questionBank = QuestionBank::findOrFail($id);
         
         $questionBank->update([
@@ -153,28 +197,29 @@ class QuestionBankController extends Controller
 
         foreach ($data['question'] as $index => $question) {
             # code...
-
-            if(Question::where('id', $data['id'][$index])->exists()){
-
-                Question::where('id', $data['id'][$index])->update([
+            
+            $questionObj = Question::updateOrCreate(
+                ['id' => $data['id'][$index]],
+                [
                     'question' => $question,
+                    'photo' => $data['photo'][$index],
+                    'photo_link' => $data['photo_link'][$index],
+                    'notes' => $data['notes'][$index],
+                    'level' => $data['level'][$index],
                     'option_a' => $data['option_a'][$index],
                     'option_b' => $data['option_b'][$index],
                     'option_c' => $data['option_c'][$index],
                     'option_d' => $data['option_d'][$index],
                     'answer' => $data['answer'][$index],
                     'question_bank_id' => $id
-                ]);
-            }else{
-                Question::create([
-                    'question' => $question,
-                    'option_a' => $data['option_a'][$index],
-                    'option_b' => $data['option_b'][$index],
-                    'option_c' => $data['option_c'][$index],
-                    'option_d' => $data['option_d'][$index],
-                    'answer' => $data['answer'][$index],
-                    'question_bank_id' => $id
-                ]);
+                ]
+            );
+        
+            if ($request->hasFile('photo.' . $index)) {
+                $fileName = "site/" . time() . "_photo.jpg";
+                $request->file('photo.' . $index)->storePubliclyAs('public', $fileName);
+                $questionObj->photo = $fileName;
+                $questionObj->save();
             }
 
         }

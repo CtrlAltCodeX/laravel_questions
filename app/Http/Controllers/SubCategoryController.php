@@ -39,7 +39,17 @@ class SubCategoryController extends Controller
             'name' => 'required',
         ]);
 
-        SubCategory::create(request()->all());
+        $subcategory = SubCategory::create(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $subcategory->photo = $fileName;
+
+            $subcategory->save();
+        }
 
         return redirect()->route('sub-category.index');
     }
@@ -74,8 +84,19 @@ class SubCategoryController extends Controller
             'name' => 'required',
         ]);
         
-        SubCategory::find($id)
-            ->update(request()->all());
+        $subcategory = SubCategory::find($id);
+            
+        $subcategory->update(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $subcategory->photo = $fileName;
+
+            $subcategory->save();
+        }
 
         return redirect()->route('sub-category.index');
     }
