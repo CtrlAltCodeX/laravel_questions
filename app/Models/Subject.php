@@ -11,6 +11,14 @@ class Subject extends Model
 
     protected $guarded = [];
 
+    protected $table = 'subjects';
+
+    protected $fillable = [
+        'sub_category_id',
+        'name',
+        'photo'
+    ];
+
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class);

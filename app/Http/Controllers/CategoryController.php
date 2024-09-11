@@ -39,7 +39,17 @@ class CategoryController extends Controller
             'language_id' => 'required'
         ]);
 
-        Category::create(request()->all());
+        $category = Category::create(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $category->photo = $fileName;
+
+            $category->save();
+        }
 
         session()->flash('success', 'Category Successfully Created');
 
@@ -77,8 +87,19 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::find($id);
-
+        
         $category->update(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+        
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+        
+            $category->photo = $fileName;
+        
+            $category->save();
+        }
+        
 
         return redirect()->route('category.index');
     }

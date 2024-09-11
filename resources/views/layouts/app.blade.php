@@ -40,6 +40,9 @@
             @yield('content')
         </div>
     </div>
+
+    @yield('styles')
+    @yield('scripts')
 </body>
 
 </html>

@@ -11,6 +11,26 @@ class QuestionBank extends Model
 
     protected $guarded = [];
 
+    protected $table = 'question_banks';
+
+    protected $fillable = [
+        'category_id',
+        'sub_category_id',
+        'subject_id',
+        'topic_id',
+        'language_id',
+        'question',
+        'option_a',
+        'option_b',
+        'option_c',
+        'option_d',
+        'answer',
+        'photo',
+        'photo_link',
+        'notes',
+        'level'
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
