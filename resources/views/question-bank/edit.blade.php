@@ -10,7 +10,7 @@
 @endphp
 @section('content')
 
-<form action="{{ route('question.update',  $questionBank->id) }}" method="POST">
+<form action="{{ route('question.update',  $question->id) }}" method="POST"  enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
@@ -22,19 +22,19 @@
                 $selectedId = null;
                 switch ($moduleName) {
                     case 'Select Language':
-                        $selectedId = $questionBank->language_id;
+                        $selectedId = $question->question_bank->language_id;
                         break;
                     case 'Select Category':
-                        $selectedId = $questionBank->category_id;
+                        $selectedId = $question->question_bank->category_id;
                         break;
                     case 'Select Sub Category':
-                        $selectedId = $questionBank->sub_category_id;
+                        $selectedId = $question->question_bank->sub_category_id;
                         break;
                     case 'Select Subject':
-                        $selectedId = $questionBank->subject_id;
+                        $selectedId = $question->question_bank->subject_id;
                         break;
                     case 'Select Topic':
-                        $selectedId = $questionBank->topic_id;
+                        $selectedId = $question->question_bank->topic_id;
                         break;
                 }
             @endphp
@@ -54,7 +54,7 @@
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
 
-        <div class="grid grid-cols-12 text-center gap-x-10">
+        <div class="grid grid-cols-11 text-center gap-x-10">
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Id</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">Photo</label>
             <label class="block text-sm font-medium text-gray-900 dark:text-white">PhotoLink</label>
@@ -69,45 +69,43 @@
         </div>
 
         <div id="input-rows">
-            @foreach ($questions as $question)
-                <div class="grid grid-cols-12 text-center gap-x-10 input-row my-5">
-                        
-                    <input type="hidden" name="id[]" value="{{ $question->id }}" />
+            <div class="grid grid-cols-11 text-center gap-x-10 input-row my-5">
                     
-                    <input type="text" disabled class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $question->id }}" />
-                                        
-                    <div class="relative">
-                        <input type="file" accept="image/*" class="file-input" id="fileInput{{ $question->id }}" name="photo[]" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer;" />
-                        <button type="button" id="fileButton{{ $question->id }}" class="bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            {{ $question->photo ? (strlen($question->photo) > 5 ? substr($question->photo, 0, 5).'...' : $question->photo) : '' }}
-                        </button>
-                    </div>
-
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="photo_link[]" value="{{ $question->photo_link }}" />
-
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="question[]" value="{{ $question->question }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_a[]" value="{{ $question->option_a }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_b[]" value="{{ $question->option_b }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_c[]" value="{{ $question->option_c }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_d[]" value="{{ $question->option_d }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="answer[]" value="{{ $question->answer }}" />
-
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="notes[]" value="{{ $question->notes }}" />
-                    
-                    <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="level[]" value="{{ $question->level }}" />
-                    
-                    <button id="remove-question-{{$question->id}}" type="button" class="text-white remove-question bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Remove</button>
-                    
+                <input type="hidden" name="id[]" value="{{ $question->id }}" />
+                
+                <input type="text" disabled class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $question->id }}" />
+                                    
+                <div class="relative">
+                    <input type="file" accept="image/*" class="file-input" id="fileInput{{ $question->id }}" name="photo[]" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer;" />
+                    <button type="button" id="fileButton{{ $question->id }}" class="bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        {{ $question->photo ? (strlen($question->photo) > 5 ? substr($question->photo, 0, 5).'...' : $question->photo) : '' }}
+                    </button>
                 </div>
-            @endforeach
+
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="photo_link[]" value="{{ $question->photo_link }}" />
+
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="question[]" value="{{ $question->question }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_a[]" value="{{ $question->option_a }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_b[]" value="{{ $question->option_b }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_c[]" value="{{ $question->option_c }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="option_d[]" value="{{ $question->option_d }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="answer[]" value="{{ $question->answer }}" />
+
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="notes[]" value="{{ $question->notes }}" />
+                
+                <input type="text" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="level[]" value="{{ $question->level }}" />
+                
+                
+            </div>
         </div>
         <div class="flex justify-end gap-x-5">
-            <button type="button" id="add-row" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Add</button>
+            {{-- <button id="remove-question-{{$question->id}}" type="button" class="text-white remove-question bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Remove</button> --}}
+            {{-- <button type="button" id="add-row" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Add</button> --}}
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
         </div>
     </div>
@@ -118,7 +116,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    var question_bank = @json($questionBank);
     var languages = @json($languages);
     var categories = @json($categories);
     var sub_categories = @json($subCategories);
