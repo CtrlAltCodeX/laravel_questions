@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\QuestionsImport;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use App\Models\QuestionBank;
+use App\Exports\QuestionsExport;
 
 use App\Models\Language;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionBankController extends Controller
 {
@@ -299,6 +302,62 @@ class QuestionBankController extends Controller
 
     
         return response()->json($questions);
+    }
+
+    public function export(Request $request)
+    {
+        $query = QuestionBank::query();
+    
+        if ($request->has('language_id')) {
+            $query->where('language_id', $request->language_id);
+        }
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        if ($request->has('sub_category_id')) {
+            $query->where('sub_category_id', $request->sub_category_id);
+        }
+        if ($request->has('subject_id')) {
+            $query->where('subject_id', $request->subject_id);
+        }
+        if ($request->has('topic_id')) {
+            $query->where('topic_id', $request->topic_id);
+        }
+    
+        $question_banks = $query->with(['language', 'topic', 'subject', 'subCategory', 'category'])->get();
+    
+        $questions = [];
+    
+        foreach ($question_banks as $question_bank) {
+            $bankQuestions = Question::where('question_bank_id', $question_bank->id)
+                ->get()
+                ->makeHidden(['id', 'created_at', 'updated_at', 'question_bank_id'])
+                ->toArray();
+    
+            foreach ($bankQuestions as $question) {
+                $questions[] = array_merge($question, [
+                    'language' => $question_bank->language->name ?? '',
+                    'category' => $question_bank->category->name ?? '',
+                    'subCategory' => $question_bank->subCategory->name ?? '',
+                    'subject' => $question_bank->subject->name ?? '',
+                    'topic' => $question_bank->topic->name ?? '',
+                ]);
+            }
+        }
+    
+        return Excel::download(new QuestionsExport($questions), 'questions.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv',
+        ]);
+
+        $questions = Excel::import(new QuestionsImport, $request->file('file'));
+
+        dd($questions);
+        return back()->with('success', 'Questions imported successfully.');
     }
 
     public function getCategories($languageId) {
