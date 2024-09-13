@@ -206,7 +206,7 @@ class QuestionBankController extends Controller
                 [
                     'question' => $question,
                     'photo' => $data['photo'][$index] ?? null,
-                    'photo_link' => $data['photo_link'][$index],
+                    'photo_link' => $data['photo_link'][$index] ?? null,
                     'notes' => $data['notes'][$index],
                     'level' => $data['level'][$index],
                     'option_a' => $data['option_a'][$index],
