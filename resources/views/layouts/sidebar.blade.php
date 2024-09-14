@@ -1,6 +1,6 @@
 <aside id="logo-sidebar" class="min-h-screen w-1/5 bg-gray-100 dark:bg-gray-900 w-64 h-screen pt-5 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-        <a href="https://flowbite.com" class="flex shadow p-2 w-full">
+        <a href="https://flowbite.com" class="flex ms-2 md:me-24 shadow p-2 w">
             <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
             <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Flowbite</span>
         </a>

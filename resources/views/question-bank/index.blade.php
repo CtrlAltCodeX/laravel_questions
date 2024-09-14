@@ -31,27 +31,66 @@
 <div class="flex justify-between">
     <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question</h1>
     <div class="flex flex-col items-self-end">
-        <div class="flex justify-end">
-            <div></div>
-            <div></div>
-            <a href="{{ route('question.create') }}" type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
+        <div class="flex justify-end items-center gap-2">
+            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_category'>
+                <option value="">--Select Category--</option>
+                @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+
+            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_sub_category'>
+                <option value="">--Select Sub Category--</option>
+            </select>
+
+            <form action="{{ route('questions.export') }}" method="GET" class="m-0">
+                @csrf
+                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+            </form>
+
+            <form action="{{ route('questions.import') }}" method="POST" class="m-0" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group hidden">
+                    <label for="file">Choose Excel File</label>
+                    <input type="file" name="file" class="form-control" required>
+                </div>
+                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+            </form>
+
+            <a href="{{ route('question.create') }}" type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
         </div>
 
         <div class="flex flex-col items-end gap-y-5">
-            <div class="flex items-end gap-2">
-                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                    <option>--Select Category--</option>
-                </select>
-
-                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                    <option>--Select Sub Category--</option>
-                </select>
-
+            <div class="flex items-end gap-2 mt-2">
                 <div class="relative inline-block w-full text-gray-700 mt-4">
-                    <div id="columnSelectToggle" class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                        Select Columns
-                    </div>
-                    <div id="columnSelectDropdown" class="absolute z-10 hidden w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <form action="{{ route('question.index') }}" method="GET" id='page'>
+                        <div class="flex gap-2">
+                            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" name="per_page" id='per_page'>
+                                <option value="">Per Page</option>
+                                <option {{ request()->per_page == 50 ? 'selected' : '' }} value=50>50</option>
+                                <option {{ request()->per_page == 100 ? 'selected' : '' }} value=100>100</option>
+                                <option {{ request()->per_page == 200 ? 'selected' : '' }} value=200>200</option>
+                                <option {{ request()->per_page == 500 ? 'selected' : '' }} value=500>500</option>
+                            </select>
+
+                            <div class="flex gap-2">
+                                <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." required name="search" value="{{ request()->search }}" />
+
+                                <button class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"  id='search'>Search</button>
+                            </div>
+
+                            <div>
+                                <div id="columnSelectToggle" class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
+                                    <svg viewBox="0 0 100 80" width="20" height="20">
+                                        <rect width="100" height="20"></rect>
+                                        <rect y="30" width="100" height="20"></rect>
+                                        <rect y="60" width="100" height="20"></rect>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="columnSelectDropdown" class="absolute z-10 hidden w-[150px] right-[0px] mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                         <div class="p-2">
                             <label class="block">
                                 <input type="checkbox" value="id" class="mr-2">
@@ -97,21 +136,6 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-end gap-2">
-                <form action="{{ route('questions.export') }}" method="GET">
-                    @csrf
-                    <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
-                </form>
-
-                <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group hidden">
-                        <label for="file">Choose Excel File</label>
-                        <input type="file" name="file" class="form-control" required>
-                    </div>
-                    <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-                </form>
-            </div>
         </div>
     </div>
 </div>
@@ -156,6 +180,7 @@
             @endforeach
         </tbody>
     </table>
+    {{ $questions->links() }}
 </div>
 @endsection
 
@@ -223,6 +248,34 @@
             if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
                 $('#columnSelectDropdown').hide();
             }
+        });
+
+        $('#select_category').change(function() {
+            $('#select_sub_category').empty();
+            $('#select_sub_category').append('<option>--Select Sub Category--</option>');
+            var categoryId = $(this).val();
+
+            if (categoryId) {
+                $.ajax({
+                    url: '/get-subcategories/' + categoryId,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+
+                        $.each(data, function(key, value) {
+                            $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+
+        $("#per_page").change(function() {
+            $("#page").submit();
+        });
+
+        $("#search").click(function() {
+            $("#page").submit();
         });
     });
 </script>
