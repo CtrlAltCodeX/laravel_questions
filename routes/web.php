@@ -58,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::get('questions', [QuestionBankController::class, 'getQuestions'])
         ->name("questions");
 
+    Route::get('questions/export', [QuestionBankController::class, 'export'])->name('questions.export');
+    Route::post('questions/import', [QuestionBankController::class, 'import'])->name('questions.import');
+
     Route::post('/question/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
 
     Route::get('users', [ProfileController::class, 'users'])

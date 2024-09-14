@@ -94,12 +94,12 @@ $dropdown_list = [
                                         </button>
                                     </div>    
                                     <div class="grid grid-cols-12 gap-4 items-center text-center mt-5">
-                                        <input type="hidden" name="id[]" value="" />
+                                        <input type="hidden" name="id[]" value="${question.id}" />
 
                                         <!-- Image Upload -->
                                         <div class="relative col-span-2 text-left">
                                             <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    name="option_a[]" 
+                                                    name="qno[]"
                                                     placeholder="Question No." />
                                             <input type="file" accept="image/*" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" name="photo[]" />
                                             <button type="button" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -112,22 +112,22 @@ $dropdown_list = [
                                             <textarea class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                                     name="question[]" 
                                                     placeholder="Enter your question here" 
-                                                    rows="3"></textarea>
+                                                    rows="3">${question.question}</textarea>
                                         </div>
 
                                         <!-- Options A-D -->
                                         <div class="col-span-4 grid grid-cols-2 gap-2">
                                             <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="option_a[]" 
+                                                name="option_a[]" value="${question.option_a}"
                                                 placeholder="Option A" />
                                             <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="option_b[]" 
+                                                name="option_b[]" value="${question.option_b}"
                                                 placeholder="Option B" />
                                             <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="option_c[]" 
+                                                name="option_c[]" value="${question.option_c}"
                                                 placeholder="Option C" />
                                             <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="option_d[]" 
+                                                name="option_d[]" value="${question.option_d}"
                                                 placeholder="Option D" />
                                         </div>
 
@@ -136,21 +136,20 @@ $dropdown_list = [
                                             <select class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                                     name="answer[]">
                                                 <option value="">Select Answer</option>
-                                                <option value="A">A</option>
-                                                <option value="B">B</option>
-                                                <option value="C">C</option>
-                                                <option value="D">D</option>
+                                                ${['A', 'B', 'C', 'D'].map(option => `
+                                                    <option value="${option}" ${option === question.answer ? 'selected' : ''}>${option}</option>
+                                                `).join('')}
                                             </select>
                                             <input type="number" class="mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                                 name="level[]" 
-                                                placeholder="Level" />
+                                                placeholder="Level" value="${question.level}"/>
                                         </div>
 
                                         <!-- Notes and Level -->
                                         <div class="col-span-5 grid gap-2">
                                             <textarea class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                                     name="notes[]" 
-                                                    placeholder="Notes" 
+                                                    placeholder="Notes" value="${question.notes}"
                                                     rows="3" cols="3"></textarea>
                                         </div>
                                     </div>

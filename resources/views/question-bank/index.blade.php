@@ -37,63 +37,80 @@
             <a href="{{ route('question.create') }}" type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
         </div>
 
-        <div class="flex items-end gap-2">
-            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                <option>--Select Category--</option>
-            </select>
+        <div class="flex flex-col items-end gap-y-5">
+            <div class="flex items-end gap-2">
+                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
+                    <option>--Select Category--</option>
+                </select>
 
-            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                <option>--Select Sub Category--</option>
-            </select>
+                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
+                    <option>--Select Sub Category--</option>
+                </select>
 
-            <div class="relative inline-block w-full text-gray-700 mt-4">
-                <div id="columnSelectToggle" class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
-                    Select Columns
-                </div>
-                <div id="columnSelectDropdown" class="absolute z-10 hidden w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                    <div class="p-2">
-                        <label class="block">
-                            <input type="checkbox" value="id" class="mr-2">
-                            #
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="language" class="mr-2">
-                            Language
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="image" class="mr-2">
-                            Image
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="question" class="mr-2">
-                            Question
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="optionA" class="mr-2">
-                            Option A
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="optionB" class="mr-2">
-                            Option B
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="optionC" class="mr-2">
-                            Option C
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="optionD" class="mr-2">
-                            Option D
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="level" class="mr-2">
-                            Level
-                        </label>
-                        <label class="block">
-                            <input type="checkbox" value="action" class="mr-2">
-                            Action
-                        </label>
+                <div class="relative inline-block w-full text-gray-700 mt-4">
+                    <div id="columnSelectToggle" class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
+                        Select Columns
+                    </div>
+                    <div id="columnSelectDropdown" class="absolute z-10 hidden w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                        <div class="p-2">
+                            <label class="block">
+                                <input type="checkbox" value="id" class="mr-2">
+                                #
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="language" class="mr-2">
+                                Language
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="image" class="mr-2">
+                                Image
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="question" class="mr-2">
+                                Question
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="optionA" class="mr-2">
+                                Option A
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="optionB" class="mr-2">
+                                Option B
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="optionC" class="mr-2">
+                                Option C
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="optionD" class="mr-2">
+                                Option D
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="level" class="mr-2">
+                                Level
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="action" class="mr-2">
+                                Action
+                            </label>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <form action="{{ route('questions.export') }}" method="GET">
+                    @csrf
+                    <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+                </form>
+
+                <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group hidden">
+                        <label for="file">Choose Excel File</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                    <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+                </form>
             </div>
         </div>
     </div>
