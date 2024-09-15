@@ -150,6 +150,21 @@
                     </div>
                 </div>
             </div>
+            <div class="flex items-end gap-2">
+                {{-- <form action="{{ route('questions.export') }}" method="GET">
+                    @csrf
+                </form> --}}
+                <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+                <button class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+
+                {{-- <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group hidden">
+                        <label for="file">Choose Excel File</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                </form> --}}
+            </div>
         </div>
     </div>
 </div>
@@ -212,69 +227,117 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        const $toggle = $('#columnSelectToggle');
-        const $dropdown = $('#columnSelectDropdown');
+$(document).ready(function() {
+    $('#columnSelectToggle').click(function() {
+        $('#columnSelectDropdown').toggle();
+    });
 
-        // Toggle dropdown visibility on click
-        $toggle.on('click', function() {
-            $dropdown.toggleClass('hidden');
-        });
+    // Load saved settings from localStorage
+    const savedColumns = localStorage.getItem('selectedColumns');
+    const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
 
-        // Close dropdown if clicked outside
-        $(document).on('click', function(event) {
-            if (!$toggle.is(event.target) && !$toggle.has(event.target).length &&
-                !$dropdown.is(event.target) && !$dropdown.has(event.target).length) {
-                $dropdown.addClass('hidden');
-            }
-        });
+    // Set the initial state of checkboxes and columns
+    $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+        const value = $(this).val();
+        if ($.inArray(value, selectedColumns) !== -1) {
+            $(this).prop('checked', true);
+            $(`[data-column="${value}"]`).show();
+        } else {
+            $(this).prop('checked', false);
+            $(`[data-column="${value}"]`).hide();
+        }
+    });
 
-        // Toggle the dropdown visibility
-        $('#columnSelectToggle').click(function() {
-            $('#columnSelectDropdown').toggle();
-        });
+    // Handle checkbox changes
+    $('#columnSelectDropdown input[type="checkbox"]').change(function() {
+        const selectedOptions = [];
 
-        // Load saved settings from localStorage
-        const savedColumns = localStorage.getItem('selectedColumns');
-        const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
-
-        // Set the initial state of checkboxes and columns
+        // Show/hide columns based on checked checkboxes
         $('#columnSelectDropdown input[type="checkbox"]').each(function() {
             const value = $(this).val();
-            if ($.inArray(value, selectedColumns) !== -1) {
-                $(this).prop('checked', true);
+            if ($(this).is(':checked')) {
+                selectedOptions.push(value);
                 $(`[data-column="${value}"]`).show();
             } else {
-                $(this).prop('checked', false);
                 $(`[data-column="${value}"]`).hide();
             }
         });
 
-        // Handle checkbox changes
-        $('#columnSelectDropdown input[type="checkbox"]').change(function() {
-            const selectedOptions = [];
+        // Save the selected columns to localStorage
+        localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
+    });
 
-            // Show/hide columns based on checked checkboxes
-            $('#columnSelectDropdown input[type="checkbox"]').each(function() {
-                const value = $(this).val();
-                if ($(this).is(':checked')) {
-                    selectedOptions.push(value);
-                    $(`[data-column="${value}"]`).show();
+    // Close dropdown when clicking outside of it
+    $(document).click(function(event) {
+        if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
+            $('#columnSelectDropdown').hide();
+        }
+    });
+
+    // SweetAlert2 export button logic
+    $('#exportButton').click(function() {
+        Swal.fire({
+            title: 'Select Languages for Export',
+            html: `
+                <div id="languageSelectContainer">
+                    <div class="flex gap-x-5 items-center">
+                    @foreach($languages as $language)
+                        <input type="checkbox" {{ $language->name == "English" ? 'checked disabled' : ''}} id="language_{{ $language->id }}" value="{{ $language->id }}">
+                        <label for="language_{{ $language->id }}">{{ $language->name }}</label>
+                    @endforeach
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Export',
+            preConfirm: () => {
+                const selectedLanguages = [];
+                $('#languageSelectContainer input[type="checkbox"]:checked').each(function() {
+                    selectedLanguages.push($(this).val());
+                });
+                if (selectedLanguages.length > 1) {
+                    return Swal.fire({
+                        title: 'Multiple Languages Selected',
+                        text: 'The export will include questions and options in all selected languages. Do you want to proceed?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, export it!',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            return selectedLanguages;
+                        } else {
+                            return false;
+                        }
+                    });
                 } else {
-                    $(`[data-column="${value}"]`).hide();
+                    return selectedLanguages;
                 }
-            });
+            }
+        }).then((result) => {
+            if (result.value) {
+                var form = $('<form>', {
+                    'method': 'GET',
+                    'action': '{{ route("questions.export") }}'
+                });
 
-            // Save the selected columns to localStorage
-            localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
-        });
+                form.append($('<input>', {
+                    'type': 'hidden',
+                    'name': '_token',
+                    'value': '{{ csrf_token() }}'
+                }));
 
-        // Close dropdown when clicking outside of it
-        $(document).click(function(event) {
-            if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
-                $('#columnSelectDropdown').hide();
+                result.value.forEach(function(language) {
+                    form.append($('<input>', {
+                        'type': 'hidden',
+                        'name': 'languages[]',
+                        'value': language
+                    }));
+                });
+
+                form.appendTo('body').submit();
             }
         });
+    });
 
         $('#select_category').change(function() {
             $('#select_sub_category').empty();
@@ -307,6 +370,6 @@
         $("#select_sub_category").change(function() {
             $("#data").submit();
         });
-    });
+});
 </script>
 @endpush

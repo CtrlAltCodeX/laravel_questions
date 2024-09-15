@@ -227,32 +227,28 @@ class QuestionBankController extends Controller
             'topic_id' => $request['module']['Topic'][0],
         ]);
 
-        foreach ($data['question'] as $index => $question) {
-            # code...
-
-            $questionObj = Question::updateOrCreate(
-                ['id' => $data['id'][$index]],
-                [
-                    'question' => $question,
-                    'photo' => $data['photo'][$index] ?? null,
-                    'photo_link' => $data['photo_link'][$index] ?? null,
-                    'notes' => $data['notes'][$index],
-                    'level' => $data['level'][$index],
-                    'option_a' => $data['option_a'][$index],
-                    'option_b' => $data['option_b'][$index],
-                    'option_c' => $data['option_c'][$index],
-                    'option_d' => $data['option_d'][$index],
-                    'answer' => $data['answer'][$index],
-                    'question_bank_id' => $questionBank->id
-                ]
-            );
-
-            if ($request->hasFile('photo.' . $index)) {
-                $fileName = "site/" . time() . "_photo.jpg";
-                $request->file('photo.' . $index)->storePubliclyAs('public', $fileName);
-                $questionObj->photo = $fileName;
-                $questionObj->save();
-            }
+        $questionObj = Question::updateOrCreate(
+            ['id' => $data['id']],
+            [
+                'question' => $data['question'],
+                'photo' => $data['photo'] ?? null,
+                'photo_link' => $data['photo_link'] ?? null,
+                'notes' => $data['notes'],
+                'level' => $data['level'],
+                'option_a' => $data['option_a'],
+                'option_b' => $data['option_b'],
+                'option_c' => $data['option_c'],
+                'option_d' => $data['option_d'],
+                'answer' => $data['answer'],
+                'question_bank_id' => $questionBank->id
+            ]
+        );
+    
+        if ($request->hasFile('photo.' . $data['photo'])) {
+            $fileName = "site/" . time() . "_photo.jpg";
+            $request->file('photo.' . $data['photo'])->storePubliclyAs('public', $fileName);
+            $questionObj->photo = $fileName;
+            $questionObj->save();
         }
 
         session()->flash('success', 'Question updated successfully!');
@@ -278,16 +274,11 @@ class QuestionBankController extends Controller
 
     public function destroy(string $id)
     {
-        $questionBank = QuestionBank::findOrFail($id);
-        if (isset($questionBank)) {
-            $questions = Question::where('question_bank_id', $id)->get();
-            foreach ($questions as $question) {
-                $question->delete();
-            }
-            $questionBank->delete();
-        }
+        $question = Question::findOrFail($id);
 
-        session()->flash('success', 'Question Bank deleted successfully!');
+        if(isset($question)){
+            $question->delete();
+        }
 
         return redirect()->route('question.index');
     }
@@ -332,6 +323,7 @@ class QuestionBankController extends Controller
 
     public function export(Request $request)
     {
+        $languages = $request->input('languages', []);
         $query = QuestionBank::query();
         
         if ($request->has('language_id')) {
@@ -357,21 +349,50 @@ class QuestionBankController extends Controller
         foreach ($question_banks as $question_bank) {
             $bankQuestions = Question::where('question_bank_id', $question_bank->id)
                 ->get()
-                ->makeHidden(['id', 'created_at', 'updated_at', 'question_bank_id'])
+                ->makeHidden(['created_at', 'updated_at', 'question_bank_id'])
                 ->toArray();
 
             foreach ($bankQuestions as $question) {
-                $questions[] = array_merge($question, [
-                    'language' => $question_bank->language->name ?? '',
+                $questionData = [
+                    'question' => [],
+                    'option_a' => [],
+                    'option_b' => [],
+                    'option_c' => [],
+                    'option_d' => [],
+                    'answer' => $question['answer'],
+                    'level' => $question['level'],
                     'category' => $question_bank->category->name ?? '',
                     'subCategory' => $question_bank->subCategory->name ?? '',
                     'subject' => $question_bank->subject->name ?? '',
                     'topic' => $question_bank->topic->name ?? '',
-                ]);
+                    'language' => $question_bank->language->name ?? '',
+                ];
+    
+                foreach ($languages as $languageId) {
+                    $language = Language::find($languageId);
+                    $translatedQuestion = $language->questions()->where('questions.id', $question['id'])->where('question_banks.id', $question_bank->id)->get();
+                    $questionData['qno'] = $question['qno'] ?? '';
+                    $questionData['notes'] = $question['notes'] ?? '';
+                    if ($translatedQuestion->count() > 0) {
+                        $questionData['question'][$language->id] = $translatedQuestion[0]->question;
+                        $questionData['option_a'][$language->id] = $translatedQuestion[0]->option_a;
+                        $questionData['option_b'][$language->id] = $translatedQuestion[0]->option_b;
+                        $questionData['option_c'][$language->id] = $translatedQuestion[0]->option_c;
+                        $questionData['option_d'][$language->id] = $translatedQuestion[0]->option_d;
+                    } else {
+                        $questionData['question'][$language->id] = $question['question'];
+                        $questionData['option_a'][$language->id] = $question['option_a'];
+                        $questionData['option_b'][$language->id] = $question['option_b'];
+                        $questionData['option_c'][$language->id] = $question['option_c'];
+                        $questionData['option_d'][$language->id] = $question['option_d'];
+                    }
+                }
+    
+                $questions[] = $questionData;
             }
         }
-
-        return Excel::download(new QuestionsExport($questions), 'questions.xlsx');
+    
+        return Excel::download(new QuestionsExport($questions,  $languages), 'questions.xlsx');
     }
 
     public function import(Request $request)
