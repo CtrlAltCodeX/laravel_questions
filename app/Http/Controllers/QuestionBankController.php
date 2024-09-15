@@ -41,6 +41,13 @@ class QuestionBankController extends Controller
                 ->orWhere('notes', 'LIKE', "%$search%");
         }
 
+        if ($category = request()->category_id) {
+            $questions->whereHas('question_bank', function ($query) use ($category) {
+                $query->where('category_id', $category)
+                    ->where('sub_category_id', request()->sub_category_id);
+            });
+        }
+
         $questions = $questions
             ->paginate(request()->per_page);
 
@@ -48,7 +55,8 @@ class QuestionBankController extends Controller
 
         $categories = Category::all();
 
-        $subCategories = SubCategory::all();
+        $subCategories = SubCategory::where('category_id', request()->category_id)
+            ->get();
 
         $subjects = Subject::all();
 
@@ -160,7 +168,6 @@ class QuestionBankController extends Controller
      */
     public function edit(string $id)
     {
-
         $question = Question::where('id', $id)->with('question_bank')->first();
 
         $questions = Question::where('question_bank_id', $id)->get();
@@ -326,7 +333,7 @@ class QuestionBankController extends Controller
     public function export(Request $request)
     {
         $query = QuestionBank::query();
-
+        
         if ($request->has('language_id')) {
             $query->where('language_id', $request->language_id);
         }
