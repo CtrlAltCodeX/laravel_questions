@@ -29,7 +29,13 @@ class QuestionBankController extends Controller
             'topic'
         )->get();
 
-        $questions = Question::with('question_bank');
+        $questions =  Question::with('question_bank', 
+            'language',
+            'category',
+            'subCategory',
+            'subject',
+            'topic'
+        );
 
         if ($search = request()->search) {
             $questions->orWhere('question', $search)
@@ -321,8 +327,7 @@ class QuestionBankController extends Controller
         return response()->json($questions);
     }
 
-    public function export(Request $request)
-    {
+    public function export(Request $request){
         $languages = $request->input('languages', []);
         $query = QuestionBank::query();
         
@@ -349,7 +354,7 @@ class QuestionBankController extends Controller
         foreach ($question_banks as $question_bank) {
             $bankQuestions = Question::where('question_bank_id', $question_bank->id)
                 ->get()
-                ->makeHidden(['created_at', 'updated_at', 'question_bank_id'])
+                ->makeHidden(['created_at', 'updated_at'])
                 ->toArray();
 
             foreach ($bankQuestions as $question) {
@@ -366,13 +371,16 @@ class QuestionBankController extends Controller
                     'subject' => $question_bank->subject->name ?? '',
                     'topic' => $question_bank->topic->name ?? '',
                     'language' => $question_bank->language->name ?? '',
+                    'question_bank_id' => $question_bank->id,
+                    'qno' => $question['qno'] ?? '',
+                    'notes' => $question['notes'] ?? '',
+                    'photo' => $question['photo'] ?? '',
+                    'photo_link' => $question['photo_link'] ?? '',
                 ];
     
                 foreach ($languages as $languageId) {
                     $language = Language::find($languageId);
                     $translatedQuestion = $language->questions()->where('questions.id', $question['id'])->where('question_banks.id', $question_bank->id)->get();
-                    $questionData['qno'] = $question['qno'] ?? '';
-                    $questionData['notes'] = $question['notes'] ?? '';
                     if ($translatedQuestion->count() > 0) {
                         $questionData['question'][$language->id] = $translatedQuestion[0]->question;
                         $questionData['option_a'][$language->id] = $translatedQuestion[0]->option_a;
@@ -401,9 +409,8 @@ class QuestionBankController extends Controller
             'file' => 'required|mimes:xlsx,csv',
         ]);
 
-        $questions = Excel::import(new QuestionsImport, $request->file('file'));
+        Excel::import(new QuestionsImport, $request->file('file'));
 
-        dd($questions);
         return back()->with('success', 'Questions imported successfully.');
     }
 

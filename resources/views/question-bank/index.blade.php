@@ -155,13 +155,13 @@
                     @csrf
                 </form> --}}
                 <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
-                <button class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+                <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+                <input type="file" id="importInput" name="file" class="form-control hidden" required>
 
                 {{-- <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group hidden">
                         <label for="file">Choose Excel File</label>
-                        <input type="file" name="file" class="form-control" required>
                     </div>
                 </form> --}}
             </div>
@@ -189,7 +189,7 @@
             @forelse($questions as $question)
             <tr>
                 <td class="p-2" data-column="id">{{$question->id}}</td>
-                <td class="p-2" data-column="language">{{$question->question_bank->language->name ?? ''}}</td>
+                <td class="p-2" data-column="language">{{$question->question_bank->language->name ?? $question->language->name}}</td>
                 <td class="p-2" data-column="image">{{$question->photo ?? ''}}</td>
                 <td class="p-2" data-column="question">{{$question->question ?? ''}}</td>
                 <td class="p-2" data-column="optionA">{{$question->option_a ?? ''}}</td>
@@ -339,37 +339,62 @@ $(document).ready(function() {
         });
     });
 
-        $('#select_category').change(function() {
-            $('#select_sub_category').empty();
-            $('#select_sub_category').append('<option>--Select Sub Category--</option>');
-            var categoryId = $(this).val();
+    //import button logic
+    $('#importButton').click(function() {
+        //click in file select and save the file in hidden input
+        $('#importInput').click();
 
-            if (categoryId) {
-                $.ajax({
-                    url: '/get-subcategories/' + categoryId,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+        // when file is selected, create the form and submit 
+        $('#importInput').change(function() {
+            var form = $('<form>', {
+                'method': 'POST',
+                'action': '{{ route("questions.import") }}',
+                'enctype': 'multipart/form-data'
+            });
 
-                        $.each(data, function(key, value) {
-                            $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                        });
-                    }
-                });
-            }
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': '_token',
+                'value': '{{ csrf_token() }}'
+            }));
+
+            form.append($(this));
+
+            form.appendTo('body').submit();
         });
+    });
 
-        $("#per_page").change(function() {
-            $("#page").submit();
-        });
+    $('#select_category').change(function() {
+        $('#select_sub_category').empty();
+        $('#select_sub_category').append('<option>--Select Sub Category--</option>');
+        var categoryId = $(this).val();
 
-        $("#search").click(function() {
-            $("#page").submit();
-        });
+        if (categoryId) {
+            $.ajax({
+                url: '/get-subcategories/' + categoryId,
+                method: 'GET',
+                success: function(data) {
+                    $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
 
-        $("#select_sub_category").change(function() {
-            $("#data").submit();
-        });
+                    $.each(data, function(key, value) {
+                        $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        }
+    });
+
+    $("#per_page").change(function() {
+        $("#page").submit();
+    });
+
+    $("#search").click(function() {
+        $("#page").submit();
+    });
+
+    $("#select_sub_category").change(function() {
+        $("#data").submit();
+    });
 });
 </script>
 @endpush

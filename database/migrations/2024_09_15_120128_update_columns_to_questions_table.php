@@ -12,21 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->foreignId(
-                'language_id'
-            )->constrained()->onDelete('cascade');
-            $table-> foreignId(
-                'category_id'
-            )->constrained()->onDelete('cascade');
-            $table->foreignId(
-                'sub_category_id'
-            )->constrained()->onDelete('cascade');
-            $table->foreignId(
-                'subject_id'
-            )->constrained()->onDelete('cascade');
-            $table->foreignId(
-                'topic_id'
-            )->constrained()->onDelete('cascade');
+            $table->foreignId('language_id')->constrained('languages');
+            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('sub_category_id')->constrained('sub_categories');
+            $table->foreignId('subject_id')->constrained('subjects');
+            $table->foreignId('topic_id')->constrained('topics');
 
 
         });
