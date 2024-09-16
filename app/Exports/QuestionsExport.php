@@ -25,12 +25,12 @@ class QuestionsExport implements FromCollection, WithHeadings
         foreach ($this->questions as $question) {
             $formattedQuestion = [];
 
+            $formattedQuestion[] = $question['qno'];
             $formattedQuestion[] = $question['language'];
             $formattedQuestion[] = $question['category'];
             $formattedQuestion[] = $question['subCategory'];
             $formattedQuestion[] = $question['subject'];    
             $formattedQuestion[] = $question['topic'];
-            $formattedQuestion[] = $question['qno'];
 
             // Add questions for each language
             foreach ($this->languages as $languageId) {
@@ -48,6 +48,8 @@ class QuestionsExport implements FromCollection, WithHeadings
             $formattedQuestion[] = $question['answer'];
             $formattedQuestion[] = $question['notes'];
             $formattedQuestion[] = $question['level'];
+            $formattedQuestion[] = $question['photo'];
+            $formattedQuestion[] = $question['photo_link'];
 
             $formattedQuestions[] = $formattedQuestion;
         }
@@ -59,12 +61,12 @@ class QuestionsExport implements FromCollection, WithHeadings
     {
         $headings = [];
 
+        $headings[] = 'Q.No';
         $headings[] = 'Language';
         $headings[] = 'Category';
         $headings[] = 'Sub Category';
         $headings[] = 'Subject';
         $headings[] = 'Topic';
-        $headings[] = 'Q.No';
 
         // Add headings for questions in each language
         foreach ($this->languages as $languageId) {
@@ -84,6 +86,8 @@ class QuestionsExport implements FromCollection, WithHeadings
         $headings[] = 'Answer';
         $headings[] = 'Notes';
         $headings[] = 'Level';
+        $headings[] = 'Photo';
+        $headings[] = 'Photo Link';
 
         return $headings;
     }

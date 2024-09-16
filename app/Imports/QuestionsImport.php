@@ -19,19 +19,29 @@ class QuestionsImport implements ToModel, WithHeadingRow
         ]);
 
         $questions = new Question([
-            'question' => $row['question'],
-            'option_a' => $row['option_a'],
-            'option_b' => $row['option_b'],
-            'option_c' => $row['option_c'],
-            'option_d' => $row['option_d'],
+            'question_number' => $row['qno'],
+            'question' => $row['question_'.strtolower($questionBank->language->name)],
+            'option_a' => $row['option_a_'.strtolower($questionBank->language->name)],
+            'option_b' => $row['option_b_'.strtolower($questionBank->language->name)],
+            'option_c' => $row['option_c_'.strtolower($questionBank->language->name)],
+            'option_d' => $row['option_d_'.strtolower($questionBank->language->name)],
             'answer' => $row['answer'],
             'photo' => $row['photo'],
-            'photo_link' => $row['photolink'],
+            'photo_link' => $row['photo_link'],
             'notes' => $row['notes'],
             'level' => $row['level'],
+            'question_bank_id' => $questionBank->id,
+            'language_id' => $questionBank->language_id,
+            'category_id' => $questionBank->category_id,
+            'sub_category_id' => $questionBank->sub_category_id,    
+            'subject_id' => $questionBank->subject_id,
+            'topic_id' => $questionBank->topic_id,
         ]);
 
-        return $questionBank->save() && $questions->save();
+        $questionBank->save();
+        $questions->save();
+
+        return $questions;
     }
 
     private function getLanguageId($name)
