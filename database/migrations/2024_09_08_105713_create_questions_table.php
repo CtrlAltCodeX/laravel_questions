@@ -13,13 +13,37 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('question_bank_id')->constrained('question_banks')->onDelete('cascade');
             $table->string('question')->nullable();
             $table->string('option_a')->nullable();
             $table->string('option_b')->nullable();
             $table->string('option_c')->nullable();
             $table->string('option_d')->nullable();
             $table->string('answer')->nullable();
+            $table->string('photo')->nullable();
+            $table->string('photo_link')->nullable();
+            $table->string('notes')->nullable();
+            $table->string('level')->nullable();
+
+            $table->foreignId('language_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->foreignId('category_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->foreignId('sub_category_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->foreignId('subject_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->foreignId('topic_id')
+                ->constrained()
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }

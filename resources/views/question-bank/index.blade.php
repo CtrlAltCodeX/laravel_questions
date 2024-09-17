@@ -51,22 +51,27 @@
                 </select>
             </form>
 
-            <form action="{{ route('questions.export') }}" method="GET" class="m-0">
+            <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+
+            <!-- <form action="{{ route('questions.export') }}" method="GET" class="m-0">
                 @csrf
                 <input type="hidden" name="category_id" value="{{request()->category_id}}" />
                 <input type="hidden" name="sub_category_id" value="{{request()->sub_category_id}}" />
-                
-                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
-            </form>
 
-            <form action="{{ route('questions.import') }}" method="POST" class="m-0" enctype="multipart/form-data">
+                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+            </form> -->
+
+            <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
+            <input type="file" id="importInput" name="file" class="form-control hidden" required>
+
+            <!-- <form action="{{ route('questions.import') }}" method="POST" class="m-0" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group hidden">
                     <label for="file">Choose Excel File</label>
                     <input type="file" name="file" class="form-control" required>
                 </div>
                 <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-            </form>
+            </form> -->
 
             <a href="{{ route('question.create') }}" type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
         </div>
@@ -150,21 +155,6 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-end gap-2">
-                {{-- <form action="{{ route('questions.export') }}" method="GET">
-                    @csrf
-                </form> --}}
-                <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
-                <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-                <input type="file" id="importInput" name="file" class="form-control hidden" required>
-
-                {{-- <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group hidden">
-                        <label for="file">Choose Excel File</label>
-                    </div>
-                </form> --}}
-            </div>
         </div>
     </div>
 </div>
@@ -227,58 +217,58 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
-    $('#columnSelectToggle').click(function() {
-        $('#columnSelectDropdown').toggle();
-    });
+    $(document).ready(function() {
+        $('#columnSelectToggle').click(function() {
+            $('#columnSelectDropdown').toggle();
+        });
 
-    // Load saved settings from localStorage
-    const savedColumns = localStorage.getItem('selectedColumns');
-    const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
+        // Load saved settings from localStorage
+        const savedColumns = localStorage.getItem('selectedColumns');
+        const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
 
-    // Set the initial state of checkboxes and columns
-    $('#columnSelectDropdown input[type="checkbox"]').each(function() {
-        const value = $(this).val();
-        if ($.inArray(value, selectedColumns) !== -1) {
-            $(this).prop('checked', true);
-            $(`[data-column="${value}"]`).show();
-        } else {
-            $(this).prop('checked', false);
-            $(`[data-column="${value}"]`).hide();
-        }
-    });
-
-    // Handle checkbox changes
-    $('#columnSelectDropdown input[type="checkbox"]').change(function() {
-        const selectedOptions = [];
-
-        // Show/hide columns based on checked checkboxes
+        // Set the initial state of checkboxes and columns
         $('#columnSelectDropdown input[type="checkbox"]').each(function() {
             const value = $(this).val();
-            if ($(this).is(':checked')) {
-                selectedOptions.push(value);
+            if ($.inArray(value, selectedColumns) !== -1) {
+                $(this).prop('checked', true);
                 $(`[data-column="${value}"]`).show();
             } else {
+                $(this).prop('checked', false);
                 $(`[data-column="${value}"]`).hide();
             }
         });
 
-        // Save the selected columns to localStorage
-        localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
-    });
+        // Handle checkbox changes
+        $('#columnSelectDropdown input[type="checkbox"]').change(function() {
+            const selectedOptions = [];
 
-    // Close dropdown when clicking outside of it
-    $(document).click(function(event) {
-        if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
-            $('#columnSelectDropdown').hide();
-        }
-    });
+            // Show/hide columns based on checked checkboxes
+            $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+                const value = $(this).val();
+                if ($(this).is(':checked')) {
+                    selectedOptions.push(value);
+                    $(`[data-column="${value}"]`).show();
+                } else {
+                    $(`[data-column="${value}"]`).hide();
+                }
+            });
 
-    // SweetAlert2 export button logic
-    $('#exportButton').click(function() {
-        Swal.fire({
-            title: 'Select Languages for Export',
-            html: `
+            // Save the selected columns to localStorage
+            localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
+        });
+
+        // Close dropdown when clicking outside of it
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
+                $('#columnSelectDropdown').hide();
+            }
+        });
+
+        // SweetAlert2 export button logic
+        $('#exportButton').click(function() {
+            Swal.fire({
+                title: 'Select Languages for Export',
+                html: `
                 <div id="languageSelectContainer">
                     <div class="flex gap-x-5 items-center">
                     @foreach($languages as $language)
@@ -288,36 +278,68 @@ $(document).ready(function() {
                     </div>
                 </div>
             `,
-            showCancelButton: true,
-            confirmButtonText: 'Export',
-            preConfirm: () => {
-                const selectedLanguages = [];
-                $('#languageSelectContainer input[type="checkbox"]:checked').each(function() {
-                    selectedLanguages.push($(this).val());
-                });
-                if (selectedLanguages.length > 1) {
-                    return Swal.fire({
-                        title: 'Multiple Languages Selected',
-                        text: 'The export will include questions and options in all selected languages. Do you want to proceed?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, export it!',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            return selectedLanguages;
-                        } else {
-                            return false;
-                        }
+                showCancelButton: true,
+                confirmButtonText: 'Export',
+                preConfirm: () => {
+                    const selectedLanguages = [];
+                    $('#languageSelectContainer input[type="checkbox"]:checked').each(function() {
+                        selectedLanguages.push($(this).val());
                     });
-                } else {
-                    return selectedLanguages;
+                    if (selectedLanguages.length > 1) {
+                        return Swal.fire({
+                            title: 'Multiple Languages Selected',
+                            text: 'The export will include questions and options in all selected languages. Do you want to proceed?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, export it!',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                return selectedLanguages;
+                            } else {
+                                return false;
+                            }
+                        });
+                    } else {
+                        return selectedLanguages;
+                    }
                 }
-            }
-        }).then((result) => {
-            if (result.value) {
+            }).then((result) => {
+                if (result.value) {
+                    var form = $('<form>', {
+                        'method': 'GET',
+                        'action': '{{ route("questions.export") }}'
+                    });
+
+                    form.append($('<input>', {
+                        'type': 'hidden',
+                        'name': '_token',
+                        'value': '{{ csrf_token() }}'
+                    }));
+
+                    result.value.forEach(function(language) {
+                        form.append($('<input>', {
+                            'type': 'hidden',
+                            'name': 'languages[]',
+                            'value': language
+                        }));
+                    });
+
+                    form.appendTo('body').submit();
+                }
+            });
+        });
+
+        //import button logic
+        $('#importButton').click(function() {
+            //click in file select and save the file in hidden input
+            $('#importInput').click();
+
+            // when file is selected, create the form and submit 
+            $('#importInput').change(function() {
                 var form = $('<form>', {
-                    'method': 'GET',
-                    'action': '{{ route("questions.export") }}'
+                    'method': 'POST',
+                    'action': '{{ route("questions.import") }}',
+                    'enctype': 'multipart/form-data'
                 });
 
                 form.append($('<input>', {
@@ -326,75 +348,43 @@ $(document).ready(function() {
                     'value': '{{ csrf_token() }}'
                 }));
 
-                result.value.forEach(function(language) {
-                    form.append($('<input>', {
-                        'type': 'hidden',
-                        'name': 'languages[]',
-                        'value': language
-                    }));
-                });
+                form.append($(this));
 
                 form.appendTo('body').submit();
+            });
+        });
+
+        $('#select_category').change(function() {
+            $('#select_sub_category').empty();
+            $('#select_sub_category').append('<option>--Select Sub Category--</option>');
+            var categoryId = $(this).val();
+
+            if (categoryId) {
+                $.ajax({
+                    url: '/get-subcategories/' + categoryId,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+
+                        $.each(data, function(key, value) {
+                            $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
             }
         });
-    });
 
-    //import button logic
-    $('#importButton').click(function() {
-        //click in file select and save the file in hidden input
-        $('#importInput').click();
+        $("#per_page").change(function() {
+            $("#page").submit();
+        });
 
-        // when file is selected, create the form and submit 
-        $('#importInput').change(function() {
-            var form = $('<form>', {
-                'method': 'POST',
-                'action': '{{ route("questions.import") }}',
-                'enctype': 'multipart/form-data'
-            });
+        $("#search").click(function() {
+            $("#page").submit();
+        });
 
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': '_token',
-                'value': '{{ csrf_token() }}'
-            }));
-
-            form.append($(this));
-
-            form.appendTo('body').submit();
+        $("#select_sub_category").change(function() {
+            $("#data").submit();
         });
     });
-
-    $('#select_category').change(function() {
-        $('#select_sub_category').empty();
-        $('#select_sub_category').append('<option>--Select Sub Category--</option>');
-        var categoryId = $(this).val();
-
-        if (categoryId) {
-            $.ajax({
-                url: '/get-subcategories/' + categoryId,
-                method: 'GET',
-                success: function(data) {
-                    $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
-
-                    $.each(data, function(key, value) {
-                        $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                }
-            });
-        }
-    });
-
-    $("#per_page").change(function() {
-        $("#page").submit();
-    });
-
-    $("#search").click(function() {
-        $("#page").submit();
-    });
-
-    $("#select_sub_category").change(function() {
-        $("#data").submit();
-    });
-});
 </script>
 @endpush
