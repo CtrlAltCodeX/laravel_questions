@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LanguagesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TopicController;
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('question', QuestionBankController::class);
 
+    Route::resource('quiz', QuizController::class);
+
     Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
     Route::get('get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
@@ -73,6 +76,11 @@ Route::middleware('auth')->group(function () {
         Route::post('bulk-delete', [QuestionBankController::class, 'bulkDelete'])
             ->name("question.bulkDelete");
     });
+
+    Route::group(['prefix' => 'quiz'], function() {
+        Route::post('deploy', [QuizController::class, 'deploy'])
+            ->name('quiz.deploy');
+    })->middleware('auth:sanctum');
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
