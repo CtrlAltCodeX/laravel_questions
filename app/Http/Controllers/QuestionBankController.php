@@ -22,13 +22,7 @@ class QuestionBankController extends Controller
      */
     public function index()
     {
-        $questionBank = QuestionBank::with(
-            'language',
-            'category',
-            'subCategory',
-            'subject',
-            'topic'
-        )->get();
+        $questionBank = Question::all();
 
         $questions = Question::query();
 
@@ -69,13 +63,7 @@ class QuestionBankController extends Controller
      */
     public function create()
     {
-        $questions = QuestionBank::with(
-            'language',
-            'category',
-            'subCategory',
-            'subject',
-            'topic'
-        )->get();
+        $questions = Question::all();
 
         $languages = Language::all();
 
@@ -287,7 +275,7 @@ class QuestionBankController extends Controller
 
     public function getQuestions(Request $request)
     {
-        $query = QuestionBank::query();
+        $query = Question::query();
 
         if ($request->has('language_id')) {
             $query->where('language_id', $request->language_id);
@@ -305,20 +293,7 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $request->topic_id);
         }
 
-        $question_banks = $query->get();
-
-        $questions = [];
-
-        if ($question_banks->isNotEmpty()) {
-            foreach ($question_banks as $question_bank) {
-                $bankQuestions = Question::where('question_bank_id', $question_bank->id)->get();
-                $questions = array_merge($questions, $bankQuestions->toArray());
-            }
-        }
-
-        // $this->consoleLog($question_bank->id);  
-        // $questions = isset($question_bank) ? Question::where('question_bank_id', $question_bank->id)->with('question_bank')->get() : [];
-
+        $questions = $query->get();
 
         return response()->json($questions);
     }
@@ -482,5 +457,19 @@ class QuestionBankController extends Controller
         $topics = Topic::where('subject_id', $subjectId)->get();
 
         return response()->json($topics);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+        
+        if (!empty($ids)) {
+            Question::whereIn('id', $ids)
+                ->delete();
+
+            return response()->json(['message' => 'Selected questions deleted successfully.']);
+        }
+
+        return response()->json(['message' => 'No questions selected.'], 400);
     }
 }

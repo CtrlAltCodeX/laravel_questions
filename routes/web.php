@@ -29,11 +29,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
 
     Route::resource('languages', LanguagesController::class);
 
@@ -47,21 +50,29 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('question', QuestionBankController::class);
 
-    Route::get('/get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
+    Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
-    Route::get('/get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
+    Route::get('get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
 
-    Route::get('/get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
+    Route::get('get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
 
-    Route::get('/get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
+    Route::get('get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
 
-    Route::get('questions', [QuestionBankController::class, 'getQuestions'])
-        ->name("questions");
+    Route::group(['prefix' => 'questions'], function () {
+        Route::get('', [QuestionBankController::class, 'getQuestions'])
+            ->name("questions");
 
-    Route::get('questions/export', [QuestionBankController::class, 'export'])->name('questions.export');
-    Route::post('questions/import', [QuestionBankController::class, 'import'])->name('questions.import');
+        Route::get('export', [QuestionBankController::class, 'export'])
+            ->name('questions.export');
 
-    Route::post('/question/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
+        Route::post('import', [QuestionBankController::class, 'import'])
+            ->name('questions.import');
+
+        Route::post('/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
+
+        Route::post('bulk-delete', [QuestionBankController::class, 'bulkDelete'])
+            ->name("question.bulkDelete");
+    });
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
