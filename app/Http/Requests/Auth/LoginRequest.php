@@ -50,6 +50,13 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Generate and store the access token
+        $user = Auth::user();
+        $token = $user->createToken('access-token')->plainTextToken;
+
+        // Store the token in the session or return it as a response
+        session(['access_token' => $token]);
     }
 
     /**

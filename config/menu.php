@@ -42,7 +42,7 @@ return [
         ],
         [
             'name' => 'Quiz',
-            'route' => 'languages.index',
+            'route' => 'quiz.index',
             'icon' => 'fa fa-circle text-warning',
         ],
         [
