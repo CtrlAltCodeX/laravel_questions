@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
             ->name("question.bulkDelete");
     });
 
-    Route::group(['prefix' => 'quiz'], function() {
+    Route::group(['prefix' => 'quiz'], function () {
         Route::post('deploy', [QuizController::class, 'deploy'])
             ->name('quiz.deploy');
     })->middleware('auth:sanctum');

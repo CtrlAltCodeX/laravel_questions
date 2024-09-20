@@ -27,7 +27,7 @@ class QuestionBankController extends Controller
         $questions = Question::query();
 
         if ($search = request()->search) {
-            $questions->orWhere('question', $search)
+            $questions->orWhere('question', "%$search%")
                 ->orWhere('option_a', 'LIKE', "%$search%")
                 ->orWhere('option_b', 'LIKE', "%$search%")
                 ->orWhere('option_c', 'LIKE', "%$search%")
@@ -303,19 +303,23 @@ class QuestionBankController extends Controller
         $languages = $request->input('languages', []);
         $query = Question::query();
 
-        if ($request->has('language_id')) {
+        if ($request->language_id != '') {
             $query->where('language_id', $request->language_id);
         }
-        if ($request->has('category_id')) {
+        
+        if ($request->category_id != '') {
             $query->where('category_id', $request->category_id);
         }
-        if ($request->has('sub_category_id')) {
+        
+        if ($request->sub_category_id != '') {
             $query->where('sub_category_id', $request->sub_category_id);
         }
-        if ($request->has('subject_id')) {
+        
+        if ($request->subject_id != '') {
             $query->where('subject_id', $request->subject_id);
         }
-        if ($request->has('topic_id')) {
+        
+        if ($request->topic_id != '') {
             $query->where('topic_id', $request->topic_id);
         }
 

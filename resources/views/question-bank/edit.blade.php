@@ -22,19 +22,19 @@
                 $selectedId = null;
                 switch ($moduleName) {
                     case 'Select Language':
-                        $selectedId = $question->question_bank->language_id;
+                        $selectedId = $question->language_id;
                         break;
                     case 'Select Category':
-                        $selectedId = $question->question_bank->category_id;
+                        $selectedId = $question->category_id;
                         break;
                     case 'Select Sub Category':
-                        $selectedId = $question->question_bank->sub_category_id;
+                        $selectedId = $question->sub_category_id;
                         break;
                     case 'Select Subject':
-                        $selectedId = $question->question_bank->subject_id;
+                        $selectedId = $question->subject_id;
                         break;
                     case 'Select Topic':
-                        $selectedId = $question->question_bank->topic_id;
+                        $selectedId = $question->topic_id;
                         break;
                 }
             @endphp

@@ -34,56 +34,55 @@
             </svg>
         </button>
     </h1>
-    <div class="flex flex-col items-self-end">
+    <div class="flex flex-col items-self-end gap-2">
         <div class="flex justify-end items-center gap-2">
             <form action="{{ route('question.index') }}" method="GET" id='data' class="mb-0 flex gap-2">
                 <input type="hidden" value="{{ request()->per_page }}" name="per_page" />
                 <input type="hidden" value="{{ request()->search }}" name="search" />
-                
+
                 <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_category' name="category_id">
-                    <option value="">--Select Category--</option>
+                    <option value="">All Language</option>
+                </select>
+
+                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_category' name="category_id">
+                    <option value="">All Category</option>
                     @foreach($categories as $category)
                     <option value="{{ $category->id }}" {{ request()->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                     @endforeach
                 </select>
 
                 <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_sub_category' name="sub_category_id">
-                    <option value="">--Select Sub Category--</option>
+                    <option value="">All Sub Category</option>
                     @foreach($subCategories as $subcategory)
                     <option value="{{ $subcategory->id }}" {{ request()->sub_category_id == $subcategory->id ? 'selected' : '' }}>{{ $subcategory->name }}</option>
                     @endforeach
                 </select>
+
+                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_sub_category' name="sub_category_id">
+                    <option value="">All Subject</option>
+                </select>
+
+                <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_sub_category' name="sub_category_id">
+                    <option value="">All Topic</option>
+                </select>
+
+                <a type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</a>
             </form>
+        </div>
 
-            <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+        <div class="flex justify-end items-center gap-2">
+            <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
 
-            <!-- <form action="{{ route('questions.export') }}" method="GET" class="m-0">
-                @csrf
-                <input type="hidden" name="language_id" value="{{  request()->language_id }}" />
-                <input type="hidden" name="category_id" value="{{request()->category_id}}" />
-                <input type="hidden" name="sub_category_id" value="{{request()->sub_category_id}}" />
+            <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
 
-                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
-            </form> -->
-
-            <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
             <input type="file" id="importInput" name="file" class="form-control hidden" required>
-
-            <!-- <form action="{{ route('questions.import') }}" method="POST" class="m-0" enctype="multipart/form-data">
-                @csrf
-                <div class="form-group hidden">
-                    <label for="file">Choose Excel File</label>
-                    <input type="file" name="file" class="form-control" required>
-                </div>
-                <button type="submit" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-            </form> -->
 
             <a href="{{ route('question.create') }}" type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
         </div>
 
         <div class="flex flex-col items-end gap-y-5">
-            <div class="flex items-end gap-2 mt-2">
-                <div class="relative inline-block w-full text-gray-700 mt-4">
+            <div class="flex items-end gap-2">
+                <div class="relative inline-block w-full text-gray-700">
                     <form action="{{ route('question.index') }}" method="GET" id='page'>
                         <input type="hidden" name="category_id" value="{{request()->category_id}}" />
                         <input type="hidden" name="sub_category_id" value="{{request()->sub_category_id}}" />
@@ -200,8 +199,19 @@
                 <td class="p-2" data-column="level">{{$question->level ?? ''}}</td>
                 <td class="p-2 flex gap-2" data-column="action">
                     <a href="{{ route('question.edit', $question->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        <!-- Edit Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                            <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
+                        </svg>
                     </a>
+                    <form action="{{ route('question.destroy', $question->id) }}" method='POST'>
+                        @csrf
+                        @method('DELETE')
+                        <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
+                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                                <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
+                            </svg>
+                        </button>
+                    </form>
                 </td>
             </tr>
             @empty
@@ -396,10 +406,6 @@
 
         $("#search").click(function() {
             $("#page").submit();
-        });
-
-        $("#select_sub_category").change(function() {
-            $("#data").submit();
         });
 
         // Select all checkboxes

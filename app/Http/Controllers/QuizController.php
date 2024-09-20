@@ -77,21 +77,7 @@ class QuizController extends Controller
 
     public function deploy(Request $request)
     {
-        $data = $request->all();
-    
-        $apiLink = $data['api_link'];
-        // Example: http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1
-    
-        // Parse the URL to get the query string
-        $urlComponents = parse_url($apiLink);
-        $queryString = $urlComponents['query'] ?? '';
-    
-        // Parse the query string into an associative array
-        $params = [];
-        parse_str($queryString, $params);
-    
-        // Now $params contains all the parameters from the URL
-        // Example: ['Language' => '1', 'Category' => '1', 'SubCategory' => '1', 'Subject' => '1', 'Topic' => '1']
+        $params = $request->all();
     
         // Fetch the category based on the 'Category' parameter
         $categoryId = $params['Category'] ?? null;
