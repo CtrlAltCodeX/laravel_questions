@@ -39,7 +39,7 @@
             <form action="{{ route('question.index') }}" method="GET" id='data' class="mb-0 flex gap-2">
                 <input type="hidden" value="{{ request()->per_page }}" name="per_page" />
                 <input type="hidden" value="{{ request()->search }}" name="search" />
-
+                
                 <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" id='select_category' name="category_id">
                     <option value="">--Select Category--</option>
                     @foreach($categories as $category)
@@ -59,6 +59,7 @@
 
             <!-- <form action="{{ route('questions.export') }}" method="GET" class="m-0">
                 @csrf
+                <input type="hidden" name="language_id" value="{{  request()->language_id }}" />
                 <input type="hidden" name="category_id" value="{{request()->category_id}}" />
                 <input type="hidden" name="sub_category_id" value="{{request()->sub_category_id}}" />
 
@@ -321,6 +322,22 @@
                             'name': 'languages[]',
                             'value': language
                         }));
+
+                        form.append(
+                            $('<input>', {
+                                'type': 'hidden',
+                                'name': 'category_id',
+                                'value': '{{ request()->category_id }}'
+                            })
+                        );
+
+                        form.append(
+                            $('<input>', {
+                                'type': 'hidden',
+                                'name': 'sub_category_id',
+                                'value': '{{ request()->sub_category_id }}'
+                            })
+                        );
                     });
 
                     form.appendTo('body').submit();

@@ -301,7 +301,7 @@ class QuestionBankController extends Controller
     public function export(Request $request)
     {
         $languages = $request->input('languages', []);
-        $query = QuestionBank::query();
+        $query = Question::query();
 
         if ($request->has('language_id')) {
             $query->where('language_id', $request->language_id);
@@ -319,17 +319,16 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $request->topic_id);
         }
 
-        $question_banks = $query->with(['language', 'topic', 'subject', 'subCategory', 'category'])
+        $question_query = $query->with(['language', 'topic', 'subject', 'subCategory', 'category'])
             ->get();
-
+    
         $questions = [];
 
-        foreach ($question_banks as $question_bank) {
+        foreach ($question_query as $question) {
             $bankQuestions = Question::get()
-                ->makeHidden(['created_at', 'updated_at', 'question_bank_id'])
+                ->makeHidden(attributes: ['created_at', 'updated_at', 'question_bank_id'])
                 ->toArray();
 
-            foreach ($bankQuestions as $question) {
                 $questionData = [
                     'question' => [],
                     'option_a' => [],
@@ -338,16 +337,18 @@ class QuestionBankController extends Controller
                     'option_d' => [],
                     'answer' => $question['answer'],
                     'level' => $question['level'],
-                    'category' => $question_bank->category->name ?? '',
-                    'subCategory' => $question_bank->subCategory->name ?? '',
-                    'subject' => $question_bank->subject->name ?? '',
-                    'topic' => $question_bank->topic->name ?? '',
-                    'language' => $question_bank->language->name ?? '',
+                    'photo' => $question['photo'],
+                    'photo_link' => $question['photo_link'],
+                    'category' => $question->category->name ?? '',
+                    'subCategory' => $question->subCategory->name ?? '',
+                    'subject' => $question->subject->name ?? '',
+                    'topic' => $question->topic->name ?? '',
+                    'language' => $question->language->name ?? '',
                 ];
 
                 foreach ($languages as $languageId) {
                     $language = Language::find($languageId);
-                    $translatedQuestion = $language->questions()->where('questions.id', $question['id'])->where('question_banks.id', $question_bank->id)->get();
+                    $translatedQuestion = $language->questions()->where('questions.id', $question['id'])->get();
                     $questionData['qno'] = $question['qno'] ?? '';
                     $questionData['notes'] = $question['notes'] ?? '';
                     if ($translatedQuestion->count() > 0) {
@@ -366,7 +367,6 @@ class QuestionBankController extends Controller
                 }
 
                 $questions[] = $questionData;
-            }
         }
 
         return Excel::download(new QuestionsExport($questions,  $languages), 'questions.xlsx');
