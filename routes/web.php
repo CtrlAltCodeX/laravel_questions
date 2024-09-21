@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LanguagesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuestionBankApiController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubjectController;
@@ -50,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('topic', TopicController::class);
 
     Route::resource('question', QuestionBankController::class);
+    Route::resource('question-bank-api', QuestionBankApiController::class);
 
     Route::resource('quiz', QuizController::class);
 

@@ -77,7 +77,21 @@ class QuizController extends Controller
 
     public function deploy(Request $request)
     {
-        $params = $request->all();
+        $data = $request->all();
+
+        $apiLink = $data['api_link'];
+        // Example: http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1
+
+        // Parse the URL to get the query string
+        $urlComponents = parse_url($apiLink);
+        $queryString = $urlComponents['query'] ?? '';
+
+        // Parse the query string into an associative array
+        $params = [];
+        parse_str($queryString, $params);
+
+        // Now $params contains all the parameters from the URL
+        // Example: ['Language' => '1', 'Category' => '1', 'SubCategory' => '1', 'Subject' => '1', 'Topic' => '1']
     
         // Fetch the category based on the 'Category' parameter
         $categoryId = $params['Category'] ?? null;
@@ -104,23 +118,33 @@ class QuizController extends Controller
         }
     
         $questions = $query->get();
+
+        //get all the topics for the category
+        $subcategories = SubCategory::where('category_id', $categoryId)->get();
+        // get all the subjects for thhe subcategories
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id'))->get();
+        // get all the topics for the subjects
+        $topics = Topic::whereIn('subject_id', $subjects->pluck('id'))->get();
     
         // Transform the questions into the desired JSON structure
-        $jsonResponse = [
-            'category' => "<b class='unlock-btn'><i class='fa fa-unlock-alt'></i> Unlock</b><br>{$category->name}",
-            'quizWrap' => $questions->map(function ($question) {
-                return [
-                    'question' => "{$question->question_numbe}" . htmlspecialchars($question->question) . (isset($question->photoLink) ? "<br><img src='" . htmlspecialchars($question->photoLink) . "'>" : ""),
-                    'options' => [
-                        "(A) {$question->option_a}",
-                        "(B) {$question->option_b}",
-                        "(C) {$question->option_c}",
-                        "(D) {$question->option_d}",
-                    ],
-                    'answer' => $question->answer // Assuming this field exists
-                ];
-            })->toArray()
-        ];    
+        $jsonResponse = [];
+        foreach($topics as $topic){
+            $jsonResponse += [
+                'topic' => "<b class='unlock-btn'><i class='fa fa-unlock-alt'></i> Unlock</b><br>{$topic->name}",
+                'quizWrap' => $questions->map(function ($question) {
+                    return [
+                        'question' => "{$question->question_numbe}" . htmlspecialchars($question->question) . (isset($question->photoLink) ? "<br><img src='" . htmlspecialchars($question->photoLink) . "'>" : ""),
+                        'options' => [
+                            "(A) {$question->option_a}",
+                            "(B) {$question->option_b}",
+                            "(C) {$question->option_c}",
+                            "(D) {$question->option_d}",
+                        ],
+                        'answer' => $question->answer // Assuming this field exists
+                    ];
+                })->toArray()
+            ];
+        }
         // Return the JSON response
         return response()->json($jsonResponse);
     }

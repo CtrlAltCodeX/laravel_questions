@@ -41,6 +41,11 @@ return [
             ]
         ],
         [
+            'name' => 'Question Bank',
+            'route' => 'question-bank-api.index',
+            'icon' => 'fa fa-circle text-warning',
+        ],
+        [
             'name' => 'Quiz',
             'route' => 'quiz.index',
             'icon' => 'fa fa-circle text-warning',
