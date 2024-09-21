@@ -48,6 +48,7 @@ $dropdown_list = [
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        let rowCounter = 0; 
         function fetchQuestions() {
             var languageId = $('#select_language').val();
             var categoryId = $('#select_category').val();
@@ -55,20 +56,241 @@ $dropdown_list = [
             var subjectId = $('#select_subject').val();
             var topicId = $('#select_topic').val();
 
-            $.ajax({
-                url: '{{ route("questions") }}',
-                method: 'GET',
-                data: {
-                    language_id: languageId,
-                    category_id: categoryId,
-                    sub_category_id: subCategoryId,
-                    subject_id: subjectId,
-                    topic_id: topicId
-                },
-                success: function(data) {
-                    $('#input-rows').empty();
-                    if (data.length > 0) {
-                        data.forEach(function(question) {
+            if (!languageId && !categoryId && !subCategoryId && !subjectId && !topicId) {
+                $('#input-rows').empty();
+                var newRow = `
+                    <div class="input-row pb-5 border-b-2">
+                        <div class="col-span-1 flex justify-end">
+                            <button type="button" class="remove-question text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                X
+                            </button>
+                        </div>    
+                        <div class="flex flex-wrap gap-4 items-center text-center mt-5">
+                            <input type="hidden" name="id[]" value="" />
+
+                            <!-- Image Upload -->
+                            <div class="flex flex-col w-[15%]">
+                                <div class='mb-2'>
+                                    <input type="text" class="required-field w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="photo_link[]" 
+                                        placeholder="Photo Link" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                                <div class='mb-2'>
+                                    <div class="relative col-span-2 text-left">
+                                        <input type="hidden" id="photo-new" name="photo[]" value="" />
+                                        <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
+                                        <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            Upload Photo
+                                        </button>
+                                    </div>
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                            </div>
+
+                            <!-- Question Field -->
+                            <div class="text-left w-[40%]">
+                                <div class='mb-2'>
+                                    <textarea class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            name="question[]" 
+                                            placeholder="Enter your question here" 
+                                            rows="3"></textarea>
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                            </div>
+
+                            <!-- Options A-D -->
+                            <div class="grid grid-cols-2 gap-2 w-[40%]">
+                                <div>
+                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            name="option_a[]" 
+                                            placeholder="Option A" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>    
+                                <div>
+                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="option_b[]" 
+                                    placeholder="Option B" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                                <div>
+                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="option_c[]" 
+                                    placeholder="Option C" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                                <div>
+                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="option_d[]" 
+                                    placeholder="Option D" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                            </div>
+
+                            <!-- Answer Field -->
+                            <div class="col-span-2 w-[15%]">
+                                <div>
+                                    <select class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            name="answer[]">
+                                        <option value="">Select Answer</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                    </select>
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+
+                                <div>
+                                    <input type="number" class="required-field mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="level[]" 
+                                    placeholder="Level" />
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                            </div>
+
+                            <!-- Notes and Level -->
+                            <div class="col-span-5 grid gap-2 w-[40%]">
+                                <div>
+                                    <textarea class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="notes[]" 
+                                        placeholder="Notes" 
+                                        rows="3" cols="3"></textarea>
+                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#input-rows').append(newRow);
+
+                attachFileInputHandlers();
+            }
+            else{
+                $.ajax({
+                    url: '{{ route("questions") }}',
+                    method: 'GET',
+                    data: {
+                        'language_id': languageId,
+                        'category_id': categoryId,
+                        'sub_category_id': subCategoryId,
+                        'subject_id': subjectId,
+                        'topic_id': topicId,
+                    },
+                    success: function(data) {
+                        $('#input-rows').empty();
+                        if (data.length > 0) {
+                            data.forEach(function(question) {
+                                var newRow = `
+                                    <div class="input-row pb-5 border-b-2">
+                                        <div class="col-span-1 flex justify-end">
+                                            <button type="button" class="remove-question text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                                X
+                                            </button>
+                                        </div>    
+                                        <div class="flex flex-wrap gap-4 items-center text-center mt-5">
+                                            <input type="hidden" name="id[]" value="${question.id}" />
+
+                                            <!-- Image Upload -->
+                                            <div class="flex flex-col w-[15%]">
+                                                <div class='mb-2'>
+                                                    <input type="text" class="required-field w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                        name="photo_link[]" value="${question.photo_link}"
+                                                        placeholder="Photo Link" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                                <div class='mb-2'>
+                                                    <div class="relative col-span-2 text-left">
+                                                        <input type="hidden" id="photo-${question.id}" name="photo[]" value="${question.photo}" />
+                                                        <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-${question.id}" />
+                                                        <button type="button" id="fileButton-${question.id}" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            ${question.photo ?? ' '} 
+                                                        </button>
+                                                    </div>
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Question Field -->
+                                            <div class="text-left w-[40%]">
+                                                <div class='mb-2'>
+                                                    <textarea class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                            name="question[]"
+                                                            placeholder="Enter your question here" 
+                                                            rows="3">${question.question}</textarea>
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Options A-D -->
+                                            <div class="grid grid-cols-2 gap-2 w-[40%]">
+                                                <div>
+                                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                            name="option_a[]" value="${question.option_a}" 
+                                                            placeholder="Option A" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>    
+                                                <div>
+                                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                    name="option_b[]" value="${question.option_b}" 
+                                                    placeholder="Option B" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                                <div>
+                                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                    name="option_c[]" value="${question.option_c}" 
+                                                    placeholder="Option C" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                                <div>
+                                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                    name="option_d[]" value="${question.option_d}"
+                                                    placeholder="Option D" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Answer Field -->
+                                            <div class="col-span-2 w-[15%]">
+                                                <div>
+                                                    <select class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                            name="answer[]">
+                                                        <option value="">Select Answer</option>
+                                                            ${['A', 'B', 'C', 'D'].map(option => `
+                                                                <option value="${option}" ${option === question.answer ? 'selected' : ''}>${option}</option>
+                                                            `).join('')}
+                                                    </select>
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+
+                                                <div>
+                                                    <input type="number" class="required-field mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                    name="level[]" value="${question.level}"
+                                                    placeholder="Level" />
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Notes and Level -->
+                                            <div class="col-span-5 grid gap-2 w-[40%]">
+                                                <div>
+                                                    <textarea class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                        name="notes[]"
+                                                        placeholder="Notes" 
+                                                        rows="3" cols="3">${question.notes}</textarea>
+                                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                $('#input-rows').append(newRow);
+                            });
+
+                            attachFileInputHandlers();
+
+                        } else {
                             var newRow = `
                                 <div class="input-row pb-5 border-b-2">
                                     <div class="col-span-1 flex justify-end">
@@ -89,8 +311,9 @@ $dropdown_list = [
                                             </div>
                                             <div class='mb-2'>
                                                 <div class="relative col-span-2 text-left">
-                                                    <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" name="photo[]" />
-                                                    <button type="button" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                    <input type="hidden" id="photo-new" name="photo[]" value="" />
+                                                    <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
+                                                    <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                         Upload Photo
                                                     </button>
                                                 </div>
@@ -172,122 +395,15 @@ $dropdown_list = [
                                     </div>
                                 </div>
                             `;
+
                             $('#input-rows').append(newRow);
-                        });
 
-                        attachFileInputHandlers();
-
-                    } else {
-                        var newRow = `
-                            <div class="input-row pb-5 border-b-2">
-                                <div class="col-span-1 flex justify-end">
-                                    <button type="button" class="remove-question text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                        X
-                                    </button>
-                                </div>    
-                                <div class="flex flex-wrap gap-4 items-center text-center mt-5">
-                                    <input type="hidden" name="id[]" value="" />
-
-                                    <!-- Image Upload -->
-                                    <div class="flex flex-col w-[15%]">
-                                        <div class='mb-2'>
-                                            <input type="text" class="required-field w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="photo_link[]" 
-                                                placeholder="Photo Link" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                        <div class='mb-2'>
-                                            <div class="relative col-span-2 text-left">
-                                                <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" name="photo[]" />
-                                                <button type="button" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                    Upload Photo
-                                                </button>
-                                            </div>
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Question Field -->
-                                    <div class="text-left w-[40%]">
-                                        <div class='mb-2'>
-                                            <textarea class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    name="question[]" 
-                                                    placeholder="Enter your question here" 
-                                                    rows="3"></textarea>
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Options A-D -->
-                                    <div class="grid grid-cols-2 gap-2 w-[40%]">
-                                        <div>
-                                            <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    name="option_a[]" 
-                                                    placeholder="Option A" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>    
-                                        <div>
-                                            <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="option_b[]" 
-                                            placeholder="Option B" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                        <div>
-                                            <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="option_c[]" 
-                                            placeholder="Option C" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                        <div>
-                                            <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="option_d[]" 
-                                            placeholder="Option D" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Answer Field -->
-                                    <div class="col-span-2 w-[15%]">
-                                        <div>
-                                            <select class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    name="answer[]">
-                                                <option value="">Select Answer</option>
-                                                <option value="A">A</option>
-                                                <option value="B">B</option>
-                                                <option value="C">C</option>
-                                                <option value="D">D</option>
-                                            </select>
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-
-                                        <div>
-                                            <input type="number" class="required-field mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="level[]" 
-                                            placeholder="Level" />
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Notes and Level -->
-                                    <div class="col-span-5 grid gap-2 w-[40%]">
-                                        <div>
-                                            <textarea class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="notes[]" 
-                                                placeholder="Notes" 
-                                                rows="3" cols="3"></textarea>
-                                            <div class="text-red-500 text-xs validation-msg"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-
-                        $('#input-rows').append(newRow);
-
-                        attachFileInputHandlers();
+                            attachFileInputHandlers();
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
 
         fetchQuestions();
@@ -295,15 +411,22 @@ $dropdown_list = [
         function attachFileInputHandlers() {
             // Attach event listener to each file input
             $('.file-input').each(function() {
-                var fileInput = $(this);
-                var fileButton = fileInput.siblings('.custom-file-button');
+            var fileInput = $(this);
+            var questionId = fileInput.attr('id').replace('fileInput-', '');
+            var photoInput = $('#photo-' + questionId);
+            var fileButton = $('#fileButton-' + questionId);
 
-                fileInput.on('change', function(event) {
-                    var file = event.target.files[0];
-                    if (file) {
-                        var fileName = file.name.substring(0, 5) + (file.name.length > 5 ? '...' : '');
-                        fileButton.text(fileName);
-                        fileInput.val(file.name);
+
+            fileInput.on('change', function(event) {
+            console.log(fileInput, questionId, photoInput, fileButton);
+                var file = event.target.files[0];
+                if (file) {
+                    // Get the file name and truncate it to 20 characters
+                    var fileName = file.name.substring(0, 20) + (file.name.length > 20 ? '...' : '');
+                    // Update the button text with the file name
+                    fileButton.text(fileName);
+                        // Update the hidden input value with the file name
+                        photoInput.val(fileName);
                     }
                 });
 
@@ -379,10 +502,113 @@ $dropdown_list = [
         });
 
         $('#add-row').click(function() {
-            var newRow = $('.input-row').clone(); // Clone the first row
-            newRow.find('input').val(''); // Clear the values in the cloned row
-            newRow.find('input[name="id[]"]').prop('disabled', false); // Ensure ID is enabled for new rows
-            $('#input-rows').append(newRow); // Append the new row
+            rowCounter++;
+            var newRow = $(`
+                <div class="input-row pb-5 border-b-2">
+                    <div class="col-span-1 flex justify-end">
+                        <button type="button" class="remove-question text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                            X
+                        </button>
+                    </div>    
+                    <div class="flex flex-wrap gap-4 items-center text-center mt-5">
+                        <input type="hidden" name="id[]" value="" />
+
+                        <!-- Image Upload -->
+                        <div class="flex flex-col w-[15%]">
+                            <div class='mb-2'>
+                                <input type="text" class="required-field w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="photo_link[]" value=""
+                                    placeholder="Photo Link" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                            <div class='mb-2'>
+                                <div class="relative col-span-2 text-left">
+                                    <input type="hidden" id="photo-new${rowCounter}" name="photo[]" value="" />
+                                    <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new${rowCounter}" />
+                                    <button type="button" id="fileButton-new${rowCounter}" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        Upload Photo
+                                    </button>
+                                </div>
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question Field -->
+                        <div class="text-left w-[40%]">
+                            <div class='mb-2'>
+                                <textarea class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="question[]" 
+                                        placeholder="Enter your question here" 
+                                        rows="3"></textarea>
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                        </div>
+
+                        <!-- Options A-D -->
+                        <div class="grid grid-cols-2 gap-2 w-[40%]">
+                            <div>
+                                <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="option_a[]" 
+                                        placeholder="Option A" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>    
+                            <div>
+                                <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                name="option_b[]" 
+                                placeholder="Option B" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                            <div>
+                                <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                name="option_c[]" 
+                                placeholder="Option C" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                            <div>
+                                <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                name="option_d[]" 
+                                placeholder="Option D" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                        </div>
+
+                        <!-- Answer Field -->
+                        <div class="col-span-2 w-[15%]">
+                            <select class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="answer[]">
+                                <option value="">Select Answer</option>
+                                ${['A', 'B', 'C', 'D'].map(option => `
+                                    <option value="${option}">${option}</option>
+                                `).join('')}
+                            </select>
+
+                            <div>
+                                <input type="number" class="required-field mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                name="level[]" 
+                                placeholder="Level" />
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                            <div class="text-red-500 text-xs validation-msg"></div>
+                        </div>
+
+                        <!-- Notes and Level -->
+                        <div class="col-span-5 grid gap-2 w-[40%]">
+                            <div>
+                                <textarea class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="notes[]" 
+                                    placeholder="Notes" 
+                                    rows="3" cols="3"></textarea>
+                                <div class="text-red-500 text-xs validation-msg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            // Append the new row to the container
+            $('#input-rows').append(newRow);
+
+            // Attach file input handlers to the new row
             attachFileInputHandlers();
         });
 
@@ -416,7 +642,30 @@ $dropdown_list = [
 
         attachFileInputHandlers();
 
-        $('#save-btn').click(function(e) {
+        $('.file-input').each(function() {
+            var fileInput = $(this);
+            var questionId = fileInput.attr('id').replace('fileInput', '');
+            var photoInput = $('#photo-' + questionId);
+            var fileButton = $('#fileButton' + questionId);
+
+            fileInput.on('change', function(event) {
+                var file = event.target.files[0];
+                if (file) {
+                    // Get the file name and truncate it to 5 characters
+                    var fileName = file.name.substring(0, 20) + (file.name.length > 5 ? '...' : '');
+                    // Update the button text with the file name
+                    fileButton.text(fileName);
+                    // Update the hidden input value with the file name
+                    photoInput.val(fileName);
+                }
+            });
+
+            // Trigger file input click when button is clicked
+            fileButton.on('click', function() {
+                fileInput.click();
+            });
+        });
+        {{-- $('#save-btn').click(function(e) {
             e.preventDefault(); // Prevent the form from submitting immediately
             var isValid = true;
 
@@ -435,7 +684,7 @@ $dropdown_list = [
             if (isValid) {
                 $('#question-form').submit();
             }
-        });
+        }); --}}
     });
 </script>
 @endsection
