@@ -128,22 +128,33 @@ class QuizController extends Controller
     
         // Transform the questions into the desired JSON structure
         $jsonResponse = [];
-        foreach($topics as $topic){
-            $jsonResponse += [
-                'topic' => "<b class='unlock-btn'><i class='fa fa-unlock-alt'></i> Unlock</b><br>{$topic->name}",
-                'quizWrap' => $questions->map(function ($question) {
-                    return [
-                        'question' => "{$question->question_numbe}" . htmlspecialchars($question->question) . (isset($question->photoLink) ? "<br><img src='" . htmlspecialchars($question->photoLink) . "'>" : ""),
-                        'options' => [
-                            "(A) {$question->option_a}",
-                            "(B) {$question->option_b}",
-                            "(C) {$question->option_c}",
-                            "(D) {$question->option_d}",
-                        ],
-                        'answer' => $question->answer // Assuming this field exists
-                    ];
-                })->toArray()
-            ];
+        foreach ($subjects as $subject) {
+            $subjectName = $subject->name;
+            $jsonResponse[$subjectName] = [];
+        
+            foreach ($topics as $topic) {
+                if ($topic->subject_id == $subject->id) {
+                    $topicName = $topic->name;
+                    $jsonResponse[$subjectName][$topicName] = [];
+        
+                    $filteredQuestions = $questions->filter(function ($question) use ($topic) {
+                        return $question->topic_id == $topic->id;
+                    });
+        
+                    foreach ($filteredQuestions as $question) {
+                        $jsonResponse[$subjectName][$topicName][] = [
+                            'question' => htmlspecialchars($question->question),
+                            'options' => [
+                                htmlspecialchars($question->option_a),
+                                htmlspecialchars($question->option_b),
+                                htmlspecialchars($question->option_c),
+                                htmlspecialchars($question->option_d),
+                            ],
+                            'answer' => $question->answer // Assuming this field exists
+                        ];
+                    }
+                }
+            }
         }
         // Return the JSON response
         return response()->json($jsonResponse);
