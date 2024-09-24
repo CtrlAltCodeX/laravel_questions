@@ -37,7 +37,7 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
+    public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
@@ -53,10 +53,12 @@ class LoginRequest extends FormRequest
 
         // Generate and store the access token
         $user = Auth::user();
-        $token = $user->createToken('access-token')->plainTextToken;
+        $user['token'] = $user->createToken('access-token')->plainTextToken;
+
+        return $user;
 
         // Store the token in the session or return it as a response
-        session(['access_token' => $token]);
+        // session(['access_token' => $token]); 
     }
 
     /**

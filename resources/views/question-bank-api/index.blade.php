@@ -44,7 +44,7 @@
             @csrf
             <input type="hidden" name="access_token" id="access_token" value={{session('access_token')}}>
             <input type="hidden" name="api_link" id="api_link" value="http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1">
-            <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Deploy</button>
+            <!-- <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Deploy</button> -->
         </form>
         <!-- <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button> -->
     </div>

@@ -5,33 +5,33 @@ return [
         [
             'name' => 'ITI Database',
             'route' => 'languages.index',
-            'icon' => 'fas fa-tachometer-alt',
+            'icon' => 'fa fa-database',
             'related' => ['admin.dashboard'],
             'sub-menus' => [
                 [
                     'name' => 'Language',
                     'route' => 'languages.index',
-                    'icon' => 'fas fa-tachometer-alt',
+                    'icon' => 'fa fa-circle',
                 ],
                 [
                     'name' => 'Main Category',
                     'route' => 'category.index',
-                    'icon' => 'fas fa-tachometer-alt',
+                    'icon' => 'fa fa-circle',
                 ],
                 [
                     'name' => 'Sub-Category',
                     'route' => 'sub-category.index',
-                    'icon' => 'fas fa-tachometer-alt',
+                    'icon' => 'fa fa-circle',
                 ],
                 [
                     'name' => 'Subject',
                     'route' => 'subject.index',
-                    'icon' => 'fas fa-tachometer-alt',
+                    'icon' => 'fa fa-circle',
                 ],
                 [
                     'name' => 'Topic',
                     'route' => 'topic.index',
-                    'icon' => 'fas fa-tachometer-alt',
+                    'icon' => 'fa fa-circle',
                 ],
                 [
                     'name' => 'Question',
@@ -43,7 +43,7 @@ return [
         [
             'name' => 'Question Bank',
             'route' => 'question-bank-api.index',
-            'icon' => 'fa fa-circle text-warning',
+            'icon' => 'fa fa-question text-warning',
         ],
         [
             'name' => 'Quiz',
@@ -58,12 +58,12 @@ return [
         [
             'name' => 'User List',
             'route' => 'users.index',
-            'icon' => 'fa fa-circle text-warning',
+            'icon' => 'fa fa-users text-warning',
         ],
-        [
-            'name' => 'Admin',
-            'route' => 'languages.index',
-            'icon' => 'fa fa-circle text-warning',
-        ]
+        // [
+        //     'name' => 'Admin',
+        //     'route' => 'languages.index',
+        //     'icon' => 'fa fa-circle text-warning',
+        // ]
     ]
 ];
