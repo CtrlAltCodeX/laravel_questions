@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CbtController;
 use App\Http\Controllers\LanguagesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionBankApiController;
@@ -51,10 +52,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('topic', TopicController::class);
 
     Route::resource('question', QuestionBankController::class);
+    
     Route::resource('question-bank-api', QuestionBankApiController::class);
-
+    
     Route::resource('quiz', QuizController::class);
-
+    
+    Route::resource('cbt', CbtController::class);
+    
     Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
     Route::get('get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
@@ -62,6 +66,8 @@ Route::middleware('auth')->group(function () {
     Route::get('get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
 
     Route::get('get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
+
+    Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}', [CbtController::class, 'getQuestionsData']);
 
     Route::group(['prefix' => 'questions'], function () {
         Route::get('', [QuestionBankController::class, 'getQuestions'])
@@ -74,6 +80,8 @@ Route::middleware('auth')->group(function () {
             ->name('questions.import');
 
         Route::post('/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
+        
+        Route::post('/{id}/translation-delete', [QuestionBankController::class, 'destroyTranslationQuestion']);
 
         Route::post('bulk-delete', [QuestionBankController::class, 'bulkDelete'])
             ->name("question.bulkDelete");
@@ -82,6 +90,11 @@ Route::middleware('auth')->group(function () {
     Route::group(['prefix' => 'quiz'], function () {
         Route::post('deploy', [QuizController::class, 'deploy'])
             ->name('quiz.deploy');
+    })->middleware('auth:sanctum');
+
+    Route::group(['prefix' => 'cbt'], function () {
+        Route::post('deploy', [CbtController::class, 'deploy'])
+            ->name('cbt.deploy');
     })->middleware('auth:sanctum');
 
     Route::get('users', [ProfileController::class, 'users'])

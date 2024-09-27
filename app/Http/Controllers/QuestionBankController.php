@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Imports\QuestionsImport;
 use App\Models\Question;
+use App\Models\TranslatedQuestions;
 use Illuminate\Http\Request;
 use App\Models\QuestionBank;
 use App\Exports\QuestionsExport;
@@ -180,6 +181,13 @@ class QuestionBankController extends Controller
 
         $questions = Question::where('question_bank_id', $id)->get();
 
+        $translatedQuestions = TranslatedQuestions::where('question_id', $id)->with('question')->get();
+        
+        $translatedQuestions = $translatedQuestions->filter( function($translatedQuestion) use ($question) {
+            return $translatedQuestion->language_id != $question->language_id;
+        });
+        
+
         $languages = Language::all();
 
         $categories = Category::all();
@@ -190,7 +198,7 @@ class QuestionBankController extends Controller
 
         $topics = Topic::all();
 
-        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics'));
+        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'questions', 'translatedQuestions'));
     }
 
     /**
@@ -198,6 +206,7 @@ class QuestionBankController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // dd($request->all());
         $rules = [];
 
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
@@ -224,30 +233,42 @@ class QuestionBankController extends Controller
 
         $data = $request->all();
 
-        $question = Question::findOrFail($id);
-        // $questionBank = QuestionBank::findOrFail($question->question_bank_id);
+        $question = Question::findOrFail($data['id']);
 
-        // $questionBank->update([
-        //     'language_id' => $request['module']['Language'][0],
-        //     'category_id' => $request['module']['Category'][0],
-        //     'sub_category_id' => $request['module']['Sub Category'][0],
-        //     'subject_id' => $request['module']['Subject'][0],
-        //     'topic_id' => $request['module']['Topic'][0],
-        // ]);
+        if(count($data['language']) > 1){
+            foreach ($data['language'] as $index => $languageId) {
+                TranslatedQuestions::updateOrCreate(
+                    [
+                        'question_id' => $question->id,
+                        'language_id' => $languageId,    
+                    ],
+                    [
+                    'question_id' => $question->id,
+                    'language_id' => $languageId,
+                    'question' => $data['question'][$index],
+                    'option_a' => $data['option_a'][$index],
+                    'option_b' => $data['option_b'][$index],
+                    'option_c' => $data['option_c'][$index],
+                    'option_d' => $data['option_d'][$index],
+                ]);
+
+            }
+        }
 
         $questionObj = Question::updateOrCreate(
             ['id' => $data['id']],
             [
-                'question' => $data['question'],
-                'photo' => $data['photo'] ?? null,
+                'question' => $data['question'][0],
+                'photo' => $data['photo'][0] ?? null,
                 'photo_link' => $data['photo_link'] ?? null,
-                'notes' => $data['notes'],
+                'notes' => $data['notes'][0],
                 'level' => $data['level'],
-                'option_a' => $data['option_a'],
-                'option_b' => $data['option_b'],
-                'option_c' => $data['option_c'],
-                'option_d' => $data['option_d'],
+                'option_a' => $data['option_a'][0],
+                'option_b' => $data['option_b'][0],
+                'option_c' => $data['option_c'][0],
+                'option_d' => $data['option_d'][0],
                 'answer' => $data['answer'],
+                'question_number' => $data['qno'],
                 'language_id' => $data['module']['Language'][0],
                 'category_id' => $data['module']['Category'][0],
                 'sub_category_id' => $data['module']['Sub Category'][0],
@@ -275,6 +296,19 @@ class QuestionBankController extends Controller
     public function destroyQuestion(string $id)
     {
         $question = Question::findOrFail($id);
+        if (isset($question)) {
+
+            $question->delete();
+        }
+
+        session()->flash('success', 'Question deleted successfully!');
+
+        // return redirect()->route('question.index');
+    }
+
+    public function destroyTranslationQuestion(string $id)
+    {
+        $question = TranslatedQuestions::findOrFail($id);
         if (isset($question)) {
 
             $question->delete();
