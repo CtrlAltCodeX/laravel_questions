@@ -12,16 +12,20 @@ class TranslatedQuestions extends Model
     protected $fillable = [
         'question_id',
         'language_id',
-        'question',
+        'question_text',
         'option_a',
         'option_b',
         'option_c',
         'option_d',
-        'answer'
     ];
 
     public function question()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
     }
 }

@@ -3,7 +3,7 @@
     $dropdown_list = [
     'Select Language' => $languages,
     'Select Language-2' => $languages,
-    'Select Category' => [],
+    'Select Category' => $categories,
     'Select SubCategory' => [],
     ];
 @endphp
@@ -47,7 +47,7 @@
         <div class="flex gap-x-10 items-center mt-5">
                 @csrf
                 <input type="hidden" name="access_token" id="access_token" value={{session('access_token')}}>
-                <input type="hidden" name="api_link" id="api_link" value="http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1">
+                <input type="hidden" name="api_link" id="api_link">
                 <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Deploy</button>
             <!-- <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button> -->
         </div>
@@ -84,30 +84,6 @@
         copyButton.addEventListener('click', () => {
             apiLink.select();
             document.execCommand('copy');
-        });
-        
-        $('#select_language').change(function() {
-            var languageId = $(this).val();
-            $('#select_category').empty().append('<option value="">Select Category</option>');
-            $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
-            $('#select_subject').empty().append('<option value="">Select Subject</option>');
-            $('#select_topic').empty().append('<option value="">Select Topic</option>');
-
-            if (languageId) {
-                $.ajax({
-                    url: '/get-categories/' + languageId,
-                    method: 'GET',
-                    success: function(data) {
-                        console.log('Categories:', data); // Debugging: Log the data
-                        $.each(data, function(key, value) {
-                            $('#select_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching categories:', error); // Debugging: Log any errors
-                    }
-                });
-            }
         });
 
         $('#select_category').change(function() {
@@ -158,7 +134,7 @@
                                             <td class="p-2" data-column="total-questions">${subject.questions}</td>
                                             <td class="p-2" data-column="subject">${subject.name}</td>
                                             <td class="p-2 w-28" data-column="questions">
-                                                <input id="questions_${index}" name="questions[${index}]" type="text" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="questions" id="questions" placeholder="questions"> 
+                                                <input id="questions_${index}" name="subjects[${subject.name}]" type="text" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="questions" id="questions" placeholder="questions"> 
                                             </td>
                                         </tr>
                                         <tr class="bg-gray-200 dark:bg-gray-700">
@@ -172,7 +148,7 @@
                                             <td class="p-2" data-column="question">Set</td>
                                             <td class="p-2" data-column=""></td>
                                             <td class="p-2" data-column="sets">
-                                                <input type="text" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="sets" id="sets" placeholder="sets"> 
+                                                <input type="text" name="sets" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="sets" id="sets" placeholder="sets"> 
                                             </td>
                                         </tr>
                                     </tbody>

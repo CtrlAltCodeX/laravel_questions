@@ -18,7 +18,7 @@ class Question extends Model
         'subject_id',
         'topic_id',
         'language_id',
-        'qno',
+        'question_number',
         'notes',
         'photo',
         'photo_link',
@@ -27,6 +27,7 @@ class Question extends Model
         'option_b',
         'option_c',
         'option_d',
+        'answer',
     ];
 
 
@@ -58,5 +59,10 @@ class Question extends Model
     public function language()
     {
         return $this->belongsTo(Language::class);
+    }
+
+    public function translatedQuestions()
+    {
+        return $this->hasMany(TranslatedQuestions::class);
     }
 }

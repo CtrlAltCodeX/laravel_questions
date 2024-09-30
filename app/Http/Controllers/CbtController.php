@@ -9,6 +9,7 @@ use App\Models\Question;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
+use App\Models\TranslatedQuestions;
 use Illuminate\Http\Request;
 
 class CbtController extends Controller
@@ -20,7 +21,8 @@ class CbtController extends Controller
     {
         //
         $languages = Language::all();
-        return view("cbt.index", compact('languages')); 
+        $categories = Category::all();
+        return view("cbt.index", compact('languages', 'categories')); 
     }
 
     /**
@@ -110,6 +112,7 @@ class CbtController extends Controller
     
         // Fetch questions based on the parameters
         $query = Question::query()->where('category_id', $categoryId);
+        $translated_questions_query = TranslatedQuestions::query();
     
         // Handle both "Language" and "Language-2" parameters
         $languages = [];
@@ -120,57 +123,81 @@ class CbtController extends Controller
             $languages = array_merge($languages, explode(',', $params['Language-2']));
         }
         if (!empty($languages)) {
-            $query->whereIn('language_id', $languages);
+            $translated_questions_query->whereIn('language_id', $languages);
         }
         
         if (isset($params['SubCategory'])) {
             $query->where('sub_category_id', $params['SubCategory']);
         }
         
-        $questions = $query->get();
+        $questions = $query->with([ 'category',  'subCategory', 'subject', 'topic', 'translatedQuestions'])->get();
+
+
+        $translatedQuestions = $translated_questions_query
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->with(['question', 'language'])
+            ->get();
+
+        $jsonResponse = [];
+                    
+        // Transform the questions into the desired JSON structure
+        foreach ($data['subjects'] as $subjectName => $numberOfQuestions) {
             
-        $translated_questions = [];
-        
-        foreach ($languages as $languageId) {
-            $language = Language::findOrFail($languageId);
-            $translated_questions[$language->name] = [];
-        
-            $filteredQuestions = $questions->filter(function ($question) use ($languageId) {
-                return $question->language_id == $languageId;
-            });
-        
-            foreach ($filteredQuestions as $question) {
-                $translated_questions[$language->name][$question->id] = [
-                    'question' => htmlspecialchars($question->question),
-                    'option_a' => htmlspecialchars($question->option_a),
-                    'option_b' => htmlspecialchars($question->option_b),
-                    'option_c' => htmlspecialchars($question->option_c),
-                    'option_d' => htmlspecialchars($question->option_d),
-                    'answer' => $question->answer,
-                ];
+            $subject = Subject::where('name', str_replace('_', ' ', $subjectName))->first();
+            
+            // shuffle the questions according to the subject and number of questions
+            $shuffledSubjectQuestions =  $questions->where('subject_id', $subject->id)->shuffle()->take($numberOfQuestions);
+            
+            $subjectEntry = [
+                'subject' => $subject->name,
+                'questions' => []
+            ];
+
+            foreach ($shuffledSubjectQuestions as $question) {
+                
+                if (count($question->translatedQuestions)) {
+                    $translatedQuestions = $question->translatedQuestions;
+                    $questionText = '';
+                    $optionA = '';
+                    $optionB = '';
+                    $optionC = '';
+                    $optionD = '';
+            
+                    foreach ($languages as $languageId) {
+                        $translatedQuestion = $translatedQuestions->where('language_id', $languageId)->first();        
+                        if ($translatedQuestion) {
+                            $questionText .= htmlspecialchars($translatedQuestion->question_text) . ' </br> ';
+                            $optionA .= htmlspecialchars($translatedQuestion->option_a) . ' </br> ';
+                            $optionB .= htmlspecialchars($translatedQuestion->option_b) . ' </br> ';
+                            $optionC .= htmlspecialchars($translatedQuestion->option_c) . ' </br> ';
+                            $optionD .= htmlspecialchars($translatedQuestion->option_d) . ' </br> ';
+                        }
+                    }
+            
+                    // Remove the trailing ' </br> ' from each string
+                    $questionText = rtrim($questionText, ' </br> ');
+                    $optionA = rtrim($optionA, ' </br> ');
+                    $optionB = rtrim($optionB, ' </br> ');
+                    $optionC = rtrim($optionC, ' </br> ');
+                    $optionD = rtrim($optionD, ' </br> ');
+                    
+                    $subjectEntry['questions'][] = [
+                        $questionText,
+                        $optionA,
+                        $optionB,
+                        $optionC,
+                        $optionD,
+                        $question['answer'] // Assuming this field exists and is a letter like 'A', 'B', 'C', or 'D'
+                    ];
+                }
+
+            }
+
+            if (!empty($subjectEntry['questions'])) {
+                $jsonResponse[] = $subjectEntry;
             }
         }
         
-        // dd($query->toRawSql(), $translated_questions, $languages);
-        // Transform the questions into the desired JSON structure
-        $jsonResponse = [];
-
-        // foreach ($translated_questions as $language => $question) {
-        //     $jsonResponse = [
-        //         'question' => htmlspecialchars($question['question']),
-        //     ];
-        // }
-
-        foreach ($questions as $question) {
-            $jsonResponse[] = [
-                htmlspecialchars($question->question),
-                htmlspecialchars($question->option_a),
-                htmlspecialchars($question->option_b),
-                htmlspecialchars($question->option_c),
-                htmlspecialchars($question->option_d),
-                $question->answer // Assuming this field exists and is a letter like 'A', 'B', 'C', or 'D'
-            ];
-        }
 
         // Return the JSON response
         return response()->json($jsonResponse);

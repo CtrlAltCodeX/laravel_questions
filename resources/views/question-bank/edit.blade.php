@@ -1,11 +1,17 @@
 @extends('layouts.app')
 @php 
     $dropdown_list = [
-    'Select Language' => $languages,
+    //'Select Language' => $languages,
     'Select Category' => $categories,
     'Select Sub Category' => $subCategories,
     'Select Subject' => $subjects,
     'Select Topic' => $topics,
+    ];
+
+    $levels = [
+        '1' => 'Easy',
+        '2' => 'Medium',
+        '3' => 'Hard',
     ];
 @endphp
 @section('content')
@@ -67,9 +73,15 @@
 
                     <!-- Image Upload -->
                     <div  class="col-span-2">
-                        <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                name="qno" value="{{$question->question_number}}"
-                                placeholder="Question No."/>
+                        <div class="flex col-2 gap-x-4">
+                            <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="qno" value="{{$question->question_number}}"
+                                        placeholder="Question No."/>
+
+                            <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="photo_link" value="{{$question->photo_link}}"
+                                    placeholder="photo link"/>
+                        </div>
                         <div class="relative col-span-2 text-left">
                             <input type="hidden" id="photo-{{$question->id}}" name="photo" value="{{$question->photo}}" />
                             <input type="file" accept="image/*" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput{{ $question->id }}"/>
@@ -112,9 +124,13 @@
                                     <option value="{{$option}}" {{$option == $question->answer ? 'selected' : ''}}>{{$option}}</option>
                                 @endforeach
                         </select>
-                        <input type="number" class="mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            name="level" 
-                            placeholder="Level" value="{{$question->level}}"/>
+                        <select class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                name="level">
+                                <option value="">Select Level</option>
+                                @foreach ($levels as $value => $name)
+                                    <option value="{{$value}}" {{$value == $question->level ? 'selected' : ''}}>{{$name}}</option>
+                                @endforeach
+                        </select>
                     </div>
 
                     <!-- Notes and Level -->
@@ -125,18 +141,19 @@
                                 rows="3" cols="3">{{$question->notes}}</textarea>
                     </div>
 
+                    {{-- @php dd($question); @endphp --}}
+
                     <div class="col-span-3">
                         <select id="selectlangauge" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option value="">Select Language</option>
                             @foreach($languages as $item)
-                                <option value="{{$item->id}}" {{$item->id == $question->language->id ? 'selected' : ''}}>{{$item->name}}</option>
+                                <option value="{{$item->id}}" {{$item->id == $question->language_id ? 'selected' : ''}}>{{$item->name}}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
-                {{-- Accordion --}}
-
+                {{-- Languages --}}
                 <div id="languages-container" class="ms-5">
                     @if(count($translatedQuestions) > 0)
                         @foreach ($translatedQuestions as $translatedQuestion)
@@ -154,7 +171,7 @@
                                 <div class="col-span-2">
                                     <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                             name="qno[]" disabled
-                                            placeholder="Question No." value="{{$translatedQuestion->question_number}}"/>
+                                            placeholder="Question No." value="{{$translatedQuestion->question->question_number}}"/>
                                 </div>
 
                                 <!-- Question Field -->
@@ -162,7 +179,7 @@
                                     <textarea class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                             name="question[]" 
                                             placeholder="Enter your question here" 
-                                            rows="3">{{$translatedQuestion->question}}</textarea>
+                                            rows="3">{{$translatedQuestion->question_text}}</textarea>
                                 </div>
 
                                 <!-- Options A-D -->

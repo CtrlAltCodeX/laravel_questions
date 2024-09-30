@@ -60,6 +60,11 @@ class QuestionBankController extends Controller
         $questions = $questions
             ->paginate(request()->per_page);
 
+        foreach ($questions as $question) {
+            # code...
+            $question->translated_questions = TranslatedQuestions::where('question_id', $question->id)->get();
+        }
+
         $languages = Language::all();
 
         $categories = Category::all();
@@ -99,6 +104,7 @@ class QuestionBankController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $rules = [];
 
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
@@ -125,38 +131,56 @@ class QuestionBankController extends Controller
 
         $data = $request->all();
 
-        foreach ($data['question'] as $index => $question) {
-            if ($file = $data['photo'][$index]) {
-                if ($file instanceof UploadedFile) {
-                    $profileImage = time() . "." . $file->getClientOriginalExtension();
-                    $file->move('storage/questions/', $profileImage);
-                    // Update the hidden input value with the new file path
-                    $data['photo'][$index] = 'storage/questions/' . $profileImage;
-                }else{
-                    $profileImage = '/storage/questions/' . $file;
-                }
+        $profileImage = null;
+        if ($file = $data['photo']) {
+            if ($file instanceof UploadedFile) {
+                $profileImage = time() . "." . $file->getClientOriginalExtension();
+                $file->move('storage/questions/', $profileImage);
+                // Update the hidden input value with the new file path
+                $data['photo'] = 'storage/questions/' . $profileImage;
+            }else{
+                !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
             }
+        }
 
-            Question::updateOrCreate(
-                ['id' => $data['id'][$index]],
-                [
-                    'question' => $question,
-                    'photo' => $profileImage,
-                    'photo_link' => $data['photo_link'][$index],
-                    'notes' => $data['notes'][$index],
-                    'level' => $data['level'][$index],
+        $question = Question::updateOrCreate(
+            ['id' => $data['id']],
+            [
+                'question' => $data['question'][0],
+                'photo' => $profileImage,
+                'photo_link' => $data['photo_link'],
+                'notes' => $data['notes'][0],
+                'level' => $data['level'],
+                'option_a' => $data['option_a'][0],
+                'option_b' => $data['option_b'][0],
+                'option_c' => $data['option_c'][0],
+                'option_d' => $data['option_d'][0],
+                'answer' => $data['answer'][0],
+                'language_id' => $data['language'][0],
+                'category_id' => $data['module']['Category'][0],
+                'sub_category_id' => $data['module']['Sub Category'][0],
+                'subject_id' => $data['module']['Subject'][0],
+                'topic_id' => $data['module']['Topic'][0],
+            ]
+        );
+
+        if(count($data['language']) > 1){
+            foreach ($data['language'] as $index => $languageId) {
+                TranslatedQuestions::updateOrCreate(
+                    [
+                        'question_id' => $question->id,
+                        'language_id' => $languageId,    
+                    ],
+                    [
+                    'question_id' => $question->id,
+                    'language_id' => $languageId,
+                    'question_text' => $data['question'][$index],
                     'option_a' => $data['option_a'][$index],
                     'option_b' => $data['option_b'][$index],
                     'option_c' => $data['option_c'][$index],
                     'option_d' => $data['option_d'][$index],
-                    'answer' => $data['answer'][$index],
-                    'language_id' => $data['module']['Language'][0],
-                    'category_id' => $data['module']['Category'][0],
-                    'sub_category_id' => $data['module']['Sub Category'][0],
-                    'subject_id' => $data['module']['Subject'][0],
-                    'topic_id' => $data['module']['Topic'][0],
-                ]
-            );
+                ]);
+            }
         }
 
         session()->flash('success', 'Question created successfully!');
@@ -245,7 +269,7 @@ class QuestionBankController extends Controller
                     [
                     'question_id' => $question->id,
                     'language_id' => $languageId,
-                    'question' => $data['question'][$index],
+                    'question_text' => $data['question'][$index],
                     'option_a' => $data['option_a'][$index],
                     'option_b' => $data['option_b'][$index],
                     'option_c' => $data['option_c'][$index],
@@ -256,8 +280,11 @@ class QuestionBankController extends Controller
         }
 
         $questionObj = Question::updateOrCreate(
-            ['id' => $data['id']],
             [
+                'id' => $data['id'],
+            ],
+            [
+                'id' => $data['id'],
                 'question' => $data['question'][0],
                 'photo' => $data['photo'][0] ?? null,
                 'photo_link' => $data['photo_link'] ?? null,
@@ -269,7 +296,7 @@ class QuestionBankController extends Controller
                 'option_d' => $data['option_d'][0],
                 'answer' => $data['answer'],
                 'question_number' => $data['qno'],
-                'language_id' => $data['module']['Language'][0],
+                'language_id' => $data['language'][0],
                 'category_id' => $data['module']['Category'][0],
                 'sub_category_id' => $data['module']['Sub Category'][0],
                 'subject_id' => $data['module']['Subject'][0],
@@ -282,8 +309,9 @@ class QuestionBankController extends Controller
             $fileName = "storage/questions/" . time() . "_photo.jpg";
             $request->file('photo.' . $data['photo'])->storePubliclyAs('public', $fileName);
             $questionObj->photo = $fileName;
-            $questionObj->save();
         }
+        
+        $questionObj->save();
 
         session()->flash('success', 'Question updated successfully!');
 
@@ -334,8 +362,10 @@ class QuestionBankController extends Controller
     {
         $query = Question::query();
 
+        $translation_questions_query = TranslatedQuestions::query();
+
         if ($request->has('language_id') && isset($request->language_id)) {
-            $query->where('language_id', $request->language_id);
+            $translation_questions_query->where('language_id', $request->language_id);
         }
         if ($request->has('category_id') && isset($request->category_id)) {
             $query->where('category_id', $request->category_id);
@@ -350,22 +380,31 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $request->topic_id);
         }
 
-        $query->with('language', 'category', 'subCategory', 'subject', 'topic');
+        $query->with(['category', 'subCategory', 'subject', 'topic']);
+        $translation_questions_query->with(['language', 'question']);
 
         
         $questions = $query->get();
 
-        return response()->json(data: $questions);
+        // Check if there are any questions fetched
+        if ($questions->isEmpty()) {
+            return response()->json([]);
+        }
+
+        // Fetch translated questions based on the main questions
+        $translatedQuestions = $translation_questions_query
+        ->whereIn('question_id', $questions->pluck('id'))
+        ->with(['question', 'language'])
+        ->get();
+
+        return response()->json(data: $translatedQuestions);
     }
 
     public function export(Request $request)
     {
         $languages = $request->input('languages', []);
         $query = Question::query();
-
-        if ($request->language_id != '') {
-            $query->where('language_id', $request->language_id);
-        }
+        $translated_questions_query = TranslatedQuestions::whereIn('language_id', $languages);
         
         if ($request->category_id != '') {
             $query->where('category_id', $request->category_id);
@@ -383,52 +422,47 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $request->topic_id);
         }
 
-        $question_query = $query->with(['language', 'topic', 'subject', 'subCategory', 'category'])
+        $question_query = $query->with(['topic', 'subject', 'subCategory', 'category'])
+            ->get();
+
+        $translatedQuestions = $translated_questions_query
+            ->whereIn('question_id', $question_query->pluck('id'))
+            ->with(['question', 'language'])
             ->get();
     
         $questions = [];
 
-        foreach ($question_query as $question) {
-            $questionData = [
-                'question' => [],
-                'option_a' => [],
-                'option_b' => [],
-                'option_c' => [],
-                'option_d' => [],
-                'answer' => $question['answer'],
-                'level' => $question['level'],
-                'photo' => $question['photo'],
-                'photo_link' => $question['photo_link'],
-                'category' => $question->category->name ?? '',
-                'subCategory' => $question->subCategory->name ?? '',
-                'subject' => $question->subject->name ?? '',
-                'topic' => $question->topic->name ?? '',
-                'language' => $question->language->name ?? '',
-            ];
+        foreach ($translatedQuestions as $translatedQuestion) {
+            $questionId = $translatedQuestion->question_id;
 
-            foreach ($languages as $languageId) {
-                $language = Language::find($languageId);
-                $translatedQuestion = $language->questions()->where('questions.id', $question['id'])->get();
-                $questionData['qno'] = $question['qno'] ?? '';
-                $questionData['notes'] = $question['notes'] ?? '';
-                if ($translatedQuestion->count() > 0) {
-                    $questionData['question'][$language->id] = $translatedQuestion[0]->question;
-                    $questionData['option_a'][$language->id] = $translatedQuestion[0]->option_a;
-                    $questionData['option_b'][$language->id] = $translatedQuestion[0]->option_b;
-                    $questionData['option_c'][$language->id] = $translatedQuestion[0]->option_c;
-                    $questionData['option_d'][$language->id] = $translatedQuestion[0]->option_d;
-                } else {
-                    $questionData['question'][$language->id] = $question['question'];
-                    $questionData['option_a'][$language->id] = $question['option_a'];
-                    $questionData['option_b'][$language->id] = $question['option_b'];
-                    $questionData['option_c'][$language->id] = $question['option_c'];
-                    $questionData['option_d'][$language->id] = $question['option_d'];
-                }
+            if (!isset($questions[$questionId])) {
+                $questions[$questionId] = [
+                    'question' => [],
+                    'option_a' => [],
+                    'option_b' => [],
+                    'option_c' => [],
+                    'option_d' => [],
+                    'answer' => $translatedQuestion->question->answer,
+                    'level' => $translatedQuestion->question->level,
+                    'photo' => $translatedQuestion->question->photo,
+                    'photo_link' => $translatedQuestion->question->photo_link,
+                    'category' => Category::where('id', $translatedQuestion->question->category_id)->first()->name ?? '',
+                    'subCategory' => SubCategory::where('id', $translatedQuestion->question->sub_category_id)->first()->name ?? '',
+                    'subject' => Subject::where('id', $translatedQuestion->question->subject_id)->first()->name ?? '',
+                    'topic' => Topic::where('id', $translatedQuestion->question->topic_id)->first()->name ?? '',
+                    'qno' => $translatedQuestion->question->question_number,
+                    'notes' => $translatedQuestion->question->notes,
+                    'id' => $translatedQuestion->question_id,
+                ];
             }
-
-            $questions[] = $questionData;
+            
+            $questions[$questionId]['language'][$translatedQuestion->language->id] = $translatedQuestion->language->name;
+            $questions[$questionId]['question'][$translatedQuestion->language->id] = $translatedQuestion->question_text;
+            $questions[$questionId]['option_a'][$translatedQuestion->language->id] = $translatedQuestion->option_a;
+            $questions[$questionId]['option_b'][$translatedQuestion->language->id] = $translatedQuestion->option_b;
+            $questions[$questionId]['option_c'][$translatedQuestion->language->id] = $translatedQuestion->option_c;
+            $questions[$questionId]['option_d'][$translatedQuestion->language->id] = $translatedQuestion->option_d;
         }
-
         return Excel::download(new QuestionsExport($questions,  $languages), 'questions.xlsx');
     }
 
@@ -438,29 +472,6 @@ class QuestionBankController extends Controller
             'file' => 'required|mimes:xlsx,csv',
         ]);
 
-        // Load the file to check rows before importing
-        $rows = Excel::toArray(new QuestionsImport, $request->file('file'));
-
-        foreach ($rows[0] as $row) {
-            // Perform validation checks for required IDs
-            if (!$this->getLanguageId($row['language'])) {
-                return back()->with('error', 'Language -  "' . $row['language'] . '" not available');
-            }
-            if (!$this->getCategoryId($row['category'])) {
-                return back()->with('error', 'Category - "' . $row['category'] . '" not available');
-            }
-            if (!$this->getSubCategoryId($row['sub_category'])) {
-                return back()->with('error', 'Subcategory - "' . $row['sub_category'] . '" not available');
-            }
-            if (!$this->getSubjectId($row['subject'])) {
-                return back()->with('error', 'Subject - "' . $row['subject'] . '" not available');
-            }
-            if (!$this->getTopicId($row['topic'])) {
-                return back()->with('error', 'Topic - "' . $row['topic'] . '" not available');
-            }
-        }
-
-        // If all validations pass, proceed with the import
         Excel::import(new QuestionsImport, $request->file('file'));
 
         return back()->with('success', 'Questions imported successfully.');
