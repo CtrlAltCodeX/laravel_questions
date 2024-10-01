@@ -2,7 +2,9 @@
 
 namespace App\Imports;
 
+use App\Models\Language;
 use App\Models\Question;
+use App\Models\TranslatedQuestions;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -10,16 +12,34 @@ class QuestionsImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        // Get language, category, sub_category, subject, and topic IDs
-        $languageId = $this->getLanguageId($row['language']);
+        // dd($row);
+        // Get all the headings and count the number of languages
+        $headings = array_keys($row);
+        $substring = "language";
+        $languageCount = 0;
+        $languageIds = [];
+        
+        foreach ($headings as $key) {
+            if (strpos($key, $substring) !== false) {
+                $languageCount++;
+                $id = str_replace($substring . '_', '', $key);
+                $languageIds[] = $id;
+            }
+        }
+        
+        // Get category, sub_category, subject, and topic IDs
         $categoryId = $this->getCategoryId($row['category']);
-        $subCategoryId = $this->getSubCategoryId($row['sub_category']);
+        $subCategoryId = $this->getSubCategoryId($row['subcategory']);
         $subjectId = $this->getSubjectId($row['subject']);
         $topicId = $this->getTopicId($row['topic']);
-
+        
         // Check if any of the IDs are missing and return a specific message
-        if (!$languageId) {
-            return back()->with('error', 'Language not available.');
+        foreach ($languageIds as $languageId) {
+            # code...
+            $languageId = $this->getLanguageId($row['language_'. strtolower($languageId)]);
+            if (!$languageId) {
+                return back()->with('error', 'Language not available.');
+            }
         }
         if (!$categoryId) {
             return back()->with('error', 'Category not available.');
@@ -34,41 +54,47 @@ class QuestionsImport implements ToModel, WithHeadingRow
             return back()->with('error', 'Topic not available.');
         }
 
-        // Create a new question bank entry
-        $questionBank = new \App\Models\QuestionBank([
-            'language_id' => $languageId,
+        // Create the question based on the provided data
+        $question = Question::updateOrCreate([
+            'question_number' => $row['qno'],
+            'question' => $row['question_' . strtolower(Language::findOrFail($languageIds[0])->name)],
+            'option_a' => $row['option_a_' . strtolower(Language::findOrFail($languageIds[0])->name)],
+            'option_b' => $row['option_b_' . strtolower(Language::findOrFail($languageIds[0])->name)],
+            'option_c' => $row['option_c_' . strtolower(Language::findOrFail($languageIds[0])->name)],
+            'option_d' => $row['option_d_' . strtolower(Language::findOrFail($languageIds[0])->name)],
+            'answer' => $row['answer'],
+            'photo' => $row['photo'],
+            'photo_link' => $row['photo_link'],
+            'notes' => $row['notes'],
+            'level' => $row['level'],
+            'language_id' => $languageIds[0],
             'category_id' => $categoryId,
             'sub_category_id' => $subCategoryId,
             'subject_id' => $subjectId,
             'topic_id' => $topicId,
         ]);
 
-        // Create the question based on the provided data
-        $questions = new Question([
-            'question_number' => $row['qno'],
-            'question' => $row['question_' . strtolower($questionBank->language->name)],
-            'option_a' => $row['option_a_' . strtolower($questionBank->language->name)],
-            'option_b' => $row['option_b_' . strtolower($questionBank->language->name)],
-            'option_c' => $row['option_c_' . strtolower($questionBank->language->name)],
-            'option_d' => $row['option_d_' . strtolower($questionBank->language->name)],
-            'answer' => $row['answer'],
-            'photo' => $row['photo'],
-            'photo_link' => $row['photo_link'],
-            'notes' => $row['notes'],
-            'level' => $row['level'],
-            'question_bank_id' => $questionBank->id,
-            'language_id' => $questionBank->language_id,
-            'category_id' => $questionBank->category_id,
-            'sub_category_id' => $questionBank->sub_category_id,
-            'subject_id' => $questionBank->subject_id,
-            'topic_id' => $questionBank->topic_id,
-        ]);
 
-        // Save both QuestionBank and Question
-        $questionBank->save();
-        $questions->save();
+        foreach ($languageIds as $lang_id) {
+            $language = Language::findOrFail($lang_id);
+            # code...
+            TranslatedQuestions::updateOrCreate(
+                [
+                    'question_id' => $question->id,
+                    'language_id' => $lang_id,
+                ],
+                [
+                'question_id' => $question->id,
+                'language_id' => $lang_id,
+                'question_text' => $row['question_' . strtolower($language->name)],
+                'option_a' => $row['option_a_' . strtolower($language->name)],
+                'option_b' => $row['option_b_' . strtolower($language->name)],
+                'option_c' => $row['option_c_' . strtolower($language->name)],
+                'option_d' => $row['option_d_' . strtolower($language->name)],
+            ]);
+        }
 
-        return $questions;
+        return $question;
     }
 
     private function getLanguageId($name)

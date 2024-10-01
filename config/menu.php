@@ -52,7 +52,7 @@ return [
         ],
         [
             'name' => 'CBT',
-            'route' => 'languages.index',
+            'route' => 'cbt.index',
             'icon' => 'fa fa-circle text-warning',
         ],
         [
