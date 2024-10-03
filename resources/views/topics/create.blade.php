@@ -27,7 +27,7 @@
             @endforeach
         </select>
         @error('subject_id')
-        <div class="text-red">{{ $message }}</div>
+        <div class="text-red-500">{{ $message }}</div>
         @enderror
     </div>
 

@@ -143,11 +143,14 @@ class QuestionBankController extends Controller
             }
         }
 
+        // dd($data);
         $question = Question::updateOrCreate(
             ['id' => $data['id']],
             [
                 'question' => $data['question'][0],
-                'photo' => $profileImage,
+                'photo' => $data['photo'],
+                'question_number'=>$data['qno'],
+                
                 'photo_link' => $data['photo_link'],
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],
@@ -163,8 +166,9 @@ class QuestionBankController extends Controller
                 'topic_id' => $data['module']['Topic'][0],
             ]
         );
+        // dd($question);
 
-        if(count($data['language']) > 1){
+        if(count($data['language']) > 0){
             foreach ($data['language'] as $index => $languageId) {
                 TranslatedQuestions::updateOrCreate(
                     [

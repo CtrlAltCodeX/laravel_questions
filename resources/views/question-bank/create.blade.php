@@ -176,7 +176,7 @@ $dropdown_list = [
                                 <div class='mb-2'>
                                     <div class="relative col-span-2 text-left">
                                         <input type="hidden" id="photo-new" name="photo" value="" />
-                                        <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
+                                        <input type="file" accept="image/*" name="photo" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
                                         <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                             Upload Photo
                                         </button>
@@ -321,7 +321,7 @@ $dropdown_list = [
                                                 <div class='mb-2'>
                                                     <div class="relative col-span-2 text-left">
                                                         <input type="hidden" id="photo-${question.id}" name="photo[]" value="${question.photo}" />
-                                                        <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-${question.id}" />
+                                                        <input type="file" accept="image/*" name="photo[]" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-${question.id}" />
                                                         <button type="button" id="fileButton-${question.id}" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                             ${question.photo ?? ' '} 
                                                         </button>
@@ -680,7 +680,7 @@ $dropdown_list = [
                             <div class='mb-2'>
                                 <div class="relative col-span-2 text-left">
                                     <input type="hidden" id="photo-new${rowCounter}" name="photo[]" value="" />
-                                    <input type="file" accept="image/*" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new${rowCounter}" />
+                                    <input type="file" accept="image/*" name='photo[]' class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new${rowCounter}" />
                                     <button type="button" id="fileButton-new${rowCounter}" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         Upload Photo
                                     </button>

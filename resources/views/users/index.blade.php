@@ -37,11 +37,13 @@
 
                 <td class="px-6 py-4 flex gap-4">
                     <!-- <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a> -->
-                    <form action="#" method='POST'>
+                    @if(Auth::user()->id !== $user->id)
+                    <form action="{{route('profile.destroy',$user->id)}}" method='POST'>
                         @csrf
                         @method('DELETE')
-                        <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline">Delete</button>
+                        <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
+                    @endif
                 </td>
             </tr>
             @empty

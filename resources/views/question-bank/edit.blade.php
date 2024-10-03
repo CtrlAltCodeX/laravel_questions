@@ -75,8 +75,8 @@
                     <div  class="col-span-2">
                         <div class="flex col-2 gap-x-4">
                             <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="qno" value="{{$question->question_number}}"
-                                        placeholder="Question No."/>
+                                        name="qno" value="{{$question->question_number}}"   
+                                        placeholder="Question "/>
 
                             <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                     name="photo_link" value="{{$question->photo_link}}"
@@ -170,7 +170,8 @@
                                 <!-- Image Upload -->
                                 <div class="col-span-2">
                                     <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="qno[]" disabled
+                                            name="qno[]" 
+                                            
                                             placeholder="Question No." value="{{$translatedQuestion->question->question_number}}"/>
                                 </div>
 

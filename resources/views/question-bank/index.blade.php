@@ -397,18 +397,31 @@
 
         // SweetAlert2 export button logic
         $('#exportButton').click(function() {
-            Swal.fire({
-                title: 'Select Languages for Export',
-                html: `
-                <div id="languageSelectContainer">
+            let languageCheckBoxes="";
+            @foreach($languages as $language)
+            languageCheckBoxes+=`
+            <div id="languageSelectContainer">
                     <div class="flex gap-x-5 items-center">
-                    @foreach($languages as $language)
+             
                         <input type="checkbox" {{ $language->name == "English" ? 'checked disabled' : ''}} id="language_{{ $language->id }}" value="{{ $language->id }}">
                         <label for="language_{{ $language->id }}">{{ $language->name }}</label>
-                    @endforeach
+        
                     </div>
-                </div>
-            `,
+                </div>`;
+                @endforeach
+            Swal.fire({
+                title: 'Select Languages for Export',
+                html: languageCheckBoxes,
+                // `
+                // <div id="languageSelectContainer">
+                //     <div class="flex gap-x-5 items-center">
+                //     @foreach($languages as $language)
+                //         <input type="checkbox" {{ $language->name == "English" ? 'checked disabled' : ''}} id="language_{{ $language->id }}" value="{{ $language->id }}">
+                //         <label for="language_{{ $language->id }}">{{ $language->name }}</label>
+                //     @endforeach
+                //     </div>
+                // </div>`
+                
                 showCancelButton: true,
                 confirmButtonText: 'Export',
                 preConfirm: () => {
