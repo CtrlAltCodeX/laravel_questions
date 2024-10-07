@@ -37,22 +37,22 @@ class QuestionBankController extends Controller
                 ->orWhere('notes', 'LIKE', "%$search%");
         }
 
-        if (request()->has('language_id')) {
-            $questions->where('language_id', request()->language_id);
-        }
-        
+        // if (request()->has('language_id')) {
+        //     $questions->where('language_id', request()->language_id);
+        // }
+
         if (request()->has('category_id')) {
             $questions->where('category_id', request()->category_id);
         }
-        
+
         if (request()->has('sub_category_id')) {
             $questions->where('sub_category_id', request()->sub_category_id);
         }
-        
+
         if (request()->has('subject_id')) {
             $questions->where('subject_id', request()->subject_id);
         }
-        
+
         if (request()->has('topic_id')) {
             $questions->where('topic_id', request()->topic_id);
         }
@@ -60,17 +60,16 @@ class QuestionBankController extends Controller
         $questions = $questions
             ->paginate(request()->per_page);
 
-        foreach ($questions as $question) {
-            # code...
-            $question->translated_questions = TranslatedQuestions::where('question_id', $question->id)->get();
-        }
+        // foreach ($questions as $question) {
+        //     $question->translated_questions = TranslatedQuestions::where('question_id', $question->id)
+        //         ->get();
+        // }
 
         $languages = Language::all();
 
         $categories = Category::all();
 
-        $sub_categories = SubCategory::where('category_id', request()->category_id)
-            ->get();
+        $sub_categories = SubCategory::where('category_id', request()->category_id)->get();
 
         $subjects = Subject::all();
 
@@ -104,7 +103,6 @@ class QuestionBankController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $rules = [];
 
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
@@ -138,7 +136,7 @@ class QuestionBankController extends Controller
                 $file->move('storage/questions/', $profileImage);
                 // Update the hidden input value with the new file path
                 $data['photo'] = 'storage/questions/' . $profileImage;
-            }else{
+            } else {
                 !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
             }
         }
@@ -147,7 +145,7 @@ class QuestionBankController extends Controller
             ['id' => $data['id']],
             [
                 'question' => $data['question'][0],
-                'photo' => $profileImage,
+                'photo' => $data['photo'],
                 'photo_link' => $data['photo_link'],
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],
@@ -164,22 +162,23 @@ class QuestionBankController extends Controller
             ]
         );
 
-        if(count($data['language']) > 1){
+        if (count($data['language']) > 0) {
             foreach ($data['language'] as $index => $languageId) {
                 TranslatedQuestions::updateOrCreate(
                     [
                         'question_id' => $question->id,
-                        'language_id' => $languageId,    
+                        'language_id' => $languageId,
                     ],
                     [
-                    'question_id' => $question->id,
-                    'language_id' => $languageId,
-                    'question_text' => $data['question'][$index],
-                    'option_a' => $data['option_a'][$index],
-                    'option_b' => $data['option_b'][$index],
-                    'option_c' => $data['option_c'][$index],
-                    'option_d' => $data['option_d'][$index],
-                ]);
+                        'question_id' => $question->id,
+                        'language_id' => $languageId,
+                        'question_text' => $data['question'][$index],
+                        'option_a' => $data['option_a'][$index],
+                        'option_b' => $data['option_b'][$index],
+                        'option_c' => $data['option_c'][$index],
+                        'option_d' => $data['option_d'][$index],
+                    ]
+                );
             }
         }
 
@@ -206,11 +205,11 @@ class QuestionBankController extends Controller
         $questions = Question::where('question_bank_id', $id)->get();
 
         $translatedQuestions = TranslatedQuestions::where('question_id', $id)->with('question')->get();
-        
-        $translatedQuestions = $translatedQuestions->filter( function($translatedQuestion) use ($question) {
+
+        $translatedQuestions = $translatedQuestions->filter(function ($translatedQuestion) use ($question) {
             return $translatedQuestion->language_id != $question->language_id;
         });
-        
+
 
         $languages = Language::all();
 
@@ -230,9 +229,8 @@ class QuestionBankController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd($request->all());
         $rules = [];
-
+        
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
             $rules['module.' . $moduleKey] = 'required|array|min:1';
         }
@@ -259,23 +257,34 @@ class QuestionBankController extends Controller
 
         $question = Question::findOrFail($data['id']);
 
-        if(count($data['language']) > 1){
+        if (count($data['language']) > 0) {
             foreach ($data['language'] as $index => $languageId) {
                 TranslatedQuestions::updateOrCreate(
                     [
                         'question_id' => $question->id,
-                        'language_id' => $languageId,    
+                        'language_id' => $languageId,
                     ],
                     [
-                    'question_id' => $question->id,
-                    'language_id' => $languageId,
-                    'question_text' => $data['question'][$index],
-                    'option_a' => $data['option_a'][$index],
-                    'option_b' => $data['option_b'][$index],
-                    'option_c' => $data['option_c'][$index],
-                    'option_d' => $data['option_d'][$index],
-                ]);
+                        'question_id' => $question->id,
+                        'language_id' => $languageId,
+                        'question_text' => $data['question'][$index],
+                        'option_a' => $data['option_a'][$index],
+                        'option_b' => $data['option_b'][$index],
+                        'option_c' => $data['option_c'][$index],
+                        'option_d' => $data['option_d'][$index],
+                    ]
+                );
+            }
+        }
 
+        $profileImage = null;
+        if ($file = $data['photo']) {
+            if ($file instanceof UploadedFile) {
+                $profileImage = time() . "." . $file->getClientOriginalExtension();
+                $file->move('storage/questions/', $profileImage);
+                $data['photo'] = 'storage/questions/' . $profileImage;
+            } else {
+                !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
             }
         }
 
@@ -285,8 +294,9 @@ class QuestionBankController extends Controller
             ],
             [
                 'id' => $data['id'],
+                'question_number' => $data['qno'][0],
                 'question' => $data['question'][0],
-                'photo' => $data['photo'][0] ?? null,
+                'photo' => $data['photo'] ?? null,
                 'photo_link' => $data['photo_link'] ?? null,
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],
@@ -304,14 +314,6 @@ class QuestionBankController extends Controller
                 'question_bank_id' => null
             ]
         );
-
-        if ($request->hasFile('photo.' . $data['photo'])) {
-            $fileName = "storage/questions/" . time() . "_photo.jpg";
-            $request->file('photo.' . $data['photo'])->storePubliclyAs('public', $fileName);
-            $questionObj->photo = $fileName;
-        }
-        
-        $questionObj->save();
 
         session()->flash('success', 'Question updated successfully!');
 
@@ -349,7 +351,7 @@ class QuestionBankController extends Controller
 
     public function destroy(string $id)
     {
-        $question = Question::findOrFail($id);
+        $question = TranslatedQuestions::find($id);
 
         if (isset($question)) {
             $question->delete();
@@ -367,23 +369,28 @@ class QuestionBankController extends Controller
         if ($request->has('language_id') && isset($request->language_id)) {
             $translation_questions_query->where('language_id', $request->language_id);
         }
+
         if ($request->has('category_id') && isset($request->category_id)) {
             $query->where('category_id', $request->category_id);
         }
+
         if ($request->has('sub_category_id') && isset($request->sub_category_id)) {
             $query->where('sub_category_id', $request->sub_category_id);
         }
+
         if ($request->has('subject_id') && isset($request->subject_id)) {
             $query->where('subject_id', $request->subject_id);
         }
+
         if ($request->has('topic_id') && isset($request->topic_id)) {
             $query->where('topic_id', $request->topic_id);
         }
 
         $query->with(['category', 'subCategory', 'subject', 'topic']);
+
         $translation_questions_query->with(['language', 'question']);
 
-        
+
         $questions = $query->get();
 
         // Check if there are any questions fetched
@@ -393,10 +400,10 @@ class QuestionBankController extends Controller
 
         // Fetch translated questions based on the main questions
         $translatedQuestions = $translation_questions_query
-        ->whereIn('question_id', $questions->pluck('id'))
-        ->with(['question', 'language'])
-        ->get();
-
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->with(['question', 'language'])
+            ->get();
+            
         return response()->json(data: $translatedQuestions);
     }
 
@@ -405,19 +412,19 @@ class QuestionBankController extends Controller
         $languages = $request->input('languages', []);
         $query = Question::query();
         $translated_questions_query = TranslatedQuestions::whereIn('language_id', $languages);
-        
+
         if ($request->category_id != '') {
             $query->where('category_id', $request->category_id);
         }
-        
+
         if ($request->sub_category_id != '') {
             $query->where('sub_category_id', $request->sub_category_id);
         }
-        
+
         if ($request->subject_id != '') {
             $query->where('subject_id', $request->subject_id);
         }
-        
+
         if ($request->topic_id != '') {
             $query->where('topic_id', $request->topic_id);
         }
@@ -429,7 +436,7 @@ class QuestionBankController extends Controller
             ->whereIn('question_id', $question_query->pluck('id'))
             ->with(['question', 'language'])
             ->get();
-    
+
         $questions = [];
 
         foreach ($translatedQuestions as $translatedQuestion) {
@@ -455,7 +462,7 @@ class QuestionBankController extends Controller
                     'id' => $translatedQuestion->question_id,
                 ];
             }
-            
+
             $questions[$questionId]['language'][$translatedQuestion->language->id] = $translatedQuestion->language->name;
             $questions[$questionId]['question'][$translatedQuestion->language->id] = $translatedQuestion->question_text;
             $questions[$questionId]['option_a'][$translatedQuestion->language->id] = $translatedQuestion->option_a;
@@ -533,7 +540,7 @@ class QuestionBankController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('ids');
-        
+
         if (!empty($ids)) {
             Question::whereIn('id', $ids)
                 ->delete();

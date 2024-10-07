@@ -12,7 +12,6 @@ class QuestionsImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        // dd($row);
         // Get all the headings and count the number of languages
         $headings = array_keys($row);
         $substring = "language";
@@ -28,31 +27,15 @@ class QuestionsImport implements ToModel, WithHeadingRow
         }
         
         // Get category, sub_category, subject, and topic IDs
-        $categoryId = $this->getCategoryId($row['category']);
-        $subCategoryId = $this->getSubCategoryId($row['subcategory']);
-        $subjectId = $this->getSubjectId($row['subject']);
-        $topicId = $this->getTopicId($row['topic']);
-        
-        // Check if any of the IDs are missing and return a specific message
-        foreach ($languageIds as $languageId) {
-            # code...
-            $languageId = $this->getLanguageId($row['language_'. strtolower($languageId)]);
-            if (!$languageId) {
-                return back()->with('error', 'Language not available.');
-            }
-        }
-        if (!$categoryId) {
-            return back()->with('error', 'Category not available.');
-        }
-        if (!$subCategoryId) {
-            return back()->with('error', 'Subcategory not available.');
-        }
-        if (!$subjectId) {
-            return back()->with('error', 'Subject not available.');
-        }
-        if (!$topicId) {
-            return back()->with('error', 'Topic not available.');
-        }
+        // $categoryId = $this->getCategoryId($row['category']);
+        // $subCategoryId = $this->getSubCategoryId($row['subcategory']);
+        // $subjectId = $this->getSubjectId($row['subject']);
+        // $topicId = $this->getTopicId($row['topic']);
+
+        $categoryId = $row['category'];
+        $subCategoryId = $row['subcategory'];
+        $subjectId = $row['subject'];
+        $topicId = $row['topic'];
 
         // Create the question based on the provided data
         $question = Question::updateOrCreate([
@@ -73,7 +56,6 @@ class QuestionsImport implements ToModel, WithHeadingRow
             'subject_id' => $subjectId,
             'topic_id' => $topicId,
         ]);
-
 
         foreach ($languageIds as $lang_id) {
             $language = Language::findOrFail($lang_id);
