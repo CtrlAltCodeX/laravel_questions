@@ -1,3 +1,9 @@
+
+<!-- use Illuminate\Support\Facades\Route; -->
+@php 
+use Illuminate\Support\Str;
+@endphp
+
 <style>
     #logo-sidebar {
         transition: width 0.3s ease;
@@ -61,9 +67,11 @@
                 <!-- Dropdown Content -->
                 <div class="mt-2 space-y-2 pl-14 dropdown">
                     @foreach($item['sub-menus'] as $subMenu)
-                    <a href="{{ route($subMenu['route']) }}" class="block px-4 py-2 rounded">
+                    <a href="{{ route($subMenu['route']) }}" 
+                        class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
+
                         <i class="{{ $subMenu['icon'] }}"></i>
-                        <span class="sidebar-text">{{$subMenu['name']}}</span>
+                        <span class="sidebar-text" >{{$subMenu['name']}}</span>
                     </a>
                     @endforeach
                 </div>
@@ -74,8 +82,10 @@
         </ul>
     </div>
 </aside>
+ 
 
 @push('scripts')
+
 <script>
     $('#sidebarToggle').on('click', function() {
         var sidebar = $('#logo-sidebar');
