@@ -17,20 +17,20 @@
         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
         <input type="text" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name" required />
         @error('name')
-        <div>{{ $message }}</div>
+        <div class="text-danger">{{ $message }}</div>
         @enderror
     </div>
 
     <div class="max-w-sm mx-auto mb-5">
         <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Language</label>
         <select name="language_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <option selected>Choose a language</option>
+            <option value="">Choose a language</option>
             @foreach($languages as $language)
             <option value="{{$language->id}}">{{$language->name}}</option>
             @endforeach
         </select>
         @error('language_id')
-        <div>{{ $message }}</div>
+        <div class="text-red-500">{{ $message }}</div>
         @enderror
     </div>
 
