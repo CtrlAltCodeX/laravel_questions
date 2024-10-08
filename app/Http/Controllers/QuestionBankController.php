@@ -479,34 +479,55 @@ class QuestionBankController extends Controller
             'file' => 'required|mimes:xlsx,csv',
         ]);
 
+        // Load the file to check rows before importing
+        $rows = Excel::toArray(new QuestionsImport, $request->file('file'));
+        foreach ($rows[0] as $row) {
+            // Perform validation checks for required IDs
+            if (!$this->getLanguageId($row['language'])) {
+                return back()->with('error', 'Language -  "' . $row['language'] . '" not available');
+            }
+            if (!$this->getCategoryId($row['category'])) {
+                return back()->with('error', 'Category - "' . $row['category'] . '" not available');
+            }
+            if (!$this->getSubCategoryId($row['sub_category'])) {
+                return back()->with('error', 'Subcategory - "' . $row['sub_category'] . '" not available');
+            }
+            if (!$this->getSubjectId($row['subject'])) {
+                return back()->with('error', 'Subject - "' . $row['subject'] . '" not available');
+            }
+            if (!$this->getTopicId($row['topic'])) {
+                return back()->with('error', 'Topic - "' . $row['topic'] . '" not available');
+            }
+        }
+
         Excel::import(new QuestionsImport, $request->file('file'));
 
         return back()->with('success', 'Questions imported successfully.');
     }
 
-    private function getLanguageId($name)
+    private function getLanguageId($id)
     {
-        return \App\Models\Language::where('name', $name)->first()->id ?? null;
+        return \App\Models\Language::find($id)->id ?? null;
     }
 
-    private function getCategoryId($name)
+    private function getCategoryId($id)
     {
-        return \App\Models\Category::where('name', $name)->first()->id ?? null;
+        return \App\Models\Category::find($id)->id ?? null;
     }
 
-    private function getSubCategoryId($name)
+    private function getSubCategoryId($id)
     {
-        return \App\Models\SubCategory::where('name', $name)->first()->id ?? null;
+        return \App\Models\SubCategory::find($id)->id ?? null;
     }
 
-    private function getSubjectId($name)
+    private function getSubjectId($id)
     {
-        return \App\Models\Subject::where('name', $name)->first()->id ?? null;
+        return \App\Models\Subject::find($id)->id ?? null;
     }
 
-    private function getTopicId($name)
+    private function getTopicId($id)
     {
-        return \App\Models\Topic::where('name', $name)->first()->id ?? null;
+        return \App\Models\Topic::find($id)->id ?? null;
     }
 
     public function getCategories($languageId)
