@@ -303,7 +303,7 @@
                                             </td>
                                             <td class="p-2" data-column="id">${translated_question.question_id}</td>
                                             <td class="p-2" data-column="language">${translated_question.language.name}</td>
-                                            <td class="p-2" data-column="image"><img src="${translated_question.question.photo_link ? translated_question.question.photo_link : '/dummy.jpg'}"  style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover;'/></td>
+                                            <td class="p-2" data-column="image"><img src="${translated_question.question.photo_link ? translated_question.question.photo_link : '/dummy.jpg'}"  style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;'/></td>
                                             <td class="p-2" data-column="question">${translated_question.question_text}</td>
                                             <td class="p-2" data-column="optionA">${translated_question.option_a}</td>
                                             <td class="p-2" data-column="optionB">${translated_question.option_b}</td>
