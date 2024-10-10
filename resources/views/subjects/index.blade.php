@@ -9,7 +9,18 @@
 
 </div>
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
+    <form action="{{ route('subject.index') }}" method="GET">
+        <div class="flex gap-x-5">
+            <select id="subcategory_id" name="subcategory_id" class="bg-gray-50 w-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
+                <option value="">Select Sub Category</option>
+                @foreach($subcategories as $item)
+                    <option value="{{$item->id}}" {{ isset($subcategory_id) ? ($subcategory_id == $item->id  ? 'selected' : '') : '' }}>{{$item->name}}</option>
+                @endforeach
+            </select>
+            <button type="submit" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
+        </div>
+    </form>
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>

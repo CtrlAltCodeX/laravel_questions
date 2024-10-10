@@ -13,9 +13,15 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::with('subCategory')
-            ->get();
-        return view('subjects.index', compact('subjects'));
+        $subcategories = SubCategory::all();
+        
+        if($subcategory_id = request()->subcategory_id){
+            $subjects = Subject::where('sub_category_id', $subcategory_id)->get();
+            return view('subjects.index', compact('subjects', 'subcategories', 'subcategory_id'));
+        }else{
+            $subjects = Subject::with('subCategory')->get();
+            return view('subjects.index', compact('subjects', 'subcategories'));
+        }
     }
 
     /**

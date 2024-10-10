@@ -189,11 +189,7 @@ $dropdown_list = [
                                 </div>
                                 <div class='mb-2'>
                                     <div class="relative col-span-2 text-left">
-<<<<<<< HEAD
-                                        <input type="hidden" id="photo-new" />
-=======
                                         <input type="hidden" id="photo-new" name="photo" value="" />
->>>>>>> 8faa71a222ba96f2b31eeec9fd581a54b6a34131
                                         <input type="file" accept="image/*" name="photo" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
                                         <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                             Upload Photo
@@ -312,8 +308,6 @@ $dropdown_list = [
 
                 attachFileInputHandlers();
             }
-<<<<<<< HEAD
-=======
             {{-- else{
                 $.ajax({
                     url: '{{ route("questions") }}',
@@ -551,7 +545,6 @@ $dropdown_list = [
                 });
             } --}}
 
->>>>>>> 8faa71a222ba96f2b31eeec9fd581a54b6a34131
         }
 
         fetchQuestions();
@@ -682,8 +675,6 @@ $dropdown_list = [
             } else {
                 alert('Please select a category to add a question');
             }
-<<<<<<< HEAD
-=======
             
             
 {{--             
@@ -798,7 +789,6 @@ $dropdown_list = [
 
             // Attach file input handlers to the new row
             attachFileInputHandlers(); --}}
->>>>>>> 8faa71a222ba96f2b31eeec9fd581a54b6a34131
         });
 
         $(document).on('click', '.remove-question', function(event) {

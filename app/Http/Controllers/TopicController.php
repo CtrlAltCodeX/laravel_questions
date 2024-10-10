@@ -14,8 +14,14 @@ class TopicController extends Controller
      */
     public function index()
     {
-        $topics = Topic::all();
-        return view('topics.index', compact('topics'));
+        $subjects = Subject::all();
+        if( $subject_id = request()->subject_id ){
+            $topics = Topic::where('subject_id', $subject_id)->get();
+            return view('topics.index', compact('topics', 'subjects', 'subject_id'));
+        }else{
+            $topics = Topic::all();
+            return view('topics.index', compact('topics', 'subjects'));
+        }
     }
 
     /**
