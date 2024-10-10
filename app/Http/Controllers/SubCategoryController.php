@@ -12,11 +12,16 @@ class SubCategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $sub_categories = SubCategory::with('category')
-            ->get();
-
-        return view('sub-category.index', compact('sub_categories'));
+    {   
+        $categories = Category::all();
+        if($category_id = request()->category_id){
+            $sub_categories = SubCategory::where('category_id', $category_id)->get();
+            return view('sub-category.index', compact('sub_categories', 'categories', 'category_id'));
+        }else{
+            $sub_categories = SubCategory::with('category')->get();
+            return view('sub-category.index', compact('sub_categories', 'categories'));
+        }
+        
     }
 
     /**
