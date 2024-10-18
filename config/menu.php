@@ -60,6 +60,11 @@ return [
             'route' => 'users.index',
             'icon' => 'fa fa-users text-warning',
         ],
+        [
+            'name' => 'Admin List',
+            'route' => 'super-admin.index',
+            'icon' => 'fa fa-users text-warning',
+        ],
         // [
         //     'name' => 'Admin',
         //     'route' => 'languages.index',

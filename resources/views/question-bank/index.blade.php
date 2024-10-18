@@ -409,8 +409,8 @@
             languageCheckBoxes+=`
             <div id="languageSelectContainer">
                     <div class="flex gap-x-5 items-center">
-             
-                        <input type="checkbox" {{ $language->name == "English" ? 'checked disabled' : ''}} id="language_{{ $language->id }}" value="{{ $language->id }}">
+            
+                          <input type="checkbox" id="language_{{ $language->id }}" value="{{ $language->id }}">
                         <label for="language_{{ $language->id }}">{{ $language->name }}</label>
         
                     </div>
@@ -436,6 +436,10 @@
                     $('#languageSelectContainer input[type="checkbox"]:checked').each(function() {
                         selectedLanguages.push($(this).val());
                     });
+                    if(selectedLanguages.length === 0){
+                        Swal.showValidationMessage("Please Select at least one language !");
+                        return false;
+                    }
                     if (selectedLanguages.length > 1) {
                         return Swal.fire({
                             title: 'Multiple Languages Selected',

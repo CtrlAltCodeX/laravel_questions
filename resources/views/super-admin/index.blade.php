@@ -3,7 +3,8 @@
 @section('content')
 
 <div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">User List</h1>
+    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Admin List </h1>
+
 
 </div>
 
@@ -34,16 +35,13 @@
                 </th>
 
                 <td class="px-6 py-4 flex gap-4">
+
                     @if(Auth::user()->id !== $user->id && Auth::user()->role === "Super admin")
                     <form action="{{route('profile.destroy',$user->id)}}" method='POST'>
                         @csrf
                         @method('DELETE')
                         <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
-                    @endif
-                    @if(Auth::user()->isSuperAdmin())
-
-                    <a href="{{route('profile.edit',$user->id)}}" class="font-medium text-danger dark:text-danger-500 hover:underline">Edit</a>
                     @endif
                 </td>
             </tr>

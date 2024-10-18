@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="flex justify-between">
-<h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Subject</h1>
+<h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Edit Subject</h1>
 </div>
 <form class="max-w-sm mx-auto" method="POST" action="{{ route('subject.update', $subject->id) }}" enctype="multipart/form-data">
     @method('PUT')

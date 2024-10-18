@@ -15,27 +15,67 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    // public function edit(Request $request): View
+    // {
+    //     return view('profile.edit', [
+    //         'user' => $request->user(),
+    //     ]);
+    // }
+     public function edit(Request $request, $id): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
+        $userToEdit=User::findOrFail($id);
 
+        $currentUser= Auth::user();
+        
+        if($currentUser->isSuperAdmin()){
+            return view('users.edit', [
+                'user' => $userToEdit, 
+            ]);
+        }
+        
+    }
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request, $id): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // if ($request->user()->isDirty('email')) {
+        //     $request->user()->email_verified_at = null;
+        // }
+
+        $user=User::findOrFail($id);
+        $currentUser=Auth::user();
+
+        // dd($request->all());
+
+        if($currentUser->role == 'Super admin'){
+            $validatedData= $request->validate([
+                'name' => 'nullable|string|max:255',
+                'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
+                'role' => 'nullable|string|max:255',
+            ]);
+
+            // $user->update([
+            //     'name' => $request->input('name'),
+            //     'email' => $request->input('email'),
+            //     'role' => $request->input('role'),
+            // ]);
+            // $data=$request->only(['name','email','role']);
+            $filteredData = array_filter($validatedData, function ($value) {
+                return !is_null($value) && $value !== '';
+            });
+            // dd($data);
+            $user->update($filteredData);
         }
+       
+        return redirect()->route('users.index')
+                         ->with('success', 'Admin profile updated successfully.');
 
-        $request->user()->save();
+        // $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        // return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
@@ -72,8 +112,14 @@ class ProfileController extends Controller
 
     public function users()
     {
-        $users = User::all();
-
+        // $users = User::all();
+        $users = User::where('role','Admin')->get();
         return view('users.index', compact('users'));
+    }
+
+    public function super_admin()
+    {
+        $users = User::where('role','Super admin')->get();
+        return view('super-admin.index', compact('users'));
     }
 }

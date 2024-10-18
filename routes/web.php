@@ -32,11 +32,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])
+    Route::get('/profile/{id}', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+    // Route::patch('/profile', [ProfileController::class, 'update'])
+    //     ->name('profile.update');
+
+    Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
+
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
@@ -99,6 +102,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
+
+    Route::get('super-admin', [ProfileController::class, 'super_admin'])
+        ->name('super-admin.index');
 });
 
 require __DIR__ . '/auth.php';
