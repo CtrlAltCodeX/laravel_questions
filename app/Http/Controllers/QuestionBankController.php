@@ -71,8 +71,25 @@ class QuestionBankController extends Controller
     
         // Fetch translated questions based on the main questions
         $translatedQuestions = $translation_questions_query
-            ->whereIn('question_id', $questions->pluck('id'))
-            ->paginate(request()->get('per_page', 10));
+        ->whereIn('question_id', $questions->pluck('id'));
+
+        // $translatedQuestions = $translation_questions_query
+        //     ->whereIn('question_id', $questions->pluck('id'))
+        //     ->paginate(request()->get('per_page', 10));
+
+        // Handle sorting
+        $sortColumn = request()->get('sort', 'id');
+        $sortDirection = request()->get('direction', 'asc');
+        if ($sortColumn == 'language.name') {
+            $translatedQuestions = $translatedQuestions->join('languages', 'translated_questions.language_id', '=', 'languages.id')
+                ->orderBy('languages.name', $sortDirection)
+                ->select('translated_questions.*');
+        } else {
+            $translatedQuestions = $translatedQuestions->orderBy($sortColumn, $sortDirection);
+        }
+
+        // Paginate results
+        $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
     
         return view('question-bank.index', compact(
       'translatedQuestions', 
@@ -86,7 +103,9 @@ class QuestionBankController extends Controller
                 'questions', 
                 'subcategories', 
                 'subjects', 
-                'topics'
+                'topics',
+                'sortColumn',
+                'sortDirection'
             )
         );
     }
@@ -424,7 +443,14 @@ class QuestionBankController extends Controller
             ->with(['question', 'language'])
             ->get();
 
-        return redirect()->route('question-bank.index', compact('translatedQuestions', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'topic_id'));
+        $sortColumn = request()->get('sort', 'id');
+        $sortDirection = request()->get('direction', 'asc');
+        $translatedQuestions = $translatedQuestions->orderBy($sortColumn, $sortDirection);
+
+        // Paginate results
+        $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
+
+        return view('question-bank.index', compact('translatedQuestions', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'topic_id', 'languages', 'categories', 'questions', 'sortColumn', 'sortDirection'));
             
         // return response()->json(data: $translatedQuestions);
     }

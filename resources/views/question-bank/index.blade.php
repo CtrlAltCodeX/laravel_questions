@@ -65,8 +65,6 @@
                 @endforeach
 
                 <button id="filter-btn" type="submit" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
-
-                {{-- <a type="button" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</a> --}}
             </form>
         </div>
 
@@ -184,15 +182,103 @@
                 <th scope="col" class="p-2" data-column="id">
                     <input type="checkbox" class="select-all" />
                 </th>
-                <th scope="col" class="p-2" data-column="id">ID</th>
-                <th scope="col" class="p-2" data-column="language">Language</th>
+                <th scope="col" class="p-2" data-column="id">
+                    <a href="{{ route('question.index', ['sort' => 'id', 'direction' => $sortColumn == 'id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        ID
+                        @if ($sortColumn == 'id')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="language">
+                    <a href="{{ route('question.index', ['sort' => 'language.name', 'direction' => $sortColumn == 'language.name' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Language
+                        @if ($sortColumn == 'language.name')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
                 <th scope="col" class="p-2" data-column="image">Images</th>
-                <th scope="col" class="p-2" data-column="question">Question</th>
-                <th scope="col" class="p-2" data-column="optionA">Option A</th>
-                <th scope="col" class="p-2" data-column="optionB">Option B</th>
-                <th scope="col" class="p-2" data-column="optionC">Option C</th>
-                <th scope="col" class="p-2" data-column="optionD">Option D</th>
-                <th scope="col" class="p-2" data-column="level">Level</th>
+                <th scope="col" class="p-2" data-column="question">
+                    <a href="{{ route('question.index', ['sort' => 'question_text', 'direction' => $sortColumn == 'question_text' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Question
+                        @if ($sortColumn == 'question_text')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="optionA">
+                    <a href="{{ route('question.index', ['sort' => 'option_a', 'direction' => $sortColumn == 'option_a' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Option A
+                        @if ($sortColumn == 'option_a')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="optionB">
+                    <a href="{{ route('question.index', ['sort' => 'option_b', 'direction' => $sortColumn == 'option_b' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Option B
+                        @if ($sortColumn == 'option_b')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="optionC">
+                    <a href="{{ route('question.index', ['sort' => 'option_c', 'direction' => $sortColumn == 'option_c' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Option C
+                        @if ($sortColumn == 'option_c')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="optionD">
+                    <a href="{{ route('question.index', ['sort' => 'option_d', 'direction' => $sortColumn == 'option_d' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Option D
+                        @if ($sortColumn == 'option_d')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
+                <th scope="col" class="p-2" data-column="level">
+                    <a href="{{ route('question.index', ['sort' => 'level', 'direction' => $sortColumn == 'level' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        Level
+                        @if ($sortColumn == 'level')
+                            @if ($sortDirection == 'asc')
+                                ▲
+                            @else
+                                ▼
+                            @endif
+                        @endif
+                    </a>
+                </th>
                 <th scope="col" class="p-2" data-column="action">Action</th>
             </tr>
         </thead>
@@ -234,7 +320,7 @@
             @endforeach
         </tbody>
     </table>
-    {{ $translatedQuestions->links() }}
+    {{ $translatedQuestions->appends(request()->except('page'))->links() }}
 </div>
 @endsection
 
@@ -268,90 +354,6 @@
                 }
             });
         }
-
-        {{-- function fetchQuestions() {
-            var languageId = $('#select_language').val();
-            var categoryId = $('#select_category').val();
-            var subCategoryId = $('#select_sub_category').val();
-            var subjectId = $('#select_subject').val();
-            var topicId = $('#select_topic').val();
-
-            $.ajax({
-                url: '{{ route("questions") }}', // Ensure this route is correctly defined
-                method: 'GET',
-                data: {
-                    'language_id': languageId,
-                    'category_id': categoryId,
-                    'sub_category_id': subCategoryId,
-                    'subject_id': subjectId,
-                    'topic_id': topicId
-                },
-                success: function(data) {
-                    var tbody = $('#questions-table tbody');
-                    tbody.empty();
-                    if (data.length > 0) {
-                        var translated_questions = data;
-                        if (translated_questions.length > 0) {
-                            translated_questions.forEach(function(translated_question) {
-                                var editUrl = `{{ route('question.edit', ':id') }}`.replace(':id', translated_question.question_id);
-                                var destroyUrl = `{{ route('question.destroy', ':id') }}`.replace(':id', translated_question.id);
-                                var newRow = `
-                                        <tr>
-                                            <td class="p-2" data-column="id">
-                                                <input type="checkbox" class="select-item" value="${translated_question.question_id}" />
-                                            </td>
-                                            <td class="p-2" data-column="id">${translated_question.question_id}</td>
-                                            <td class="p-2" data-column="language">${translated_question.language.name}</td>
-                                            <td class="p-2" data-column="image"><img src="${translated_question.question.photo_link ? translated_question.question.photo_link : '/dummy.jpg'}"  style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;'/></td>
-                                            <td class="p-2" data-column="question">${translated_question.question_text}</td>
-                                            <td class="p-2" data-column="optionA">${translated_question.option_a}</td>
-                                            <td class="p-2" data-column="optionB">${translated_question.option_b}</td>
-                                            <td class="p-2" data-column="optionC">${translated_question.option_c}</td>
-                                            <td class="p-2" data-column="optionD">${translated_question.option_d}</td>
-                                            <td class="p-2" data-column="level">${translated_question.question.level}</td>
-                                            <td class="p-2 flex gap-2" data-column="action">
-                                                <a href="${editUrl}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                                                        <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
-                                                    </svg>
-                                                </a>
-                                                <form action="${destroyUrl}" method='POST'>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                                                            <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    `;
-                                tbody.append(newRow);
-                            });
-                        }
-
-                        $('#select_language').val(languageId);
-                        $('#select_category').val(categoryId);
-                        $('#select_sub_category').val(subCategoryId);
-                        $('#select_subject').val(subjectId);
-                        $('#select_topic').val(topicId);
-
-                        // Call toggleColumns to ensure the correct columns are shown/hidden
-                        toggleColumns();
-                    } else {
-                        var newRow = `
-                            <tr>
-                                <td colspan="${selectedColumns.length}" class="p-2 text-center">No questions found.</td>
-                            </tr>
-                        `;
-                        tbody.append(newRow);
-                    }
-                }
-            });
-        }
-
-        fetchQuestions(); --}}
 
         function toggleColumns() {
             $('#columnSelectDropdown input[type="checkbox"]').each(function() {
