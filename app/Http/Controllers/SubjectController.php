@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use App\Models\Subject;
 use App\Models\SubCategory;
@@ -13,9 +15,33 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::with('subCategory')
-            ->get();
-        return view('subjects.index', compact('subjects'));
+        $languages = Language::all();
+        $categories = Category::all();
+        $subcategories = SubCategory::all();
+        
+        $language_id = request()->language_id;
+        $category_id = request()->category_id;
+        $subcategory_id = request()->sub_category_id;
+
+        $query = Subject::query();
+
+        if($subcategory_id){
+            $query->where('sub_category_id', $subcategory_id);
+        }
+        if($category_id){
+            $query->whereHas('subCategory', function($query) use($category_id){
+                $query->where('category_id', $category_id);
+            });
+        }
+        if($language_id) {
+            $query->whereHas('subCategory.category', function($query) use($language_id){
+                $query->where('language_id', $language_id);
+            });
+        }
+
+        $subjects = $query->get();
+
+        return view('subjects.index', compact('subjects', 'categories', 'subcategories', 'languages', 'language_id', 'category_id', 'subcategory_id'));
     }
 
     /**

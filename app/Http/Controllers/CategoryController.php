@@ -12,11 +12,16 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $categorys = Category::with('language')
-            ->get();
+    {   
+        $languages = Language::all();
+        if($language_id = request()->language_id){
+            $categorys = Category::where('language_id', $language_id)->get();
+            return view('categorys.index', compact('categorys', 'languages', 'language_id'));
+        }else{
+            $categorys = Category::with('language')->get();
+            return view('categorys.index', compact('categorys', 'languages'));
+        }
 
-        return view('categorys.index', compact('categorys'));
     }
 
     /**

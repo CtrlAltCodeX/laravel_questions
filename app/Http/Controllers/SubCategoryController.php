@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Language;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 
@@ -12,11 +13,28 @@ class SubCategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $sub_categories = SubCategory::with('category')
-            ->get();
+    {   
+        $languages = Language::all();
+        $categories = Category::all();
 
-        return view('sub-category.index', compact('sub_categories'));
+        $language_id = request()->language_id;
+        $category_id = request()->category_id;
+
+        $query = SubCategory::query();
+
+        if($category_id){
+            $query->where('category_id', $category_id);
+        }
+        
+        if($language_id){
+            $query->whereHas('category', function($query) use($language_id){
+                $query->where('language_id', $language_id);
+            });
+        }
+
+        $sub_categories = $query->get();
+
+        return view('sub-category.index', compact('sub_categories', 'categories', 'languages', 'language_id', 'category_id'));
     }
 
     /**

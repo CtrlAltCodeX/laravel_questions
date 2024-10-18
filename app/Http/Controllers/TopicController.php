@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Language;
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
 
 use App\Models\Topic;
@@ -13,9 +16,41 @@ class TopicController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $topics = Topic::all();
-        return view('topics.index', compact('topics'));
+    {  
+        $languages = Language::all();
+        $categories = Category::all();
+        $subcategories = SubCategory::all();
+        $subjects = Subject::all();
+
+        $subject_id = request()->subject_id;
+        $subcategory_id = request()->sub_category_id;
+        $category_id = request()->category_id;
+        $language_id = request()->language_id;
+
+        $query = Topic::query();
+
+        if($subject_id){
+            $query->where('subject_id', $subject_id);
+        }
+        if($subcategory_id){
+            $query->whereHas('subject', function($query) use($subcategory_id){
+                $query->where('sub_category_id', $subcategory_id);
+            });
+        }
+        if($category_id){
+            $query->whereHas('subject.subCategory', function($query) use($category_id){
+                $query->where('category_id', $category_id);
+            });
+        }
+        if($language_id){ 
+            $query->whereHas('subject.subCategory.category', function($query) use($language_id){
+                $query->where('language_id', $language_id);
+            });
+        }
+
+        $topics = $query->get();
+
+        return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id'));
     }
 
     /**
