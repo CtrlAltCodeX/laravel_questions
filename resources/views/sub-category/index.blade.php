@@ -1,5 +1,10 @@
 @extends('layouts.app')
-
+@php
+$dropdown_list = [
+    'Select Language' => $languages,
+    'Select Category' => $categories,
+    ];
+@endphp
 @section('content')
 
 <div class="flex justify-between">
@@ -11,13 +16,28 @@
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <form action="{{ route('sub-category.index') }}" method="GET">
+
         <div class="flex gap-x-5">
-            <select id="category_id" name="category_id" class="bg-gray-50 w-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
-                <option value="">Select Category</option>
-                @foreach($categories as $item)
-                    <option value="{{$item->id}}" {{ isset($category_id) ? ($category_id == $item->id  ? 'selected' : '') : '' }}>{{$item->name}}</option>
-                @endforeach
-            </select>
+            @foreach ($dropdown_list as $moduleName => $module)
+                @php
+                    $id = strtolower(Str::slug($moduleName, '_'));
+                    $moduleKey = Str::slug(strtolower(trim(explode('Select', $moduleName)[1])) . "_id",  '_');
+                    $selectedValue = request()->input($moduleKey);
+                @endphp
+                <div>
+                    <input type="hidden" value="{{ $module[$moduleKey] ?? '' }}" name="{{ $moduleKey }}" />
+                    <select id="{{ $id }}" name="{{ $moduleKey }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
+                        <option value="">{{$moduleName}}</option>
+                        @foreach($module as $item)
+                            <option value="{{$item->id}}" {{ $selectedValue == $item->id ?  'selected' : '' }}>{{$item->name}}</option>
+                        @endforeach
+                    </select>
+                    <div class="text-red-500 text-xs mt-1 validation-msg"></div> <!-- Validation Message -->
+                    @error('module.' . $moduleKey)
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endforeach
             <button type="submit" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
         </div>
     </form>
