@@ -10,6 +10,7 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\QuestionBankController;
+use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -61,6 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('quiz', QuizController::class);
     
     Route::resource('cbt', CbtController::class);
+
+    // Route::resource('super-admin', SuperAdminController::class);
     
     Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
@@ -103,8 +106,14 @@ Route::middleware('auth')->group(function () {
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
 
-    Route::get('super-admin', [ProfileController::class, 'super_admin'])
+    Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
         ->name('super-admin.index');
+    
+    Route::get('super-admin/create', [SuperAdminController::class, 'show'])
+        ->name('super-admin.create');
+
+    Route::post('super-admin/store', [SuperAdminController::class, 'store'])
+        ->name('super-admin.store');
 });
 
 require __DIR__ . '/auth.php';

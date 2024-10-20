@@ -48,8 +48,6 @@ class ProfileController extends Controller
         $user=User::findOrFail($id);
         $currentUser=Auth::user();
 
-        // dd($request->all());
-
         if($currentUser->role == 'Super admin'){
             $validatedData= $request->validate([
                 'name' => 'nullable|string|max:255',
@@ -57,25 +55,16 @@ class ProfileController extends Controller
                 'role' => 'nullable|string|max:255',
             ]);
 
-            // $user->update([
-            //     'name' => $request->input('name'),
-            //     'email' => $request->input('email'),
-            //     'role' => $request->input('role'),
-            // ]);
-            // $data=$request->only(['name','email','role']);
             $filteredData = array_filter($validatedData, function ($value) {
                 return !is_null($value) && $value !== '';
             });
-            // dd($data);
             $user->update($filteredData);
         }
        
         return redirect()->route('users.index')
                          ->with('success', 'Admin profile updated successfully.');
 
-        // $request->user()->save();
-
-        // return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        
     }
 
     /**
@@ -117,9 +106,15 @@ class ProfileController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function super_admin()
-    {
-        $users = User::where('role','Super admin')->get();
-        return view('super-admin.index', compact('users'));
-    }
+    // public function super_admin()
+    // {
+    //     $users = User::where('role','Super admin')->get();
+    //     return view('super-admin.index', compact('users'));
+    // }
+
+    // public function store()
+    // {
+    //     // $users = User::where('role','Super admin')->get();
+    //     return view('super-admin.create');
+    // }
 }

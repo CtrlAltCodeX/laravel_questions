@@ -48,7 +48,8 @@ use Illuminate\Support\Str;
             @foreach ($menuItems as $item)
             @if(!isset($item['sub-menus']))
             <li>
-                <a href="{{ route($item['route']) }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                <a href="{{ route($item['route']) }}" 
+                class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($item['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
                     <i class="{{ $item['icon'] }}"></i>
                     <span class="ms-3 sidebar-text">{{$item['name']}}</span>
                 </a>
