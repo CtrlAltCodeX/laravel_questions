@@ -6,10 +6,10 @@ use App\Imports\QuestionsImport;
 use App\Models\Question;
 use App\Models\TranslatedQuestions;
 use Illuminate\Http\Request;
-use App\Models\QuestionBank;
 use App\Exports\QuestionsExport;
 use App\Models\Language;
 use App\Models\Category;
+use App\Models\QuestionBank;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
@@ -37,51 +37,60 @@ class QuestionBankController extends Controller
         $sub_category_id = request()->sub_category_id;
         $subject_id = request()->subject_id;
         $topic_id = request()->topic_id;
+        $search = request()->search; // New search parameter
 
         // Apply filters if they exist
         if ($language_id) {
             $translation_questions_query->where('language_id', $language_id);
         }
-    
+
         if ($category_id) {
             $subcategories = SubCategory::where('category_id', $category_id)->get();
             $query->where('category_id', $category_id);
         }
-    
+
         if ($sub_category_id) {
             $subjects = Subject::where('sub_category_id', $sub_category_id)->get();
             $query->where('sub_category_id', $sub_category_id);
         }
-    
+
         if ($subject_id) {
             $topics = Topic::where('subject_id', $subject_id)->get();
             $query->where('subject_id', $subject_id);
         }
-    
+
         if ($topic_id) {
             $query->where('topic_id', $topic_id);
         }
-    
+
+        if ($search) {
+            $translation_questions_query->where(function ($q) use ($search) {
+                $q->where('question_text', 'LIKE', "%{$search}%")
+                    ->orWhere('option_a', 'LIKE', "%{$search}%")
+                    ->orWhere('option_b', 'LIKE', "%{$search}%")
+                    ->orWhere('option_c', 'LIKE', "%{$search}%")
+                    ->orWhere('option_d', 'LIKE', "%{$search}%");
+            });
+        }
+
         // Eager load relationships
         $query->with(['category', 'subCategory', 'subject', 'topic']);
         $translation_questions_query->with(['language', 'question']);
-    
+
         // Fetch questions
         $questions = $query->get();
-    
+
         // Fetch translated questions based on the main questions
         $translatedQuestions = $translation_questions_query
-        ->whereIn('question_id', $questions->pluck('id'));
-
-        // $translatedQuestions = $translation_questions_query
-        //     ->whereIn('question_id', $questions->pluck('id'))
-        //     ->paginate(request()->get('per_page', 10));
+            ->whereIn('question_id', $questions->pluck('id'));
 
         // Handle sorting
         $sortColumn = request()->get('sort', 'id');
         $sortDirection = request()->get('direction', 'asc');
+
         if ($sortColumn == 'language.name') {
-            $translatedQuestions = $translatedQuestions->join('languages', 'translated_questions.language_id', '=', 'languages.id')
+            $translatedQuestions = $translatedQuestions
+                ->join('languages', 'translated_questions.language_id', '=', 'languages.id')
                 ->orderBy('languages.name', $sortDirection)
                 ->select('translated_questions.*');
         } else {
@@ -90,19 +99,21 @@ class QuestionBankController extends Controller
 
         // Paginate results
         $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
-    
-        return view('question-bank.index', compact(
-      'translatedQuestions', 
-     'language_id', 
-                'category_id', 
-                'sub_category_id', 
-                'subject_id', 
-                'topic_id', 
-                'languages', 
-                'categories', 
-                'questions', 
-                'subcategories', 
-                'subjects', 
+
+        return view(
+            'question-bank.index',
+            compact(
+                'translatedQuestions',
+                'language_id',
+                'category_id',
+                'sub_category_id',
+                'subject_id',
+                'topic_id',
+                'languages',
+                'categories',
+                'questions',
+                'subcategories',
+                'subjects',
                 'topics',
                 'sortColumn',
                 'sortDirection'
@@ -179,7 +190,7 @@ class QuestionBankController extends Controller
             [
                 'question' => $data['question'][0],
                 'photo' => $data['photo'],
-                'question_number'=>$data['qno'],
+                'question_number' => $data['qno'],
                 'photo_link' => $data['photo_link'],
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],
@@ -197,7 +208,7 @@ class QuestionBankController extends Controller
         );
         // dd($question);
 
-        if(count($data['language']) > 0){
+        if (count($data['language']) > 0) {
             foreach ($data['language'] as $index => $languageId) {
                 TranslatedQuestions::updateOrCreate(
                     [
@@ -265,7 +276,7 @@ class QuestionBankController extends Controller
     public function update(Request $request, string $id)
     {
         $rules = [];
-        
+
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
             $rules['module.' . $moduleKey] = 'required|array|min:1';
         }
@@ -416,7 +427,7 @@ class QuestionBankController extends Controller
         }
 
         if ($request->has('subject_id') && isset($request->subject_id)) {
-            $subject_id = $request->subject_id; 
+            $subject_id = $request->subject_id;
             $query->where('subject_id', $request->subject_id);
         }
 
@@ -451,7 +462,7 @@ class QuestionBankController extends Controller
         $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
 
         return view('question-bank.index', compact('translatedQuestions', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'topic_id', 'languages', 'categories', 'questions', 'sortColumn', 'sortDirection'));
-            
+
         // return response()->json(data: $translatedQuestions);
     }
 
@@ -499,7 +510,7 @@ class QuestionBankController extends Controller
                     'option_d' => [],
                     'answer' => $translatedQuestion->question->answer,
                     'level' => $translatedQuestion->question->level,
-                    'photo' => $translatedQuestion->question->photo,
+                    'photo' => isset(explode("/", $translatedQuestion->question->photo)[2])  ? explode("/", $translatedQuestion->question->photo)[2] : $translatedQuestion->question->photo,
                     'photo_link' => $translatedQuestion->question->photo_link,
                     'category' => $translatedQuestion->question->category_id ?? '',
                     'subCategory' => $translatedQuestion->question->sub_category_id ?? '',
@@ -544,7 +555,7 @@ class QuestionBankController extends Controller
 
         foreach ($rows[0] as $row) {
             // Perform validation checks for required IDs
-            foreach($languageIds as $languageId) {
+            foreach ($languageIds as $languageId) {
                 if (!$this->getLanguageId($languageId)) {
                     return back()->with('error', 'Language -  "' . $languageId . '" not available');
                 }
@@ -638,5 +649,16 @@ class QuestionBankController extends Controller
     public function printToConsole($data)
     {
         echo "<script>console.log(" . json_encode($data) . ");</script>";
+    }
+
+    public function questionNoExist()
+    {
+        $questionNo = Question::where('category_id', request()->category_id)
+            ->where('sub_category_id', request()->sub_category_id)
+            ->where('subject_id', request()->subject_id)
+            ->where('topic_id', request()->topic_id)
+            ->max('question_number');
+
+        return $questionNo;
     }
 }

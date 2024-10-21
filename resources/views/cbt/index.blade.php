@@ -10,7 +10,7 @@
 @section('content')
 
 <div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">CBT Api</h1>
+    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">CBT</h1>
 </div>
 
 <div>

@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('translated_questions', function (Blueprint $table) {
-            //
             $table->foreignId('question_id')->nullable()->change();
-            $table->foreignId('language_id')->nullable() ->change();
-            $table->string('question_text')->nullable() ->change();
-            $table->string('option_a')->nullable() ->change();
-            $table->string('option_b')->nullable() ->change();
-            $table->string('option_c')->nullable() ->change();
-            $table->string('option_d')->nullable() ->change();
+            $table->foreignId('language_id')->nullable()->change();
+            $table->string('question_text')->nullable()->change();
+            $table->string('option_a')->nullable()->change();
+            $table->string('option_b')->nullable()->change();
+            $table->string('option_c')->nullable()->change();
+            $table->string('option_d')->nullable()->change();
         });
     }
 

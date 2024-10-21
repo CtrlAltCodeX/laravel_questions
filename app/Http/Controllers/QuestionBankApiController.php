@@ -23,7 +23,7 @@ class QuestionBankApiController extends Controller
         $sub_categories = SubCategory::all();
         $subjects = Subject::all();
         $topics = Topic::all();
-        return view("question-bank-api.index", compact('languages', 'categories','sub_categories','subjects', 'topics'));
+        return view("question-bank-api.index", compact('languages', 'categories', 'sub_categories', 'subjects', 'topics'));
     }
 
     /**

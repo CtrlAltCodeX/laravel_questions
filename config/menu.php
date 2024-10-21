@@ -42,7 +42,7 @@ return [
         ],
         [
             'name' => 'Question Bank',
-            'route' => 'question-bank-api.index',
+            'route' => 'bank-question.index',
             'icon' => 'fa fa-question text-warning',
         ],
         [

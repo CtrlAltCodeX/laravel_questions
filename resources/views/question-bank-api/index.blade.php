@@ -10,17 +10,14 @@
 @section('content')
 
 <div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank Api</h1>
-
-    {{-- <a href="{{ route('quiz.create') }}" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a> --}}
-
+    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
 </div>
 
 <div>
     <div class="flex justify-between gap-x-5">
         @foreach($dropdown_list as $key => $value)
-         @php
-            $id = strtolower(Str::slug($key, '_'));
+        @php
+        $id = strtolower(Str::slug($key, '_'));
         @endphp
         <div class="w-1/5">
             <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }}</label>
@@ -54,7 +51,6 @@
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-
     $(document).ready(function() {
         const baseUrl = "{{ url('api/quiz') }}";
         console.log(baseUrl);

@@ -1,6 +1,5 @@
-
 <!-- use Illuminate\Support\Facades\Route; -->
-@php 
+@php
 use Illuminate\Support\Str;
 @endphp
 
@@ -48,8 +47,8 @@ use Illuminate\Support\Str;
             @foreach ($menuItems as $item)
             @if(!isset($item['sub-menus']))
             <li>
-                <a href="{{ route($item['route']) }}" 
-                class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($item['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
+                <a href="{{ route($item['route']) }}"
+                    class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($item['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
                     <i class="{{ $item['icon'] }}"></i>
                     <span class="ms-3 sidebar-text">{{$item['name']}}</span>
                 </a>
@@ -68,11 +67,11 @@ use Illuminate\Support\Str;
                 <!-- Dropdown Content -->
                 <div class="mt-2 space-y-2 pl-14 dropdown">
                     @foreach($item['sub-menus'] as $subMenu)
-                    <a href="{{ route($subMenu['route']) }}" 
+                    <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'desc']) }}"
                         class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
 
                         <i class="{{ $subMenu['icon'] }}"></i>
-                        <span class="sidebar-text" >{{$subMenu['name']}}</span>
+                        <span class="sidebar-text">{{$subMenu['name']}}</span>
                     </a>
                     @endforeach
                 </div>

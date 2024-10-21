@@ -36,11 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/{id}', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
-    // Route::patch('/profile', [ProfileController::class, 'update'])
-    //     ->name('profile.update');
-
-    Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
-
+    Route::put('/profile/{id}', [ProfileController::class, 'update'])
+        ->name('profile.update');
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
@@ -56,15 +53,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('topic', TopicController::class);
 
     Route::resource('question', QuestionBankController::class);
-    
-    Route::resource('question-bank-api', QuestionBankApiController::class);
-    
+
+    Route::resource('bank-question', QuestionBankApiController::class);
+
     Route::resource('quiz', QuizController::class);
-    
+
     Route::resource('cbt', CbtController::class);
 
-    // Route::resource('super-admin', SuperAdminController::class);
-    
+    Route::get('question_no', [QuestionBankController::class, 'questionNoExist'])
+    ->name('get.question_no');
+
     Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
     Route::get('get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
