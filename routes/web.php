@@ -36,10 +36,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/{id}', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
+
+
     Route::put('/profile/{id}', [ProfileController::class, 'update'])
         ->name('profile.update');
 
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
+    Route::put('/admin-profile/{id}', [SuperAdminController::class, 'update'])
+        ->name('admin-profile.update');
+
+    Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
     Route::resource('languages', LanguagesController::class);
@@ -61,7 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('cbt', CbtController::class);
 
     Route::get('question_no', [QuestionBankController::class, 'questionNoExist'])
-    ->name('get.question_no');
+        ->name('get.question_no');
 
     Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
@@ -84,7 +89,7 @@ Route::middleware('auth')->group(function () {
             ->name('questions.import');
 
         Route::post('/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
-        
+
         Route::post('/{id}/translation-delete', [QuestionBankController::class, 'destroyTranslationQuestion']);
 
         Route::post('bulk-delete', [QuestionBankController::class, 'bulkDelete'])
@@ -106,12 +111,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
         ->name('super-admin.index');
-    
+
     Route::get('super-admin/create', [SuperAdminController::class, 'show'])
         ->name('super-admin.create');
 
     Route::post('super-admin/store', [SuperAdminController::class, 'store'])
         ->name('super-admin.store');
+
+    Route::get('/admin-profile/{id}', [SuperAdminController::class, 'edit'])
+        ->name('admin-profile.edit');
 });
 
 require __DIR__ . '/auth.php';

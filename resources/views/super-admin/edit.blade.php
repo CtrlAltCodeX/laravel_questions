@@ -7,7 +7,7 @@
 
 </div>
 <div class="py-12">
-    <form action="{{ route('profile.update', $user->id) }}" method="POST">
+    <form action="{{ route('admin-profile.update', $user->id) }}" method="POST">
         @csrf
         @method("PUT")
         <div class="mb-5">
@@ -24,16 +24,16 @@
         <div class="mb-5">
             <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
             <select name="subject_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="{{ old('role', $user->role) }}">Admin</option>
+                <option value="{{ old('role', $user->role) }}">Super Admin</option>
 
-                <option value="">Super admin</option>
+                <option value="">Admin</option>
 
             </select>
 
         </div>
 
         <div class="mb-5">
-            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Change Password</label>
+            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
             <input type="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="password"  />
 
 

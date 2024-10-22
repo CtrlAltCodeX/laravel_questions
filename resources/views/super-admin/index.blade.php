@@ -43,6 +43,10 @@
                         <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                     @endif
+                   
+
+                    <a href="{{route('admin-profile.edit',$user->id)}}" class="font-medium text-danger dark:text-danger-500 hover:underline">Edit</a>
+                    
                 </td>
             </tr>
             @empty

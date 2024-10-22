@@ -1,18 +1,18 @@
 @extends('layouts.app')
-@php 
-    $dropdown_list = [
-    'Select Language' => $languages,
-    'Select Category' => $categories,
-    'Select Sub Category' => $subcategories ?? [],
-    'Select Subject' => $subjects ?? [],
-    'Select Topic' => $topics ?? [],
-    ];
+@php
+$dropdown_list = [
+'Select Language' => $languages,
+'Select Category' => $categories,
+'Select Sub Category' => $subcategories ?? [],
+'Select Subject' => $subjects ?? [],
+'Select Topic' => $topics ?? [],
+];
 
-    $levels = [
-        '1' => 'Easy',
-        '2' => 'Medium',
-        '3' => 'Hard',
-    ]
+$levels = [
+'1' => 'Easy',
+'2' => 'Medium',
+'3' => 'Hard',
+]
 @endphp
 
 <style>
@@ -140,7 +140,7 @@
                             </label>
                             <label class="block">
                                 <input type="checkbox" value="question_number" class="mr-2">
-                                Question No.
+                                QNo.
                             </label>
                             <label class="block">
                                 <input type="checkbox" value="language" class="mr-2">
@@ -210,7 +210,7 @@
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="question_number">
-                    Question Number
+                    QNo.
                 </th>
                 <th scope="col" class="p-2" data-column="language">
                     <a href="{{ route('question.index', ['sort' => 'language.name', 'direction' => $sortColumn == 'language.name' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">

@@ -53,6 +53,7 @@ class ProfileController extends Controller
                 'name' => 'nullable|string|max:255',
                 'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
                 'role' => 'nullable|string|max:255',
+                'password' => 'nullable|string|min:6',
             ]);
 
             $filteredData = array_filter($validatedData, function ($value) {

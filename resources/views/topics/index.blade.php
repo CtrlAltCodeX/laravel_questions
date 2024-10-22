@@ -1,11 +1,12 @@
 @extends('layouts.app')
 @php
 $dropdown_list = [
-    'Select Language' => $languages,
-    'Select Category' => $categories,
-    'Select Sub Category' => $subcategories,
-    'Select Subject' => $subjects,
-    ];
+'Select Language' => $languages,
+'Select Category' => $categories,
+'Select Sub Category' => $subcategories ?? [],
+'Select Subject' => $subjects ?? [],
+
+];
 @endphp
 @section('content')
 
@@ -18,26 +19,31 @@ $dropdown_list = [
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <form action="{{ route('topic.index') }}" method="GET">
+
         <div class="flex gap-x-5">
+            <input type="hidden" value="{{ request()->per_page }}" name="per_page" />
+            <input type="hidden" value="{{ request()->search }}" name="search" />
+            <input type="hidden" value="{{ request()->sort }}" name="sort" />
+            <input type="hidden" value="{{ request()->direction }}" name="direction" />
             @foreach ($dropdown_list as $moduleName => $module)
-                @php
-                    $id = strtolower(Str::slug($moduleName, '_'));
-                    $moduleKey = Str::slug(strtolower(trim(explode('Select', $moduleName)[1])) . "_id",  '_');
-                    $selectedValue = request()->input($moduleKey);
-                @endphp
-                <div>
-                    <input type="hidden" value="{{ $module[$moduleKey] ?? '' }}" name="{{ $moduleKey }}" />
-                    <select id="{{ $id }}" name="{{ $moduleKey }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
-                        <option value="">{{$moduleName}}</option>
-                        @foreach($module as $item)
-                            <option value="{{$item->id}}" {{ $selectedValue == $item->id ?  'selected' : '' }}>{{$item->name}}</option>
-                        @endforeach
-                    </select>
-                    <div class="text-red-500 text-xs mt-1 validation-msg"></div> <!-- Validation Message -->
-                    @error('module.' . $moduleKey)
-                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
+            @php
+            $id = strtolower(Str::slug($moduleName, '_'));
+            $moduleKey = Str::slug(strtolower(trim(explode('Select', $moduleName)[1])) . "_id", '_');
+            $selectedValue = request()->input($moduleKey);
+            @endphp
+            <div>
+                <input type="hidden" value="{{ $module[$moduleKey] ?? '' }}" name="{{ $moduleKey }}" />
+                <select id="{{ $id }}" name="{{ $moduleKey }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
+                    <option value="">{{$moduleName}}</option>
+                    @foreach($module as $item)
+                    <option value="{{$item->id}}" {{ $selectedValue == $item->id ?  'selected' : '' }}>{{$item->name}}</option>
+                    @endforeach
+                </select>
+                <div class="text-red-500 text-xs mt-1 validation-msg"></div> <!-- Validation Message -->
+                @error('module.' . $moduleKey)
+                <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                @enderror
+            </div>
             @endforeach
             <button type="submit" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
         </div>
@@ -72,9 +78,9 @@ $dropdown_list = [
                     {{$topic->subject->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                <img src="{{ $topic->photo ? '/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;'/>
+                    <img src="{{ $topic->photo ? '/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
-               
+
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$topic->name}}
@@ -108,10 +114,12 @@ $dropdown_list = [
 
 @endsection
 <script>
+    $(document).ready(function() {
+        const imageSrc = $('img').attr('src'); // Get the src attribute of the image
+        console.log(imageSrc); // Log the image source URL
 
-$(document).ready(function() {
-    const imageSrc = $('img').attr('src'); // Get the src attribute of the image
-    console.log(imageSrc); // Log the image source URL
-});
 
+
+
+    });
 </script>
