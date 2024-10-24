@@ -1,8 +1,15 @@
 @extends('layouts.app')
+<style>
+    #selectlangauge {
+        display: none;
+    }
+</style>
+
 @php
+
 $dropdown_list = [
-    //'Select Language' => $languages,
-    'Select Category' => $categories,
+    'Select Language' => $languages,
+    'Select Category' => [],
     'Select Sub Category' => [],
     'Select Subject' => [],
     'Select Topic' => [],
@@ -11,7 +18,7 @@ $dropdown_list = [
 @section('content')
 <form id="question-form" action="{{ route('question.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Question Bank</h1>
+    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Add Question</h1>
     <div class="grid gap-5 grid-cols-5">
         @foreach ($dropdown_list as $moduleName => $module)
         @php
@@ -46,6 +53,9 @@ $dropdown_list = [
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@include('script')
+
 <script>
     $(document).ready(function() {
         var languageId = $('#select_language').val();
@@ -123,17 +133,17 @@ $dropdown_list = [
                                     rows="3" cols="3">${notes}</textarea>
                         </div>
 
-                        <div class="col-span-3">
-                            <select id="selectlangauge${languageCount}" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="">Select Language</option>
-                                @foreach($languages as $item)
-                                    <option value="{{$item->id}}" ${language == '{{$item->id}}' ? 'selected' : ''}>{{$item->name}}</option>
-                                @endforeach
-                            </select>
                         </div>
-                    </div>
-                </div>
-            `;
+                        </div>
+                    `;
+            // <div class="col-span-3">
+            //     <select id="selectlangauge${languageCount}" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            //         <option value="">Select Language</option>
+            //         @foreach($languages as $item)
+            //             <option value="{{$item->id}}" ${language == '{{$item->id}}' ? 'selected' : ''}>{{$item->name}}</option>
+            //         @endforeach
+            //     </select>
+            // </div>
 
             $('#languages-container').append(newLanguage);
 
@@ -167,131 +177,112 @@ $dropdown_list = [
             if (categoryId && subCategoryId || subjectId || topicId) {
                 $('#input-rows').empty();
                 var newRow = `
-                    <div class="input-row pb-5 border-b-2">
-                        <div class="col-span-1 flex justify-end">
-                            <button type="button" class="remove-question text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                X
-                            </button>
-                        </div>    
-                        <div class="flex flex-wrap gap-4 items-center text-center mt-5">
-                            <input type="hidden" name="id" value="" />
+                    <div class="input-row pb-5 border-b-2">   
+                        <div class="flex flex-col gap-4 items-center mt-5 w-full">
 
-                            <!-- Image Upload -->
-                            <div class="flex flex-col w-[15%]">
-                                <div class="flex col-2 gap-x-4">
-                                    <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                name="qno"
-                                                placeholder="Question No."/>
-
-                                    <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="photo_link"
-                                            placeholder="photo link"/>
+                            <!-- Question Number -->
+                            <div class="w-full flex gap-2">
+                                <div class="w-[50%]">
+                                    <label for="qno" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Question No.</label>
+                                    <input id="qno" type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="qno"
+                                        placeholder="Question No."/>
                                 </div>
-                                <div class='mb-2'>
-                                    <div class="relative col-span-2 text-left">
-                                        <input type="hidden" id="photo-new" name="photo" value="" />
-                                        <input type="file" accept="image/*" name="photo" class="required-field file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
-                                        <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                            Upload Photo
-                                        </button>
-                                    </div>
-                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                <div class="w-[50%]">
+                                    <label for="photo_link" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Photo Link</label>
+                                    <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="photo_link"
+                                        placeholder="Photo link"/>
                                 </div>
                             </div>
 
-                            <!-- Question Field -->
-                            <div class="text-left w-[40%]">
-                                <div class='mb-2'>
-                                    <div id="editor-question" class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="question[]">
-                                    </div>
-                                    <input type="hidden" name="question[]" class="question-input" />
-                                    <div class="text-red-500 text-xs validation-msg"></div>
+                            <!-- Photo Link and Upload -->
+                            <div class="flex justify-between w-full mb-2">
+                                <div class='w-[48%] relative'>
+                                    <label for="fileInput-new" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Photo</label>
+                                    <input type="hidden" id="photo-new" name="photo" value="" />
+                                    <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
+                                    <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        Upload Photo
+                                    </button>
                                 </div>
+                            </div>
+
+                            <!-- Question Text -->
+                            <div class="w-full">
+                                <label for="editor-question" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Question</label>
+                                <div id="editor-question" class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="question[]"></div>
+                                <input type="hidden" name="question[]" class="question-input" />
                             </div>
 
                             <!-- Options A-D -->
-                            <div class="grid grid-cols-2 gap-2 w-[40%]">
+                            <div class="grid grid-cols-2 gap-4 w-full">
                                 <div>
-                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="option_a[]" 
-                                            placeholder="Option A" />
-                                    <div class="text-red-500 text-xs validation-msg"></div>
-                                </div>    
-                                <div>
-                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="option_b[]" 
-                                    placeholder="Option B" />
-                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                    <label for="option_a" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option A</label>
+                                    <input type="text" id="option_a" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="option_a[]" placeholder="Option A" />
                                 </div>
                                 <div>
-                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="option_c[]" 
-                                    placeholder="Option C" />
-                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                    <label for="option_b" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option B</label>
+                                    <input type="text" id="option_b" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="option_b[]" placeholder="Option B" />
                                 </div>
                                 <div>
-                                    <input type="text" class="required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="option_d[]" 
-                                    placeholder="Option D" />
-                                    <div class="text-red-500 text-xs validation-msg"></div>
+                                    <label for="option_c" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option C</label>
+                                    <input type="text" id="option_c" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="option_c[]" placeholder="Option C" />
+                                </div>
+                                <div>
+                                    <label for="option_d" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option D</label>
+                                    <input type="text" id="option_d" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="option_d[]" placeholder="Option D" />
                                 </div>
                             </div>
 
-                            <!-- Answer Field -->
-                            <div class="col-span-2 w-[15%]">
-                                <div>
-                                    <select class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="answer">
+                            <!-- Answer and Level -->
+                            <div class="flex justify-between w-full">
+                                <div class="w-[48%]">
+                                    <label for="answer" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Answer</label>
+                                    <select id="answer" class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="answer">
                                         <option value="">Select Answer</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>
                                         <option value="C">C</option>
                                         <option value="D">D</option>
                                     </select>
-                                    <div class="text-red-500 text-xs validation-msg"></div>
                                 </div>
-                                
-                                <div class="mt-3">
-                                    <select class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            name="level">
-                                            <option value="">Select Level</option>
-                                            <option value="1">Easy</option>
-                                            <option value="2">Medium</option>
-                                            <option value="3">Hard</option>
+
+                                <div class="w-[48%]">
+                                    <label for="level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Level</label>
+                                    <select id="level" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="level">
+                                        <option value="">Select Level</option>
+                                        <option value="1">Easy</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3">Hard</option>
                                     </select>
-                                    <div class="text-red-500 text-xs validation-msg"></div>
                                 </div>
                             </div>
 
-                            <!-- Notes and Level -->
-                            <div class="col-span-5 grid gap-2 w-[40%]">
-                                <div>
-                                    <textarea class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="notes[]" 
-                                        placeholder="Notes" 
-                                        rows="3" cols="3"></textarea>
-                                    <div class="text-red-500 text-xs validation-msg"></div>
-                                </div>
-                            </div>
-
-                            <div class="col-span-3">
-                                <select id="selectlangauge" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    <option value="">Select Language</option>
-                                    @foreach($languages as $item)
-                                        <option value="{{$item->id}}">{{$item->name}}</option>
-                                    @endforeach
-                                </select>
+                            <!-- Notes -->
+                            <div class="w-full mt-4">
+                                <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+                                <textarea id="notes" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    name="notes[]" placeholder="Notes" rows="3"></textarea>
                             </div>
 
                         </div>
 
-                        <div id="languages-container" class="ms-5">
-                        </div>
+                        <select id="selectlangauge" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="">Select Language</option>
+                            @foreach($languages as $item)
+                            <option value="{{$item->id}}" >{{$item->name}}</option>
+                            @endforeach
+                        </select>
 
-                        <div class="flex justify-start gap-x-5">
-                            <button type="button" id="addLanguage" class="my-5 text-black border-black border bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-black font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center ">Add Language</button>
-                        </div>
+                        <div id="languages-container" class="ms-5"></div>
                     </div>
                 `;
 
@@ -340,66 +331,6 @@ $dropdown_list = [
                 });
             });
         }
-
-        $('#select_language').change(function() {
-            var languageId = $(this).val();
-            $.ajax({
-                url: '/get-categories/' + languageId,
-                method: 'GET',
-                success: function(data) {
-                    $('#select_category').empty().append('<option value="">Select Category</option>');
-                    $.each(data, function(key, value) {
-                        $('#select_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                    fetchQuestions();
-                }
-            });
-        });
-
-        $('#select_category').change(function() {
-            var categoryId = $(this).val();
-            $.ajax({
-                url: '/get-subcategories/' + categoryId,
-                method: 'GET',
-                success: function(data) {
-                    $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
-                    $.each(data, function(key, value) {
-                        $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                    fetchQuestions();
-                }
-            });
-        });
-
-        $('#select_sub_category').change(function() {
-            var subCategoryId = $(this).val();
-            $.ajax({
-                url: '/get-subjects/' + subCategoryId,
-                method: 'GET',
-                success: function(data) {
-                    $('#select_subject').empty().append('<option value="">Select Subject</option>');
-                    $.each(data, function(key, value) {
-                        $('#select_subject').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                    fetchQuestions();
-                }
-            });
-        });
-
-        $('#select_subject').change(function() {
-            var subjectId = $(this).val();
-            $.ajax({
-                url: '/get-topics/' + subjectId,
-                method: 'GET',
-                success: function(data) {
-                    $('#select_topic').empty().append('<option value="">Select Topic</option>');
-                    $.each(data, function(key, value) {
-                        $('#select_topic').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                    fetchQuestions();
-                }
-            });
-        });
 
         $('#select_topic').change(function() {
             $.ajax({

@@ -78,7 +78,7 @@ $dropdown_list = [
                     {{$topic->subject->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <img src="{{ $topic->photo ? '/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
+                    <img src="{{ $topic->photo ? '/public/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
 
 
@@ -113,13 +113,12 @@ $dropdown_list = [
 </div>
 
 @endsection
+
+@push('script')
 <script>
     $(document).ready(function() {
         const imageSrc = $('img').attr('src'); // Get the src attribute of the image
-        console.log(imageSrc); // Log the image source URL
-
-
-
-
     });
 </script>
+@include('script')
+@endpush

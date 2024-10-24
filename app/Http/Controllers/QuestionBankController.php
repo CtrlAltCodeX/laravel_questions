@@ -93,6 +93,11 @@ class QuestionBankController extends Controller
                 ->join('languages', 'translated_questions.language_id', '=', 'languages.id')
                 ->orderBy('languages.name', $sortDirection)
                 ->select('translated_questions.*');
+        } elseif ($sortColumn == 'question.question_number') { // Sort by question number
+            $translatedQuestions = $translatedQuestions
+                ->join('questions', 'translated_questions.question_id', '=', 'questions.id')
+                ->orderBy('questions.question_number', $sortDirection)
+                ->select('translated_questions.*');
         } else {
             $translatedQuestions = $translatedQuestions->orderBy($sortColumn, $sortDirection);
         }
@@ -185,8 +190,8 @@ class QuestionBankController extends Controller
         }
 
         // dd($data);
-        $question = Question::updateOrCreate(
-            ['id' => $data['id']],
+
+        $question = Question::create(
             [
                 'question' => $data['question'][0],
                 'photo' => $data['photo'],
@@ -396,11 +401,11 @@ class QuestionBankController extends Controller
 
     public function destroy(string $id)
     {
-        $question = TranslatedQuestions::find($id);
+        $translateQuestion = TranslatedQuestions::where('question_id', $id);
+        $question = Question::find($id);
 
-        if (isset($question)) {
-            $question->delete();
-        }
+        $translateQuestion->delete();
+        $question->delete();
 
         return redirect()->route('question.index');
     }
@@ -653,12 +658,23 @@ class QuestionBankController extends Controller
 
     public function questionNoExist()
     {
-        $questionNo = Question::where('category_id', request()->category_id)
-            ->where('sub_category_id', request()->sub_category_id)
-            ->where('subject_id', request()->subject_id)
-            ->where('topic_id', request()->topic_id)
-            ->max('question_number');
+        if (!request()->exist) {
+            $questionNo = Question::where('category_id', request()->category_id)
+                ->where('sub_category_id', request()->sub_category_id)
+                ->where('subject_id', request()->subject_id)
+                ->where('topic_id', request()->topic_id)
+                ->max('question_number');
 
-        return $questionNo;
+            return $questionNo;
+        } else {
+            $questionNoExist = Question::where('category_id', request()->category_id)
+                ->where('sub_category_id', request()->sub_category_id)
+                ->where('subject_id', request()->subject_id)
+                ->where('topic_id', request()->topic_id)
+                ->where('question_number', request()->q_no)
+                ->count();
+
+            return $questionNoExist;
+        }
     }
 }

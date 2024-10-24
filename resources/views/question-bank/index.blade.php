@@ -210,7 +210,16 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="question_number">
-                    QNo.
+                    <a href="{{ route('question.index', ['sort' => 'question.question_number', 'direction' => $sortColumn == 'question.question_number' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                        QNo.
+                        @if ($sortColumn == 'question.question_number')
+                        @if ($sortDirection == 'asc')
+                        ▲
+                        @else
+                        ▼
+                        @endif
+                        @endif
+                    </a>
                 </th>
                 <th scope="col" class="p-2" data-column="language">
                     <a href="{{ route('question.index', ['sort' => 'language.name', 'direction' => $sortColumn == 'language.name' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
@@ -312,7 +321,7 @@ $levels = [
                 <td class="p-2" data-column="optionB">{{ $translated_question->option_b }}</td>
                 <td class="p-2" data-column="optionC">{{ $translated_question->option_c }}</td>
                 <td class="p-2" data-column="optionD">{{ $translated_question->option_d }}</td>
-                <td class="p-2" data-column="level">{{ $levels[$translated_question->question->level] }}</td>
+                <td class="p-2" data-column="level">{{ isset($levels[$translated_question->question->level]) ? $levels[$translated_question->question->level] : "N/A" }}</td>
                 <td class="p-2" data-column="notes">{{ $translated_question->question->notes }}</td>
                 <td class="p-2 flex gap-2" data-column="action">
                     <a href="{{ route('question.edit', $translated_question->question_id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
@@ -554,61 +563,6 @@ $levels = [
             });
         });
 
-        $('#select_category').change(function() {
-            var categoryId = $(this).val();
-
-            if (categoryId) {
-                $.ajax({
-                    url: '/get-subcategories/' + categoryId,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
-                        $('#select_subject').empty().append('<option value="">Select Subject</option>');
-                        $('#select_topic').empty().append('<option value="">Select Topic</option>');
-                        $.each(data, function(key, value) {
-                            $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
-                        });
-                    }
-                });
-            }
-        });
-
-        $('#select_sub_category').change(function() {
-            var subCategoryId = $(this).val();
-
-            if (subCategoryId) {
-                $.ajax({
-                    url: '/get-subjects/' + subCategoryId,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#select_subject').empty().append('<option value="">Select Subject</option>');
-                        $('#select_topic').empty().append('<option value="">Select Topic</option>');
-                        $.each(data, function(key, value) {
-                            $('#select_subject').append('<option value="' + value.id + '">' + value.name + '</option>');
-                        });
-                    }
-                });
-            }
-        });
-
-        $('#select_subject').change(function() {
-            var subjectId = $(this).val();
-
-            if (subjectId) {
-                $.ajax({
-                    url: '/get-topics/' + subjectId,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#select_topic').empty().append('<option value="">Select Topic</option>');
-
-                        $.each(data, function(key, value) {
-                            $('#select_topic').append('<option value="' + value.id + '">' + value.name + '</option>');
-                        });
-                    }
-                });
-            }
-        });
-
         $("#per_page").change(function() {
             $("#page").submit();
         });
@@ -672,4 +626,5 @@ $levels = [
         });
     });
 </script>
+@include('script')
 @endpush

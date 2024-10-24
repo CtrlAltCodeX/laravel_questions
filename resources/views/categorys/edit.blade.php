@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="flex justify-between">
-<h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Edit Category</h1>
+    <h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Edit Category</h1>
 </div>
 <form class="max-w-sm mx-auto" method="POST" action="{{ route('category.update', $category->id) }}" enctype="multipart/form-data">
     @method('PUT')
@@ -10,7 +10,7 @@
     <div class="relative" style="height: 100px;">
         <div class="container">
             <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="photo" style="width: 100px; height:100px;" id='fileInput' />
-            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="{{ $category->photo ? Storage::url($category->photo) : '/dummy.jpg' }}" alt="" id='categoryImage' style='width:100px;height:100px;'>
+            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="{{ $category->photo ? '/public/'.Storage::url($category->photo) : '/dummy.jpg' }}" alt="" id='categoryImage' style='width:100px;height:100px;'>
             <div class="bg-black/[0.5] overlay absolute h-[100%] top-[0px] w-[100px] rounded-full opacity-0 flex justify-center items-center text-white">Upload Pic</div>
         </div>
     </div>
@@ -41,13 +41,13 @@
 
 @section('scripts')
 <script>
-document.getElementById('fileInput').addEventListener('change', function(event) {
-    var reader = new FileReader();
-    reader.onload = function() {
-        var output = document.getElementById('categoryImage');
-        output.src = reader.result;
-    };
-    reader.readAsDataURL(event.target.files[0]);
-});
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('categoryImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
 </script>
 @endsection

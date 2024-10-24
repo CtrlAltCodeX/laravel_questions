@@ -10,7 +10,7 @@
     <div class="relative" style="height: 100px;">
         <div class="container">
             <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="photo" style="width: 100px; height:100px;" id='fileInput' />
-            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="{{ $topic->photo ? Storage::url($topic->photo) : '/dummy.jpg' }}" alt="" id='topicImage' style='width:100px;height:100px;'>
+            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="{{ $topic->photo ? '/public/'.Storage::url($topic->photo) : '/dummy.jpg' }}" alt="" id='topicImage' style='width:100px;height:100px;'>
             <div class="bg-black/[0.5] overlay absolute h-[100%] top-[0px] w-[100px] rounded-full opacity-0 flex justify-center items-center text-white">Upload Pic</div>
         </div>
     </div>
