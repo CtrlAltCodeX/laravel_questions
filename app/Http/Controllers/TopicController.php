@@ -16,7 +16,7 @@ class TopicController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {  
+    {
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
@@ -29,21 +29,21 @@ class TopicController extends Controller
 
         $query = Topic::query();
 
-        if($subject_id){
+        if ($subject_id) {
             $query->where('subject_id', $subject_id);
         }
-        if($subcategory_id){
-            $query->whereHas('subject', function($query) use($subcategory_id){
+        if ($subcategory_id) {
+            $query->whereHas('subject', function ($query) use ($subcategory_id) {
                 $query->where('sub_category_id', $subcategory_id);
             });
         }
-        if($category_id){
-            $query->whereHas('subject.subCategory', function($query) use($category_id){
+        if ($category_id) {
+            $query->whereHas('subject.subCategory', function ($query) use ($category_id) {
                 $query->where('category_id', $category_id);
             });
         }
-        if($language_id){ 
-            $query->whereHas('subject.subCategory.category', function($query) use($language_id){
+        if ($language_id) {
+            $query->whereHas('subject.subCategory.category', function ($query) use ($language_id) {
                 $query->where('language_id', $language_id);
             });
         }
@@ -59,7 +59,10 @@ class TopicController extends Controller
     public function create()
     {
         $subjects = Subject::all();
-        return view('topics.create', compact('subjects'));
+
+        $languages = Language::all();
+
+        return view('topics.create', compact('subjects', 'languages'));
     }
 
     /**
@@ -76,9 +79,9 @@ class TopicController extends Controller
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $topic->photo = $fileName;
 
             $topic->save();
@@ -107,7 +110,9 @@ class TopicController extends Controller
 
         $subjects = Subject::all();
 
-        return view('topics.edit', compact('topic', 'subjects'));
+        $languages = Language::all();
+
+        return view('topics.edit', compact('topic', 'subjects', 'languages'));
     }
 
     /**
@@ -121,14 +126,14 @@ class TopicController extends Controller
         ]);
 
         $topic =  Topic::find($id);
-        
+
         $topic->update(request()->all());
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $topic->photo = $fileName;
 
             $topic->save();

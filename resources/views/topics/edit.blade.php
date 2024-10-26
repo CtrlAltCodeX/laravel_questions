@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="flex justify-between">
-<h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Edit Topics</h1>
+    <h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Edit Topics</h1>
 </div>
 <form class="max-w-sm mx-auto" method="POST" action="{{ route('topic.update', $topic->id) }}" enctype="multipart/form-data">
     @method('PUT')
@@ -23,8 +23,35 @@
     </div>
 
     <div class="max-w-sm mx-auto mb-5">
+        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Language</label>
+        <select id="select_language" name="language_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Select Language</option>
+            @foreach($languages as $item)
+            <option value="{{$item->id}}">{{$item->name}}</option>
+            @endforeach
+        </select>
+        @error('language_id')
+        <div class="text-red-500">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="max-w-sm mx-auto mb-5">
         <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
-        <select name="subject_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <select id='select_category' name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Choose a Category</option>
+        </select>
+    </div>
+
+    <div class="max-w-sm mx-auto mb-5">
+        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sub Category</label>
+        <select id='select_sub_category' name="sub_category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Choose a Sub Category</option>
+        </select>
+    </div>
+
+    <div class="max-w-sm mx-auto mb-5">
+        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+        <select id='select_subject' name="subject_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option value="">Choose a Category</option>
             @foreach($subjects as $subject)
             <option value="{{$subject->id}}" {{ $subject->id == $topic->subject_id ? 'selected' : '' }}>{{$subject->name}}</option>
@@ -40,15 +67,18 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
+
+@include('script')
+
 <script>
-document.getElementById('fileInput').addEventListener('change', function(event) {
-    var reader = new FileReader();
-    reader.onload = function() {
-        var output = document.getElementById('topicImage');
-        output.src = reader.result;
-    };
-    reader.readAsDataURL(event.target.files[0]);
-});
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('topicImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
 </script>
-@endsection
+@endpush

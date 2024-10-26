@@ -25,16 +25,16 @@ class SubjectController extends Controller
 
         $query = Subject::query();
 
-        if($subcategory_id){
+        if ($subcategory_id) {
             $query->where('sub_category_id', $subcategory_id);
         }
-        if($category_id){
-            $query->whereHas('subCategory', function($query) use($category_id){
+        if ($category_id) {
+            $query->whereHas('subCategory', function ($query) use ($category_id) {
                 $query->where('category_id', $category_id);
             });
         }
-        if($language_id) {
-            $query->whereHas('subCategory.category', function($query) use($language_id){
+        if ($language_id) {
+            $query->whereHas('subCategory.category', function ($query) use ($language_id) {
                 $query->where('language_id', $language_id);
             });
         }
@@ -50,7 +50,10 @@ class SubjectController extends Controller
     public function create()
     {
         $sub_categories = SubCategory::all();
-        return view('subjects.create', compact('sub_categories'));
+
+        $languages = Language::all();
+
+        return view('subjects.create', compact('sub_categories', 'languages'));
     }
 
     /**
@@ -98,7 +101,9 @@ class SubjectController extends Controller
 
         $sub_categories = SubCategory::all();
 
-        return view('subjects.edit', compact('subject', 'sub_categories'));
+        $languages = Language::all();
+
+        return view('subjects.edit', compact('subject', 'sub_categories', 'languages'));
     }
 
     /**

@@ -35,7 +35,7 @@
                 </th>
 
                 <td class="px-6 py-4 flex gap-4">
-
+                    @if (auth()->user()->name == 'Super Admin' || $user->name != 'Super Admin')
                     @if(Auth::user()->id !== $user->id && Auth::user()->role === "Super admin")
                     <form action="{{route('profile.destroy',$user->id)}}" method='POST'>
                         @csrf
@@ -43,10 +43,8 @@
                         <button href="#" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                     @endif
-                   
-
                     <a href="{{route('admin-profile.edit',$user->id)}}" class="font-medium text-danger dark:text-danger-500 hover:underline">Edit</a>
-                    
+                    @endif
                 </td>
             </tr>
             @empty

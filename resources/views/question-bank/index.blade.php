@@ -52,7 +52,7 @@ $levels = [
                 $selectedValue = request()->input($moduleKey);
                 @endphp
                 <div>
-                    <input type="hidden" value="{{ $module[$moduleKey] ?? '' }}" name="{{ $moduleKey }}" />
+                    <!-- <input type="hidden" value="{{ $module[$moduleKey] ?? '' }}" name="{{ $moduleKey }}" /> -->
                     <select id="{{ $id }}" name="{{ $moduleKey }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
                         <option value="">{{$moduleName}}</option>
                         @foreach($module as $item)
@@ -151,6 +151,10 @@ $levels = [
                                 Image
                             </label>
                             <label class="block">
+                                <input type="checkbox" value="link" class="mr-2">
+                                Photo Link
+                            </label>
+                            <label class="block">
                                 <input type="checkbox" value="question" class="mr-2">
                                 Question
                             </label>
@@ -234,6 +238,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="image">Images</th>
+                <th scope="col" class="p-2" data-column="link">Photo Link</th>
                 <th scope="col" class="p-2" data-column="question">
                     <a href="{{ route('question.index', ['sort' => 'question_text', 'direction' => $sortColumn == 'question_text' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
                         Question
@@ -314,6 +319,10 @@ $levels = [
                 <td class="p-2" data-column="language">{{ $translated_question->language->name }}</td>
                 <td class="p-2" data-column="image">
                     <img src="{{ $translated_question->question->photo_link ? $translated_question->question->photo_link : '/dummy.jpg' }}"
+                        style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                </td>
+                <td class="p-2" data-column="link">
+                    <img src="{{ $translated_question->question->photo ? $translated_question->question->photo : '/dummy.jpg' }}"
                         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                 </td>
                 <td class="p-2" data-column="question">{!! $translated_question->question_text !!}</td>

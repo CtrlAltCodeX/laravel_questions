@@ -23,8 +23,28 @@
     </div>
 
     <div class="max-w-sm mx-auto mb-5">
+        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Language</label>
+        <select id="select_language" name="language_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Select Language</option>
+            @foreach($languages as $item)
+            <option value="{{$item->id}}">{{$item->name}}</option>
+            @endforeach
+        </select>
+        @error('language_id')
+        <div class="text-red-500">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="max-w-sm mx-auto mb-5">
         <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
-        <select name="sub_category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <select id='select_category' name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Choose a Category</option>
+        </select>
+    </div>
+
+    <div class="max-w-sm mx-auto mb-5">
+        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+        <select id='select_sub_category' name="sub_category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option value="">Choose a Category</option>
             @foreach($sub_categories as $sub_category)
             <option value="{{$sub_category->id}}" {{ $sub_category->id == $subject->sub_category_id ? 'selected' : '' }}>{{$sub_category->name}}</option>
@@ -40,7 +60,9 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
+
+@include('script')
 <script>
     document.getElementById('fileInput').addEventListener('change', function(event) {
         var reader = new FileReader();
@@ -51,4 +73,5 @@
         reader.readAsDataURL(event.target.files[0]);
     });
 </script>
-@endsection
+
+@endpush

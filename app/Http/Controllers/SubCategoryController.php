@@ -44,7 +44,9 @@ class SubCategoryController extends Controller
     {
         $categories = Category::all();
 
-        return view('sub-category.create', compact('categories'));
+        $languages = Language::all();
+
+        return view('sub-category.create', compact('categories', 'languages'));
     }
 
     /**
@@ -89,7 +91,9 @@ class SubCategoryController extends Controller
 
         $categories = Category::all();
 
-        return view('sub-category.edit', compact('sub_categories', 'categories'));
+        $languages = Language::all();
+
+        return view('sub-category.edit', compact('sub_categories', 'categories', 'languages'));
     }
 
     /**

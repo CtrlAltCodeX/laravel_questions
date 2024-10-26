@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Exports\QuestionsExport;
 use App\Models\Language;
 use App\Models\Category;
-use App\Models\QuestionBank;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
@@ -41,7 +40,7 @@ class QuestionBankController extends Controller
 
         // Apply filters if they exist
         if ($language_id) {
-            $translation_questions_query->where('language_id', $language_id);
+            $translation_questions_query->where('translated_questions.language_id', $language_id);
         }
 
         if ($category_id) {
