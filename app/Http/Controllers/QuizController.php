@@ -79,22 +79,22 @@ class QuizController extends Controller
     {
         $data = $request->all();
 
-        $apiLink = $data['api_link'];
-        // Example: http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1
+        // $apiLink = $data['api_link'];
+        // // Example: http://localhost:8000/api/quiz?Language=1&Category=1&SubCategory=1&Subject=1&Topic=1
 
-        // Parse the URL to get the query string
-        $urlComponents = parse_url($apiLink);
-        $queryString = $urlComponents['query'] ?? '';
+        // // Parse the URL to get the query string
+        // $urlComponents = parse_url($apiLink);
+        // $queryString = $urlComponents['query'] ?? '';
 
-        // Parse the query string into an associative array
-        $params = [];
-        parse_str($queryString, $params);
+        // // Parse the query string into an associative array
+        // $params = [];
+        // parse_str($queryString, $params);
 
         // Now $params contains all the parameters from the URL
         // Example: ['Language' => '1', 'Category' => '1', 'SubCategory' => '1', 'Subject' => '1', 'Topic' => '1']
     
         // Fetch the category based on the 'Category' parameter
-        $categoryId = $params['Category'] ?? null;
+        $categoryId = $data['Category'] ?? null;
         if (!$categoryId) {
             return response()->json(['error' => 'Category parameter is missing'], 400);
         }
@@ -104,17 +104,17 @@ class QuizController extends Controller
         // Fetch questions based on the parameters
         $query = Question::query()->where('category_id', $categoryId);
     
-        if (isset($params['Language'])) {
-            $query->where('language_id', $params['Language']);
+        if (isset($data['Language'])) {
+            $query->where('language_id', $data['Language']);
         }
-        if (isset($params['SubCategory'])) {
-            $query->where('sub_category_id', $params['SubCategory']);
+        if (isset($data['SubCategory'])) {
+            $query->where('sub_category_id', $data['SubCategory']);
         }
-        if (isset($params['Subject'])) {
-            $query->where('subject_id', $params['Subject']);
+        if (isset($data['Subject'])) {
+            $query->where('subject_id', $data['Subject']);
         }
-        if (isset($params['Topic'])) {
-            $query->where('topic_id', $params['Topic']);
+        if (isset($data['Topic'])) {
+            $query->where('topic_id', $data['Topic']);
         }
     
         $questions = $query->get();

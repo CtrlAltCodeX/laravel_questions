@@ -65,10 +65,10 @@ class QuestionBankController extends Controller
         if ($search) {
             $translation_questions_query->where(function ($q) use ($search) {
                 $q->where('question_text', 'LIKE', "%{$search}%")
-                    ->orWhere('option_a', 'LIKE', "%{$search}%")
-                    ->orWhere('option_b', 'LIKE', "%{$search}%")
-                    ->orWhere('option_c', 'LIKE', "%{$search}%")
-                    ->orWhere('option_d', 'LIKE', "%{$search}%");
+                    ->orWhere('translated_questions.option_a', 'LIKE', "%{$search}%")
+                    ->orWhere('translated_questions.option_b', 'LIKE', "%{$search}%")
+                    ->orWhere('translated_questions.option_c', 'LIKE', "%{$search}%")
+                    ->orWhere('translated_questions.option_d', 'LIKE', "%{$search}%");
             });
         }
 
@@ -548,7 +548,7 @@ class QuestionBankController extends Controller
         $substring = "language";
         $languageCount = 0;
         $languageIds = [];
-        // dd($headings);
+
         foreach ($headings as $key) {
             if (strpos($key, $substring) !== false) {
                 $languageCount++;
@@ -557,7 +557,7 @@ class QuestionBankController extends Controller
             }
         }
 
-        foreach ($rows[0] as $row) {
+        foreach ($rows[0] as $key => $row) {
             // Perform validation checks for required IDs
             foreach ($languageIds as $languageId) {
                 if (!$this->getLanguageId($languageId)) {

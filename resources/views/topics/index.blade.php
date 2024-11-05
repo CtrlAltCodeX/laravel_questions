@@ -114,7 +114,7 @@ $dropdown_list = [
 
 @endsection
 
-@push('script')
+@push('scripts')
 <script>
     $(document).ready(function() {
         const imageSrc = $('img').attr('src'); // Get the src attribute of the image
