@@ -18,24 +18,43 @@
 </div>
 
 <div>
-    <div class="flex justify-between gap-x-5">
-        @foreach($dropdown_list as $key => $value)
-         @php
-            $id = strtolower(Str::slug($key, '_'));
-        @endphp
-        <div class="w-1/5">
-            <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }}</label>
-            <select id="{{$id}}" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="{{ trim(explode('Select', $key)[1]) }}" id="{{ $key }}">
-                <option value="">{{ $key }}</option>
-                @foreach($value as $item)
-                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                @endforeach
-            </select>
+    <div class="space-y-3">
+        <div class="flex justify-between gap-x-5">
+            @foreach($dropdown_list as $key => $value)
+            @php
+                $id = strtolower(Str::slug($key, '_'));
+            @endphp
+            <div class="w-1/5">
+                <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }}</label>
+                <select id="{{$id}}" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="{{ trim(explode('Select', $key)[1]) }}" id="{{ $key }}">
+                    <option value="">{{ $key }}</option>
+                    @foreach($value as $item)
+                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endforeach
         </div>
-        @endforeach
+
+        <div class="flex justify-between gap-x-5">
+            @foreach($dropdown_list as $key => $value)
+            @php
+                $id = strtolower(Str::slug($key, '_'));
+            @endphp
+            <div class="w-1/5">
+                <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }} 2</label>
+                <select id="{{$id}}_2" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="{{ trim(explode('Select', $key)[1]) }}_2" id="{{ $key }}_2">
+                    <option value="">{{ $key }} 2</option>
+                    @foreach($value as $item)
+                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endforeach
+        </div>
     </div>
 
-    <div class="flex gap-x-5 items-center">
+    <div class="flex gap-x-5 mt-5 items-center">
         <input type="text" id="apiLink" class="w-1/2 px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="search" id="search" placeholder="Link">
         <button id="copy-button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
     </div>
@@ -58,7 +77,6 @@
 
     $(document).ready(function() {
         const baseUrl = "{{ url('api/quiz') }}";
-        console.log(baseUrl);
         const dropdowns = document.querySelectorAll('select');
         const apiLink = document.getElementById('apiLink');
 
@@ -172,6 +190,101 @@
         });
 
         $('#select_topic').change(function() {
+            var topicId = $(this).val();
+            // Add your AJAX request for fetching questions or other actions here
+        });
+
+        $('#select_language_2').change(function() {
+            var languageId = $(this).val();
+            $('#select_category_2').empty().append('<option value="">Select Category 2</option>');
+            $('#select_subcategory_2').empty().append('<option value="">Select Sub Category 2</option>');
+            $('#select_subject_2').empty().append('<option value="">Select Subject 2</option>');
+            $('#select_topic_2').empty().append('<option value="">Select Topic 2</option>');
+
+            if (languageId) {
+                $.ajax({
+                    url: '/get-categories/' + languageId,
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('Categories:', data); // Debugging: Log the data
+                        $.each(data, function(key, value) {
+                            $('#select_category_2').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching categories:', error); // Debugging: Log any errors
+                    }
+                });
+            }
+        });
+
+        $('#select_category_2').change(function() {
+            var categoryId = $(this).val();
+            $('#select_sub_category_2').empty().append('<option value="">Select Sub Category 2</option>');
+            $('#select_subject_2').empty().append('<option value="">Select Subject 2</option>');
+            $('#select_topic_2').empty().append('<option value="">Select Topic  2</option>');
+
+            if (categoryId) {
+                $.ajax({
+                    url: '/get-subcategories/' + categoryId,
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('Subcategories:', data); // Debugging: Log the data
+                        $.each(data, function(key, value) {
+                            $('#select_subcategory_2').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching subcategories:', error); // Debugging: Log any errors
+                    }
+                });
+            }
+        });
+
+        $('#select_subcategory_2').change(function() {
+            var subCategoryId = $(this).val();
+            $('#select_subject_2').empty().append('<option value="">Select Subject 2</option>');
+            $('#select_topic_2').empty().append('<option value="">Select Topic 2</option>');
+
+            if (subCategoryId) {
+                $.ajax({
+                    url: '/get-subjects/' + subCategoryId,
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('Subjects:', data); // Debugging: Log the data
+                        $.each(data, function(key, value) {
+                            $('#select_subject_2').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching subjects:', error); // Debugging: Log any errors
+                    }
+                });
+            }
+        });
+
+        $('#select_subject_2').change(function() {
+            var subjectId = $(this).val();
+            $('#select_topic_2').empty().append('<option value="">Select Topic 2</option>');
+
+            if (subjectId) {
+                $.ajax({
+                    url: '/get-topics/' + subjectId,
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('Topics:', data); // Debugging: Log the data
+                        $.each(data, function(key, value) {
+                            $('#select_topic_2').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching topics:', error); // Debugging: Log any errors
+                    }
+                });
+            }
+        });
+
+        $('#select_topic_2').change(function() {
             var topicId = $(this).val();
             // Add your AJAX request for fetching questions or other actions here
         });
