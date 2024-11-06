@@ -96,10 +96,14 @@ class QuizController extends Controller
         $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
         $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
         
+        $language = $this->getFirstDropdownData($data)['language'];
+        $categories = $this->getFirstDropdownData($data)['categories'];
         $subcategories = $this->getFirstDropdownData($data)['subcategories'];
         $subjects = $this->getFirstDropdownData($data)['subjects'];
         $topics = $this->getFirstDropdownData($data)['topics'];
         
+        $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
+        $categories2 = $this->getSecondDropdownData($data)['categories'] ?? collect();
         $subcategories2 = $this->getSecondDropdownData($data)['subcategories'] ?? collect();
         $subjects2 = $this->getSecondDropdownData($data)['subjects'] ?? collect();
         $topics2 = $this->getSecondDropdownData($data)['topics'] ?? collect();
@@ -107,87 +111,109 @@ class QuizController extends Controller
         // Transform the questions into the desired JSON structure
         $jsonResponse = [];
         
-        foreach ($subcategories as $subcategory) {
-            foreach ($subjects as $subject) {
-                // Filter subjects based on the selected subject
-                if (isset($data['Subject']) && $subject->id != $data['Subject']) {
-                    continue;
+        $languageName = $language->name;
+        if ($language2) {
+            $languageName .= ' | ' . $language2->name;
+        }
+
+        foreach ($categories as $category) {
+            $categoryName = $category->name;
+            if ($categories2->isNotEmpty()) {
+                foreach ($categories2 as $category2) {
+                    $combinedCategoryName = $categoryName . ' | ' . $category2->name;
                 }
-        
-                foreach ($topics as $topic) {
-                    // Filter topics based on the selected topic
-                    if (isset($data['Topic']) && $topic->id != $data['Topic']) {
+            } else {
+                $combinedCategoryName = $categoryName;
+            }
+
+            foreach ($subcategories as $subcategory) {
+                foreach ($subjects as $subject) {
+                    // Filter subjects based on the selected subject
+                    if (isset($data['Subject']) && $subject->id != $data['Subject']) {
                         continue;
                     }
-        
-                    $subcategoryName = $subcategory->name;
-                    $subjectName = $subject->name;
-                    $topicName = $topic->name;
-        
-                    if ($subcategories2->isNotEmpty()) {
-                        foreach ($subcategories2 as $subcategory2) {
-                            $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
+
+                    foreach ($topics as $topic) {
+                        // Filter topics based on the selected topic
+                        if (isset($data['Topic']) && $topic->id != $data['Topic']) {
+                            continue;
                         }
-                    } else {
-                        $combinedSubcategoryName = $subcategoryName;
-                    }
-        
-                    if ($subjects2->isNotEmpty()) {
-                        foreach ($subjects2 as $subject2) {
-                            $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
+
+                        $subcategoryName = $subcategory->name;
+                        $subjectName = $subject->name;
+                        $topicName = $topic->name;
+
+                        if ($subcategories2->isNotEmpty()) {
+                            foreach ($subcategories2 as $subcategory2) {
+                                $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
+                            }
+                        } else {
+                            $combinedSubcategoryName = $subcategoryName;
                         }
-                    } else {
-                        $combinedSubjectName = $subjectName;
-                    }
-        
-                    if ($topics2->isNotEmpty()) {
-                        foreach ($topics2 as $topic2) {
-                            $combinedTopicName = $topicName . ' | ' . $topic2->name;
+
+                        if ($subjects2->isNotEmpty()) {
+                            foreach ($subjects2 as $subject2) {
+                                $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
+                            }
+                        } else {
+                            $combinedSubjectName = $subjectName;
                         }
-                    } else {
-                        $combinedTopicName = $topicName;
-                    }
-        
-                    if (!isset($jsonResponse[$combinedSubcategoryName])) {
-                        $jsonResponse[$combinedSubcategoryName] = [];
-                    }
-                    if (!isset($jsonResponse[$combinedSubcategoryName][$combinedSubjectName])) {
-                        $jsonResponse[$combinedSubcategoryName][$combinedSubjectName] = [];
-                    }
-                    if (!isset($jsonResponse[$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
-                        $jsonResponse[$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
-                    }
-        
-                    $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
-                        return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
-                    });
-        
-                    foreach ($filteredQuestions as $questionFirst) {
-                        if (isset($questionsSecond)) {
-                            foreach ($questionsSecond as $questionSecond) {
-                                $jsonResponse[$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                    'question' => htmlspecialchars($questionFirst->question) . ' | ' . htmlspecialchars($questionSecond->question),
+
+                        if ($topics2->isNotEmpty()) {
+                            foreach ($topics2 as $topic2) {
+                                $combinedTopicName = $topicName . ' | ' . $topic2->name;
+                            }
+                        } else {
+                            $combinedTopicName = $topicName;
+                        }
+
+                        if (!isset($jsonResponse[$languageName])) {
+                            $jsonResponse[$languageName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
+                        }
+
+                        $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
+                            return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
+                        });
+
+                        foreach ($filteredQuestions as $questionFirst) {
+                            if (isset($questionsSecond)) {
+                                foreach ($questionsSecond as $questionSecond) {
+                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                        'question' => htmlspecialchars($questionFirst->question) . ' | ' . htmlspecialchars($questionSecond->question),
+                                        'options' => [
+                                            htmlspecialchars($questionFirst->option_a) . ' | ' . htmlspecialchars($questionSecond->option_a),
+                                            htmlspecialchars($questionFirst->option_b) . ' | ' . htmlspecialchars($questionSecond->option_b),
+                                            htmlspecialchars($questionFirst->option_c) . ' | ' . htmlspecialchars($questionSecond->option_c),
+                                            htmlspecialchars($questionFirst->option_d) . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                        ],
+                                        'answer' => $questionFirst->answer // Assuming this field exists
+                                    ];
+                                }
+                            } else {
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                    'question_id' => $questionFirst->id,
+                                    'question' => htmlspecialchars($questionFirst->question),
                                     'options' => [
-                                        htmlspecialchars($questionFirst->option_a) . ' | ' . htmlspecialchars($questionSecond->option_a),
-                                        htmlspecialchars($questionFirst->option_b) . ' | ' . htmlspecialchars($questionSecond->option_b),
-                                        htmlspecialchars($questionFirst->option_c) . ' | ' . htmlspecialchars($questionSecond->option_c),
-                                        htmlspecialchars($questionFirst->option_d) . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                        htmlspecialchars($questionFirst->option_a),
+                                        htmlspecialchars($questionFirst->option_b),
+                                        htmlspecialchars($questionFirst->option_c),
+                                        htmlspecialchars($questionFirst->option_d),
                                     ],
                                     'answer' => $questionFirst->answer // Assuming this field exists
                                 ];
                             }
-                        } else {
-                            $jsonResponse[$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                'question_id' => $questionFirst->id,
-                                'question' => htmlspecialchars($questionFirst->question),
-                                'options' => [
-                                    htmlspecialchars($questionFirst->option_a),
-                                    htmlspecialchars($questionFirst->option_b),
-                                    htmlspecialchars($questionFirst->option_c),
-                                    htmlspecialchars($questionFirst->option_d),
-                                ],
-                                'answer' => $questionFirst->answer // Assuming this field exists
-                            ];
                         }
                     }
                 }
@@ -216,6 +242,8 @@ class QuizController extends Controller
 
 
     function getFirstDropdownData($data){
+        $languageId = $data['Language'] ?? null;
+
         $categoryId = $data['Category'] ?? null;
         if (!$categoryId) {
             return response()->json(['error' => 'Category parameter is missing'], 400);
@@ -238,6 +266,10 @@ class QuizController extends Controller
         }
     
         $questions = $query->with([ 'subCategory',  'subject', 'topic' ])->get();
+
+        $language = Language::find($languageId);
+
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get(): Category::where('language_id', $languageId)->get();
         
         $subcategories = SubCategory::where('category_id', $categoryId)->get();
 
@@ -247,10 +279,12 @@ class QuizController extends Controller
         // Get all the topics for the subjects
         $topics = Topic::whereIn('subject_id', isset($data['Subject']) ? [$data['Subject']] : $subjects->pluck('id'))->get();
 
-        return [ 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
+        return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
 
     function getSecondDropdownData($data){
+        $languageId = $data['Language'] ?? null;
+
         $categoryId = $data['Category_2'] ?? null;
 
         if (!$categoryId) {
@@ -278,6 +312,10 @@ class QuizController extends Controller
 
         $questions = $query->with([ 'subCategory',  'subject', 'topic' ])->get();
 
+        $language = Language::find($languageId);
+        
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get(): Category::where('language_id', $languageId)->get();
+
         $subcategories = SubCategory::where('category_id', $categoryId)->get();
 
         // Get all the subjects for the subcategories
@@ -290,6 +328,6 @@ class QuizController extends Controller
             return null;
         }
 
-        return [ 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
+        return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
 }
