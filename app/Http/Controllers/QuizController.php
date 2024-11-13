@@ -95,7 +95,7 @@ class QuizController extends Controller
 
         $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
         $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
-        
+
         $language = $this->getFirstDropdownData($data)['language'];
         $categories = $this->getFirstDropdownData($data)['categories'];
         $subcategories = $this->getFirstDropdownData($data)['subcategories'];
@@ -111,13 +111,13 @@ class QuizController extends Controller
         // Transform the questions into the desired JSON structure
         $jsonResponse = [];
         
-        $languageName = $language->name;
+        $languageName = '<span class="notranslate">' . $language->name . '</span>';
         if ($language2) {
             $languageName .= ' | ' . $language2->name;
         }
 
         foreach ($categories as $category) {
-            $categoryName = $category->name;
+            $categoryName = '<span class="notranslate">' . $category->name  . '</span>';
             if ($categories2->isNotEmpty()) {
                 foreach ($categories2 as $category2) {
                     $combinedCategoryName = $categoryName . ' | ' . $category2->name;
@@ -139,9 +139,9 @@ class QuizController extends Controller
                             continue;
                         }
 
-                        $subcategoryName = $subcategory->name;
-                        $subjectName = $subject->name;
-                        $topicName = $topic->name;
+                        $subcategoryName = '<span class="notranslate">' . $subcategory->name . '</span>';
+                        $subjectName = '<span class="notranslate">' .$subject->name . '</span>';
+                        $topicName = '<span class="notranslate">' .$topic->name . '</span>';
 
                         if ($subcategories2->isNotEmpty()) {
                             foreach ($subcategories2 as $subcategory2) {
@@ -191,12 +191,12 @@ class QuizController extends Controller
                             if (isset($questionsSecond)) {
                                 foreach ($questionsSecond as $questionSecond) {
                                     $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question' => htmlspecialchars($questionFirst->question) . ' | ' . htmlspecialchars($questionSecond->question),
+                                        'question' => ('<span class="notranslate">' . htmlspecialchars($questionFirst->question). '</span>') . ' | ' . htmlspecialchars($questionSecond->question) . (isset($questionFirst->photo_link) ? '<br>' . '<img src="' . $questionFirst->photo_link . '"/>' : ''),
                                         'options' => [
-                                            htmlspecialchars($questionFirst->option_a) . ' | ' . htmlspecialchars($questionSecond->option_a),
-                                            htmlspecialchars($questionFirst->option_b) . ' | ' . htmlspecialchars($questionSecond->option_b),
-                                            htmlspecialchars($questionFirst->option_c) . ' | ' . htmlspecialchars($questionSecond->option_c),
-                                            htmlspecialchars($questionFirst->option_d) . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                            ('<span class="notranslate">' . htmlspecialchars($questionFirst->option_a). '</span>') . ' | ' . htmlspecialchars($questionSecond->option_a),
+                                            ('<span class="notranslate">' . htmlspecialchars($questionFirst->option_b). '</span>') . ' | ' . htmlspecialchars($questionSecond->option_b),
+                                            ('<span class="notranslate">' . htmlspecialchars($questionFirst->option_c). '</span>') . ' | ' . htmlspecialchars($questionSecond->option_c),
+                                            ('<span class="notranslate">' . htmlspecialchars($questionFirst->option_d). '</span>') . ' | ' . htmlspecialchars($questionSecond->option_d),
                                         ],
                                         'answer' => $questionFirst->answer // Assuming this field exists
                                     ];
@@ -204,12 +204,12 @@ class QuizController extends Controller
                             } else {
                                 $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
                                     'question_id' => $questionFirst->id,
-                                    'question' => htmlspecialchars($questionFirst->question),
+                                    'question' => ('<span class="notranslate">' . htmlspecialchars($questionFirst->question). '</span>') . (isset($questionFirst->photo_link) ? '<br>' . '<img src="' . $questionFirst->photo_link . '"/>' : ''),
                                     'options' => [
-                                        htmlspecialchars($questionFirst->option_a),
-                                        htmlspecialchars($questionFirst->option_b),
-                                        htmlspecialchars($questionFirst->option_c),
-                                        htmlspecialchars($questionFirst->option_d),
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_a) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_b) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_c) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_d) . '</span>',
                                     ],
                                     'answer' => $questionFirst->answer // Assuming this field exists
                                 ];
@@ -271,19 +271,19 @@ class QuizController extends Controller
 
         $categories = isset($categoryId) ? Category::where('id', $categoryId)->get(): Category::where('language_id', $languageId)->get();
         
-        $subcategories = SubCategory::where('category_id', $categoryId)->get();
+        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id',$data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
         // Get all the subjects for the subcategories
-        $subjects = Subject::whereIn('sub_category_id', isset($data['SubCategory']) ? [$data['SubCategory']] : $subcategories->pluck('id'))->get();
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
 
         // Get all the topics for the subjects
-        $topics = Topic::whereIn('subject_id', isset($data['Subject']) ? [$data['Subject']] : $subjects->pluck('id'))->get();
+        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
 
         return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
 
     function getSecondDropdownData($data){
-        $languageId = $data['Language'] ?? null;
+        $languageId = $data['Language_2'] ?? null;
 
         $categoryId = $data['Category_2'] ?? null;
 
@@ -316,13 +316,13 @@ class QuizController extends Controller
         
         $categories = isset($categoryId) ? Category::where('id', $categoryId)->get(): Category::where('language_id', $languageId)->get();
 
-        $subcategories = SubCategory::where('category_id', $categoryId)->get();
+        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id',$data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
         // Get all the subjects for the subcategories
-        $subjects = Subject::whereIn('sub_category_id', isset($data['SubCategory_2']) ? [$data['SubCategory_2']] : $subcategories->pluck('id'))->get();
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
 
         // Get all the topics for the subjects
-        $topics = Topic::whereIn('subject_id', isset($data['Subject_2']) ? [$data['Subject_2']] : $subjects->pluck('id'))->get();
+        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
 
         if($questions->isEmpty()){
             return null;
