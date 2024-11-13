@@ -22,5 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-Route::get("quiz", [QuizController::class, 'deploy'])
-    ->middleware('auth:sanctum');
+Route::get("quiz", [QuizController::class, 'deploy']);

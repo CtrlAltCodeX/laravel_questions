@@ -23,7 +23,7 @@ class QuestionBankController extends Controller
     public function index()
     {
         $languages = Language::all();
-        $categories = Category::all();
+        $categories = [];
         $subcategories = [];
         $subjects = [];
         $topics = [];
