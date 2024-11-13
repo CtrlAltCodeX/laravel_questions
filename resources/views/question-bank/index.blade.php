@@ -540,6 +540,22 @@ $levels = [
                                 'value': $('#select_sub_category').val()
                             })
                         );
+
+                        form.append(
+                            $('<input>', {
+                                'type': 'hidden',
+                                'name': 'subject_id',
+                                'value': $('#select_subject').val()
+                            })
+                        );
+
+                        form.append(
+                            $('<input>', {
+                                'type': 'hidden',
+                                'name': 'topic_id',
+                                'value': $('#select_topic').val()
+                            })
+                        );
                     });
 
                     form.appendTo('body').submit();
