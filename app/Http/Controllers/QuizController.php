@@ -78,179 +78,186 @@ class QuizController extends Controller
 
     public function deploy(Request $request)
     {
-        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id']);
+        // if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id']);
 
-        if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
-            $data = $request->all();
+        // if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+        $data = $request->all();
 
-            $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
-            $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
+        $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
+        $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
-            $language = $this->getFirstDropdownData($data)['language'];
-            $categories = $this->getFirstDropdownData($data)['categories'];
-            $subcategories = $this->getFirstDropdownData($data)['subcategories'];
-            $subjects = $this->getFirstDropdownData($data)['subjects'];
-            $topics = $this->getFirstDropdownData($data)['topics'];
+        $language = $this->getFirstDropdownData($data)['language'];
+        $categories = $this->getFirstDropdownData($data)['categories'];
+        $subcategories = $this->getFirstDropdownData($data)['subcategories'];
+        $subjects = $this->getFirstDropdownData($data)['subjects'];
+        $topics = $this->getFirstDropdownData($data)['topics'];
 
-            $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
-            $categories2 = $this->getSecondDropdownData($data)['categories'] ?? collect();
-            $subcategories2 = $this->getSecondDropdownData($data)['subcategories'] ?? collect();
-            $subjects2 = $this->getSecondDropdownData($data)['subjects'] ?? collect();
-            $topics2 = $this->getSecondDropdownData($data)['topics'] ?? collect();
+        $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
+        $categories2 = $this->getSecondDropdownData($data)['categories'] ?? collect();
+        $subcategories2 = $this->getSecondDropdownData($data)['subcategories'] ?? collect();
+        $subjects2 = $this->getSecondDropdownData($data)['subjects'] ?? collect();
+        $topics2 = $this->getSecondDropdownData($data)['topics'] ?? collect();
 
-            // Transform the questions into the desired JSON structure
-            $jsonResponse = [];
+        // Transform the questions into the desired JSON structure
+        $jsonResponse = [];
 
-            $languageName = '<span class="notranslate">' . $language->name . '</span>';
-            if ($language2) {
-                $languageName .= ' | ' . $language2->name;
+        $languageName = '<span class="notranslate">' . $language->name . '</span>';
+        if ($language2) {
+            $languageName .= ' | ' . $language2->name;
+        }
+
+        foreach ($categories as $category) {
+            $categoryName = '<span class="notranslate">' . $category->name  . '</span>';
+            if ($categories2->isNotEmpty()) {
+                foreach ($categories2 as $category2) {
+                    $combinedCategoryName = $categoryName . ' | ' . $category2->name;
+                }
+            } else {
+                $combinedCategoryName = $categoryName;
             }
 
-            foreach ($categories as $category) {
-                $categoryName = '<span class="notranslate">' . $category->name  . '</span>';
-                if ($categories2->isNotEmpty()) {
-                    foreach ($categories2 as $category2) {
-                        $combinedCategoryName = $categoryName . ' | ' . $category2->name;
+            foreach ($subcategories as $subcategory) {
+                foreach ($subjects as $subject) {
+                    // Filter subjects based on the selected subject
+                    if (isset($data['Subject']) && $subject->id != $data['Subject']) {
+                        continue;
                     }
-                } else {
-                    $combinedCategoryName = $categoryName;
-                }
 
-                foreach ($subcategories as $subcategory) {
-                    foreach ($subjects as $subject) {
-                        // Filter subjects based on the selected subject
-                        if (isset($data['Subject']) && $subject->id != $data['Subject']) {
+                    foreach ($topics as $outkey => $topic) {
+                        // Filter topics based on the selected topic
+                        if (isset($data['Topic']) && $topic->id != $data['Topic']) {
                             continue;
                         }
 
-                        foreach ($topics as $outkey => $topic) {
-                            // Filter topics based on the selected topic
-                            if (isset($data['Topic']) && $topic->id != $data['Topic']) {
-                                continue;
+                        $subcategoryName = '<span class="notranslate">' . $subcategory->name . '</span>';
+                        $subjectName = '<span class="notranslate">' . $subject->name . '</span>';
+                        $topicName = '<span class="notranslate">' . $topic->name . '</span>';
+
+                        if ($subcategories2->isNotEmpty()) {
+                            foreach ($subcategories2 as $subcategory2) {
+                                $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
                             }
+                        } else {
+                            $combinedSubcategoryName = $subcategoryName;
+                        }
 
-                            $subcategoryName = '<span class="notranslate">' . $subcategory->name . '</span>';
-                            $subjectName = '<span class="notranslate">' . $subject->name . '</span>';
-                            $topicName = '<span class="notranslate">' . $topic->name . '</span>';
+                        if ($subjects2->isNotEmpty()) {
+                            foreach ($subjects2 as $subject2) {
+                                $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
+                            }
+                        } else {
+                            $combinedSubjectName = $subjectName;
+                        }
 
-                            if ($subcategories2->isNotEmpty()) {
-                                foreach ($subcategories2 as $subcategory2) {
-                                    $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
+                        if ($topics2->isNotEmpty()) {
+                            foreach ($topics2 as $innerKey => $topic2) {
+                                if ($outkey == $innerKey) {
+                                    $combinedTopicName = $topicName . ' | ' . $topic2->name;
                                 }
-                            } else {
-                                $combinedSubcategoryName = $subcategoryName;
                             }
+                        } else {
+                            $combinedTopicName = $topicName;
+                        }
 
-                            if ($subjects2->isNotEmpty()) {
-                                foreach ($subjects2 as $subject2) {
-                                    $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
-                                }
-                            } else {
-                                $combinedSubjectName = $subjectName;
-                            }
+                        if (!isset($jsonResponse[$languageName])) {
+                            $jsonResponse[$languageName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
+                        }
+                        if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
+                        }
 
-                            if ($topics2->isNotEmpty()) {
-                                foreach ($topics2 as $innerKey => $topic2) {
-                                    if ($outkey == $innerKey) {
-                                        $combinedTopicName = $topicName . ' | ' . $topic2->name;
-                                    }
-                                }
-                            } else {
-                                $combinedTopicName = $topicName;
-                            }
-
-                            if (!isset($jsonResponse[$languageName])) {
-                                $jsonResponse[$languageName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
-                            }
-
+                        if (request()->Topic && request()->Topic_2) {
                             $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
                                 return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
                             });
-                            // dd($filteredQuestions, $questionsSecond);
-                            // foreach ($filteredQuestions as $questionFirst) {
-                            if (isset($questionsSecond)) {
-                                foreach ($questionsSecond as $key => $questionSecond) {
-                                    if (isset($filteredQuestions[$key]?->photo) && $filteredQuestions[$key]?->photo != 0) {
-                                        $img = '<br><img src="https://admin.online2study.in/public/storage/questions/' . $filteredQuestions[$key]->photo . '"/>';
-                                    } else if (isset($filteredQuestions[$key]->photo_link)) {
-                                        $img = '<br><img src="' . $filteredQuestions[$key]->photo_link . '"/>';
-                                    } else {
-                                        $img = '';
-                                    }
+                        } else {
+                            $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
+                                return $question;
+                            });
+                        }
 
-                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question' => ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->question ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->question) . $img,
-                                        'options' => [
-                                            ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_a ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_a),
-                                            ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_b ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_b),
-                                            ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_c ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_c),
-                                            ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_d ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_d),
-                                        ],
-                                        'answer' => $filteredQuestions[$key]->answer ?? '' // Assuming this field exists
-                                    ];
+                        // foreach ($filteredQuestions as $questionFirst) {
+                        if (isset($questionsSecond)) {
+                            foreach ($questionsSecond as $key => $questionSecond) {
+                                if (isset($filteredQuestions[$key]?->photo) && $filteredQuestions[$key]?->photo != 0) {
+                                    $img = '<br><img src="https://admin.online2study.in/public/storage/questions/' . $filteredQuestions[$key]->photo . '"/>';
+                                } else if (isset($filteredQuestions[$key]->photo_link)) {
+                                    $img = '<br><img src="' . $filteredQuestions[$key]->photo_link . '"/>';
+                                } else {
+                                    $img = '';
                                 }
-                            } else {
-                                foreach ($filteredQuestions as $questionFirst) {
-                                    if (isset($questionFirst->photo) && $questionFirst->photo != 0) {
-                                        $img = '<br><img src="https://admin.online2study.in/public/storage/questions/' . $questionFirst->photo . '"/>';
-                                    } else if ($questionFirst->photo_link) {
-                                        $img = '<br><img src="' . $questionFirst->photo_link . '"/>';
-                                    } else {
-                                        $img = '';
-                                    }
 
-                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question_id' => $questionFirst->id,
-                                        'question' => ('<span class="notranslate">' . htmlspecialchars($questionFirst->question) . '</span>')  . $img,
-                                        'options' => [
-                                            '<span class="notranslate">' . htmlspecialchars($questionFirst->option_a) . '</span>',
-                                            '<span class="notranslate">' . htmlspecialchars($questionFirst->option_b) . '</span>',
-                                            '<span class="notranslate">' . htmlspecialchars($questionFirst->option_c) . '</span>',
-                                            '<span class="notranslate">' . htmlspecialchars($questionFirst->option_d) . '</span>',
-                                        ],
-                                        'answer' => $questionFirst->answer // Assuming this field exists
-                                    ];
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                    'question' => ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->question ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->question) . $img,
+                                    'options' => [
+                                        ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_a ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_a),
+                                        ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_b ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_b),
+                                        ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_c ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_c),
+                                        ('<span class="notranslate">' . htmlspecialchars($filteredQuestions[$key]->option_d ?? '') . '</span>') . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                    ],
+                                    'answer' => $filteredQuestions[$key]->answer ?? '', // Assuming this field exists
+                                    'notes' => $filteredQuestions[$key]->notes ?? '' // Assuming this field exists
+                                ];
+                            }
+                        } else {
+                            foreach ($filteredQuestions as $questionFirst) {
+                                if (isset($questionFirst->photo) && $questionFirst->photo != 0) {
+                                    $img = '<br><img src="https://admin.online2study.in/public/storage/questions/' . $questionFirst->photo . '"/>';
+                                } else if ($questionFirst->photo_link) {
+                                    $img = '<br><img src="' . $questionFirst->photo_link . '"/>';
+                                } else {
+                                    $img = '';
                                 }
+
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                    'question_id' => $questionFirst->id,
+                                    'question' => ('<span class="notranslate">' . htmlspecialchars($questionFirst->question) . '</span>')  . $img,
+                                    'options' => [
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_a) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_b) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_c) . '</span>',
+                                        '<span class="notranslate">' . htmlspecialchars($questionFirst->option_d) . '</span>',
+                                    ],
+                                    'answer' => $questionFirst->answer // Assuming this field exists
+                                ];
                             }
                         }
                     }
                 }
             }
+        }
 
-            // Function to recursively remove empty arrays
-            function removeEmptyArrays($array)
-            {
-                foreach ($array as $key => &$value) {
-                    if (is_array($value)) {
-                        $value = removeEmptyArrays($value);
-                        if (empty($value)) {
-                            unset($array[$key]);
-                        }
+        // Function to recursively remove empty arrays
+        function removeEmptyArrays($array)
+        {
+            foreach ($array as $key => &$value) {
+                if (is_array($value)) {
+                    $value = removeEmptyArrays($value);
+                    if (empty($value)) {
+                        unset($array[$key]);
                     }
                 }
-                return $array;
             }
-
-            // Remove empty arrays from the JSON response
-            $jsonResponse = removeEmptyArrays($jsonResponse);
-
-            // Return the JSON response
-            return response()->json($jsonResponse);
-        } else {
-            return response()->json(['error' => 'Session ID does not Matched']);
+            return $array;
         }
+
+        // Remove empty arrays from the JSON response
+        $jsonResponse = removeEmptyArrays($jsonResponse);
+
+        // Return the JSON response
+        return response()->json($jsonResponse);
+        // } else {
+        // return response()->json(['error' => 'Session ID does not Matched']);
+        // }
     }
 
     function getFirstDropdownData($data)
