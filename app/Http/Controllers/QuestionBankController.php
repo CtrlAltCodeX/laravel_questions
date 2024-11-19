@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Imports\QuestionsImport;
 use App\Models\Question;
-use App\Models\TranslatedQuestions;
 use Illuminate\Http\Request;
 use App\Exports\QuestionsExport;
 use App\Models\Language;
@@ -12,6 +11,7 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
+use App\Models\UserSession;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -28,19 +28,18 @@ class QuestionBankController extends Controller
         $subjects = [];
         $topics = [];
         $query = Question::query();
-        $translation_questions_query = TranslatedQuestions::query();
-    
+
         // Initialize filter variables
         $language_id = request()->language_id;
         $category_id = request()->category_id;
         $sub_category_id = request()->sub_category_id;
         $subject_id = request()->subject_id;
         $topic_id = request()->topic_id;
-        $search = request()->search; // New search parameter
+        $search = request()->search; // Search parameter
 
         // Apply filters if they exist
         if ($language_id) {
-            $translation_questions_query->where('translated_questions.language_id', $language_id);
+            $query->where('language_id', $language_id);
         }
 
         if ($category_id) {
@@ -62,52 +61,42 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $topic_id);
         }
 
+        // Apply search filter to question text or options
         if ($search) {
-            $translation_questions_query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('question_text', 'LIKE', "%{$search}%")
-                    ->orWhere('translated_questions.option_a', 'LIKE', "%{$search}%")
-                    ->orWhere('translated_questions.option_b', 'LIKE', "%{$search}%")
-                    ->orWhere('translated_questions.option_c', 'LIKE', "%{$search}%")
-                    ->orWhere('translated_questions.option_d', 'LIKE', "%{$search}%");
+                    ->orWhere('option_a', 'LIKE', "%{$search}%")
+                    ->orWhere('option_b', 'LIKE', "%{$search}%")
+                    ->orWhere('option_c', 'LIKE', "%{$search}%")
+                    ->orWhere('option_d', 'LIKE', "%{$search}%");
             });
         }
 
         // Eager load relationships
-        $query->with(['category', 'subCategory', 'subject', 'topic']);
-        $translation_questions_query->with(['language', 'question']);
-
-        // Fetch questions
-        $questions = $query->get();
-
-        // Fetch translated questions based on the main questions
-        $translatedQuestions = $translation_questions_query
-            ->whereIn('question_id', $questions->pluck('id'));
+        $query->with(['category', 'subCategory', 'subject', 'topic', 'language']);
 
         // Handle sorting
         $sortColumn = request()->get('sort', 'id');
         $sortDirection = request()->get('direction', 'asc');
 
         if ($sortColumn == 'language.name') {
-            $translatedQuestions = $translatedQuestions
-                ->join('languages', 'translated_questions.language_id', '=', 'languages.id')
+            $query = $query
+                ->join('languages', 'questions.language_id', '=', 'languages.id')
                 ->orderBy('languages.name', $sortDirection)
-                ->select('translated_questions.*');
-        } elseif ($sortColumn == 'question.question_number') { // Sort by question number
-            $translatedQuestions = $translatedQuestions
-                ->join('questions', 'translated_questions.question_id', '=', 'questions.id')
-                ->orderBy('questions.question_number', $sortDirection)
-                ->select('translated_questions.*');
+                ->select('questions.*');
+        } elseif ($sortColumn == 'question_number') {
+            $query = $query->orderBy('question_number', $sortDirection);
         } else {
-            $translatedQuestions = $translatedQuestions->orderBy($sortColumn, $sortDirection);
+            $query = $query->orderBy($sortColumn, $sortDirection);
         }
 
         // Paginate results
-        $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
+        $questions = $query->paginate(request()->get('per_page', 10));
 
         return view(
             'question-bank.index',
             compact(
-                'translatedQuestions',
+                'questions',
                 'language_id',
                 'category_id',
                 'sub_category_id',
@@ -115,7 +104,6 @@ class QuestionBankController extends Controller
                 'topic_id',
                 'languages',
                 'categories',
-                'questions',
                 'subcategories',
                 'subjects',
                 'topics',
@@ -212,25 +200,25 @@ class QuestionBankController extends Controller
         );
         // dd($question);
 
-        if (count($data['language']) > 0) {
-            foreach ($data['language'] as $index => $languageId) {
-                TranslatedQuestions::updateOrCreate(
-                    [
-                        'question_id' => $question->id,
-                        'language_id' => $languageId,
-                    ],
-                    [
-                        'question_id' => $question->id,
-                        'language_id' => $languageId,
-                        'question_text' => $data['question'][$index],
-                        'option_a' => $data['option_a'][$index],
-                        'option_b' => $data['option_b'][$index],
-                        'option_c' => $data['option_c'][$index],
-                        'option_d' => $data['option_d'][$index],
-                    ]
-                );
-            }
-        }
+        // if (count($data['language']) > 0) {
+        //     foreach ($data['language'] as $index => $languageId) {
+        //         TranslatedQuestions::updateOrCreate(
+        //             [
+        //                 'question_id' => $question->id,
+        //                 'language_id' => $languageId,
+        //             ],
+        //             [
+        //                 'question_id' => $question->id,
+        //                 'language_id' => $languageId,
+        //                 'question_text' => $data['question'][$index],
+        //                 'option_a' => $data['option_a'][$index],
+        //                 'option_b' => $data['option_b'][$index],
+        //                 'option_c' => $data['option_c'][$index],
+        //                 'option_d' => $data['option_d'][$index],
+        //             ]
+        //         );
+        //     }
+        // }
 
         session()->flash('success', 'Question created successfully!');
 
@@ -254,13 +242,6 @@ class QuestionBankController extends Controller
 
         $questions = Question::where('question_bank_id', $id)->get();
 
-        $translatedQuestions = TranslatedQuestions::where('question_id', $id)->with('question')->get();
-
-        $translatedQuestions = $translatedQuestions->filter(function ($translatedQuestion) use ($question) {
-            return $translatedQuestion->language_id != $question->language_id;
-        });
-
-
         $languages = Language::all();
 
         $categories = Category::all();
@@ -271,7 +252,7 @@ class QuestionBankController extends Controller
 
         $topics = Topic::all();
 
-        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'questions', 'translatedQuestions'));
+        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'questions'));
     }
 
     /**
@@ -307,34 +288,34 @@ class QuestionBankController extends Controller
 
         $question = Question::findOrFail($data['id']);
 
-        if (count($data['language']) > 0) {
-            foreach ($data['language'] as $index => $languageId) {
-                TranslatedQuestions::updateOrCreate(
-                    [
-                        'question_id' => $question->id,
-                        'language_id' => $languageId,
-                    ],
-                    [
-                        'question_id' => $question->id,
-                        'language_id' => $languageId,
-                        'question_text' => $data['question'][$index],
-                        'option_a' => $data['option_a'][$index],
-                        'option_b' => $data['option_b'][$index],
-                        'option_c' => $data['option_c'][$index],
-                        'option_d' => $data['option_d'][$index],
-                    ]
-                );
-            }
-        }
+        // if (count($data['language']) > 0) {
+        //     foreach ($data['language'] as $index => $languageId) {
+        //         TranslatedQuestions::updateOrCreate(
+        //             [
+        //                 'question_id' => $question->id,
+        //                 'language_id' => $languageId,
+        //             ],
+        //             [
+        //                 'question_id' => $question->id,
+        //                 'language_id' => $languageId,
+        //                 'question_text' => $data['question'][$index],
+        //                 'option_a' => $data['option_a'][$index],
+        //                 'option_b' => $data['option_b'][$index],
+        //                 'option_c' => $data['option_c'][$index],
+        //                 'option_d' => $data['option_d'][$index],
+        //             ]
+        //         );
+        //     }
+        // }
 
         $profileImage = null;
         if ($file = $data['photo']) {
             if ($file instanceof UploadedFile) {
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
-                $data['photo'] = 'storage/questions/' . $profileImage;
+                $data['photo'] = $profileImage;
             } else {
-                !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
+                !empty($file) ? $profileImage = $file : $profileImage = null;
             }
         }
 
@@ -366,7 +347,7 @@ class QuestionBankController extends Controller
 
         session()->flash('success', 'Question updated successfully!');
 
-        return redirect()->route('question.index');
+        return redirect()->route('question.index', ['sort' => 'id', 'direction' => 'desc']);
     }
 
     /**
@@ -381,100 +362,23 @@ class QuestionBankController extends Controller
         }
 
         session()->flash('success', 'Question deleted successfully!');
-
-        // return redirect()->route('question.index');
-    }
-
-    public function destroyTranslationQuestion(string $id)
-    {
-        $question = TranslatedQuestions::findOrFail($id);
-        if (isset($question)) {
-
-            $question->delete();
-        }
-
-        session()->flash('success', 'Question deleted successfully!');
-
-        // return redirect()->route('question.index');
     }
 
     public function destroy(string $id)
     {
-        $translateQuestion = TranslatedQuestions::where('question_id', $id);
+        // $translateQuestion = TranslatedQuestions::where('question_id', $id);
         $question = Question::find($id);
 
-        $translateQuestion->delete();
+        // $translateQuestion->delete();
         $question->delete();
 
         return redirect()->route('question.index');
     }
 
-    public function getQuestions(Request $request)
-    {
-        $query = Question::query();
-
-        $translation_questions_query = TranslatedQuestions::query();
-
-        if ($request->has('language_id') && isset($request->language_id)) {
-            $language_id = $request->language_id;
-            $translation_questions_query->where('language_id', $request->language_id);
-        }
-
-        if ($request->has('category_id') && isset($request->category_id)) {
-            $category_id = $request->category_id;
-            $query->where('category_id', $request->category_id);
-        }
-
-        if ($request->has('sub_category_id') && isset($request->sub_category_id)) {
-            $sub_category_id = $request->sub_category_id;
-            $query->where('sub_category_id', $request->sub_category_id);
-        }
-
-        if ($request->has('subject_id') && isset($request->subject_id)) {
-            $subject_id = $request->subject_id;
-            $query->where('subject_id', $request->subject_id);
-        }
-
-        if ($request->has('topic_id') && isset($request->topic_id)) {
-            $topic_id = $request->topic_id;
-            $query->where('topic_id', $request->topic_id);
-        }
-
-        $query->with(['category', 'subCategory', 'subject', 'topic']);
-
-        $translation_questions_query->with(['language', 'question']);
-
-
-        $questions = $query->get();
-
-        // Check if there are any questions fetched
-        if ($questions->isEmpty()) {
-            return response()->json([]);
-        }
-
-        // Fetch translated questions based on the main questions
-        $translatedQuestions = $translation_questions_query
-            ->whereIn('question_id', $questions->pluck('id'))
-            ->with(['question', 'language'])
-            ->get();
-
-        $sortColumn = request()->get('sort', 'id');
-        $sortDirection = request()->get('direction', 'asc');
-        $translatedQuestions = $translatedQuestions->orderBy($sortColumn, $sortDirection);
-
-        // Paginate results
-        $translatedQuestions = $translatedQuestions->paginate(request()->get('per_page', 10));
-
-        return view('question-bank.index', compact('translatedQuestions', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'topic_id', 'languages', 'categories', 'questions', 'sortColumn', 'sortDirection'));
-
-        // return response()->json(data: $translatedQuestions);
-    }
-
     public function export(Request $request)
     {
         $languages = $request->input('languages', []);
-        $query = Question::query();
-        $translated_questions_query = TranslatedQuestions::whereIn('language_id', $languages);
+        $query = Question::whereIn('language_id', $languages);
 
         if ($request->category_id != '') {
             $query->where('category_id', $request->category_id);
@@ -492,48 +396,46 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $request->topic_id);
         }
 
-        $question_query = $query->with(['topic', 'subject', 'subCategory', 'category'])
-            ->get();
-
-        $translatedQuestions = $translated_questions_query
-            ->whereIn('question_id', $question_query->pluck('id'))
-            ->with(['question', 'language'])
-            ->get();
+        // Get the questions based on filters
+        $question_query = $query->with(['topic', 'subject', 'subCategory', 'category'])->get();
 
         $questions = [];
 
-        foreach ($translatedQuestions as $translatedQuestion) {
-            $questionId = $translatedQuestion->question_id;
+        foreach ($question_query as $question) {
+            $questionId = $question->id;
 
             if (!isset($questions[$questionId])) {
                 $questions[$questionId] = [
-                    'question' => [],
-                    'option_a' => [],
-                    'option_b' => [],
-                    'option_c' => [],
-                    'option_d' => [],
-                    'answer' => $translatedQuestion->question->answer,
-                    'level' => $translatedQuestion->question->level,
-                    'photo' => isset(explode("/", $translatedQuestion->question->photo)[2])  ? explode("/", $translatedQuestion->question->photo)[2] : $translatedQuestion->question->photo,
-                    'photo_link' => $translatedQuestion->question->photo_link,
-                    'category' => $translatedQuestion->question->category_id ?? '',
-                    'subCategory' => $translatedQuestion->question->sub_category_id ?? '',
-                    'subject' => $translatedQuestion->question->subject_id ?? '',
-                    'topic' => $translatedQuestion->question->topic_id ?? '',
-                    'qno' => $translatedQuestion->question->question_number,
-                    'notes' => $translatedQuestion->question->notes,
-                    'id' => $translatedQuestion->question_id,
+                    'question' => $question->question,  // Assuming question_text is part of the questions table
+                    'option_a' => $question->option_a,
+                    'option_b' => $question->option_b,
+                    'option_c' => $question->option_c,
+                    'option_d' => $question->option_d,
+                    'answer' => $question->answer,
+                    'level' => $question->level,
+                    'photo' => isset(explode("/", $question->photo)[2]) ? explode("/", $question->photo)[2] : $question->photo,
+                    'photo_link' => $question->photo_link,
+                    'category' => $question->category_id ?? '',
+                    'subCategory' => $question->sub_category_id ?? '',
+                    'subject' => $question->subject_id ?? '',
+                    'topic' => $question->topic_id ?? '',
+                    'qno' => $question->question_number,
+                    'notes' => $question->notes,
+                    'id' => $questionId,
+                    'language_id' => $question->language_id,
                 ];
             }
 
-            $questions[$questionId]['language'][$translatedQuestion->language->id] = $translatedQuestion->language->name;
-            $questions[$questionId]['question'][$translatedQuestion->language->id] = $translatedQuestion->question_text;
-            $questions[$questionId]['option_a'][$translatedQuestion->language->id] = $translatedQuestion->option_a;
-            $questions[$questionId]['option_b'][$translatedQuestion->language->id] = $translatedQuestion->option_b;
-            $questions[$questionId]['option_c'][$translatedQuestion->language->id] = $translatedQuestion->option_c;
-            $questions[$questionId]['option_d'][$translatedQuestion->language->id] = $translatedQuestion->option_d;
+            // $questions[$questionId]['language'][$question->language_id] = $translatedQuestion->language->name;
+            // $questions[$questionId]['question'][$question->language_id] = $translatedQuestion->question_text;
+            // $questions[$questionId]['option_a'][$question->language_id] = $translatedQuestion->option_a;
+            // $questions[$questionId]['option_b'][$question->language_id] = $translatedQuestion->option_b;
+            // $questions[$questionId]['option_c'][$question->language_id] = $translatedQuestion->option_c;
+            // $questions[$questionId]['option_d'][$question->language_id] = $translatedQuestion->option_d;
         }
-        return Excel::download(new QuestionsExport($questions,  $languages), 'questions.xlsx');
+
+        // Export the questions as an Excel file
+        return Excel::download(new QuestionsExport($questions, $languages), 'questions.xlsx');
     }
 
     public function import(Request $request)
@@ -675,5 +577,257 @@ class QuestionBankController extends Controller
 
             return $questionNoExist;
         }
+    }
+
+    public function deploy(Request $request)
+    {
+        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id']);
+
+        if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+            $data = $request->all();
+
+            $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
+            $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
+
+            $language = $this->getFirstDropdownData($data)['language'];
+            $categories = $this->getFirstDropdownData($data)['categories'];
+            $subcategories = $this->getFirstDropdownData($data)['subcategories'];
+            $subjects = $this->getFirstDropdownData($data)['subjects'];
+            $topics = $this->getFirstDropdownData($data)['topics'];
+
+            $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
+            $categories2 = $this->getSecondDropdownData($data)['categories'] ?? collect();
+            $subcategories2 = $this->getSecondDropdownData($data)['subcategories'] ?? collect();
+            $subjects2 = $this->getSecondDropdownData($data)['subjects'] ?? collect();
+            $topics2 = $this->getSecondDropdownData($data)['topics'] ?? collect();
+
+            // Transform the questions into the desired JSON structure
+            $jsonResponse = [];
+
+            $languageName = $language->name;
+            if ($language2) {
+                $languageName .= ' | ' . $language2->name;
+            }
+
+            foreach ($categories as $category) {
+                $categoryName = $category->name;
+                if ($categories2->isNotEmpty()) {
+                    foreach ($categories2 as $category2) {
+                        $combinedCategoryName = $categoryName . ' | ' . $category2->name;
+                    }
+                } else {
+                    $combinedCategoryName = $categoryName;
+                }
+
+                foreach ($subcategories as $subcategory) {
+                    foreach ($subjects as $subject) {
+                        // Filter subjects based on the selected subject
+                        if (isset($data['Subject']) && $subject->id != $data['Subject']) {
+                            continue;
+                        }
+
+                        foreach ($topics as $topic) {
+                            // Filter topics based on the selected topic
+                            if (isset($data['Topic']) && $topic->id != $data['Topic']) {
+                                continue;
+                            }
+
+                            $subcategoryName = $subcategory->name;
+                            $subjectName = $subject->name;
+                            $topicName = $topic->name;
+
+                            if ($subcategories2->isNotEmpty()) {
+                                foreach ($subcategories2 as $subcategory2) {
+                                    $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
+                                }
+                            } else {
+                                $combinedSubcategoryName = $subcategoryName;
+                            }
+
+                            if ($subjects2->isNotEmpty()) {
+                                foreach ($subjects2 as $subject2) {
+                                    $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
+                                }
+                            } else {
+                                $combinedSubjectName = $subjectName;
+                            }
+
+                            if ($topics2->isNotEmpty()) {
+                                foreach ($topics2 as $topic2) {
+                                    $combinedTopicName = $topicName . ' | ' . $topic2->name;
+                                }
+                            } else {
+                                $combinedTopicName = $topicName;
+                            }
+
+                            if (!isset($jsonResponse[$languageName])) {
+                                $jsonResponse[$languageName] = [];
+                            }
+                            if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
+                                $jsonResponse[$languageName][$combinedCategoryName] = [];
+                            }
+                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
+                            }
+                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
+                            }
+                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
+                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
+                            }
+
+                            $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
+                                return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
+                            });
+
+
+                            // foreach ($filteredQuestions as $questionFirst) {
+                            if (isset($questionsSecond)) {
+                                foreach ($questionsSecond as $key => $questionSecond) {
+                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                        'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo_link) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo_link . '"/>' : ''),
+                                        'options' => [
+                                            (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
+                                            (htmlspecialchars($filteredQuestions[$key]->option_b)) . ' | ' . htmlspecialchars($questionSecond->option_b),
+                                            (htmlspecialchars($filteredQuestions[$key]->option_c)) . ' | ' . htmlspecialchars($questionSecond->option_c),
+                                            (htmlspecialchars($filteredQuestions[$key]->option_d)) . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                        ],
+                                        'answer' => $filteredQuestions[$key]->answer // Assuming this field exists
+                                    ];
+                                }
+                            } else {
+                                foreach ($filteredQuestions as $questionFirst) {
+                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                        'question_id' => $questionFirst->id,
+                                        'question' => (htmlspecialchars($questionFirst->question)) . (isset($questionFirst->photo_link) ? '<br>' . '<img src="' . $questionFirst->photo_link . '"/>' : ''),
+                                        'options' => [
+                                            htmlspecialchars($questionFirst->option_a),
+                                            htmlspecialchars($questionFirst->option_b),
+                                            htmlspecialchars($questionFirst->option_c),
+                                            htmlspecialchars($questionFirst->option_d),
+                                        ],
+                                        'answer' => $questionFirst->answer // Assuming this field exists
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Function to recursively remove empty arrays
+            function removeEmptyArrays($array)
+            {
+                foreach ($array as $key => &$value) {
+                    if (is_array($value)) {
+                        $value = removeEmptyArrays($value);
+                        if (empty($value)) {
+                            unset($array[$key]);
+                        }
+                    }
+                }
+                return $array;
+            }
+
+            // Remove empty arrays from the JSON response
+            $jsonResponse = removeEmptyArrays($jsonResponse);
+
+            // Return the JSON response
+            return response()->json($jsonResponse);
+        } else {
+            return response()->json(['error' => 'Session ID does not Matched']);
+        }
+    }
+
+    function getFirstDropdownData($data)
+    {
+        $languageId = $data['Language'] ?? null;
+
+        $categoryId = $data['Category'] ?? null;
+        if (!$categoryId) {
+            return response()->json(['error' => 'Category parameter is missing'], 400);
+        }
+
+        // Fetch questions based on the parameters
+        $query = Question::query()->where('category_id', $categoryId);
+
+        if (isset($data['Language'])) {
+            $query->where('language_id', $data['Language']);
+        }
+        if (isset($data['SubCategory'])) {
+            $query->where('sub_category_id', $data['SubCategory']);
+        }
+        if (isset($data['Subject'])) {
+            $query->where('subject_id', $data['Subject']);
+        }
+        if (isset($data['Topic'])) {
+            $query->where('topic_id', $data['Topic']);
+        }
+
+        $questions = $query->with(['subCategory',  'subject', 'topic'])->get();
+
+        $language = Language::find($languageId);
+
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+
+        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
+
+        // Get all the subjects for the subcategories
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+
+        // Get all the topics for the subjects
+        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+
+        return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
+    }
+
+    function getSecondDropdownData($data)
+    {
+        $languageId = $data['Language_2'] ?? null;
+
+        $categoryId = $data['Category_2'] ?? null;
+
+        if (!$categoryId) {
+            return null;
+        }
+
+        // Fetch questions based on the parameters
+        $query = Question::query()->where('category_id', $categoryId);
+
+        if (isset($data['Language_2'])) {
+            $query->where('language_id', $data['Language_2']);
+        }
+
+        if (isset($data['SubCategory_2'])) {
+            $query->where('sub_category_id', $data['SubCategory_2']);
+        }
+
+        if (isset($data['Subject_2'])) {
+            $query->where('subject_id', $data['Subject_2']);
+        }
+
+        if (isset($data['Topic_2'])) {
+            $query->where('topic_id', $data['Topic_2']);
+        }
+
+        $questions = $query->with(['subCategory',  'subject', 'topic'])->get();
+
+        $language = Language::find($languageId);
+
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+
+        $subcategories = isset($data['SubCategory_2']) ? SubCategory::where('id', $data['SubCategory_2'])->get() : SubCategory::where('category_id', $categoryId)->get();
+
+        // Get all the subjects for the subcategories
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+
+        // Get all the topics for the subjects
+        $topics = isset($data['Topic_2']) ? Topic::where('id', $data['Topic_2'])->get() : Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+
+        if ($questions->isEmpty()) {
+            return null;
+        }
+
+        return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
 }

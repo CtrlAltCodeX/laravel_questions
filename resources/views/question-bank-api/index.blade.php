@@ -52,7 +52,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        const baseUrl = "{{ url('api/quiz') }}";
+        const baseUrl = "{{ url('api/bank-api') }}";
         console.log(baseUrl);
         const dropdowns = document.querySelectorAll('select');
         const apiLink = document.getElementById('apiLink');

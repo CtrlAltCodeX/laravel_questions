@@ -202,7 +202,7 @@ $levels = [
                     <input type="checkbox" class="select-all" />
                 </th>
                 <th scope="col" class="p-2" data-column="id">
-                    <a href="{{ route('question.index', ['sort' => 'id', 'direction' => $sortColumn == 'id' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'id', 'direction' => $sortColumn == 'id' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         ID
                         @if ($sortColumn == 'id')
                         @if ($sortDirection == 'asc')
@@ -214,9 +214,9 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="question_number">
-                    <a href="{{ route('question.index', ['sort' => 'question.question_number', 'direction' => $sortColumn == 'question.question_number' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'question_number', 'direction' => $sortColumn == 'question_number' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         QNo.
-                        @if ($sortColumn == 'question.question_number')
+                        @if ($sortColumn == 'question_number')
                         @if ($sortDirection == 'asc')
                         ▲
                         @else
@@ -226,7 +226,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="language">
-                    <a href="{{ route('question.index', ['sort' => 'language.name', 'direction' => $sortColumn == 'language.name' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'language.name', 'direction' => $sortColumn == 'language.name' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Language
                         @if ($sortColumn == 'language.name')
                         @if ($sortDirection == 'asc')
@@ -237,12 +237,12 @@ $levels = [
                         @endif
                     </a>
                 </th>
+                <th scope="col" class="p-2" data-column="link" style="width: 70px;">Img Link</th>
                 <th scope="col" class="p-2" data-column="image">Images</th>
-                <th scope="col" class="p-2" data-column="link">Photo Link</th>
                 <th scope="col" class="p-2" data-column="question">
-                    <a href="{{ route('question.index', ['sort' => 'question_text', 'direction' => $sortColumn == 'question_text' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'question', 'direction' => $sortColumn == 'question' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Question
-                        @if ($sortColumn == 'question_text')
+                        @if ($sortColumn == 'question')
                         @if ($sortDirection == 'asc')
                         ▲
                         @else
@@ -252,7 +252,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="optionA">
-                    <a href="{{ route('question.index', ['sort' => 'option_a', 'direction' => $sortColumn == 'option_a' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'option_a', 'direction' => $sortColumn == 'option_a' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Option A
                         @if ($sortColumn == 'option_a')
                         @if ($sortDirection == 'asc')
@@ -264,7 +264,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="optionB">
-                    <a href="{{ route('question.index', ['sort' => 'option_b', 'direction' => $sortColumn == 'option_b' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'option_b', 'direction' => $sortColumn == 'option_b' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Option B
                         @if ($sortColumn == 'option_b')
                         @if ($sortDirection == 'asc')
@@ -276,7 +276,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="optionC">
-                    <a href="{{ route('question.index', ['sort' => 'option_c', 'direction' => $sortColumn == 'option_c' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'option_c', 'direction' => $sortColumn == 'option_c' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Option C
                         @if ($sortColumn == 'option_c')
                         @if ($sortDirection == 'asc')
@@ -288,7 +288,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="optionD">
-                    <a href="{{ route('question.index', ['sort' => 'option_d', 'direction' => $sortColumn == 'option_d' && $sortDirection == 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'option_d', 'direction' => $sortColumn == 'option_d' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Option D
                         @if ($sortColumn == 'option_d')
                         @if ($sortDirection == 'asc')
@@ -299,46 +299,44 @@ $levels = [
                         @endif
                     </a>
                 </th>
-                <th scope="col" class="p-2" data-column="level">
-                    Level
-                </th>
-                <th scope="col" class="p-2" data-column="notes">
-                    Notes
-                </th>
+                <th scope="col" class="p-2" data-column="level">Level</th>
+                <th scope="col" class="p-2" data-column="notes">Notes</th>
                 <th scope="col" class="p-2" data-column="action">Action</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($translatedQuestions as $translated_question)
+            @foreach ($questions as $question)
             <tr>
                 <td class="p-2">
-                    <input type="checkbox" class="select-item" value="{{ $translated_question->question_id }}" />
+                    <input type="checkbox" class="select-item" value="{{ $question->id }}" />
                 </td>
-                <td class="p-2" data-column="id">{{ $translated_question->question_id }}</td>
-                <td class="p-2" data-column="question_number">{{ $translated_question->question->question_number }}</td>
-                <td class="p-2" data-column="language">{{ $translated_question->language->name }}</td>
+                <td class="p-2" data-column="id">{{ $question->id }}</td>
+                <td class="p-2" data-column="question_number">{{ $question->question_number }}</td>
+                <td class="p-2" data-column="language">{{ $question->language->name }}</td>
                 <td class="p-2" data-column="image">
-                    <img src="{{ $translated_question->question->photo_link ? $translated_question->question->photo_link : '/dummy.jpg' }}"
-                        style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                    <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">Link</a>
+                    <!-- <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" /> -->
                 </td>
+                <!-- <td class="p-2" data-column="image">
+                    <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                </td> -->
                 <td class="p-2" data-column="link">
-                    <img src="{{ $translated_question->question->photo ? $translated_question->question->photo : '/dummy.jpg' }}"
-                        style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                    <img src="{{ $question->photo ? '/public/storage/questions/'.$question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                 </td>
-                <td class="p-2" data-column="question">{!! $translated_question->question_text !!}</td>
-                <td class="p-2" data-column="optionA">{{ $translated_question->option_a }}</td>
-                <td class="p-2" data-column="optionB">{{ $translated_question->option_b }}</td>
-                <td class="p-2" data-column="optionC">{{ $translated_question->option_c }}</td>
-                <td class="p-2" data-column="optionD">{{ $translated_question->option_d }}</td>
-                <td class="p-2" data-column="level">{{ isset($levels[$translated_question->question->level]) ? $levels[$translated_question->question->level] : "N/A" }}</td>
-                <td class="p-2" data-column="notes">{{ $translated_question->question->notes }}</td>
+                <td class="p-2" data-column="question">{!! $question->question !!}</td>
+                <td class="p-2" data-column="optionA">{{ $question->option_a }}</td>
+                <td class="p-2" data-column="optionB">{{ $question->option_b }}</td>
+                <td class="p-2" data-column="optionC">{{ $question->option_c }}</td>
+                <td class="p-2" data-column="optionD">{{ $question->option_d }}</td>
+                <td class="p-2" data-column="level">{{ $question->level }}</td>
+                <td class="p-2" data-column="notes">{{ $question->notes }}</td>
                 <td class="p-2 flex gap-2" data-column="action">
-                    <a href="{{ route('question.edit', $translated_question->question_id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                    <a href="{{ route('question.edit', $question->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg>
                     </a>
-                    <form action="{{ route('question.destroy', $translated_question->question_id) }}" method="POST">
+                    <form action="{{ route('question.destroy', $question->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
@@ -352,7 +350,8 @@ $levels = [
             @endforeach
         </tbody>
     </table>
-    {{ $translatedQuestions->appends(request()->except('page'))->links() }}
+    {{ $questions->appends(request()->query())->links() }}
+
 </div>
 @endsection
 

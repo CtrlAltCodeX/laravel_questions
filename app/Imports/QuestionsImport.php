@@ -57,50 +57,25 @@ class QuestionsImport implements ToModel, WithHeadingRow
             'topic_id' => $topicId,
         ]);
 
-        foreach ($languageIds as $lang_id) {
-            $language = Language::findOrFail($lang_id);
-            # code...
-            TranslatedQuestions::updateOrCreate(
-                [
-                    'question_id' => $question->id,
-                    'language_id' => $lang_id,
-                ],
-                [
-                'question_id' => $question->id,
-                'language_id' => $lang_id,
-                'question_text' => $row['question_' . strtolower($language->name)],
-                'option_a' => $row['option_a_' . strtolower($language->name)],
-                'option_b' => $row['option_b_' . strtolower($language->name)],
-                'option_c' => $row['option_c_' . strtolower($language->name)],
-                'option_d' => $row['option_d_' . strtolower($language->name)],
-            ]);
-        }
+        // foreach ($languageIds as $lang_id) {
+        //     $language = Language::findOrFail($lang_id);
+        //     # code...
+        //     TranslatedQuestions::updateOrCreate(
+        //         [
+        //             'question_id' => $question->id,
+        //             'language_id' => $lang_id,
+        //         ],
+        //         [
+        //         'question_id' => $question->id,
+        //         'language_id' => $lang_id,
+        //         'question_text' => $row['question_' . strtolower($language->name)],
+        //         'option_a' => $row['option_a_' . strtolower($language->name)],
+        //         'option_b' => $row['option_b_' . strtolower($language->name)],
+        //         'option_c' => $row['option_c_' . strtolower($language->name)],
+        //         'option_d' => $row['option_d_' . strtolower($language->name)],
+        //     ]);
+        // }
 
         return $question;
-    }
-
-    private function getLanguageId($name)
-    {
-        return \App\Models\Language::where('name', $name)->first()->id ?? null;
-    }
-
-    private function getCategoryId($name)
-    {
-        return \App\Models\Category::where('name', $name)->first()->id ?? null;
-    }
-
-    private function getSubCategoryId($name)
-    {
-        return \App\Models\SubCategory::where('name', $name)->first()->id ?? null;
-    }
-
-    private function getSubjectId($name)
-    {
-        return \App\Models\Subject::where('name', $name)->first()->id ?? null;
-    }
-
-    private function getTopicId($name)
-    {
-        return \App\Models\Topic::where('name', $name)->first()->id ?? null;
     }
 }

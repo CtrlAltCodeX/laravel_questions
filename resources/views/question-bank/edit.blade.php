@@ -89,7 +89,7 @@
                             <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput{{$question->id}}" />
                             <div class="image-container">
                                 <img id="imagePreview{{$question->id}}" class="w-full h-full object-cover rounded-lg"
-                                    src="{{ $question->photo ? '/'.$question->photo : '/dummy.jpg' }}" alt="Image Preview" width="100" />
+                                    src="{{ $question->photo ? '/public/storage/questions/'.$question->photo : '/dummy.jpg' }}" alt="Image Preview" width="100" />
                             </div>
                             <button type="button" id="fileButton-new" class="absolute top-[0px] z-[-1] custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 Upload Photo

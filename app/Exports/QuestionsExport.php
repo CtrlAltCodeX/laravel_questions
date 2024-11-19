@@ -29,27 +29,33 @@ class QuestionsExport implements FromCollection, WithHeadings
             $formattedQuestion[] = $question['qno'];
     
             // Add language names
-            foreach ($this->languages as $languageId) {
-                $formattedQuestion[] = $question['language'][$languageId] ?? '';
-            }
+            // foreach ($this->languages as $languageId) {
+            //     $formattedQuestion[] = $question['language'][$languageId] ?? '';
+            // }
     
             // Add category, subCategory, subject, and topic
+            $formattedQuestion[] = $question['language_id'];
             $formattedQuestion[] = $question['category'];
             $formattedQuestion[] = $question['subCategory'];
             $formattedQuestion[] = $question['subject'];
             $formattedQuestion[] = $question['topic'];
+            $formattedQuestion[] = $question['question'];
+            $formattedQuestion[] = $question['option_a'];
+            $formattedQuestion[] = $question['option_b'];
+            $formattedQuestion[] = $question['option_c'];
+            $formattedQuestion[] = $question['option_d'];
     
             // Add questions for each language
-            foreach ($this->languages as $languageId) {
-                $formattedQuestion[] = $question['question'][$languageId] ?? '';
-            }
+            // foreach ($this->languages as $languageId) {
+            //     $formattedQuestion[] = $question['question'][$languageId] ?? '';
+            // }
     
-            // Add options for each language
-            foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
-                foreach ($this->languages as $languageId) {
-                    $formattedQuestion[] = $question[$option][$languageId] ?? '';
-                }
-            }
+            // // Add options for each language
+            // foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
+            //     foreach ($this->languages as $languageId) {
+            //         $formattedQuestion[] = $question[$option][$languageId] ?? '';
+            //     }
+            // }
     
             // Add other fields
             $formattedQuestion[] = $question['answer'];
