@@ -76,7 +76,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
 
-    Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}', [CbtController::class, 'getQuestionsData']);
+    Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}/{language2_id}/{category2_id}/{subcategory2_id}', [CbtController::class, 'getQuestionsData']);
 
     Route::group(['prefix' => 'questions'], function () {
         Route::get('', [QuestionBankController::class, 'getQuestions'])
