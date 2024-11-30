@@ -16,7 +16,7 @@
                 <select id="language_id" name="language_id" class="bg-gray-50 w-60 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
                     <option value="">Select Language</option>
                     @foreach($languages as $item)
-                        <option value="{{$item->id}}" {{ isset($language_id) ? ($language_id == $item->id  ? 'selected' : '') : '' }}>{{$item->name}}</option>
+                    <option value="{{$item->id}}" {{ isset($language_id) ? ($language_id == $item->id  ? 'selected' : '') : '' }}>{{$item->name}}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="text-white text-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Filter</button>
@@ -29,14 +29,14 @@
                         #
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Language
+                        Language Name
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Images
                     </th>
 
                     <th scope="col" class="px-6 py-3">
-                        Name
+                        Category Name
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Action
@@ -53,13 +53,13 @@
                         {{$category->language->name}}
                     </th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <img src="{{$category->photo ? '/public/storage/'.$category->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;'/>
-                    <!-- {{($category->photo)}} -->
-                    </th>  
+                        <img src="{{$category->photo ? '/public/storage/'.$category->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
+                        <!-- {{($category->photo)}} -->
+                    </th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{$category->name}}
                     </th>
-                    
+
 
                     <td class="px-6 py-4 flex gap-4">
                         <a href="{{ route('category.edit', $category->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
@@ -85,6 +85,7 @@
                 @endforelse
             </tbody>
         </table>
+        {{ $categorys->links() }}
     </div>
 </div>
 

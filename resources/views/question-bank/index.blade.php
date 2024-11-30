@@ -147,12 +147,12 @@ $levels = [
                                 Language
                             </label>
                             <label class="block">
-                                <input type="checkbox" value="image" class="mr-2">
-                                Image
+                                <input type="checkbox" value="link" class="mr-2">
+                                External Photo
                             </label>
                             <label class="block">
-                                <input type="checkbox" value="link" class="mr-2">
-                                Photo Link
+                                <input type="checkbox" value="image" class="mr-2">
+                                Internal Photo
                             </label>
                             <label class="block">
                                 <input type="checkbox" value="question" class="mr-2">
@@ -237,8 +237,8 @@ $levels = [
                         @endif
                     </a>
                 </th>
-                <th scope="col" class="p-2" data-column="link" style="width: 70px;">Img Link</th>
-                <th scope="col" class="p-2" data-column="image">Images</th>
+                <th scope="col" class="p-2" data-column="link" style="width: 70px;">External Photo</th>
+                <th scope="col" class="p-2" data-column="image">Internal Photo</th>
                 <th scope="col" class="p-2" data-column="question">
                     <a href="{{ route('question.index', array_merge(request()->query(), ['sort' => 'question', 'direction' => $sortColumn == 'question' && $sortDirection == 'asc' ? 'desc' : 'asc'])) }}">
                         Question
@@ -313,14 +313,11 @@ $levels = [
                 <td class="p-2" data-column="id">{{ $question->id }}</td>
                 <td class="p-2" data-column="question_number">{{ $question->question_number }}</td>
                 <td class="p-2" data-column="language">{{ $question->language->name }}</td>
-                <td class="p-2" data-column="image">
-                    <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">Link</a>
-                    <!-- <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" /> -->
-                </td>
-                <!-- <td class="p-2" data-column="image">
-                    <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
-                </td> -->
                 <td class="p-2" data-column="link">
+                    <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                    <!-- <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">{{$question->photo_link}}</a> -->
+                </td>
+                <td class="p-2" data-column="image">
                     <img src="{{ $question->photo ? '/public/storage/questions/'.$question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                 </td>
                 <td class="p-2" data-column="question">{!! $question->question !!}</td>

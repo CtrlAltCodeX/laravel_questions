@@ -39,6 +39,7 @@ class QuestionBankController extends Controller
 
         // Apply filters if they exist
         if ($language_id) {
+            $categories = Category::where('language_id', $language_id)->get();
             $query->where('language_id', $language_id);
         }
 
@@ -64,7 +65,7 @@ class QuestionBankController extends Controller
         // Apply search filter to question text or options
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('question_text', 'LIKE', "%{$search}%")
+                $q->where('question', 'LIKE', "%{$search}%")
                     ->orWhere('option_a', 'LIKE', "%{$search}%")
                     ->orWhere('option_b', 'LIKE', "%{$search}%")
                     ->orWhere('option_c', 'LIKE', "%{$search}%")
@@ -244,13 +245,13 @@ class QuestionBankController extends Controller
 
         $languages = Language::all();
 
-        $categories = Category::all();
+        $categories = Category::where('language_id', $question->language_id)->get();
 
-        $subCategories = SubCategory::all();
+        $subCategories = SubCategory::where('category_id', $question->category_id)->get();
 
-        $subjects = Subject::all();
+        $subjects = Subject::where('sub_category_id', $question->sub_category_id)->get();
 
-        $topics = Topic::all();
+        $topics = Topic::where('subject_id', $question->subject_id)->get();
 
         return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'questions'));
     }
@@ -685,28 +686,35 @@ class QuestionBankController extends Controller
                             if (isset($questionsSecond)) {
                                 foreach ($questionsSecond as $key => $questionSecond) {
                                     $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo_link) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo_link . '"/>' : ''),
+                                        'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo . '"/>' : '<img src="' . $filteredQuestions[$key]->photo_link . '"/>'),
                                         'options' => [
                                             (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
                                             (htmlspecialchars($filteredQuestions[$key]->option_b)) . ' | ' . htmlspecialchars($questionSecond->option_b),
                                             (htmlspecialchars($filteredQuestions[$key]->option_c)) . ' | ' . htmlspecialchars($questionSecond->option_c),
                                             (htmlspecialchars($filteredQuestions[$key]->option_d)) . ' | ' . htmlspecialchars($questionSecond->option_d),
                                         ],
-                                        'answer' => $filteredQuestions[$key]->answer // Assuming this field exists
+                                        'answer' => $filteredQuestions[$key]->answer, // Assuming this field 
                                     ];
                                 }
                             } else {
                                 foreach ($filteredQuestions as $questionFirst) {
+                                    $img = isset($questionFirst->photo) && $questionFirst->photo != 0
+                                        ? '<br><img src="https://admin.online2study.in/public/storage/questions/' . $questionFirst->photo . '"/>'
+                                        : (isset($questionFirst->photo_link)
+                                            ? '<br><img src="' . $questionFirst->photo_link . '"/>'
+                                            : '');
+
                                     $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
                                         'question_id' => $questionFirst->id,
-                                        'question' => (htmlspecialchars($questionFirst->question)) . (isset($questionFirst->photo_link) ? '<br>' . '<img src="' . $questionFirst->photo_link . '"/>' : ''),
+                                        'question' => (htmlspecialchars($questionFirst->question)) . $img,
                                         'options' => [
                                             htmlspecialchars($questionFirst->option_a),
                                             htmlspecialchars($questionFirst->option_b),
                                             htmlspecialchars($questionFirst->option_c),
                                             htmlspecialchars($questionFirst->option_d),
                                         ],
-                                        'answer' => $questionFirst->answer // Assuming this field exists
+                                        'answer' => $questionFirst->answer, // Assuming this field exists
+                                        'notes' => $questionFirst->notes // Assuming this field exists
                                     ];
                                 }
                             }

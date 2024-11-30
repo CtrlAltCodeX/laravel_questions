@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@php 
-    $dropdown_list = [
-    'Select Language' => $languages,
-    'Select Category' => [],
-    'Select SubCategory' => [],
-    'Select Subject' => [],
-    ];
+@php
+$dropdown_list = [
+'Select Language' => $languages,
+'Select Category' => [],
+'Select SubCategory' => [],
+'Select Subject' => [],
+];
 @endphp
 @section('content')
 
@@ -53,7 +53,6 @@
 <script>
     $(document).ready(function() {
         const baseUrl = "{{ url('api/bank-api') }}";
-        console.log(baseUrl);
         const dropdowns = document.querySelectorAll('select');
         const apiLink = document.getElementById('apiLink');
 
@@ -75,7 +74,7 @@
             apiLink.select();
             document.execCommand('copy');
         });
-        
+
         $('#select_language').change(function() {
             var languageId = $(this).val();
             $('#select_category').empty().append('<option value="">Select Category</option>');
@@ -102,7 +101,7 @@
 
         $('#select_category').change(function() {
             var categoryId = $(this).val();
-            $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+            $('#select_subcategory').empty().append('<option value="">Select Sub Category</option>');
             $('#select_subject').empty().append('<option value="">Select Subject</option>');
             $('#select_topic').empty().append('<option value="">Select Topic</option>');
 

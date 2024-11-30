@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
+use App\Models\UserSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,20 +13,11 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    // public function edit(Request $request): View
-    // {
-    //     return view('profile.edit', [
-    //         'user' => $request->user(),
-    //     ]);
-    // }
-     public function edit(Request $request, $id): View
+    public function edit(Request $request, $id): View
     {
-        $userToEdit=User::findOrFail($id);
+        $userToEdit = User::findOrFail($id);
 
-        $currentUser= Auth::user();
+        $currentUser = Auth::user();
         
         if($currentUser->isSuperAdmin()){
             return view('users.edit', [
@@ -34,6 +26,7 @@ class ProfileController extends Controller
         }
         
     }
+
     /**
      * Update the user's profile information.
      */
@@ -93,29 +86,11 @@ class ProfileController extends Controller
         // return Redirect::to('/');
         return redirect()->route('users.index')->with('success','User deleted successfully!');
     }
-    // public function destroyUser(Request $request):RedirectResponse
-    // {
-    //     $user->delete();
-    //     return redirect()->route('users.index')->with('success','User deleted successfully!');
-
-    // }
 
     public function users()
     {
-        // $users = User::all();
-        $users = User::where('role','Admin')->get();
+        $users = UserSession::all();
+        
         return view('users.index', compact('users'));
     }
-
-    // public function super_admin()
-    // {
-    //     $users = User::where('role','Super admin')->get();
-    //     return view('super-admin.index', compact('users'));
-    // }
-
-    // public function store()
-    // {
-    //     // $users = User::where('role','Super admin')->get();
-    //     return view('super-admin.create');
-    // }
 }

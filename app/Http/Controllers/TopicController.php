@@ -48,7 +48,9 @@ class TopicController extends Controller
             });
         }
 
-        $topics = $query->get();
+        $topics = $query
+            ->with('subject.subCategory.category.language')
+            ->paginate(10);
 
         return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id'));
     }

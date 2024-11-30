@@ -12,16 +12,16 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         $languages = Language::all();
-        if($language_id = request()->language_id){
-            $categorys = Category::where('language_id', $language_id)->get();
+        if ($language_id = request()->language_id) {
+            $categorys = Category::where('language_id', $language_id)->paginate(10);
+
             return view('categorys.index', compact('categorys', 'languages', 'language_id'));
-        }else{
-            $categorys = Category::with('language')->get();
+        } else {
+            $categorys = Category::with('language')->paginate(10);
             return view('categorys.index', compact('categorys', 'languages'));
         }
-
     }
 
     /**
@@ -48,9 +48,9 @@ class CategoryController extends Controller
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $category->photo = $fileName;
 
             $category->save();
@@ -92,19 +92,19 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::find($id);
-        
+
         $category->update(request()->all());
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $category->photo = $fileName;
-        
+
             $category->save();
         }
-        
+
 
         return redirect()->route('category.index');
     }

@@ -13,7 +13,7 @@ class SubCategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         $languages = Language::all();
         $categories = Category::all();
 
@@ -22,18 +22,21 @@ class SubCategoryController extends Controller
 
         $query = SubCategory::query();
 
-        if($category_id){
+        if ($category_id) {
             $query->where('category_id', $category_id);
         }
-        
-        if($language_id){
-            $query->whereHas('category', function($query) use($language_id){
+
+        if ($language_id) {
+            $query->whereHas('category', function ($query) use ($language_id) {
                 $query->where('language_id', $language_id);
             });
         }
 
-        $sub_categories = $query->get();
-
+        $sub_categories = $query
+            ->with('category')
+            ->with('category.language')
+            ->paginate(10);
+            
         return view('sub-category.index', compact('sub_categories', 'categories', 'languages', 'language_id', 'category_id'));
     }
 
@@ -63,9 +66,9 @@ class SubCategoryController extends Controller
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $subcategory->photo = $fileName;
 
             $subcategory->save();
@@ -105,16 +108,16 @@ class SubCategoryController extends Controller
             'category_id' => 'required',
             'name' => 'required',
         ]);
-        
+
         $subcategory = SubCategory::find($id);
-            
+
         $subcategory->update(request()->all());
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $subcategory->photo = $fileName;
 
             $subcategory->save();

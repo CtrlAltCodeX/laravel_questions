@@ -125,7 +125,7 @@
 
         $('#select_category').change(function() {
             var categoryId = $(this).val();
-            $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+            $('#select_subcategory').empty().append('<option value="">Select Sub Category</option>');
             $('#select_subject').empty().append('<option value="">Select Subject</option>');
             $('#select_topic').empty().append('<option value="">Select Topic</option>');
 

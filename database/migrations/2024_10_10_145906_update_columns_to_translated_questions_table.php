@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::table('translated_questions', function (Blueprint $table) {
             $table->foreignId('question_id')->nullable()->change();
             $table->foreignId('language_id')->nullable()->change();
-            $table->text('question_text')->nullable()->change();
-            $table->text('option_a')->nullable()->change();
-            $table->text('option_b')->nullable()->change();
-            $table->text('option_c')->nullable()->change();
-            $table->text('option_d')->nullable()->change();
+            $table->string('question_text')->nullable()->change();
+            $table->string('option_a')->nullable()->change();
+            $table->string('option_b')->nullable()->change();
+            $table->string('option_c')->nullable()->change();
+            $table->string('option_d')->nullable()->change();
         });
     }
 

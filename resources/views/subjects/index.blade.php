@@ -48,13 +48,19 @@ $dropdown_list = [
                     #
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Sub-Category
+                    Language Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Category Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Sub-Category Name
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Images
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Name
+                    Subject Name
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -66,6 +72,12 @@ $dropdown_list = [
             <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$subject->id}}
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$subject->subCategory->category->language->name}}
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$subject->subCategory->category->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$subject->subCategory->name}}
@@ -102,6 +114,7 @@ $dropdown_list = [
             @endforelse
         </tbody>
     </table>
+    {{ $subjects->links() }}
 </div>
 
 @endsection

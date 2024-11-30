@@ -21,7 +21,7 @@
     <div class="flex">
         @include('layouts.sidebar')
 
-        <div class="pt-5 px-10 w-4/5" id='main-section'>
+        <div class="pb-5 pt-5 px-10 w-4/5" id='main-section'>
             <div class="flex justify-end mb-6">
                 <div class="flex items-center">
                     <div class="flex items-center ms-3 relative">

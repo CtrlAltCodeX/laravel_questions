@@ -17,9 +17,9 @@
                 <th scope="col" class="px-6 py-3">
                     Email
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <!-- <th scope="col" class="px-6 py-3">
                     Action
-                </th>
+                </th> -->
             </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
                     {{$user->email}}
                 </th>
 
-                <td class="px-6 py-4 flex gap-4">
+                <!-- <td class="px-6 py-4 flex gap-4">
                     @if(Auth::user()->id !== $user->id && Auth::user()->role === "Super admin")
                     <form action="{{route('profile.destroy',$user->id)}}" method='POST'>
                         @csrf
@@ -42,10 +42,9 @@
                     </form>
                     @endif
                     @if(Auth::user()->isSuperAdmin())
-
                     <a href="{{route('profile.edit',$user->id)}}" class="font-medium text-danger dark:text-danger-500 hover:underline">Edit</a>
                     @endif
-                </td>
+                </td> -->
             </tr>
             @empty
             <tr>

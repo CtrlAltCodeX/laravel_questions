@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
     }
 
     #logo-sidebar.sidebar-minimized {
-        width: 4rem;
+        width: auto;
         /* Minimized width */
     }
 
@@ -27,10 +27,15 @@ use Illuminate\Support\Str;
         justify-content: center;
         /* Center the icons */
     }
+
+    .dropdown {
+        display: none;
+        transition: all 0.2s ease-in-out;
+    }
 </style>
 
 <aside id="logo-sidebar" class="min-h-screen w-1/5 bg-gray-100 dark:bg-gray-900 w-64 h-screen pt-5 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 sidebar-expanded" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 sidebar">
+    <div class="h-full px-2 overflow-y-auto bg-white dark:bg-gray-800 sidebar">
         <div class="flex justify-between">
             <a href="https://flowbite.com" class="flex items-center shadow p-2 logo">
                 <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
@@ -68,7 +73,7 @@ use Illuminate\Support\Str;
                 <div class="mt-2 space-y-2 pl-14 dropdown">
                     @foreach($item['sub-menus'] as $subMenu)
                     <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'desc']) }}"
-                        class="block px-4 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
+                        class="block px-2 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
 
                         <i class="{{ $subMenu['icon'] }}"></i>
                         <span class="sidebar-text">{{$subMenu['name']}}</span>
@@ -78,34 +83,74 @@ use Illuminate\Support\Str;
             </div>
             @endif
             @endforeach
-            <!-- Dropdown Menu -->
         </ul>
     </div>
 </aside>
- 
+
 
 @push('scripts')
 
 <script>
-    $('#sidebarToggle').on('click', function() {
-        var sidebar = $('#logo-sidebar');
-        var mainSection = $('#main-section');
+    $(document).ready(function() {
+        // Sidebar toggle
+        $('#sidebarToggle').on('click', function() {
+            var sidebar = $('#logo-sidebar');
+            var mainSection = $('#main-section');
 
-        sidebar.toggleClass('sidebar-expanded sidebar-minimized');
+            sidebar.toggleClass('sidebar-expanded sidebar-minimized');
 
-        if (sidebar.hasClass('sidebar-minimized')) {
-            mainSection.css('width', 'calc(100% - 4rem)');
-            $(".logo").addClass('hidden');
-            $('.sidebar').addClass('overflow-hidden');
-            $('.dropdown').removeClass('pl-14');
-            // $('.dropdown a').removeClass('px-4');
-            // $('.dropdown a').addClass('px-2');
-        } else {
-            $(".logo").removeClass('hidden');
-            mainSection.css('width', 'calc(100% - 16rem)');
-            $('.dropdown').addClass('pl-14');
-            // $('.dropdown a').addClass('px-4');
-        }
+            if (sidebar.hasClass('sidebar-minimized')) {
+                mainSection.css('width', 'calc(100% - 4rem)');
+                $(".logo").addClass('hidden');
+                $('.sidebar').addClass('overflow-hidden');
+                $('.dropdown').removeClass('pl-14');
+                $('.dropdown a').addClass('text-center');
+                $('ul li a').addClass('text-center');
+            } else {
+                $(".logo").removeClass('hidden');
+                mainSection.css('width', 'calc(100% - 16rem)');
+                $('.dropdown').addClass('pl-14');
+                $('.dropdown a').removeClass('text-center');
+                $('ul li a').removeClass('text-center');
+            }
+        });
+
+        // Dropdown toggle
+        $('.dropdown').prev('button').on('click', function() {
+            var dropdown = $(this).next('.dropdown');
+
+            // Toggle visibility
+            dropdown.slideToggle(200);
+
+            // Rotate arrow
+            $(this).find('svg').toggleClass('rotate-180');
+
+            // Close other open dropdowns
+            $('.dropdown').not(dropdown).slideUp(200);
+            $('.dropdown').not(dropdown).prev('button').find('svg').removeClass('rotate-180');
+        });
+
+        // Open dropdowns for specific routes
+        var currentUrl = window.location.href;
+        var routesToOpen = [
+            "{{ route('languages.index') }}", // Replace with actual route name
+            "{{ route('category.index') }}", // Replace with actual route name
+            "{{ route('sub-category.index') }}", // Replace with actual route name
+            "{{ route('subject.index') }}", // Replace with actual route name
+            "{{ route('topic.index') }}", // Replace with actual route name
+            "{{ route('question.index') }}", // Replace with actual route name
+        ];
+
+        $('.dropdown').each(function() {
+            var parentButton = $(this).prev('button');
+            var isRouteMatch = routesToOpen.some(route => currentUrl.startsWith(route));
+
+            if (isRouteMatch) {
+                // Open the dropdown
+                $(this).slideDown(200);
+                parentButton.find('svg').addClass('rotate-180');
+            }
+        });
     });
 </script>
 @endpush

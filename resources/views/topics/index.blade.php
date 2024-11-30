@@ -19,7 +19,6 @@ $dropdown_list = [
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <form action="{{ route('topic.index') }}" method="GET">
-
         <div class="flex gap-x-5">
             <input type="hidden" value="{{ request()->per_page }}" name="per_page" />
             <input type="hidden" value="{{ request()->search }}" name="search" />
@@ -55,13 +54,22 @@ $dropdown_list = [
                     #
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Subject
+                    Language Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Main Category Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Sub Category Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Subject Name
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Images
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Name
+                    Topic Name
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -75,12 +83,20 @@ $dropdown_list = [
                     {{$topic->id}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$topic->subject->subCategory->category->language->name}}
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$topic->subject->subCategory->category->name}}
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$topic->subject->subCategory->name}}
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$topic->subject->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     <img src="{{ $topic->photo ? '/public/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
-
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$topic->name}}
@@ -110,6 +126,7 @@ $dropdown_list = [
             @endforelse
         </tbody>
     </table>
+    {{ $topics->links() }}
 </div>
 
 @endsection

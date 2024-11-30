@@ -18,7 +18,7 @@
         <div class="flex gap-x-5">
             @foreach($dropdown_list as $key => $value)
             @php
-                $id = strtolower(Str::slug($key, '_'));
+            $id = strtolower(Str::slug($key, '_'));
             @endphp
             <div class="w-1/5">
                 <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }}</label>
@@ -35,7 +35,7 @@
         <div class="flex gap-x-5">
             @foreach($dropdown_list as $key => $value)
             @php
-                $id = strtolower(Str::slug($key, '_'));
+            $id = strtolower(Str::slug($key, '_'));
             @endphp
             <div class="w-1/5">
                 <label for="{{ $key }}" class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $key }} 2</label>
@@ -53,46 +53,27 @@
 
         <input type="hidden" name="Subject" id="selected_subject">
         <input type="hidden" name="Subject_2" id="selected_subject2">
-
-        <div id="sets-wrapper">
-            <div class="flex gap-x-5 items-center">
-                <input type="text" id="apiLink" class="w-1/2 px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="search" id="search" placeholder="Link">
-                <button id="copy-button" type="button" class="copy-button text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
-            </div>
-        </div>
-
-        <div class="flex gap-x-10 items-center mt-5">
-                @csrf
-                <input type="hidden" name="access_token" id="access_token" value={{session('access_token')}}>
-                <input type="hidden" name="api_link" id="api_link">
-        </div>
-
     </form>
-
 </div>
 @endsection
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-
     $(document).ready(function() {
-        const baseUrl = "{{ url('api/quiz') }}";
+        const baseUrl = "{{ url('api/cbt') }}";
 
-        const dropdowns = document.querySelectorAll('select');
-        const apiLink = document.getElementById('apiLink');
+        $("body").on("click", ".copy_btn", function(e) {
+            e.preventDefault();
+            let id = $(this).data('index');
 
-        dropdowns.forEach(dropdown => {
-            dropdown.addEventListener('change', (e) => {
-                const params = new URLSearchParams();
-                dropdowns.forEach(d => {
-                    if (d.value) {
-                        params.append(d.name, d.value);
-                    }
-                });
-                apiLink.value = `${baseUrl}?${params.toString()}`;
-                document.getElementById('api_link').value = apiLink.value;
-            });
+            let url = $('#custom_input_' + id).val();
+
+            if (url) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert("URL copied to clipboard!");
+                }).catch(err => {});
+            }
         });
 
         $('#select_language').change(function() {
@@ -121,7 +102,7 @@
             var categoryId = $(this).val();
             $('#select_subcategory').empty().append('<option value="">Select Sub Category</option>');
 
-            if (categoryId) { 
+            if (categoryId) {
                 $.ajax({
                     url: '/get-subcategories/' + categoryId,
                     method: 'GET',
@@ -146,101 +127,44 @@
 
             if (subCategoryId) {
                 $.ajax({
-                    url: '/get-questions-data/' + languageId + '/' + categoryId + '/' + subCategoryId + '/' + null + '/' + null + '/' + null, 
+                    url: '/get-questions-data/' + languageId + '/' + categoryId + '/' + subCategoryId + '/' + null + '/' + null + '/' + null,
                     method: 'GET',
                     success: function(data) {
                         var subjects = data.subjects1;
-                        var length = subjects.length; 
-                        var questionTable = 
-                            `
-                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5 my-5 w-1/3">
-                                    
-                            `;
+                        var length = subjects.length;
+                        var questionTable =
+                            `<div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5 my-5">`;
 
                         subjects.forEach((subject, index) => {
-                            questionTable += 
-                            ` 
+                            questionTable +=
+                                ` 
                                 <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                     <tbody>
                                         <tr>
                                             <td class="p-2" data-column="total-questions">${subject.questions}</td>
-                                            <td class="p-2" data-column="subject">${subject.name}</td>
-                                            <td class="p-2 w-28" data-column="questions">
-                                                <input id="questions_${index}" name="subjects[${subject.id}]" type="text" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" id="questions" placeholder="questions"> 
+                                            <td class="p-2 w-[27%]" data-column="subject">
+                                                <input type="hidden" value="${subject.id}" id='subject_${index}' />
+                                                ${subject.name}
                                             </td>
+                                            <td class="p-2 text-right" data-column="questions">
+                                                <input id="questions_${index}" data-id="${index}" name="subjects[${subject.id}]" type="text" class="questionno px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600 w-1/2" id="questions" placeholder="Questions"> 
+                                            </td>
+                                            <td>
+                                            <div class="flex items-center gap-2 justify-end">
+                                                <input id="custom_input_${index}" type="text" class="px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Custom Input">
+                                                <button type="button" id="copy_button_${index}" data-index="${index}" class="copy_btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
+                                            </div>
+                                        </td>
                                         </tr>
                                         <tr class="bg-gray-200 dark:bg-gray-700">
-                                            <td colspan="3" class="h-[1px] text-center"></td>
+                                            <td colspan="5" class="h-[1px] text-center"></td>
                                         </tr>
                             `;
                         });
-
-                        questionTable += `
-                                        <tr>
-                                            <td class="p-2" data-column="question">Set</td>
-                                            <td class="p-2" data-column=""></td>
-                                            <td class="p-2" data-column="sets">
-                                                <input type="number" name="sets" id="sets" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="sets" value="${length}" id="sets" placeholder="sets"> 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            `;
 
                         questionTable += '</div>';
 
                         $('#question-data').html(questionTable);
-
-                        for(var i = 0; i < length; i++){
-                            var set = i + 1;
-                            var setDiv = document.createElement('div');
-
-                            setDiv.classList.add('flex', 'gap-x-5', 'items-center');
-
-                            var sets_wrapper_div = document.getElementById('sets-wrapper');
-
-                            sets_wrapper_div.innerHTML = '';
-                            
-                            setDiv.innerHTML = '';
-                            
-                            var params = new URLSearchParams();
-                            {{-- params.append('subject', subject.id); --}}
-                            params.append('Set', set);
-                            
-                            var apiLinkValue = apiLink.value + '&';
-                            apiLinkValue += `${params.toString()}`;
-
-                            setDiv.innerHTML = `
-                                <input type="text" class="w-1/2 px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="apiLink-set-${set}" id="apiLink-set-${set}" value="${apiLinkValue}" placeholder="Link">
-                                <button id="copy-button" data-index="${i}" class="copy-button text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
-                            `;
-
-                            sets_wrapper_div.appendChild(setDiv);
-                        }
-
-                        $(document).on('click', '.copy-button', function() {
-                            var input = $(this).prev('input');
-                            var index = $(this).data('index');
-
-                            input.select();
-                            document.execCommand('copy');
-
-                            $('#selected_subject').val(subjects[index].id);
-                        });
-
-                        // Update set URLs when questions input changes
-                        subjects.forEach((subject, index) => {
-                            $(`#questions_${index}`).on('input', function() {
-                                var set = index + 1;
-                                var params = new URLSearchParams();
-                                params.append('Subject', subject.id);
-                                params.append('Set', set);
-                                params.append('Limit', $(this).val());
-
-                                var apiLinkValue = apiLink.value + '&' + params.toString();
-                                $(`#apiLink-set-${set}`).val(apiLinkValue);
-                            });
-                        });
                     },
                     error: function(xhr, status, error) {
                         console.error('Error fetching subjects:', error); // Debugging: Log any errors
@@ -275,7 +199,7 @@
             var categoryId = $(this).val();
             $('#select_subcategory_2').empty().append('<option value="">Select Sub Category 2</option>');
 
-            if (categoryId) { 
+            if (categoryId) {
                 $.ajax({
                     url: '/get-subcategories/' + categoryId,
                     method: 'GET',
@@ -308,132 +232,123 @@
                         var subjects1Details = data.subjects1;
                         var subjects2Details = data.subjects2;
 
-                        var length = subjects1Details.length;
+                        var length = Math.min(subjects1Details.length, subjects2Details.length);
 
-                        var questionTable = 
-                            `
-                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5 my-5 w-1/2">
-                                    
+                        var questionTable = `
+                            <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5 my-5 w-full">
+                                <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                    <tbody>
+                        `;
+
+                        // Loop through subjects to create rows
+                        for (var i = 0; i < length; i++) {
+                            var subject1 = subjects1Details[i];
+                            var subject2 = subjects2Details[i];
+
+                            questionTable += `
+                                <tr>
+                                    <td class="p-2" data-column="total-questions">${subject1.questions}</td>
+                                    <td class="p-2" data-column="subject">
+                                        <input type="hidden" value="${subject1.id}" id='subject_${i}' />
+                                        <input type="hidden" value="${subject2.id}" id='subject2_${i}' />
+                                        ${subject1.name} | ${subject2.name}
+                                    </td>
+                                    <td class="p-2" data-column="questions">
+                                        <input id="questions_${i}" data-id="${i}" name="subjects[${subject2.id}]" type="text" class="questionno px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Questions">
+                                    </td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <input id="custom_input_${i}" type="text" class="px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Custom Input">
+                                            <button id="copy_button_${i}" data-index="${i}" class="copy_btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="bg-gray-200 dark:bg-gray-700">
+                                    <td colspan="5" class="h-[1px] text-center"></td>
+                                </tr>
                             `;
-
-                        subjects1Details.forEach((subject1, index1) => {
-                            subjects2Details.forEach((subject2, index2) => {
-                                questionTable += 
-                                `
-                                    <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                        <tbody>
-                                            <tr>
-                                                <td class="p-2" data-column="total-questions">${subject1.questions}</td>
-                                                <td class="p-2" data-column="subject">${subject1.name} | ${subject2.name}</td>
-                                                <td class="p-2 w-28" data-column="questions">
-                                                    <input id="questions_${index1}" name="subjects[${subject2.id}]" type="text" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="questions"> 
-                                                </td>
-                                            </tr>
-                                            <tr class="bg-gray-200 dark:bg-gray-700">
-                                                <td colspan="3" class="h-[1px] text-center"></td>
-                                            </tr>
-                                `;
-                            });
-                        });
+                        }
 
                         questionTable += `
-                                        <tr>
-                                            <td class="p-2" data-column="question">Set</td>
-                                            <td class="p-2" data-column=""></td>
-                                            <td class="p-2" data-column="sets">
-                                                <input type="number" name="sets" id="sets" class="w-full px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="sets" id="sets" value="${length}" placeholder="sets"> 
-                                            </td>
-                                        </tr>
                                     </tbody>
                                 </table>
-                            `;
-
-                        questionTable += '</div>';
+                            </div>
+                        `;
 
                         $('#question-data').html(questionTable);
 
+                        // Add event listener to copy buttons
+                        // for (var i = 0; i < length; i++) {
+                        //     $(`#copy_button_${i}`).on('click', function() {
+                        //         var index = $(this).data('index');
+                        //         var inputToCopy = $(`#custom_input_${index}`).val();
 
-                        for(var i = 0; i < length; i++){
-                            var set = i + 1;
-                            var setDiv = document.createElement('div');
-
-                            setDiv.classList.add('flex', 'gap-x-5', 'items-center');
-
-                            var sets_wrapper_div = document.getElementById('sets-wrapper');
-
-                            sets_wrapper_div.innerHTML = '';
-                            
-                            setDiv.innerHTML = '';
-                            
-                            var params = new URLSearchParams();
-                            {{-- params.append('subject', subject.id); --}}
-                            params.append('Set', set);
-                            
-                            var apiLinkValue = apiLink.value + '&';
-                            apiLinkValue += `${params.toString()}`;
-
-                            setDiv.innerHTML = `
-                                <input type="text" class="w-1/2 px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="apiLink-set-${set}" id="apiLink-set-${set}" value="${apiLinkValue}" placeholder="Link">
-                                <button id="copy-button" data-index="${i}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
-                            `;
-
-                            sets_wrapper_div.appendChild(setDiv);
-                        }
-
-                        // Update set URLs when questions input changes
-                        subjects2Details.forEach((subject, index) => {
-                            $(`#questions_${index}`).on('input', function() {
-                                var set = index + 1;
-                                console.log('Limit:', $(`#apiLink-set-${set}`).val(), set);
-                                var params = new URLSearchParams();
-                                params.append('Subject_2', subject.id);
-                                params.append('Set', set);
-                                params.append('Limit', $(this).val());
-
-                                var apiLinkValue = apiLink.value + '&' + params.toString();
-                                $(`#apiLink-set-${set}`).val(apiLinkValue);
-                            });
-                        });
-
-                        $(document).on('click', '.copy-button', function() {
-                            var input = $(this).prev('input');
-                            var index = $(this).data('index');
-
-                            var apiLinkValue = $('#apiLink').val() + '&' + params.toString();
-                            input.val(apiLinkValue);
-
-                            input.select();
-                            document.execCommand('copy');
-
-                            $('#selected_subject').val(subjects1Details[index].id);
-                            $('#selected_subject2').val(subjects2Details[index].id);
-                        });
-
-                        {{-- $('#sets').change(function(){
-                            var sets = $(this).val();
-                            var apiLink = $('#apiLink').val();
-                            var sets_wrapper_div = document.getElementById('sets-wrapper');
-
-                            sets_wrapper_div.innerHTML = '';
-
-                            for(var i = 0; i < sets; i++){
-                                var set = i + 1;
-                                var setDiv = document.createElement('div');
-                                setDiv.classList.add('flex', 'gap-x-5', 'items-center');
-                                setDiv.innerHTML = `
-                                    <input type="text" id="apiLink" class="w-1/2 px-4 py-2 mt-2 mb-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" name="apiLink-set-${set}" value="${apiLink}" placeholder="Link">
-                                    <button id="copy-button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 h-[100%] font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
-                                `;
-                                sets_wrapper_div.appendChild(setDiv);
-                            }
-                        }); --}}
+                        //         // Copy to clipboard
+                        //         navigator.clipboard.writeText(inputToCopy).then(() => {
+                        //             alert('Copied: ' + inputToCopy);
+                        //         }).catch(err => {
+                        //             console.error('Failed to copy text:', err);
+                        //         });
+                        //     });
+                        // }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Error fetching subjects:', error); // Debugging: Log any errors
+                        console.error('Error fetching subjects:', error);
                     }
                 });
             }
-        });       
+        });
+
+        $("body").on('input', '.questionno', function() {
+            let dataId = $(this).attr('data-id');
+
+            $("#subject2_" + dataId).val();
+            $("#subject_" + dataId).val();
+
+            let url = `${baseUrl}?`; // Start with the base URL and a question mark for query params
+
+            // Dynamically append parameters if they have values
+            if ($("#select_language").val()) {
+                url += `Language=${$("#select_language").val()}&`;
+            }
+
+            if ($("#select_category").val()) {
+                url += `Category=${$("#select_category").val()}&`;
+            }
+
+            if ($("#select_subcategory").val()) {
+                url += `SubCategory=${$("#select_subcategory").val()}&`;
+            }
+
+            if ($("#select_language_2").val()) {
+                url += `Language_2=${$("#select_language_2").val()}&`;
+            }
+
+            if ($("#select_category_2").val()) {
+                url += `Category_2=${$("#select_category_2").val()}&`;
+            }
+
+            if ($("#select_subcategory_2").val()) {
+                url += `SubCategory_2=${$("#select_subcategory_2").val()}&`;
+            }
+
+            if ($("#subject2_" + dataId).val()) {
+                url += `Subject_2=${$("#subject2_" + dataId).val()}&`;
+            }
+
+            if ($("#subject_" + dataId).val()) {
+                url += `Subject=${$("#subject_" + dataId).val()}&`;
+            }
+
+            if ($(this).val()) {
+                url += `Limit=${$(this).val()}&`;
+            }
+
+            // Remove trailing '&' if exists
+            url = url.replace(/&$/, '');
+
+            $("#custom_input_" + dataId).val(url);
+        });
     });
 </script>
 

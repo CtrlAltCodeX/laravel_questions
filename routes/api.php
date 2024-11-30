@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CbtController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Http\Request;
@@ -26,3 +27,5 @@ Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::get("quiz", [QuizController::class, 'deploy']);
 
 Route::get('bank-api', [QuestionBankController::class, 'deploy']);
+
+Route::get('cbt', [CbtController::class, 'deploy']);

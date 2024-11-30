@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="flex justify-between">
-    <h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Create Topics</h1>
+<h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-left">Create Topics</h1>
 </div>
 <form class="max-w-sm mx-auto" method="POST" action="{{ route('topic.store') }}" enctype="multipart/form-data">
     @csrf

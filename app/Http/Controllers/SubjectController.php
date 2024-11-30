@@ -39,7 +39,9 @@ class SubjectController extends Controller
             });
         }
 
-        $subjects = $query->get();
+        $subjects = $query
+            ->with('subCategory.category.language')
+            ->paginate(10);
 
         return view('subjects.index', compact('subjects', 'categories', 'subcategories', 'languages', 'language_id', 'category_id', 'subcategory_id'));
     }
@@ -70,9 +72,9 @@ class SubjectController extends Controller
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $subject->photo = $fileName;
 
             $subject->save();
@@ -110,20 +112,20 @@ class SubjectController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {   
+    {
         request()->validate([
             'name' => 'required',
             'sub_category_id' => 'required'
         ]);
-        
+
         $subject = Subject::find($id);
         $subject->update(request()->all());
 
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
-        
+
             $request->file('photo')->storePubliclyAs('public', $fileName);
-        
+
             $subject->photo = $fileName;
 
             $subject->save();
