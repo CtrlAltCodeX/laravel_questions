@@ -6,43 +6,89 @@ use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SubCategoryExport;
+use App\Exports\SampleSubCategoryExport;
+use App\Imports\SubCategoryImport;
 
 class SubCategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
         $languages = Language::all();
         $categories = Category::all();
-
-        $language_id = request()->language_id;
-        $category_id = request()->category_id;
-
-        $query = SubCategory::query();
-
+    
+        $language_id = $request->get('language_id');
+        $category_id = $request->get('category_id');
+    
+        // Sorting logic
+        $sortColumn = $request->get('sort', 'id'); // Default column
+        $sortDirection = $request->get('direction', 'asc'); // Default direction
+    
+        $query = SubCategory::query()->with('category.language');
+    
         if ($category_id) {
             $query->where('category_id', $category_id);
         }
-
+    
         if ($language_id) {
             $query->whereHas('category', function ($query) use ($language_id) {
                 $query->where('language_id', $language_id);
             });
         }
+    
+        // Handle sorting for related fields
+        if (in_array($sortColumn, ['id', 'name', 'category', 'language'])) {
+            $query->join('categories', 'sub_categories.category_id', '=', 'categories.id')
+                  ->join('languages', 'categories.language_id', '=', 'languages.id')
+                  ->select('sub_categories.*')
+                  ->orderBy(
+                      match ($sortColumn) {
+                          'language' => 'languages.name',
+                          'category' => 'categories.name',
+                          default => 'sub_categories.' . $sortColumn,
+                      },
+                      $sortDirection
+                  );
+        }
+    
+        $sub_categories = $query->paginate(10);
+    
+        return view('sub-category.index', compact(
+            'sub_categories', 
+            'categories', 
+            'languages', 
+            'language_id', 
+            'category_id', 
+            'sortColumn', 
+            'sortDirection'
+        ));
+    }  
 
-        $sub_categories = $query
-            ->with('category')
-            ->with('category.language')
-            ->paginate(10);
-            
-        return view('sub-category.index', compact('sub_categories', 'categories', 'languages', 'language_id', 'category_id'));
+  
+    public function export()
+    {
+        return Excel::download(new SubCategoryExport, 'Subcategories.xlsx');
+    }
+   
+   
+    public function sample()
+    {
+       return Excel::download(new SampleSubCategoryExport, 'SampleSubCategories.xlsx');
+    }
+   
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+        Excel::import(new SubCategoryImport, $request->file('file'));
+   
+        return redirect()->route('sub-category.index')->with('success', 'Sub Categories imported successfully!');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    
+
     public function create()
     {
         $categories = Category::all();
@@ -52,9 +98,7 @@ class SubCategoryController extends Controller
         return view('sub-category.create', compact('categories', 'languages'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+   
     public function store(Request $request)
     {
         request()->validate([
@@ -74,20 +118,11 @@ class SubCategoryController extends Controller
             $subcategory->save();
         }
 
-        return redirect()->route('sub-category.index');
+        // return redirect()->route('sub-category.index');
+        return response()->json(['success' => true, 'message' => 'Successfully Created', 'subcategory' => $subcategory]);
+
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $sub_categories = SubCategory::find($id);
@@ -99,9 +134,7 @@ class SubCategoryController extends Controller
         return view('sub-category.edit', compact('sub_categories', 'categories', 'languages'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, string $id)
     {
         request()->validate([
@@ -123,12 +156,11 @@ class SubCategoryController extends Controller
             $subcategory->save();
         }
 
-        return redirect()->route('sub-category.index');
+        return response()->json(['success' => true, 'message' => 'Successfully Updated', 'subcategory' => $subcategory]);
+        // return redirect()->route('sub-category.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+  
     public function destroy(string $id)
     {
         SubCategory::find($id)

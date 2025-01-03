@@ -12,7 +12,7 @@ use App\Http\Controllers\TopicController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -47,15 +47,31 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
+    Route::get('/dashboard-total-count', [DashboardController::class, 'totalcount'])
+    ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
 
     Route::resource('category', CategoryController::class);
+    Route::get('category/export/file', [CategoryController::class, 'export'])->name('category.export');
+    Route::get('category/sample/file', [CategoryController::class, 'sample'])->name('category.sample');
+    Route::post('category/import/file', [CategoryController::class, 'import'])->name('category.import');
+    
 
     Route::resource('sub-category', SubCategoryController::class);
+    Route::get('sub-category/export/file', [SubCategoryController::class, 'export'])->name('sub-category.export');
+    Route::get('sub-category/sample/file', [SubCategoryController::class, 'sample'])->name('sub-category.sample');
+    Route::post('sub-category/import/file', [SubCategoryController::class, 'import'])->name('sub-category.import');
+
 
     Route::resource('subject', SubjectController::class);
+    Route::get('subject/export/file', [SubjectController::class, 'export'])->name('subject.export');
+    Route::get('subject/sample/file', [SubjectController::class, 'sample'])->name('subject.sample');
+    Route::post('subject/import/file', [SubjectController::class, 'import'])->name('subject.import');
 
     Route::resource('topic', TopicController::class);
+    Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
+    Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');
+    Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');
 
     Route::resource('question', QuestionBankController::class);
 
@@ -120,6 +136,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin-profile/{id}', [SuperAdminController::class, 'edit'])
         ->name('admin-profile.edit');
+
+
+
+
 });
 
 require __DIR__ . '/auth.php';

@@ -177,7 +177,7 @@ class QuestionBankController extends Controller
             }
         }
 
-        // dd($data);
+        // dd($data);die;
 
         $question = Question::create(
             [
@@ -199,31 +199,11 @@ class QuestionBankController extends Controller
                 'topic_id' => $data['module']['Topic'][0],
             ]
         );
-        // dd($question);
 
-        // if (count($data['language']) > 0) {
-        //     foreach ($data['language'] as $index => $languageId) {
-        //         TranslatedQuestions::updateOrCreate(
-        //             [
-        //                 'question_id' => $question->id,
-        //                 'language_id' => $languageId,
-        //             ],
-        //             [
-        //                 'question_id' => $question->id,
-        //                 'language_id' => $languageId,
-        //                 'question_text' => $data['question'][$index],
-        //                 'option_a' => $data['option_a'][$index],
-        //                 'option_b' => $data['option_b'][$index],
-        //                 'option_c' => $data['option_c'][$index],
-        //                 'option_d' => $data['option_d'][$index],
-        //             ]
-        //         );
-        //     }
-        // }
+        // session()->flash('success', 'Question created successfully!');
 
-        session()->flash('success', 'Question created successfully!');
-
-        return redirect()->route('question.index');
+        // return redirect()->route('question.index');
+        return response()->json(['success' => 'Question created successfully!']);
     }
 
     /**

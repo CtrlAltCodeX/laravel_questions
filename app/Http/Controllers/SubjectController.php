@@ -8,23 +8,29 @@ use Illuminate\Http\Request;
 use App\Models\Subject;
 use App\Models\SubCategory;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SubjectExport;
+use App\Exports\SampleSubjectExport;
+use App\Imports\SubjectImport;
+
 class SubjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
-        
-        $language_id = request()->language_id;
-        $category_id = request()->category_id;
-        $subcategory_id = request()->sub_category_id;
-
+    
+        $language_id = $request->get('language_id');
+        $category_id = $request->get('category_id');
+        $subcategory_id = $request->get('sub_category_id');
+    
+        // Sorting logic
+        $sortColumn = $request->get('sort', 'id'); // Default column
+        $sortDirection = $request->get('direction', 'asc'); // Default direction
+    
         $query = Subject::query();
-
+    
         if ($subcategory_id) {
             $query->where('sub_category_id', $subcategory_id);
         }
@@ -38,17 +44,64 @@ class SubjectController extends Controller
                 $query->where('language_id', $language_id);
             });
         }
+    
+        // Handle sorting for related fields
+        if (in_array($sortColumn, ['id', 'name', 'sub_category', 'category', 'language'])) {
+            $query->with(['subCategory.category.language']);
+            $query->leftJoin('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
+                ->leftJoin('categories', 'sub_categories.category_id', '=', 'categories.id')
+                ->leftJoin('languages', 'categories.language_id', '=', 'languages.id');
+    
+            $query->orderBy(
+                match ($sortColumn) {
+                    'language' => 'languages.name',
+                    'category' => 'categories.name',
+                    'sub_category' => 'sub_categories.name',
+                    default => 'subjects.' . $sortColumn,
+                },
+                $sortDirection
+            );
+        }
+    
+        $subjects = $query->select('subjects.*')->paginate(10);
+    
+        return view('subjects.index', compact(
+            'subjects',
+            'categories',
+            'subcategories',
+            'languages',
+            'language_id',
+            'category_id',
+            'subcategory_id',
+            'sortColumn',
+            'sortDirection'
+        ));
+    }
+        
 
-        $subjects = $query
-            ->with('subCategory.category.language')
-            ->paginate(10);
-
-        return view('subjects.index', compact('subjects', 'categories', 'subcategories', 'languages', 'language_id', 'category_id', 'subcategory_id'));
+  
+    public function export()
+    {
+        return Excel::download(new SubjectExport, 'Subject.xlsx');
+    }
+   
+   
+    public function sample()
+    {
+       return Excel::download(new SampleSubjectExport, 'SampleSubject.xlsx');
+    }
+   
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+        Excel::import(new SubjectImport, $request->file('file'));
+   
+        return redirect()->route('subject.index')->with('success', 'Subject imported successfully!');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+  
     public function create()
     {
         $sub_categories = SubCategory::all();
@@ -58,9 +111,6 @@ class SubjectController extends Controller
         return view('subjects.create', compact('sub_categories', 'languages'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         request()->validate([
@@ -80,9 +130,9 @@ class SubjectController extends Controller
             $subject->save();
         }
 
-        session()->flash('success', 'Subject Successfully Created');
-
-        return redirect()->route('subject.index');
+        // session()->flash('success', 'Subject Successfully Created');
+        return response()->json(['success' => true, 'message' => 'Subject Successfully Created', 'subject' => $subject]);
+        // return redirect()->route('subject.index');
     }
 
     /**
@@ -132,9 +182,9 @@ class SubjectController extends Controller
         }
 
 
-        session()->flash('success', 'Subject Successfully Updated');
-
-        return redirect()->route('subject.index');
+        // session()->flash('success', 'Subject Successfully Updated');
+        return response()->json(['success' => true, 'message' => 'Subject Successfully Updated', 'subject' => $subject]);
+        // return redirect()->route('subject.index');
     }
 
     /**

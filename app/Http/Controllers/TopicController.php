@@ -10,89 +10,93 @@ use Illuminate\Http\Request;
 use App\Models\Topic;
 use App\Models\Subject;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\topicsExport;
+use App\Exports\SampletopicsExport;
+use App\Imports\topicsImport;
 class TopicController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
         $subjects = Subject::all();
-
-        $subject_id = request()->subject_id;
-        $subcategory_id = request()->sub_category_id;
-        $category_id = request()->category_id;
-        $language_id = request()->language_id;
-
-        $query = Topic::query();
-
+    
+        $subject_id = $request->get('subject_id');
+        $subcategory_id = $request->get('sub_category_id');
+        $category_id = $request->get('category_id');
+        $language_id = $request->get('language_id');
+    
+        $sortColumn = $request->get('sort', 'topics.id'); // Default to topics.id
+        $sortDirection = $request->get('direction', 'desc');
+    
+        // Prepare the query
+        $query = Topic::with('subject.subCategory.category.language');
+    
         if ($subject_id) {
             $query->where('subject_id', $subject_id);
         }
         if ($subcategory_id) {
-            $query->whereHas('subject', function ($query) use ($subcategory_id) {
-                $query->where('sub_category_id', $subcategory_id);
+            $query->whereHas('subject', function ($q) use ($subcategory_id) {
+                $q->where('sub_category_id', $subcategory_id);
             });
         }
         if ($category_id) {
-            $query->whereHas('subject.subCategory', function ($query) use ($category_id) {
-                $query->where('category_id', $category_id);
+            $query->whereHas('subject.subCategory', function ($q) use ($category_id) {
+                $q->where('category_id', $category_id);
             });
         }
         if ($language_id) {
-            $query->whereHas('subject.subCategory.category', function ($query) use ($language_id) {
-                $query->where('language_id', $language_id);
+            $query->whereHas('subject.subCategory.category', function ($q) use ($language_id) {
+                $q->where('language_id', $language_id);
             });
         }
-
-        $topics = $query
-            ->with('subject.subCategory.category.language')
-            ->paginate(10);
-
-        return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $subjects = Subject::all();
-
-        $languages = Language::all();
-
-        return view('topics.create', compact('subjects', 'languages'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        request()->validate([
-            'name' => 'required',
-            'subject_id' => 'required'
-        ]);
-
-        $topic = Topic::create(request()->all());
-
-        if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
-
-            $request->file('photo')->storePubliclyAs('public', $fileName);
-
-            $topic->photo = $fileName;
-
-            $topic->save();
+    
+        // Validate sort column
+        $sortableColumns = ['topics.id' => 'topics.id', 'name' => 'topics.name', 'language' => 'languages.name', 'category' => 'categories.name', 'sub_category' => 'sub_categories.name', 'subject' => 'subjects.name'];
+    
+        if (array_key_exists($sortColumn, $sortableColumns)) {
+            // Include necessary joins for sorting by related columns
+            $query->join('subjects', 'topics.subject_id', '=', 'subjects.id')
+                  ->join('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
+                  ->join('categories', 'sub_categories.category_id', '=', 'categories.id')
+                  ->join('languages', 'categories.language_id', '=', 'languages.id');
+    
+            // Apply the sorting using the proper table aliases
+            $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
-
-
-        session()->flash('success', 'Topic Successfully Created');
-
-        return redirect()->route('topic.index');
+    
+        // Paginate the results
+        $topics = $query->paginate(10);
+    
+        // Return the view with all necessary data
+        return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id', 'sortColumn', 'sortDirection'));
+    }
+    
+      
+    public function export()
+    {
+        return Excel::download(new topicsExport, 'Topic.xlsx');
+    }
+   
+   
+    public function sample()
+    {
+       return Excel::download(new SampletopicsExport, 'SampleTopic.xlsx');
+    }
+   
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+        Excel::import(new topicsImport, $request->file('file'));
+   
+        return redirect()->route('topic.index')->with('success', 'topics imported successfully!');
     }
 
     /**
@@ -141,10 +145,11 @@ class TopicController extends Controller
             $topic->save();
         }
 
+        return response()->json(['success' => true, 'message' => 'Topic Successfully Updated', 'topic' => $topic]);
 
-        session()->flash('success', 'Topic Successfully Updated');
+        // session()->flash('success', 'Topic Successfully Updated');
 
-        return redirect()->route('topic.index');
+        // return redirect()->route('topic.index');
     }
 
     /**
