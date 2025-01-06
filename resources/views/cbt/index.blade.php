@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@php 
-    $dropdown_list = [
-    'Select Language' => $languages,
-    //'Select Language-2' => $languages,
-    'Select Category' => [],
-    'Select SubCategory' => [],
-    ];
+@php
+$dropdown_list = [
+'Select Language' => $languages,
+//'Select Language-2' => $languages,
+'Select Category' => [],
+'Select SubCategory' => [],
+];
 @endphp
 @section('content')
 

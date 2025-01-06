@@ -16,50 +16,50 @@ class CategoryController extends Controller
     {
         $languages = Language::all();
         $query = Category::with('language');
-   
-        $sortColumn = $request->get('sort', 'id'); 
-        $sortDirection = $request->get('direction', 'asc'); 
-    
+
+        $sortColumn = $request->get('sort', 'id');
+        $sortDirection = $request->get('direction', 'asc');
+
         if ($sortColumn === 'language') {
             $query = $query->join('languages', 'categories.language_id', '=', 'languages.id')
-                           ->select('categories.*', 'languages.name as language_name')
-                           ->orderBy('language_name', $sortDirection);
+                ->select('categories.*', 'languages.name as language_name')
+                ->orderBy('language_name', $sortDirection);
         } elseif (in_array($sortColumn, ['id', 'name'])) {
             $query = $query->orderBy($sortColumn, $sortDirection);
         }
- 
+
         if ($language_id = $request->get('language_id')) {
             $query = $query->where('language_id', $language_id);
         }
-    
+
         $categorys = $query->paginate(10);
-    
+
         return view('categorys.index', compact('categorys', 'languages', 'sortColumn', 'sortDirection', 'language_id'));
     }
-    
-
- public function export()
- {
-     return Excel::download(new CategoryExport, 'categories.xlsx');
- }
 
 
- public function sample()
- {
-    return Excel::download(new SampleCategoryExport, 'SampleCategories.xlsx');
- }
+    public function export()
+    {
+        return Excel::download(new CategoryExport, 'categories.xlsx');
+    }
 
 
- public function import(Request $request)
- {
-     $request->validate([
-         'file' => 'required|file|mimes:xlsx',
-     ]);
+    public function sample()
+    {
+        return Excel::download(new SampleCategoryExport, 'SampleCategories.xlsx');
+    }
 
-     Excel::import(new CategoryImport, $request->file('file'));
 
-     return redirect()->route('category.index')->with('success', 'Categories imported successfully!');
- }
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+
+        Excel::import(new CategoryImport, $request->file('file'));
+
+        return redirect()->route('category.index')->with('success', 'Categories imported successfully!');
+    }
 
 
     public function create()
@@ -89,7 +89,6 @@ class CategoryController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Successfully Created', 'category' => $category]);
-
     }
 
     public function edit(string $id)
@@ -101,11 +100,11 @@ class CategoryController extends Controller
         return view('categorys.edit', compact('category', 'languages'));
     }
 
-   
+
     public function update(Request $request, string $id)
     {
 
-        
+
         $request->validate([
             'name' => 'required',
             'language_id' => 'required'
@@ -134,7 +133,7 @@ class CategoryController extends Controller
         //
     }
 
-    
+
     public function destroy(string $id)
     {
         Category::find($id)

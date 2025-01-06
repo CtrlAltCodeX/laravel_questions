@@ -1,6 +1,6 @@
 <script>
     $(document).on('change', '.select_language', function() {
-    // $('#select_language').change(function() {
+        // $('#select_language').change(function() {
         var languageId = $(this).val();
 
         if (languageId) {
@@ -76,7 +76,7 @@
             $('.select_topic').empty().append('<option value="">Select Topic</option>');
         }
     });
-    
+
     $(document).on('input', 'input', function() {
         $("#selectlangauge").val($("#select_language").val());
     })
@@ -100,16 +100,19 @@
                 }
             }
         });
-    })
+    });
 
+    $("#pagination").on("change", function() {
+        $("#paginationForm").submit();
+    });
 
-         // Handle form submission
-         document.getElementById('modalForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const actionUrl = this.action;
+    // Handle form submission
+    document.getElementById('modalForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const actionUrl = this.action;
 
-            fetch(actionUrl, {
+        fetch(actionUrl, {
                 method: this.method,
                 body: formData,
                 headers: {
@@ -119,18 +122,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message); 
-            $('#modal').hide();
-            location.reload(); 
+                    alert(data.message);
+                    $('#modal').hide();
+                    location.reload();
                 } else {
                     // Handle validation errors if any
                     console.error(data.errors);
                 }
             })
             .catch(error => console.error('Error:', error));
-        });
+    });
 
-document.getElementById('closeModal').addEventListener('click', function () {
-    document.getElementById('modal').style.display = 'none';
-});
+    document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('modal').style.display = 'none';
+    });
 </script>

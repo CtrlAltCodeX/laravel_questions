@@ -111,7 +111,7 @@ class CbtController extends Controller
 
     public function deploy(Request $request)
     {
-        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id']);
+        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
 
         if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
             $data = $request->all();
@@ -193,7 +193,7 @@ class CbtController extends Controller
 
             return response()->json($jsonResponse);
         } else {
-            return response()->json(['error' => 'Session ID does not Matched']);
+            return response()->json(['error' => 'Session ID does not Matched'], 401);
         }
     }
 

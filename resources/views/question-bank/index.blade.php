@@ -52,14 +52,14 @@ $levels = [
                 $selectedValue = request()->input($moduleKey);
                 @endphp
                 <div>
-       
-                    <select   name="{{ $moduleKey }}" class="{{ $id }} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
+
+                    <select name="{{ $moduleKey }}" class="{{ $id }} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
                         <option value="">{{$moduleName}}</option>
                         @foreach($module as $item)
                         <option value="{{$item->id}}" {{ $selectedValue == $item->id ?  'selected' : '' }}>{{$item->name}}</option>
                         @endforeach
                     </select>
-                    <div class="text-red-500 text-xs mt-1 validation-msg"></div> 
+                    <div class="text-red-500 text-xs mt-1 validation-msg"></div>
                     @error('module.' . $moduleKey)
                     <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -78,8 +78,9 @@ $levels = [
             <input type="file" id="importInput" name="file" class="form-control hidden" required>
 
             <button id="createButton" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-        Create
-    </button>        </div>
+                Create
+            </button>
+        </div>
 
         <div class="flex items-end gap-y-5 justify-between items-center">
             <div class="">
@@ -345,8 +346,6 @@ $levels = [
 
 </div>
 
-
-
 <div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style="
         background-color: white; 
@@ -379,7 +378,7 @@ $levels = [
                         <option value="{{$item->id}}">{{$item->name}}</option>
                         @endforeach
                     </select>
-                    <div class="text-red-500 text-xs mt-1 validation-msg"></div> 
+                    <div class="text-red-500 text-xs mt-1 validation-msg"></div>
                     @error('module.' . $moduleKey)
                     <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -405,15 +404,15 @@ $levels = [
     $(document).ready(function() {
 
 
-        document.getElementById('createButton').addEventListener('click', function () {
-   
-       
-        document.getElementById('modal').style.display = 'flex';
-    });
+        document.getElementById('createButton').addEventListener('click', function() {
 
 
-            // Close modal
-        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('modal').style.display = 'flex';
+        });
+
+
+        // Close modal
+        document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('modal').style.display = 'none';
         });
 
