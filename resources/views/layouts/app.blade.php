@@ -61,7 +61,15 @@
                 <span class="font-medium">{{session()->get('success')}}</span>
             </div>
             @endif
-
+            @if(session('import_errors'))
+    <div class="alert alert-danger">
+        <ul>
+            @foreach(session('import_errors') as $error)
+                <li><h4>Import Errors:</h4> {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
             @if(session()->has('error'))
             <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
                 <span class="font-medium">{{session()->get('error')}}</span>

@@ -5,8 +5,26 @@ namespace App\Imports;
 use App\Models\Subject;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-class SubjectImport implements ToModel, WithHeadingRow
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\WithValidation;
+
+class SubjectImport implements ToModel, WithHeadingRow, SkipsOnError, WithValidation
 {
+    use SkipsErrors;
+
+    public $validationErrors = []; 
+
+    public function rules(): array
+    {
+        return [
+            'id' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'sub_category_id' => 'required|integer',
+            'photo' => 'nullable|string|max:255',
+        ];
+    }
+
     public function model(array $row)
     {
    

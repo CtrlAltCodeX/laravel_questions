@@ -90,17 +90,30 @@ class SubjectController extends Controller
     {
        return Excel::download(new SampleSubjectExport, 'SampleSubject.xlsx');
     }
-   
+
+    
     public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|file|mimes:xlsx',
         ]);
-        Excel::import(new SubjectImport, $request->file('file'));
-   
+    
+        $importer = new SubjectImport();
+    
+        try {
+            Excel::import($importer, $request->file('file'));
+        } catch (\Exception $e) {
+            return redirect()->route('subject.index')
+                ->with('import_errors', [ $e->getMessage()]);
+        }
+    
+        if (!empty($importer->errors)) {
+            return redirect()->route('subject.index')
+                ->with('import_errors', $importer->errors);
+        }
+    
         return redirect()->route('subject.index')->with('success', 'Subject imported successfully!');
     }
-
   
     public function create()
     {

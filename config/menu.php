@@ -3,6 +3,11 @@
 return [
     'admin' => [
         [
+            'name' => 'Dashboard',
+            'route' => 'dashboard.total.count',
+            'icon' => 'fa fa-home',
+        ],
+        [
             'name' => 'ITI Database',
             'route' => 'languages.index',
             'icon' => 'fa fa-database',

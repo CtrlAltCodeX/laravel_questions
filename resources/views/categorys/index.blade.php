@@ -4,6 +4,8 @@
 
 <div class="flex justify-between items-center mb-4">
     <!-- Heading -->
+
+
     <h1 class="text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">
         Category
     </h1>
