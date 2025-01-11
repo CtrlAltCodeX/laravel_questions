@@ -16,7 +16,8 @@ class Subject extends Model
     protected $fillable = [
         'sub_category_id',
         'name',
-        'photo'
+        'photo',
+        'parent_id',
     ];
 
     public function subCategory()

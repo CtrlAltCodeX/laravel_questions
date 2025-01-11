@@ -79,8 +79,7 @@ class CbtController extends Controller
         $subjects1 = Subject::where('sub_category_id', $subcategory_id)
             ->get();
 
-        $subjects2 = Subject::where('sub_category_id', $subcategory2_id)
-            ->get();
+        $subjects2 = [];
 
         foreach ($subjects1 as $subject) {
             # code...
@@ -91,19 +90,10 @@ class CbtController extends Controller
                 ->toArray();
 
             $questions = count($questions);
-            $subject->questions = $questions;
-        }
 
-        foreach ($subjects2 as $subject) {
-            # code...
-            $questions = Question::where('subject_id', $subject->id)
-                ->where('language_id', $language2_id)
-                ->where('category_id',  $category2_id)
-                ->get()
-                ->toArray();
-
-            $questions = count($questions);
             $subject->questions = $questions;
+
+            $subjects2[] = Subject::where('parent_id', $subject->id)->first()->toArray();
         }
 
         return response()->json(['subjects1' => $subjects1, 'subjects2' => $subjects2]);
@@ -164,7 +154,7 @@ class CbtController extends Controller
 
             foreach ($questionArray as $key => $getQuestions) {
                 $img = isset($getQuestions->photo) && $getQuestions->photo != 0
-                    ? '<br><img src="https://admin.online2study.in/public/storage/questions/' . $getQuestions->photo . '"/>'
+                    ? '<br><img src="https://iti.online2study.in/public/storage/questions/' . $getQuestions->photo . '"/>'
                     : (isset($getQuestions->photo_link)
                         ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                         : '');

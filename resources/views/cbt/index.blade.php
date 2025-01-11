@@ -245,28 +245,30 @@ $dropdown_list = [
                             var subject1 = subjects1Details[i];
                             var subject2 = subjects2Details[i];
 
-                            questionTable += `
-                                <tr>
-                                    <td class="p-2" data-column="total-questions">${subject1.questions}</td>
-                                    <td class="p-2" data-column="subject">
-                                        <input type="hidden" value="${subject1.id}" id='subject_${i}' />
-                                        <input type="hidden" value="${subject2.id}" id='subject2_${i}' />
-                                        ${subject1.name} | ${subject2.name}
-                                    </td>
-                                    <td class="p-2" data-column="questions">
-                                        <input id="questions_${i}" data-id="${i}" name="subjects[${subject2.id}]" type="text" class="questionno px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Questions">
-                                    </td>
-                                    <td>
-                                        <div class="flex items-center gap-2">
-                                            <input id="custom_input_${i}" type="text" class="px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Custom Input">
-                                            <button id="copy_button_${i}" data-index="${i}" class="copy_btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="bg-gray-200 dark:bg-gray-700">
-                                    <td colspan="5" class="h-[1px] text-center"></td>
-                                </tr>
-                            `;
+                            if (subject2) {
+                                questionTable += `
+                                    <tr>
+                                        <td class="p-2" data-column="total-questions">${subject1.questions}</td>
+                                        <td class="p-2" data-column="subject">
+                                            <input type="hidden" value="${subject1.id}" id='subject_${i}' />
+                                            <input type="hidden" value="${subject2.id}" id='subject2_${i}' />
+                                            ${subject1.name} | ${subject2.name}
+                                        </td>
+                                        <td class="p-2" data-column="questions">
+                                            <input id="questions_${i}" data-id="${i}" name="subjects[${subject2.id}]" type="text" class="questionno px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Questions">
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <input id="custom_input_${i}" type="text" class="px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Custom Input">
+                                                <button id="copy_button_${i}" data-index="${i}" class="copy_btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Copy</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-200 dark:bg-gray-700">
+                                        <td colspan="5" class="h-[1px] text-center"></td>
+                                    </tr>
+                                `;
+                            }
                         }
 
                         questionTable += `
