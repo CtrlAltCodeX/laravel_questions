@@ -1,12 +1,6 @@
 @extends('layouts.app')
 @php
-$dropdown_list = [
-'Select Language' => $languages,
-'Select Category' => $categories,
-'Select Sub Category' => $subcategories ?? [],
-'Select Subject' => $subjects ?? [],
 
-];
 @endphp
 @section('content')
 
@@ -28,8 +22,6 @@ $dropdown_list = [
             Create
         </button>
     </div>
-
-
 
 </div>
 
@@ -180,11 +172,11 @@ $dropdown_list = [
                     <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
                         data-id="{{ $topic->id }}"
                         data-name="{{ $topic->name }}"
-                        data-language-id="{{ $topic->language_id }}"
+                        data-language-id="{{ $topic->subject->subCategory->category->language->id }}"
                         data-photo="{{ $topic->photo }}"
-                        data-category-id="{{ $topic->category_id }}"
-                        data-sub-category-id="{{ $topic->sub_category_id }}"
-                        data-subject-id="{{ $topic->subject_id }}">
+                        data-category-id="{{ $topic->subject->subCategory->category->id }}"
+                        data-sub-category-id="{{ $topic->subject->subCategory->id }}"
+                        data-subject-id="{{ $topic->subject->id }}">
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg>
@@ -216,7 +208,7 @@ $dropdown_list = [
         background-color: white; 
         border-radius: 10px; 
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-        width: 50%; 
+        width: 30%; 
         max-height: 90vh; /* Maximum height to keep it within the viewport */
         margin: auto; 
         padding: 24px; 
@@ -263,6 +255,9 @@ $dropdown_list = [
                 <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
                 <select id='select_category' name="category_id" class="select_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Choose a Category</option>
+                    @foreach($categories as $item)
+                    <option value="{{$item->id}}">{{$item->name}}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -272,6 +267,9 @@ $dropdown_list = [
                 <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sub Category</label>
                 <select id='select_sub_category' name="sub_category_id" class="select_sub_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Choose a Sub Category</option>
+                    @foreach($subcategories as $item)
+                    <option value="{{$item->id}}">{{$item->name}}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -294,7 +292,6 @@ $dropdown_list = [
         </form>
     </div>
 </div>
-
 
 @endsection
 

@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    Route::get('/dashboard-total-count', [DashboardController::class, 'totalcount'])
+    Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
 

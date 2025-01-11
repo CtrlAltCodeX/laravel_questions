@@ -139,7 +139,7 @@ class QuizController extends Controller
 
                 foreach ($questionArray as $key => $getQuestions) {
                     $img = isset($getQuestions->photo) && $getQuestions->photo != 0
-                        ? '<br><img src="https://admin.online2study.in/public/storage/questions/' . $getQuestions->photo . '"/>'
+                        ? '<br><img src="{{ url("/") }}/public/storage/questions/' . $getQuestions->photo . '"/>'
                         : (isset($getQuestions->photo_link)
                             ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                             : '');

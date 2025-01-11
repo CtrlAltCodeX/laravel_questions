@@ -20,17 +20,17 @@ class SubjectController extends Controller
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
-    
+
         $language_id = $request->get('language_id');
         $category_id = $request->get('category_id');
         $subcategory_id = $request->get('sub_category_id');
-    
+
         // Sorting logic
         $sortColumn = $request->get('sort', 'id'); // Default column
         $sortDirection = $request->get('direction', 'asc'); // Default direction
-    
+
         $query = Subject::query();
-    
+
         if ($subcategory_id) {
             $query->where('sub_category_id', $subcategory_id);
         }
@@ -44,14 +44,14 @@ class SubjectController extends Controller
                 $query->where('language_id', $language_id);
             });
         }
-    
+
         // Handle sorting for related fields
         if (in_array($sortColumn, ['id', 'name', 'sub_category', 'category', 'language'])) {
             $query->with(['subCategory.category.language']);
             $query->leftJoin('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
                 ->leftJoin('categories', 'sub_categories.category_id', '=', 'categories.id')
                 ->leftJoin('languages', 'categories.language_id', '=', 'languages.id');
-    
+
             $query->orderBy(
                 match ($sortColumn) {
                     'language' => 'languages.name',
@@ -62,9 +62,15 @@ class SubjectController extends Controller
                 $sortDirection
             );
         }
-    
+
         $subjects = $query->select('subjects.*')->paginate(10);
-    
+
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => $categories ?? [],
+            'Select Sub Category' => $subcategories ?? [],
+        ];
+
         return view('subjects.index', compact(
             'subjects',
             'categories',
@@ -74,47 +80,48 @@ class SubjectController extends Controller
             'category_id',
             'subcategory_id',
             'sortColumn',
-            'sortDirection'
+            'sortDirection',
+            'dropdown_list'
         ));
     }
-        
 
-  
+
+
     public function export()
     {
         return Excel::download(new SubjectExport, 'Subject.xlsx');
     }
-   
-   
+
+
     public function sample()
     {
-       return Excel::download(new SampleSubjectExport, 'SampleSubject.xlsx');
+        return Excel::download(new SampleSubjectExport, 'SampleSubject.xlsx');
     }
 
-    
+
     public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|file|mimes:xlsx',
         ]);
-    
+
         $importer = new SubjectImport();
-    
+
         try {
             Excel::import($importer, $request->file('file'));
         } catch (\Exception $e) {
             return redirect()->route('subject.index')
-                ->with('import_errors', [ $e->getMessage()]);
+                ->with('import_errors', [$e->getMessage()]);
         }
-    
+
         if (!empty($importer->errors)) {
             return redirect()->route('subject.index')
                 ->with('import_errors', $importer->errors);
         }
-    
+
         return redirect()->route('subject.index')->with('success', 'Subject imported successfully!');
     }
-  
+
     public function create()
     {
         $sub_categories = SubCategory::all();

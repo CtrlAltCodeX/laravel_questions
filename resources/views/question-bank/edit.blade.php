@@ -1,19 +1,4 @@
 @extends('layouts.app')
-@php 
-    $dropdown_list = [
-    'Select Language' => $languages,
-    'Select Category' => $categories,
-    'Select Sub Category' => $subCategories,
-    'Select Subject' => $subjects,
-    'Select Topic' => $topics,
-    ];
-
-    $levels = [
-        '1' => 'Easy',
-        '2' => 'Medium',
-        '3' => 'Hard',
-    ];
-@endphp
 @section('content')
 
 <form action="{{ route('question.update',  $question->id) }}" method="POST" enctype="multipart/form-data">
@@ -58,12 +43,10 @@
         </div>
         @endforeach
     </div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
+    <div class="relative overflow-x-auto sm:rounded-lg">
         <div id="input-rows">
-
             <div class="input-row pb-5 border-b-2">
-                <div class="flex flex-col gap-4 items-center mt-5 w-full">
-
+                <div class="flex flex-col gap-4 items-center w-full">
                     <input type="hidden" name="id" value="{{$question->id}}" />
                     <input type="hidden" name="language_id[]" value="{{$question->language_id}}" />
 
@@ -172,8 +155,6 @@
 
                 <div id="languages-container" class="ms-5"></div>
             </div>
-
-
         </div>
         <div class="flex justify-end gap-x-5">
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>

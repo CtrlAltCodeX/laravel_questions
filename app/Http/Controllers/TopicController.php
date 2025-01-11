@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\topicsExport;
 use App\Exports\SampletopicsExport;
 use App\Imports\topicsImport;
+
 class TopicController extends Controller
 {
     /**
@@ -25,18 +26,18 @@ class TopicController extends Controller
         $categories = Category::all();
         $subcategories = SubCategory::all();
         $subjects = Subject::all();
-    
+
         $subject_id = $request->get('subject_id');
         $subcategory_id = $request->get('sub_category_id');
         $category_id = $request->get('category_id');
         $language_id = $request->get('language_id');
-    
+
         $sortColumn = $request->get('sort', 'topics.id'); // Default to topics.id
         $sortDirection = $request->get('direction', 'desc');
-    
+
         // Prepare the query
-        $query = Topic::with('subject.subCategory.category.language');
-    
+        $query = Topic::select('topics.*')->with('subject.subCategory.category.language');
+
         if ($subject_id) {
             $query->where('subject_id', $subject_id);
         }
@@ -55,62 +56,96 @@ class TopicController extends Controller
                 $q->where('language_id', $language_id);
             });
         }
-    
+
         // Validate sort column
-        $sortableColumns = ['topics.id' => 'topics.id', 'name' => 'topics.name', 'language' => 'languages.name', 'category' => 'categories.name', 'sub_category' => 'sub_categories.name', 'subject' => 'subjects.name'];
-    
+        $sortableColumns = ['id' => 'topics.id', 'name' => 'topics.name', 'language' => 'languages.name', 'category' => 'categories.name', 'sub_category' => 'sub_categories.name', 'subject' => 'subjects.name'];
+
         if (array_key_exists($sortColumn, $sortableColumns)) {
             // Include necessary joins for sorting by related columns
             $query->join('subjects', 'topics.subject_id', '=', 'subjects.id')
-                  ->join('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
-                  ->join('categories', 'sub_categories.category_id', '=', 'categories.id')
-                  ->join('languages', 'categories.language_id', '=', 'languages.id');
-    
+                ->join('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
+                ->join('categories', 'sub_categories.category_id', '=', 'categories.id')
+                ->join('languages', 'categories.language_id', '=', 'languages.id');
+
             // Apply the sorting using the proper table aliases
             $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
-    
+
         // Paginate the results
         $topics = $query->paginate(10);
-    
+
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => $categories,
+            'Select Sub Category' => $subcategories ?? [],
+            'Select Subject' => $subjects ?? [],
+        ];
+
         // Return the view with all necessary data
-        return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id', 'sortColumn', 'sortDirection'));
+        return view('topics.index', compact('topics', 'categories', 'subcategories', 'subjects', 'languages', 'subject_id', 'subcategory_id', 'category_id', 'language_id', 'sortColumn', 'sortDirection', 'dropdown_list'));
     }
-    
-      
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        request()->validate([
+            'name' => 'required',
+            'subject_id' => 'required'
+        ]);
+
+        $topic = Topic::create(request()->all());
+
+        if ($request->hasFile('photo')) {
+            $fileName = "site/" . time() . "_photo.jpg";
+
+            $request->file('photo')->storePubliclyAs('public', $fileName);
+
+            $topic->photo = $fileName;
+
+            $topic->save();
+        }
+
+        session()->flash('success', 'Topic Successfully Created');
+
+        return response()->json(['success' => true, 'message' => 'Topic Successfully Created', 'topic' => $topic]);
+    }
+
+
     public function export()
     {
         return Excel::download(new topicsExport, 'Topic.xlsx');
     }
-   
-   
+
+
     public function sample()
     {
-       return Excel::download(new SampletopicsExport, 'SampleTopic.xlsx');
+        return Excel::download(new SampletopicsExport, 'SampleTopic.xlsx');
     }
-   
 
-    
+
+
     public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|file|mimes:xlsx',
         ]);
-    
+
         $importer = new topicsImport();
-    
+
         try {
             Excel::import($importer, $request->file('file'));
         } catch (\Exception $e) {
             return redirect()->route('topic.index')
-                ->with('import_errors', [ $e->getMessage()]);
+                ->with('import_errors', [$e->getMessage()]);
         }
-    
+
         if (!empty($importer->errors)) {
             return redirect()->route('topic.index')
                 ->with('import_errors', $importer->errors);
         }
-    
+
         return redirect()->route('topic.index')->with('success', 'topics imported successfully!');
     }
 

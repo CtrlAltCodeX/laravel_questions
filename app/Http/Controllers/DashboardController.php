@@ -12,18 +12,21 @@ use App\Models\User;
 
 class DashboardController extends Controller
 {
-    public function totalcount()
+    public function index()
     {
-       
         // Fetch total counts
         $categoriesCount = Category::count();
+
         $subCategoriesCount = SubCategory::count();
+
         $subjectsCount = Subject::count();
+
         $topicsCount = Topic::count();
+
         $questionsCount = Question::count();
+
         $usersCount = User::count();
 
-        // Pass data to the view
         return view('dashboard.index', compact(
             'categoriesCount',
             'subCategoriesCount',

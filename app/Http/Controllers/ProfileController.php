@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\GoogleUser;
 use App\Models\User;
 use App\Models\UserSession;
 use Illuminate\Http\RedirectResponse;
@@ -89,7 +90,7 @@ class ProfileController extends Controller
 
     public function users()
     {
-        $users = UserSession::all();
+        $users = GoogleUser::all();
         
         return view('users.index', compact('users'));
     }

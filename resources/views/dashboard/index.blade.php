@@ -1,56 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-0">
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-primary text-white">
-                    <h5 class="card-title fw-bold">Total Categories</h5>
-                    <p class="card-text display-4">{{ $categoriesCount }}</p>
-                </div>
-            </div>
+<div class="container mx-auto p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Total Categories -->
+        <div class="bg-blue-500 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total Categories</h5>
+            <p class="text-4xl font-semibold">{{ $categoriesCount }}</p>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-success text-white">
-                    <h5 class="card-title fw-bold">Total SubCategories</h5>
-                    <p class="card-text display-4">{{ $subCategoriesCount }}</p>
-                </div>
-            </div>
+        <!-- Total SubCategories -->
+        <div class="bg-green-500 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total SubCategories</h5>
+            <p class="text-4xl font-semibold">{{ $subCategoriesCount }}</p>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-warning text-white">
-                    <h5 class="card-title fw-bold">Total Subjects</h5>
-                    <p class="card-text display-4">{{ $subjectsCount }}</p>
-                </div>
-            </div>
+        <!-- Total Subjects -->
+        <div class="bg-yellow-500 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total Subjects</h5>
+            <p class="text-4xl font-semibold">{{ $subjectsCount }}</p>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-info text-white">
-                    <h5 class="card-title fw-bold">Total Topics</h5>
-                    <p class="card-text display-4">{{ $topicsCount }}</p>
-                </div>
-            </div>
+        <!-- Total Topics -->
+        <div class="bg-teal-500 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total Topics</h5>
+            <p class="text-4xl font-semibold">{{ $topicsCount }}</p>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-danger text-white">
-                    <h5 class="card-title fw-bold">Total Questions</h5>
-                    <p class="card-text display-4">{{ $questionsCount }}</p>
-                </div>
-            </div>
+        <!-- Total Questions -->
+        <div class="bg-red-500 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total Questions</h5>
+            <p class="text-4xl font-semibold">{{ $questionsCount }}</p>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 rounded shadow-lg">
-                <div class="card-body text-center bg-secondary text-white">
-                    <h5 class="card-title fw-bold">Total Users</h5>
-                    <p class="card-text display-4">{{ $usersCount }}</p>
-                </div>
-            </div>
+        <!-- Total Users -->
+        <div class="bg-gray-700 text-white rounded-lg shadow-md p-6 text-center">
+            <h5 class="text-lg font-bold">Total Users</h5>
+            <p class="text-4xl font-semibold">{{ $usersCount }}</p>
         </div>
     </div>
 </div>
+
 @endsection

@@ -1,19 +1,4 @@
 @extends('layouts.app')
-@php
-$dropdown_list = [
-'Select Language' => $languages,
-'Select Category' => $categories,
-'Select Sub Category' => $subcategories ?? [],
-'Select Subject' => $subjects ?? [],
-'Select Topic' => $topics ?? [],
-];
-
-$levels = [
-'1' => 'Easy',
-'2' => 'Medium',
-'3' => 'Hard',
-]
-@endphp
 
 <style>
     #columnSelectDropdown {
@@ -189,7 +174,7 @@ $levels = [
     </div>
 </div>
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead>
             <tr id="table-headers">
@@ -313,7 +298,7 @@ $levels = [
                     <!-- <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">{{$question->photo_link}}</a> -->
                 </td>
                 <td class="p-2" data-column="image">
-                    <img src="{{ $question->photo ? '/public/storage/questions/'.$question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                    <img src="{{ $question->photo ? $question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                 </td>
                 <td class="p-2" data-column="question">{!! $question->question !!}</td>
                 <td class="p-2" data-column="optionA">{{ $question->option_a }}</td>
@@ -386,7 +371,7 @@ $levels = [
                 @endforeach
             </div>
 
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
+            <div class="relative overflow-x-auto sm:rounded-lg">
                 <div id="input-rows"></div>
                 <div class="flex justify-end gap-x-5 mt-5">
                     <button type="button" id="add-row" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Add New</button>
@@ -402,14 +387,9 @@ $levels = [
 @push('scripts')
 <script>
     $(document).ready(function() {
-
-
         document.getElementById('createButton').addEventListener('click', function() {
-
-
             document.getElementById('modal').style.display = 'flex';
         });
-
 
         // Close modal
         document.getElementById('closeModal').addEventListener('click', function() {
@@ -419,29 +399,30 @@ $levels = [
 
         $('#question-form').on('submit', function(e) {
             e.preventDefault(); // Prevent the default form submission
-
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'), // Form action URL
-                data: new FormData(this), // Send the form data
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    // Display success message
-                    alert(response.success); // You can replace this with a better UI notification
-                    // Reload the page or reset the form if necessary
-                    location.reload(); // Optionally reload the page
-                },
-                error: function(xhr) {
-                    // Handle errors
-                    let errors = xhr.responseJSON.errors;
-                    let errorMessage = '';
-                    for (let field in errors) {
-                        errorMessage += errors[field].join(' ') + '\n';
+            setTimeout(() => {
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'), // Form action URL
+                    data: new FormData(this), // Send the form data
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Display success message
+                        alert(response.success); // You can replace this with a better UI notification
+                        // Reload the page or reset the form if necessary
+                        location.reload(); // Optionally reload the page
+                    },
+                    error: function(xhr) {
+                        // Handle errors
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessage = '';
+                        for (let field in errors) {
+                            errorMessage += errors[field].join(' ') + '\n';
+                        }
+                        alert(errorMessage || 'An error occurred. Please try again.');
                     }
-                    alert(errorMessage || 'An error occurred. Please try again.');
-                }
-            });
+                });
+            }, 1000)
         });
         // Load saved settings from localStorage
         const savedColumns = localStorage.getItem('selectedColumns');
@@ -851,7 +832,7 @@ $levels = [
                 $('#input-rows').empty();
                 var newRow = `
                     <div class="input-row pb-5 border-b-2">   
-                        <div class="flex flex-col gap-4 items-center mt-5 w-full">
+                        <div class="flex flex-col gap-4 items-center w-full">
 
                             <!-- Question Number -->
                             <div class="w-full flex gap-2">
@@ -948,7 +929,7 @@ $levels = [
 
                         </div>
 
-                        <select id="selectlangauge" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <select id="selectlangauge" name="language[]" class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option value="">Select Language</option>
                             @foreach($languages as $item)
                             <option value="{{$item->id}}" >{{$item->name}}</option>

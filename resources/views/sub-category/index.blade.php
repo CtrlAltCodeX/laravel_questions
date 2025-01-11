@@ -1,10 +1,4 @@
 @extends('layouts.app')
-@php
-$dropdown_list = [
-'Select Language' => $languages,
-'Select Category' => $categories ?? [],
-];
-@endphp
 @section('content')
 
 <div class="flex justify-between">

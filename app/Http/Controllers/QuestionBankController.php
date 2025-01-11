@@ -94,6 +94,20 @@ class QuestionBankController extends Controller
         // Paginate results
         $questions = $query->paginate(request()->get('per_page', 10));
 
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => $categories,
+            'Select Sub Category' => $subcategories ?? [],
+            'Select Subject' => $subjects ?? [],
+            'Select Topic' => $topics ?? [],
+        ];
+
+        $levels = [
+            '1' => 'Easy',
+            '2' => 'Medium',
+            '3' => 'Hard',
+        ];
+
         return view(
             'question-bank.index',
             compact(
@@ -109,7 +123,9 @@ class QuestionBankController extends Controller
                 'subjects',
                 'topics',
                 'sortColumn',
-                'sortDirection'
+                'sortDirection',
+                'dropdown_list',
+                'levels'
             )
         );
     }
@@ -171,7 +187,7 @@ class QuestionBankController extends Controller
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
                 // Update the hidden input value with the new file path
-                $data['photo'] = 'storage/questions/' . $profileImage;
+                $data['photo'] = '/storage/questions/' . $profileImage;
             } else {
                 !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
             }
@@ -221,8 +237,6 @@ class QuestionBankController extends Controller
     {
         $question = Question::where('id', $id)->with('question_bank')->first();
 
-        $questions = Question::where('question_bank_id', $id)->get();
-
         $languages = Language::all();
 
         $categories = Category::where('language_id', $question->language_id)->get();
@@ -233,7 +247,21 @@ class QuestionBankController extends Controller
 
         $topics = Topic::where('subject_id', $question->subject_id)->get();
 
-        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'questions'));
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => $categories,
+            'Select Sub Category' => $subCategories,
+            'Select Subject' => $subjects,
+            'Select Topic' => $topics,
+        ];
+
+        $levels = [
+            '1' => 'Easy',
+            '2' => 'Medium',
+            '3' => 'Hard',
+        ];
+
+        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'dropdown_list', 'levels'));
     }
 
     /**
@@ -679,7 +707,7 @@ class QuestionBankController extends Controller
                             } else {
                                 foreach ($filteredQuestions as $questionFirst) {
                                     $img = isset($questionFirst->photo) && $questionFirst->photo != 0
-                                        ? '<br><img src="https://admin.online2study.in/public/storage/questions/' . $questionFirst->photo . '"/>'
+                                        ? '<br><img src="{{ url("/") }}public/storage/questions/' . $questionFirst->photo . '"/>'
                                         : (isset($questionFirst->photo_link)
                                             ? '<br><img src="' . $questionFirst->photo_link . '"/>'
                                             : '');
