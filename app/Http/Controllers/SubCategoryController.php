@@ -25,7 +25,7 @@ class SubCategoryController extends Controller
         $sortColumn = $request->get('sort', 'id'); // Default column
         $sortDirection = $request->get('direction', 'asc'); // Default direction
 
-        $query = SubCategory::query()->with('category.language');
+        $query = SubCategory::with('category.language', 'question');
 
         if ($category_id) {
             $query->where('category_id', $category_id);
@@ -53,7 +53,7 @@ class SubCategoryController extends Controller
         }
 
         $sub_categories = $query->paginate(10);
-
+        
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories ?? [],

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Main Category')
+
 @section('content')
 
 <div class="flex justify-between items-center mb-4">
@@ -83,6 +85,7 @@
                             @endif
                         </a>
                     </th>
+                    <th scope="col" class="px-6 py-3">Question Count</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
@@ -95,6 +98,7 @@
                         <img src="{{ $category->photo ? asset('storage/' . $category->photo) : '/dummy.jpg' }}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                     </th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->name}}</th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->question_count}}</th>
                     <td class="px-6 py-4 flex gap-4">
                         <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline" data-id="{{$category->id}}" data-name="{{$category->name}}" data-language-id="{{$category->language_id}}" data-photo="{{$category->photo}}">
                             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">

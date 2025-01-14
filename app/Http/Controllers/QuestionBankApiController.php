@@ -17,13 +17,20 @@ class QuestionBankApiController extends Controller
      */
     public function index()
     {
-        //
         $languages = Language::all();
         $categories = Category::all();
         $sub_categories = SubCategory::all();
         $subjects = Subject::all();
         $topics = Topic::all();
-        return view("question-bank-api.index", compact('languages', 'categories', 'sub_categories', 'subjects', 'topics'));
+
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => [],
+            'Select SubCategory' => [],
+            'Select Subject' => [],
+        ];
+
+        return view("question-bank-api.index", compact('languages', 'categories', 'sub_categories', 'subjects', 'topics', 'dropdown_list'));
     }
 
     /**

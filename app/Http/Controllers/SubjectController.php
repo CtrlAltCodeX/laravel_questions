@@ -29,7 +29,7 @@ class SubjectController extends Controller
         $sortColumn = $request->get('sort', 'id'); // Default column
         $sortDirection = $request->get('direction', 'asc'); // Default direction
 
-        $query = Subject::query();
+        $query = Subject::withCount('question');
 
         if ($subcategory_id) {
             $query->where('sub_category_id', $subcategory_id);
@@ -63,8 +63,8 @@ class SubjectController extends Controller
             );
         }
 
-        $subjects = $query->select('subjects.*')->paginate(10);
-
+        $subjects = $query->paginate(10);
+        
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories ?? [],

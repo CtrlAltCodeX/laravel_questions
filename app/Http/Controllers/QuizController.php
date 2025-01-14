@@ -25,7 +25,16 @@ class QuizController extends Controller
         $sub_categories = SubCategory::all();
         $subjects = Subject::all();
         $topics = Topic::all();
-        return view("quiz.index", compact('languages', 'categories', 'sub_categories', 'subjects', 'topics'));
+
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => [],
+            'Select SubCategory' => [],
+            'Select Subject' => [],
+            'Select Topic' => [],
+        ];
+
+        return view("quiz.index", compact('languages', 'categories', 'sub_categories', 'subjects', 'topics', 'dropdown_list'));
     }
 
     /**
