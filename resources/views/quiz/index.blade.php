@@ -1,13 +1,7 @@
 @extends('layouts.app')
-@php 
-    $dropdown_list = [
-    'Select Language' => $languages,
-    'Select Category' => [],
-    'Select SubCategory' => [],
-    'Select Subject' => [],
-    'Select Topic' => [],
-    ];
-@endphp
+
+@section('title', 'Quiz API')
+
 @section('content')
 
 <div class="flex justify-between">

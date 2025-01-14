@@ -1,12 +1,7 @@
 @extends('layouts.app')
-@php
-$dropdown_list = [
-'Select Language' => $languages,
-//'Select Language-2' => $languages,
-'Select Category' => [],
-'Select SubCategory' => [],
-];
-@endphp
+
+@section('title', 'CBT API')
+
 @section('content')
 
 <div class="flex justify-between">

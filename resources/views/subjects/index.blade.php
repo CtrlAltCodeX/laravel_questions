@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@php
 
-@endphp
+@section('title', 'Subject')
+
 @section('content')
 
 <div class="flex justify-between">
@@ -116,6 +116,11 @@
                         @endif
                     </a>
                 </th>
+                
+                <th scope="col" class="px-6 py-3">
+                    Question Count
+                </th>
+
                 <th scope="col" class="px-6 py-3">
                     Action
                 </th>
@@ -142,6 +147,10 @@
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$subject->name}}
+                </th>
+
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$subject->question_count}}
                 </th>
 
                 <td class="px-6 py-4 flex gap-4">

@@ -23,7 +23,14 @@ class CbtController extends Controller
         //
         $languages = Language::all();
         $categories = Category::all();
-        return view("cbt.index", compact('languages', 'categories'));
+
+        $dropdown_list = [
+            'Select Language' => $languages,
+            'Select Category' => [],
+            'Select SubCategory' => [],
+        ];
+
+        return view("cbt.index", compact('languages', 'categories', 'dropdown_list'));
     }
 
     /**

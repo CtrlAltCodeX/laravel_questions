@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $languages = Language::all();
-        $query = Category::with('language');
+        $query = Category::with('language')->withCount('question');
 
         $sortColumn = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'asc');

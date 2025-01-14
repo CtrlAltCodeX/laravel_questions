@@ -32,11 +32,11 @@ class TopicController extends Controller
         $category_id = $request->get('category_id');
         $language_id = $request->get('language_id');
 
-        $sortColumn = $request->get('sort', 'topics.id'); // Default to topics.id
+        $sortColumn = $request->get('sort', 'topics.id');
         $sortDirection = $request->get('direction', 'desc');
 
         // Prepare the query
-        $query = Topic::select('topics.*')->with('subject.subCategory.category.language');
+        $query = Topic::select('topics.*')->with('subject.subCategory.category.language', 'question');
 
         if ($subject_id) {
             $query->where('subject_id', $subject_id);
