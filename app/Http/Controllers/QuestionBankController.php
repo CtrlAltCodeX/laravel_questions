@@ -236,17 +236,16 @@ class QuestionBankController extends Controller
     public function edit(string $id)
     {
         $question = Question::where('id', $id)->with('question_bank')->first();
+        if (!$question) {
+            return response()->json(['error' => 'Question not found.'], 404);
+        }
 
         $languages = Language::all();
-
         $categories = Category::where('language_id', $question->language_id)->get();
-
         $subCategories = SubCategory::where('category_id', $question->category_id)->get();
-
         $subjects = Subject::where('sub_category_id', $question->sub_category_id)->get();
-
         $topics = Topic::where('subject_id', $question->subject_id)->get();
-
+    
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories,
@@ -254,21 +253,27 @@ class QuestionBankController extends Controller
             'Select Subject' => $subjects,
             'Select Topic' => $topics,
         ];
+    
 
-        $levels = [
-            '1' => 'Easy',
-            '2' => 'Medium',
-            '3' => 'Hard',
-        ];
-
-        return view('question-bank.edit', compact('question', 'languages', 'categories', 'subCategories', 'subjects', 'topics', 'dropdown_list', 'levels'));
+        return response()->json([
+            'success' => true,
+            'question' => $question,
+            'languages' => $languages, // Include languages
+            'dropdown_list' => $dropdown_list,
+            'categories'=>$categories,
+            'subCategories'=>$subCategories,
+            'subjects'=>$subjects,
+            'topics'=>$topics,
+        ]);
     }
-
+    
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
+        // dd($request->all());
+
         $rules = [];
 
         foreach ($request->input('module') as $moduleKey => $moduleValues) {
@@ -297,32 +302,12 @@ class QuestionBankController extends Controller
 
         $question = Question::findOrFail($data['id']);
 
-        // if (count($data['language']) > 0) {
-        //     foreach ($data['language'] as $index => $languageId) {
-        //         TranslatedQuestions::updateOrCreate(
-        //             [
-        //                 'question_id' => $question->id,
-        //                 'language_id' => $languageId,
-        //             ],
-        //             [
-        //                 'question_id' => $question->id,
-        //                 'language_id' => $languageId,
-        //                 'question_text' => $data['question'][$index],
-        //                 'option_a' => $data['option_a'][$index],
-        //                 'option_b' => $data['option_b'][$index],
-        //                 'option_c' => $data['option_c'][$index],
-        //                 'option_d' => $data['option_d'][$index],
-        //             ]
-        //         );
-        //     }
-        // }
-
         $profileImage = null;
         if ($file = $data['photo']) {
             if ($file instanceof UploadedFile) {
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
-                $data['photo'] = $profileImage;
+                $data['photo'] = '/storage/questions/' . $profileImage;;
             } else {
                 !empty($file) ? $profileImage = $file : $profileImage = null;
             }
@@ -335,28 +320,26 @@ class QuestionBankController extends Controller
             [
                 'id' => $data['id'],
                 'question_number' => $data['qno'][0],
-                'question' => $data['question'][0],
+                'question' => $data['question'],
                 'photo' => $data['photo'] ?? null,
                 'photo_link' => $data['photo_link'] ?? null,
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],
-                'option_a' => $data['option_a'][0],
-                'option_b' => $data['option_b'][0],
-                'option_c' => $data['option_c'][0],
-                'option_d' => $data['option_d'][0],
+                'option_a' => $data['option_a'],
+                'option_b' => $data['option_b'],
+                'option_c' => $data['option_c'],
+                'option_d' => $data['option_d'],
                 'answer' => $data['answer'],
-                'language_id' => $data['language'][0],
-                'category_id' => $data['module']['Category'][0],
-                'sub_category_id' => $data['module']['Sub Category'][0],
-                'subject_id' => $data['module']['Subject'][0],
-                'topic_id' => $data['module']['Topic'][0],
+                'language_id' => $data['module']['select_language'][0],
+                'category_id' => $data['module']['select_category'][0],
+                'sub_category_id' => $data['module']['select_sub_category'][0],
+                'subject_id' => $data['module']['select_subject'][0],
+                'topic_id' => $data['module']['select_topic'][0],
                 'question_bank_id' => null
             ]
         );
 
-        session()->flash('success', 'Question updated successfully!');
-
-        return redirect()->route('question.index', ['sort' => 'id', 'direction' => 'desc']);
+        return response()->json(['success' => true, 'message' => 'Question updated successfully!', ]);
     }
 
     /**
