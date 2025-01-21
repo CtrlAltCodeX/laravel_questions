@@ -8,14 +8,27 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class CategoryExport implements FromCollection, WithHeadings
 {
+    protected $languageId;
+
+    public function __construct($languageId = null)
+    {
+        $this->languageId = $languageId; 
+    }
+
     public function collection()
     {
-        return Category::all()->map(function ($category) {
+        $query = Category::query();
+
+        if (!is_null($this->languageId)) {
+            $query->where('language_id', $this->languageId);
+        }
+
+        return $query->get()->map(function ($category) {
             return [
                 'id' => $category->id,
                 'name' => $category->name,
-                'language_id' => $category->language_id, 
-               'photo' => $category->photo ? asset('storage/' . $category->photo) : '',
+                'language_id' => $category->language_id,
+                'photo' => $category->photo ? asset('storage/' . $category->photo) : '',
             ];
         });
     }

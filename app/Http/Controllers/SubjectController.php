@@ -87,9 +87,13 @@ class SubjectController extends Controller
 
 
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new SubjectExport, 'Subject.xlsx');
+        $languageId = $request->get('language_id');
+        $categoryId = $request->get('category_id');
+        $subCategoryId = $request->get('sub_category_id');
+
+        return Excel::download(new SubjectExport($languageId, $categoryId, $subCategoryId ), 'Subject.xlsx');
     }
 
 

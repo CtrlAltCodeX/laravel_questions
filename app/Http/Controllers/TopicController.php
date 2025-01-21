@@ -113,9 +113,14 @@ class TopicController extends Controller
     }
 
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new topicsExport, 'Topic.xlsx');
+        $languageId = $request->get('language_id');
+        $categoryId = $request->get('category_id');
+        $subCategoryId = $request->get('sub_category_id');
+        $subjectId = $request->get('subject_id');
+        
+        return Excel::download(new topicsExport($languageId, $categoryId, $subCategoryId,  $subjectId), 'Topic.xlsx');
     }
 
 

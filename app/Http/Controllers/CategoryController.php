@@ -38,9 +38,11 @@ class CategoryController extends Controller
     }
 
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new CategoryExport, 'categories.xlsx');
+        $languageId = $request->get('language_id');
+     
+        return Excel::download(new CategoryExport($languageId), 'categories.xlsx');
     }
 
 

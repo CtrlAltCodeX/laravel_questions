@@ -72,9 +72,13 @@ class SubCategoryController extends Controller
     }
 
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new SubCategoryExport, 'Subcategories.xlsx');
+        $languageId = $request->get('language_id');
+        $categoryId = $request->get('category_id');
+       
+
+        return Excel::download(new SubCategoryExport($languageId,  $categoryId), 'Subcategories.xlsx');
     }
 
 
