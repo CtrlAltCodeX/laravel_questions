@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\GoogleUser;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
@@ -14,7 +14,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Fetch total counts
         $categoriesCount = Category::count();
 
         $subCategoriesCount = SubCategory::count();
@@ -25,7 +24,7 @@ class DashboardController extends Controller
 
         $questionsCount = Question::count();
 
-        $usersCount = User::count();
+        $usersCount = GoogleUser::count();
 
         return view('dashboard.index', compact(
             'categoriesCount',

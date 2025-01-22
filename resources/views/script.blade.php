@@ -19,7 +19,7 @@
         }
     });
 
-    $('.select_category').change(function() {
+    $(document).on('change', '.select_category', function() {
         var categoryId = $(this).val();
 
         if (categoryId) {
@@ -38,7 +38,7 @@
         }
     });
 
-    $('.select_sub_category').change(function() {
+    $(document).on('change', '.select_sub_category', function() {
         var subCategoryId = $(this).val();
 
         if (subCategoryId) {
@@ -57,7 +57,7 @@
         }
     });
 
-    $('.select_subject').change(function() {
+    $(document).on('change', '.select_subject', function() {
         var subjectId = $(this).val();
 
         if (subjectId) {

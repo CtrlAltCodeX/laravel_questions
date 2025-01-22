@@ -63,7 +63,11 @@ class SubjectController extends Controller
             );
         }
 
-        $subjects = $query->paginate(10);
+        if (request()->data == 'all') {
+            $subjects = $query->get();
+        } else {
+            $subjects = $query->paginate(request()->data);
+        }
         
         $dropdown_list = [
             'Select Language' => $languages,

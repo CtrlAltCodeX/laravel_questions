@@ -52,8 +52,12 @@ class SubCategoryController extends Controller
                 );
         }
 
-        $sub_categories = $query->paginate(10);
-        
+        if (request()->data == 'all') {
+            $sub_categories = $query->get();
+        } else {
+            $sub_categories = $query->paginate(request()->data);
+        }
+
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories ?? [],
@@ -77,7 +81,6 @@ class SubCategoryController extends Controller
         $languageId = $request->get('language_id');
         $categoryId = $request->get('category_id');
        
-
         return Excel::download(new SubCategoryExport($languageId,  $categoryId), 'Subcategories.xlsx');
     }
 

@@ -11,7 +11,6 @@ return [
             'name' => 'ITI Database',
             'route' => 'languages.index',
             'icon' => 'fa fa-database',
-            'related' => ['admin.dashboard'],
             'sub-menus' => [
                 [
                     'name' => 'Language',
@@ -41,39 +40,50 @@ return [
                 [
                     'name' => 'Question',
                     'route' => 'question.index',
-                    'icon' => 'fa fa-question-circle text-warning',
-                ]
-            ]
+                    'icon' => 'fa fa-question-circle',
+                ],
+            ],
         ],
         [
-            'name' => 'Question Bank',
-            'route' => 'bank-question.index',
-            'icon' => 'fa fa-folder-open',
+            'name' => 'Api Database',
+            'route' => 'languages.index',
+            'icon' => 'fa fa-database',
+            'related' => ['admin.dashboard'],
+            'sub-menus' => [
+                [
+                    'name' => 'Question Bank',
+                    'route' => 'bank-question.index',
+                    'icon' => 'fa fa-folder-open',
+                ],
+                [
+                    'name' => 'Quiz',
+                    'route' => 'quiz.index',
+                    'icon' => 'fa fa-puzzle-piece',
+                ],
+                [
+                    'name' => 'CBT',
+                    'route' => 'cbt.index',
+                    'icon' => 'fa fa-laptop',
+                ],
+            ],
         ],
         [
-            'name' => 'Quiz',
-            'route' => 'quiz.index',
-            'icon' => 'fa fa-puzzle-piece text-warning',
+            'name' => 'User Database',
+            'route' => 'languages.index',
+            'icon' => 'fa fa-database',
+            'related' => ['admin.dashboard'],
+            'sub-menus' => [
+                [
+                    'name' => 'User List',
+                    'route' => 'users.index',
+                    'icon' => 'fa fa-users',
+                ],
+                [
+                    'name' => 'Admin List',
+                    'route' => 'super-admin.index',
+                    'icon' => 'fa fa-shield',
+                ],
+            ],
         ],
-        [
-            'name' => 'CBT',
-            'route' => 'cbt.index',
-            'icon' => 'fa fa-laptop text-warning',
-        ],
-        [
-            'name' => 'User List',
-            'route' => 'users.index',
-            'icon' => 'fa fa-users',
-        ],
-        [
-            'name' => 'Admin List',
-            'route' => 'super-admin.index',
-            'icon' => 'fa fa-shield',
-        ],
-        // [
-        //     'name' => 'Admin',
-        //     'route' => 'languages.index',
-        //     'icon' => 'fa fa-user-cog',
-        // ]
-    ]
+    ],
 ];

@@ -53,7 +53,7 @@ $levels = [
                 @endphp
                 <div>
 
-                    <select name="{{ $moduleKey }}" class="{{ $id }} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
+                    <select name="{{ $moduleKey }}" id='{{ $id }}_select' class="{{ $id }} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required-field">
                         <option value="">{{$moduleName}}</option>
                         @foreach($module as $item)
                         <option value="{{$item->id}}" {{ $selectedValue == $item->id ?  'selected' : '' }}>{{$item->name}}</option>
@@ -140,6 +140,22 @@ $levels = [
                             <label class="block">
                                 <input type="checkbox" value="language" class="mr-2">
                                 Language
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="category" class="mr-2">
+                                Category
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="subcategory" class="mr-2">
+                                Sub-Category
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="subject" class="mr-2">
+                                Subject
+                            </label>
+                            <label class="block">
+                                <input type="checkbox" value="topic" class="mr-2">
+                                Topic
                             </label>
                             <label class="block">
                                 <input type="checkbox" value="link" class="mr-2">
@@ -232,6 +248,10 @@ $levels = [
                         @endif
                     </a>
                 </th>
+                <th scope="col" class="p-2" data-column="category">Category</th>
+                <th scope="col" class="p-2" data-column="subcategory">Sub-Category</th>
+                <th scope="col" class="p-2" data-column="subject">Subject</th>
+                <th scope="col" class="p-2" data-column="topic">Topic</th>
                 <th scope="col" class="p-2" data-column="link" style="width: 70px;">External Photo</th>
                 <th scope="col" class="p-2" data-column="image">Internal Photo</th>
                 <th scope="col" class="p-2" data-column="question">
@@ -308,6 +328,10 @@ $levels = [
                 <td class="p-2" data-column="id">{{ $question->id }}</td>
                 <td class="p-2" data-column="question_number">{{ $question->question_number }}</td>
                 <td class="p-2" data-column="language">{{ $question->language->name }}</td>
+                <td class="p-2" data-column="category">{{ $question->category->name }}</td>
+                <td class="p-2" data-column="subcategory">{{ $question->subCategory->name }}</td>
+                <td class="p-2" data-column="subject">{{ $question->subject->name }}</td>
+                <td class="p-2" data-column="topic">{{ $question->topic->name }}</td>
                 <td class="p-2" data-column="link">
                     <img src="{{ $question->photo_link ? $question->photo_link : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                     <!-- <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">{{$question->photo_link}}</a> -->
@@ -323,7 +347,7 @@ $levels = [
                 <td class="p-2" data-column="level">{{ $question->level }}</td>
                 <td class="p-2" data-column="notes">{{ $question->notes }}</td>
                 <td class="p-2 flex gap-2" data-column="action">
-                <button class="open-edit-modal" data-id="{{ $question->id }}">  <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                    <button class="open-edit-modal" data-id="{{ $question->id }}"> <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg></button>
                     <form action="{{ route('question.destroy', $question->id) }}" method="POST">
@@ -395,9 +419,6 @@ $levels = [
     </div>
 </div>
 
-
-
-
 <div id="editModal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style="
         background-color: white; 
@@ -414,14 +435,14 @@ $levels = [
             <button id="closeEditModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">X</button>
         </div>
         <form id="questioneditForm" action="{{ route('question.update',  $question->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-      <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Edit Question</h1>
+            @csrf
+            @method('PUT')
+            <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Edit Question</h1>
             <div id="modalContent">
-        <!-- Fields will be dynamically injected here -->
-      </div>
-               
-                
+                <!-- Fields will be dynamically injected here -->
+            </div>
+
+
 
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div id="input-rows"></div>
@@ -438,228 +459,244 @@ $levels = [
 @push('scripts')
 <script>
     $(document).ready(function() {
-      
-    const editQuestionRoute = "{{ route('question.edit', ':id') }}"; // Define the route here
 
-    document.querySelectorAll('.open-edit-modal').forEach(button => {
-        button.addEventListener('click', function () {
-            const questionId = this.dataset.id;
-            console.log("questionId", questionId);
-            // Fetch data from the server
-            const fetchUrl = editQuestionRoute.replace(':id', questionId);
-            fetch(fetchUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Populate modal with data
-                    console.log("edit data question data", data);
-                    const modalContent = document.getElementById('modalContent');
+        const editQuestionRoute = "{{ route('question.edit', ':id') }}"; // Define the route here
 
-                    // Clear previous content
-                    modalContent.innerHTML = '';
+        document.querySelectorAll('.open-edit-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.dataset.id;
+                // Fetch data from the server
+                const fetchUrl = editQuestionRoute.replace(':id', questionId);
+                fetch(fetchUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Populate modal with data
+                        console.log("edit data question data", data);
+                        const modalContent = document.getElementById('modalContent');
 
-                    // Populate question ID field (if needed)
-                    const questionIdField = document.createElement('input');
-                    questionIdField.type = 'hidden';
-                    questionIdField.name = 'id';
-                    questionIdField.value = data.question.id;
-                    modalContent.appendChild(questionIdField);
+                        // Clear previous content
+                        modalContent.innerHTML = '';
 
-                    // Populate dropdowns
-for (const [moduleName, module] of Object.entries(data.dropdown_list)) {
-    const idMapping = {
-        'Select Language': 'language_id',
-        'Select Category': 'category_id',
-        'Select Sub Category': 'sub_category_id',
-        'Select Subject': 'subject_id',
-        'Select Topic': 'topic_id',
-    };
+                        // Populate question ID field (if needed)
+                        const questionIdField = document.createElement('input');
+                        questionIdField.type = 'hidden';
+                        questionIdField.name = 'id';
+                        questionIdField.value = data.question.id;
+                        modalContent.appendChild(questionIdField);
 
-    // Map the moduleName to the corresponding key in data.question
-    const questionKey = idMapping[moduleName];
-    const selectedId = data.question[questionKey];
-    console.log("selectedId", selectedId); // Debugging: Ensure correct value
+                        // Populate dropdowns
+                        for (const [moduleName, module] of Object.entries(data.dropdown_list)) {
+                            const idMapping = {
+                                'Select Language': 'language_id',
+                                'Select Category': 'category_id',
+                                'Select Sub Category': 'sub_category_id',
+                                'Select Subject': 'subject_id',
+                                'Select Topic': 'topic_id',
+                            };
 
-    const id = moduleName.toLowerCase().replace(/\s+/g, '_');
+                            // Map the moduleName to the corresponding key in data.question
+                            const questionKey = idMapping[moduleName];
+                            const selectedId = data.question[questionKey];
+                            console.log("selectedId", selectedId); // Debugging: Ensure correct value
 
-    const selectField = document.createElement('div');
-    selectField.className = 'mb-4';
-    selectField.innerHTML = `
-        <label for="${id}" class="block text-sm font-medium">${moduleName}</label>
-        <select id="${id}" name="module[${id}][]" class="${id} block w-full p-2 border rounded">
-            <option value="">${moduleName}</option>
-            ${module.map(item => `
-                <option value="${item.id}" ${item.id === selectedId ? 'selected' : ''}>${item.name}</option>
-            `).join('')}
-        </select>
-    `;
-    modalContent.appendChild(selectField);
-}
+                            const id = moduleName.toLowerCase().replace(/\s+/g, '_');
 
-
-const questionNumberField = document.createElement('div');
-                questionNumberField.className = 'mb-4';
-                questionNumberField.innerHTML = `
-                    <label for="qno" class="block text-sm font-medium">Question No.</label>
-                    <input id="qno" type="text" name="qno[]" class="block w-full p-2 border rounded"
-                        value="${data.question.question_number || ''}" placeholder="Question No." />
-                `;
-                modalContent.appendChild(questionNumberField);
+                            const selectField = document.createElement('div');
+                            selectField.className = 'mb-4';
+                            selectField.innerHTML = `
+                                <label for="${id}" class="block text-sm font-medium">${moduleName}</label>
+                                <select id="${id}" name="module[${id}][]" class="${id} block w-full p-2 border rounded required" >
+                                    <option value="">${moduleName}</option>
+                                    ${module.map(item => `
+                                        <option value="${item.id}" ${item.id === selectedId ? 'selected' : ''}>${item.name}</option>
+                                    `).join('')}
+                                </select>
+                            `;
+                            modalContent.appendChild(selectField);
+                        }
 
 
-                  // Add Photo Link
-                  const photoLinkField = document.createElement('div');
-                photoLinkField.className = 'mb-4';
-                photoLinkField.innerHTML = `
-                    <label for="photo_link" class="block text-sm font-medium">Photo Link</label>
-                    <input id="photo_link" type="text" name="photo_link" class="block w-full p-2 border rounded"
-                        value="${data.question.photo_link || ''}" placeholder="Photo Link" />
-                `;
-                modalContent.appendChild(photoLinkField);
-
-// Function to dynamically create the photo upload field
-const uploadPhotoField = document.createElement('div');
-uploadPhotoField.className = 'flex justify-between w-full mb-2';
-uploadPhotoField.innerHTML = `
-    <div class='w-[48%] relative'>
-        <label for="fileInput-new" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Photo</label>
-        <input type="hidden" id="photo-${data.question.id}" name="photo" value="${data.question.photo}" />
-        <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput${data.question.id}" />
-        <div class="image-container">
-            <img id="imagePreview${data.question.id}" class="w-full h-full object-cover rounded-lg"
-                src="${data.question.photo ? data.question.photo : '/dummy.jpg'}" alt="Image Preview" width="100" />
-        </div>
-        <button type="button" id="fileButton${data.question.id}" class="absolute top-[0px] z-[-1] custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            Upload Photo
-        </button>
-    </div>
-`;
-
-// Append the field to the modal content
-modalContent.appendChild(uploadPhotoField);
+                        const questionNumberField = document.createElement('div');
+                        questionNumberField.className = 'mb-4';
+                        questionNumberField.innerHTML = `
+                            <label for="qno" class="block text-sm font-medium">Question No.</label>
+                            <input id="qno" type="text" name="qno[]" class="block w-full p-2 border rounded required"
+                                value="${data.question.question_number || ''}" placeholder="Question No." />
+                        `;
+                        modalContent.appendChild(questionNumberField);
 
 
+                        // Add Photo Link
+                        const photoLinkField = document.createElement('div');
+                        photoLinkField.className = 'mb-4';
+                        photoLinkField.innerHTML = `
+                            <label for="photo_link" class="block text-sm font-medium">Photo Link</label>
+                            <input id="photo_link" type="text" name="photo_link" class="block w-full p-2 border rounded required"
+                                value="${data.question.photo_link || ''}" placeholder="Photo Link" />
+                        `;
+                        modalContent.appendChild(photoLinkField);
+
+                        // Function to dynamically create the photo upload field
+                        const uploadPhotoField = document.createElement('div');
+                        uploadPhotoField.className = 'flex justify-between w-full mb-2';
+                        uploadPhotoField.innerHTML = `
+                            <div class='w-[48%] relative'>
+                                <label for="fileInput-new" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Photo</label>
+                                <input type="hidden" id="photo-${data.question.id}" name="photo" value="${data.question.photo}" />
+                                <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput${data.question.id}" />
+                                <div class="image-container">
+                                    <img id="imagePreview${data.question.id}" class="w-full h-full object-cover rounded-lg"
+                                        src="${data.question.photo ? data.question.photo : '/dummy.jpg'}" alt="Image Preview" width="100" />
+                                </div>
+                                <button type="button" id="fileButton${data.question.id}" class="absolute top-[0px] z-[-1] custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    Upload Photo
+                                </button>
+                            </div>
+                        `;
+
+                        // Append the field to the modal content
+                        modalContent.appendChild(uploadPhotoField);
+
+                        const questionText = data.question.question ?
+                            new DOMParser().parseFromString(data.question.question, 'text/html').body.textContent :
+                            '';
+
+                        const questionField = document.createElement('div');
+                        questionField.className = 'mb-4';
+                        questionField.innerHTML = `
+                            <label for="questionText" class="block text-sm font-medium">Question</label>
+                            <textarea id="questionText" name="question" class="block w-full p-2 border rounded required">${questionText}</textarea>
+                        `;
+                        modalContent.appendChild(questionField);
 
 
-                const questionText = data.question.question ? 
-                    new DOMParser().parseFromString(data.question.question, 'text/html').body.textContent : 
-                    '';
-                
-                const questionField = document.createElement('div');
-                questionField.className = 'mb-4';
-                questionField.innerHTML = `
-                    <label for="questionText" class="block text-sm font-medium">Question</label>
-                    <textarea id="questionText" name="question" class="block w-full p-2 border rounded">${questionText}</textarea>
-                `;
-                modalContent.appendChild(questionField);
+                        const optionsContainer = document.createElement('div');
+                        optionsContainer.className = 'grid grid-cols-2 gap-4';
+                        ['A', 'B', 'C', 'D'].forEach(option => {
+                            optionsContainer.innerHTML += `
+                            <div>
+                                <label for="option_${option}" class="block text-sm font-medium">Option ${option}</label>
+                                <input id="option_${option}" name="option_${option.toLowerCase()}" type="text"
+                                    class="block w-full p-2 border rounded required"
+                                    value="${data.question[`option_${option.toLowerCase()}`] || ''}">
+                            </div>
+                        `;
+                        });
+                        modalContent.appendChild(optionsContainer);
 
 
-                  const optionsContainer = document.createElement('div');
-                optionsContainer.className = 'grid grid-cols-2 gap-4';
-                ['A', 'B', 'C', 'D'].forEach(option => {
-                    optionsContainer.innerHTML += `
-                        <div>
-                            <label for="option_${option}" class="block text-sm font-medium">Option ${option}</label>
-                            <input id="option_${option}" name="option_${option.toLowerCase()}" type="text"
-                                class="block w-full p-2 border rounded"
-                                value="${data.question[`option_${option.toLowerCase()}`] || ''}">
-                        </div>
-                    `;
-                });
-                modalContent.appendChild(optionsContainer);
+                        const answerField = document.createElement('div');
+                        answerField.className = 'mb-4';
+                        answerField.innerHTML = `
+                            <label for="answer" class="block text-sm font-medium">Answer</label>
+                            <select id="answer" name="answer" class="block w-full p-2 border rounded required">
+                                <option value="">Select Answer</option>
+                                ${['A', 'B', 'C', 'D'].map(option => `
+                                    <option value="${option}" ${data.question?.answer === option ? 'selected' : ''}>${option}</option>
+                                `).join('')}
+                            </select>
+                        `;
+                        modalContent.appendChild(answerField);
+
+                        // Add the "Level" dropdown
+                        const levelField = document.createElement('div');
+                        levelField.className = 'mb-4';
+                        levelField.innerHTML = `
+                            <label for="level" class="block text-sm font-medium">Level</label>
+                            <select id="level" name="level" class="block w-full p-2 border rounded">
+                                <option value="">Select Level</option>
+                                ${[
+                                    { value: '1', label: 'Easy' },
+                                    { value: '2', label: 'Medium' },
+                                    { value: '3', label: 'Hard' }
+                                ].map(level => ` <
+                            option value = "${level.value}"
+                        $ {
+                            data.question?.level === level.value ? 'selected' : ''
+                        } > $ {
+                            level.label
+                        } < /option>
+                        `).join('')}
+                            </select>
+                        `;
+                        modalContent.appendChild(levelField);
 
 
-                const answerField = document.createElement('div');
-    answerField.className = 'mb-4';
-    answerField.innerHTML = `
-        <label for="answer" class="block text-sm font-medium">Answer</label>
-        <select id="answer" name="answer" class="block w-full p-2 border rounded">
-            <option value="">Select Answer</option>
-            ${['A', 'B', 'C', 'D'].map(option => `
-                <option value="${option}" ${data.question?.answer === option ? 'selected' : ''}>${option}</option>
-            `).join('')}
-        </select>
-    `;
-    modalContent.appendChild(answerField);
-
-// Add the "Level" dropdown
-const levelField = document.createElement('div');
-levelField.className = 'mb-4';
-levelField.innerHTML = `
-    <label for="level" class="block text-sm font-medium">Level</label>
-    <select id="level" name="level" class="block w-full p-2 border rounded">
-        <option value="">Select Level</option>
-        ${[
-            { value: '1', label: 'Easy' },
-            { value: '2', label: 'Medium' },
-            { value: '3', label: 'Hard' }
-        ].map(level => `
-            <option value="${level.value}" ${data.question?.level === level.value ? 'selected' : ''}>${level.label}</option>
-        `).join('')}
-    </select>
-`;
-modalContent.appendChild(levelField);
-    
-
-    // Add the "Notes" textarea
-const notesField = document.createElement('div');
-notesField.className = 'w-full';
-notesField.innerHTML = `
-    <label for="notes" class="block text-sm font-medium">Notes</label>
-    <textarea id="notes" name="notes[]" rows="3" class="block w-full p-2 border rounded" placeholder="Notes">${data.question.notes}</textarea>
-`;
-modalContent.appendChild(notesField);
-
-                 
-                    document.getElementById('editModal').style.display = 'flex';
-                })
-                .catch(error => console.error('Error fetching question data:', error));
+                        // Add the "Notes" textarea
+                        const notesField = document.createElement('div');
+                        notesField.className = 'w-full';
+                        notesField.innerHTML = `
+                            <label for="notes" class="block text-sm font-medium">Notes</label>
+                            <textarea id="notes" name="notes[]" rows="3" class="block w-full p-2 border rounded required" placeholder="Notes">${data.question.notes}</textarea>
+                        `;
+                        modalContent.appendChild(notesField);
+                        document.getElementById('editModal').style.display = 'flex';
+                    })
+                    .catch(error => console.error('Error fetching question data:', error));
+            });
         });
-    });
 
 
-    document.getElementById('questioneditForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(this);
-        const actionUrl = this.action;
-           for (let [key, value] of formData.entries()) {
-         console.log(`${key}: ${value}`);
-           }
-console.log("formData",formData)
-        fetch(actionUrl, {
-                method: this.method,
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-        
-                    location.reload();
-                } else {
-                    // Handle validation errors if any
-                    console.error(data.errors);
+        document.getElementById('questioneditForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const actionUrl = this.action;
+            const requiredFields = this.querySelectorAll('.required');
+            let allFieldsFilled = true;
+            let missingFields = [];
+
+            // Validate required fields
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allFieldsFilled = false;
+                    missingFields.push(field.name || field.id || 'Unnamed field');
                 }
-            })
-            .catch(error => console.error('Error:', error));
-    });
+            });
+
+            if (!allFieldsFilled) {
+                alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            console.log("formData", formData);
+
+            fetch(actionUrl, {
+                    method: this.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        // Handle validation errors if any
+                        console.error(data.errors);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
 
 
-     document.getElementById('closeEditModal').addEventListener('click', function() {
+
+        document.getElementById('closeEditModal').addEventListener('click', function() {
             document.getElementById('editModal').style.display = 'none';
         });
 
-
-
         $(document).on('change', `.file-input`, function(event) {
-          const inputId = $(this).attr('id');
+            const inputId = $(this).attr('id');
 
             const file = event.target.files[0];
             if (file) {
@@ -670,7 +707,7 @@ console.log("formData",formData)
                 };
                 reader.readAsDataURL(file);
             }
-});
+        });
 
 
 
@@ -679,7 +716,7 @@ console.log("formData",formData)
         });
 
 
-     document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('modal').style.display = 'none';
         });
         $('#question-form').on('submit', function(e) {
@@ -815,10 +852,12 @@ console.log("formData",formData)
                     $('#languageSelectContainer input[type="checkbox"]:checked').each(function() {
                         selectedLanguages.push($(this).val());
                     });
+
                     if (selectedLanguages.length === 0) {
                         Swal.showValidationMessage("Please Select at least one language !");
                         return false;
                     }
+
                     if (selectedLanguages.length > 1) {
                         return Swal.fire({
                             title: 'Multiple Languages Selected',
@@ -861,7 +900,7 @@ console.log("formData",formData)
                             $('<input>', {
                                 'type': 'hidden',
                                 'name': 'language_id',
-                                'value': $('#select_language').val()
+                                'value': $('#select_language_select').val()
                             })
                         );
 
@@ -869,7 +908,7 @@ console.log("formData",formData)
                             $('<input>', {
                                 'type': 'hidden',
                                 'name': 'category_id',
-                                'value': $('#select_category').val()
+                                'value': $('#select_category_select').val()
                             })
                         );
 
@@ -877,7 +916,7 @@ console.log("formData",formData)
                             $('<input>', {
                                 'type': 'hidden',
                                 'name': 'sub_category_id',
-                                'value': $('#select_sub_category').val()
+                                'value': $('#select_sub_category_select').val()
                             })
                         );
 
@@ -885,7 +924,7 @@ console.log("formData",formData)
                             $('<input>', {
                                 'type': 'hidden',
                                 'name': 'subject_id',
-                                'value': $('#select_subject').val()
+                                'value': $('#select_subject_select').val()
                             })
                         );
 
@@ -893,7 +932,7 @@ console.log("formData",formData)
                             $('<input>', {
                                 'type': 'hidden',
                                 'name': 'topic_id',
-                                'value': $('#select_topic').val()
+                                'value': $('#select_topic_select').val()
                             })
                         );
                     });

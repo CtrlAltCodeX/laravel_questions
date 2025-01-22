@@ -32,6 +32,14 @@ use Illuminate\Support\Str;
         display: none;
         transition: all 0.2s ease-in-out;
     }
+
+    li {
+        border: 1px solid #ccc;
+    }
+
+    .dropdown a {
+        border: 1px solid #ccc;
+    }
 </style>
 
 <aside id="logo-sidebar" class="min-h-screen w-1/5 bg-gray-100 dark:bg-gray-900 w-64 h-screen pt-5 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 sidebar-expanded" aria-label="Sidebar">
@@ -60,7 +68,7 @@ use Illuminate\Support\Str;
             </li>
             @else
             <div class="mt-2">
-                <button class="flex justify-between items-center w-full px-4 py-2 rounded ">
+                <button class="flex justify-between items-center w-full px-4 py-2 rounded border">
                     <div class="flex gap-2 items-center">
                         <i class="{{ $item['icon'] }}"></i>
                         <span class="sidebar-text">{{$item['name']}}</span>
@@ -70,9 +78,9 @@ use Illuminate\Support\Str;
                     </svg>
                 </button>
                 <!-- Dropdown Content -->
-                <div class="mt-2 space-y-2 pl-14 dropdown">
+                <div class="mt-2 space-y-2 pl-14 dropdown" style="background-color: #eee;">
                     @foreach($item['sub-menus'] as $subMenu)
-                    <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'desc']) }}"
+                    <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'desc', 'data' => 10]) }}"
                         class="block px-2 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
 
                         <i class="{{ $subMenu['icon'] }}"></i>
@@ -89,26 +97,39 @@ use Illuminate\Support\Str;
 
 
 @push('scripts')
-
 <script>
     $(document).ready(function() {
+        var sidebar = $('#logo-sidebar');
+        var mainSection = $('#main-section');
+
+        // Check local storage for sidebar state
+        var sidebarState = localStorage.getItem('sidebarState');
+        if (sidebarState === 'minimized') {
+            sidebar.addClass('sidebar-minimized').removeClass('sidebar-expanded');
+            $(".logo").addClass('hidden');
+            mainSection.css('width', 'calc(100% - 4rem)');
+            $('.sidebar').addClass('overflow-hidden');
+            $('.dropdown').removeClass('pl-14');
+            $('.dropdown a').addClass('text-center');
+            $('ul li a').addClass('text-center');
+        }
+
         // Sidebar toggle
         $('#sidebarToggle').on('click', function() {
-            var sidebar = $('#logo-sidebar');
-            var mainSection = $('#main-section');
-
             sidebar.toggleClass('sidebar-expanded sidebar-minimized');
-
             if (sidebar.hasClass('sidebar-minimized')) {
-                mainSection.css('width', 'calc(100% - 4rem)');
+                localStorage.setItem('sidebarState', 'minimized');
                 $(".logo").addClass('hidden');
+                mainSection.css('width', 'calc(100% - 4rem)');
                 $('.sidebar').addClass('overflow-hidden');
                 $('.dropdown').removeClass('pl-14');
                 $('.dropdown a').addClass('text-center');
                 $('ul li a').addClass('text-center');
             } else {
+                localStorage.setItem('sidebarState', 'expanded');
                 $(".logo").removeClass('hidden');
                 mainSection.css('width', 'calc(100% - 16rem)');
+                $('.sidebar').removeClass('overflow-hidden');
                 $('.dropdown').addClass('pl-14');
                 $('.dropdown a').removeClass('text-center');
                 $('ul li a').removeClass('text-center');
@@ -118,41 +139,31 @@ use Illuminate\Support\Str;
         // Dropdown toggle
         $('.dropdown').prev('button').on('click', function() {
             var dropdown = $(this).next('.dropdown');
-
-            // Toggle visibility
             dropdown.slideToggle(200);
-
-            // Rotate arrow
             $(this).find('svg').toggleClass('rotate-180');
-
-            // Close other open dropdowns
             $('.dropdown').not(dropdown).slideUp(200);
             $('.dropdown').not(dropdown).prev('button').find('svg').removeClass('rotate-180');
         });
 
-        // Open dropdowns for specific routes
+        // Open dropdowns for current route
         var currentUrl = window.location.href;
-        var routesToOpen = [
-            "{{ route('languages.index') }}", // Replace with actual route name
-            "{{ route('category.index') }}", // Replace with actual route name
-            "{{ route('sub-category.index') }}", // Replace with actual route name
-            "{{ route('subject.index') }}", // Replace with actual route name
-            "{{ route('topic.index') }}", // Replace with actual route name
-            "{{ route('question.index') }}", // Replace with actual route name
-        ];
 
+        // Loop through each dropdown
         $('.dropdown').each(function() {
             var parentButton = $(this).prev('button');
-            var isRouteMatch = routesToOpen.some(route => currentUrl.startsWith(route));
+            var relatedRoutes = [];
 
-            if (isRouteMatch) {
-                // Open the dropdown
-                $(this).slideDown(200);
-                parentButton.find('svg').addClass('rotate-180');
+            // Collect all related routes (sub-menus)
+            $(this).find('a').each(function() {
+                relatedRoutes.push($(this).attr('href'));
+            });
+
+            // Check if current URL matches any related route
+            if (relatedRoutes.some(route => currentUrl.startsWith(route))) {
+                $(this).slideDown(200); // Open dropdown
+                parentButton.find('svg').addClass('rotate-180'); // Rotate arrow
             }
         });
     });
 </script>
-
-
 @endpush

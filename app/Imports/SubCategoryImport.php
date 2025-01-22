@@ -21,18 +21,16 @@ class SubCategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithVa
             'id' => 'required|integer',
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer',
-            'photo' => 'nullable|string|max:255',
+            'photo' => 'nullable|string',
         ];
     }
 
     public function model(array $row)
-    {
-   
-        $SubCategory = SubCategory::find($row['id']);
+    {   
+        $subCategory = SubCategory::find($row['id']);
 
-        if ($SubCategory) {
-          
-            $SubCategory->update([
+        if ($subCategory) {
+            $subCategory->update([
                 'name' => $row['name'],
                 'category_id' => $row['category_id'],
                 'photo' => $row['photo'], 

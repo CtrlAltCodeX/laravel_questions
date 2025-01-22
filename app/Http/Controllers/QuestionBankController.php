@@ -260,10 +260,10 @@ class QuestionBankController extends Controller
             'question' => $question,
             'languages' => $languages, // Include languages
             'dropdown_list' => $dropdown_list,
-            'categories'=>$categories,
-            'subCategories'=>$subCategories,
-            'subjects'=>$subjects,
-            'topics'=>$topics,
+            'categories' => $categories,
+            'subCategories' => $subCategories,
+            'subjects' => $subjects,
+            'topics' => $topics,
         ]);
     }
     
@@ -339,7 +339,7 @@ class QuestionBankController extends Controller
             ]
         );
 
-        return response()->json(['success' => true, 'message' => 'Question updated successfully!', ]);
+        return response()->json(['success' => true, 'message' => 'Question updated successfully!',]);
     }
 
     /**
@@ -390,7 +390,6 @@ class QuestionBankController extends Controller
 
         // Get the questions based on filters
         $question_query = $query->with(['topic', 'subject', 'subCategory', 'category'])->get();
-
         $questions = [];
 
         foreach ($question_query as $question) {
@@ -452,20 +451,51 @@ class QuestionBankController extends Controller
         }
 
         foreach ($rows[0] as $key => $row) {
-            // Perform validation checks for required IDs
-            foreach ($languageIds as $languageId) {
-                if (!$this->getLanguageId($languageId)) {
-                    return back()->with('error', 'Language -  "' . $languageId . '" not available');
+            $rowCount = $key + 2;
+            $requiredKeys = ['qno', 'language_id', 'category', 'subcategory', 'subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
+
+            // Check if all required keys exist in the row
+            foreach ($requiredKeys as $requiredKey) {
+                if (!array_key_exists($requiredKey, $row)) {
+                    return back()->with('error', 'The key "' . $requiredKey . '" is missing in the data row.');
                 }
             }
+
+            if (empty($row['language_id'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- language is required.');
+            }
+
+            // Perform validation checks for required IDs
+            // foreach ($languageIds as $languageId) {
+            if (!$this->getLanguageId($row['language_id'])) {
+                return back()->with('error', 'Language -  "' . $row['language_id'] . '" not available');
+            }
+            // }
+
+            if (empty($row['category'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Category is required.');
+            }
+
             if (!$this->getCategoryId($row['category'])) {
                 return back()->with('error', 'Category - "' . $row['category'] . '" not available');
             }
+
+            if (empty($row['subcategory'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Subcategory is required.');
+            }
             if (!$this->getSubCategoryId($row['subcategory'])) {
-                return back()->with('error', 'Subcategory - "' . $row['sub_category'] . '" not available');
+                return back()->with('error', 'Subcategory - "' . $row['subcategory'] . '" not available');
+            }
+
+            if (empty($row['subject'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Subject is required.');
             }
             if (!$this->getSubjectId($row['subject'])) {
                 return back()->with('error', 'Subject - "' . $row['subject'] . '" not available');
+            }
+
+            if (empty($row['topic'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Topic is required.');
             }
             if (!$this->getTopicId($row['topic'])) {
                 return back()->with('error', 'Topic - "' . $row['topic'] . '" not available');

@@ -32,7 +32,11 @@ class CategoryController extends Controller
             $query = $query->where('language_id', $language_id);
         }
 
-        $categorys = $query->paginate(10);
+        if (request()->data == 'all') {
+            $categorys = $query->get();
+        } else {
+            $categorys = $query->paginate(request()->data);
+        }
 
         return view('categorys.index', compact('categorys', 'languages', 'sortColumn', 'sortDirection', 'language_id'));
     }
@@ -56,24 +60,24 @@ class CategoryController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:xlsx',
         ]);
-    
+
         $importer = new CategoryImport();
-    
+
         try {
             Excel::import($importer, $request->file('file'));
         } catch (\Exception $e) {
             return redirect()->route('category.index')
-                ->with('import_errors', [ $e->getMessage()]);
+                ->with('import_errors', [$e->getMessage()]);
         }
-    
+
         if (!empty($importer->errors)) {
             return redirect()->route('category.index')
                 ->with('import_errors', $importer->errors);
         }
-    
+
         return redirect()->route('category.index')->with('success', 'Categories imported successfully!');
     }
-    
+
 
     public function create()
     {
@@ -90,7 +94,6 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create(request()->all());
-
         if ($request->hasFile('photo')) {
             $fileName = "site/" . time() . "_photo.jpg";
 
@@ -116,8 +119,6 @@ class CategoryController extends Controller
 
     public function update(Request $request, string $id)
     {
-
-
         $request->validate([
             'name' => 'required',
             'language_id' => 'required'

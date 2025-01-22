@@ -71,8 +71,11 @@ class TopicController extends Controller
             $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
 
-        // Paginate the results
-        $topics = $query->paginate(10);
+        if (request()->data == 'all') {
+            $topics = $query->get();
+        } else {
+            $topics = $query->paginate(request()->data);
+        }
 
         $dropdown_list = [
             'Select Language' => $languages,
