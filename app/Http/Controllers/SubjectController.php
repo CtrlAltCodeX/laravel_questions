@@ -68,7 +68,7 @@ class SubjectController extends Controller
         } else {
             $subjects = $query->paginate(request()->data);
         }
-        
+
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories ?? [],
@@ -97,7 +97,7 @@ class SubjectController extends Controller
         $categoryId = $request->get('category_id');
         $subCategoryId = $request->get('sub_category_id');
 
-        return Excel::download(new SubjectExport($languageId, $categoryId, $subCategoryId ), 'Subject.xlsx');
+        return Excel::download(new SubjectExport($languageId, $categoryId, $subCategoryId), 'Subject.xlsx');
     }
 
 
@@ -116,7 +116,18 @@ class SubjectController extends Controller
         $importer = new SubjectImport();
 
         try {
-            Excel::import($importer, $request->file('file'));
+            $rows = Excel::import($importer, $request->file('file'));
+
+            foreach ($rows as $key => $row) {
+                $rowCount = $key + 2;
+
+                if (empty($row['sub_category_id'])) {
+                    return back()->with('error', 'Row: ' . $rowCount . '- Subcategory is required.');
+                }
+                if (!$this->getSubCategoryId($row['sub_category_id'])) {
+                    return back()->with('error', 'Subcategory - "' . $row['sub_category_id'] . '" not available');
+                }
+            }
         } catch (\Exception $e) {
             return redirect()->route('subject.index')
                 ->with('import_errors', [$e->getMessage()]);
@@ -128,6 +139,11 @@ class SubjectController extends Controller
         }
 
         return redirect()->route('subject.index')->with('success', 'Subject imported successfully!');
+    }
+
+    private function getSubCategoryId($id)
+    {
+        return \App\Models\SubCategory::find($id)->id ?? null;
     }
 
     public function create()
@@ -149,7 +165,7 @@ class SubjectController extends Controller
         $subject = Subject::create(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "subject/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 
@@ -200,7 +216,7 @@ class SubjectController extends Controller
         $subject->update(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "subject/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 

@@ -71,6 +71,8 @@ $levels = [
         </div>
 
         <div class="flex justify-end items-center gap-2">
+            <a href="/questions.xlsx" download="" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Download Sample</a>
+
             <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
 
             <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
@@ -102,7 +104,7 @@ $levels = [
                         <input type="hidden" value="{{ request()->direction }}" name="direction" />
 
                         <div class="flex gap-2">
-                            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" name="per_page" id='per_page'>
+                            <select class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer" name="per_page" id='per_page' style="width: 120px;">
                                 <option value="">Per Page</option>
                                 <option {{ request()->per_page == 50 ? 'selected' : '' }} value=50>50</option>
                                 <option {{ request()->per_page == 100 ? 'selected' : '' }} value=100>100</option>
@@ -186,6 +188,10 @@ $levels = [
                                 Option D
                             </label>
                             <label class="block">
+                                <input type="checkbox" value="answer" class="mr-2">
+                                Answer
+                            </label>
+                            <label class="block">
                                 <input type="checkbox" value="level" class="mr-2">
                                 Level
                             </label>
@@ -205,8 +211,8 @@ $levels = [
     </div>
 </div>
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+<div class="relative overflow-x-auto :rounded-lg mt-4">
+    <table id="questions-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mb-4">
         <thead>
             <tr id="table-headers">
                 <th scope="col" class="p-2">
@@ -314,6 +320,7 @@ $levels = [
                         @endif
                     </a>
                 </th>
+                <th scope="col" class="p-2" data-column="answer">Answer</th>
                 <th scope="col" class="p-2" data-column="level">Level</th>
                 <th scope="col" class="p-2" data-column="notes">Notes</th>
                 <th scope="col" class="p-2" data-column="action">Action</th>
@@ -337,20 +344,38 @@ $levels = [
                     <!-- <a href="{{$question->photo_link ? $question->photo_link : '#'}}" target="_blank">{{$question->photo_link}}</a> -->
                 </td>
                 <td class="p-2" data-column="image">
-                    <img src="{{ $question->photo ? $question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
+                    <img src="{{ $question->photo ? 'storage/questions/'. $question->photo : '/dummy.jpg' }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;" />
                 </td>
                 <td class="p-2" data-column="question">{!! $question->question !!}</td>
                 <td class="p-2" data-column="optionA">{{ $question->option_a }}</td>
                 <td class="p-2" data-column="optionB">{{ $question->option_b }}</td>
                 <td class="p-2" data-column="optionC">{{ $question->option_c }}</td>
                 <td class="p-2" data-column="optionD">{{ $question->option_d }}</td>
-                <td class="p-2" data-column="level">{{ $question->level }}</td>
+                <td class="p-2" data-column="answer">{{ $question->answer }}</td>
+                <td class="p-2" data-column="level">
+                    @switch($question->level)
+                    @case(1)
+                    Easy
+                    @break
+
+                    @case(2)
+                    Medium
+                    @break
+
+                    @case(3)
+                    Hard
+                    @break
+
+                    @default
+
+                    @endswitch
+                </td>
                 <td class="p-2" data-column="notes">{{ $question->notes }}</td>
                 <td class="p-2 flex gap-2" data-column="action">
                     <button class="open-edit-modal" data-id="{{ $question->id }}"> <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg></button>
-                    <form action="{{ route('question.destroy', $question->id) }}" method="POST">
+                    <form action="{{ route('question.destroy', $question->id) }}" method="POST" class="m-0">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
@@ -364,8 +389,8 @@ $levels = [
             @endforeach
         </tbody>
     </table>
-    {{ $questions->appends(request()->query())->links() }}
 
+    {{ $questions->appends(request()->query())->links() }}
 </div>
 
 <div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
@@ -380,9 +405,10 @@ $levels = [
         position: relative; 
         overflow-y: auto; /* Make content scrollable if it exceeds max height */
     ">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <button id="closeModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">X</button>
+        <div style="display: flex; justify-content: end; align-items: center; margin-bottom: 16px;">
+            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
+
         <form id="question-form" action="{{ route('question.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Add Question</h1>
@@ -431,8 +457,8 @@ $levels = [
         position: relative; 
         overflow-y: auto; /* Make content scrollable if it exceeds max height */
     ">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <button id="closeEditModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">X</button>
+        <div style="display: flex; justify-content: end; align-items: center; margin-bottom: 16px;">
+            <button id="closeEditModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
         <form id="questioneditForm" action="{{ route('question.update',  $question->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -441,8 +467,6 @@ $levels = [
             <div id="modalContent">
                 <!-- Fields will be dynamically injected here -->
             </div>
-
-
 
             <div class="relative overflow-x-auto sm:rounded-lg">
                 <div id="input-rows"></div>
@@ -459,14 +483,15 @@ $levels = [
 @push('scripts')
 <script>
     $(document).ready(function() {
-
         const editQuestionRoute = "{{ route('question.edit', ':id') }}"; // Define the route here
+        var quillQuestion = '';
 
         document.querySelectorAll('.open-edit-modal').forEach(button => {
             button.addEventListener('click', function() {
                 const questionId = this.dataset.id;
                 // Fetch data from the server
                 const fetchUrl = editQuestionRoute.replace(':id', questionId);
+
                 fetch(fetchUrl)
                     .then(response => {
                         if (!response.ok) {
@@ -502,7 +527,6 @@ $levels = [
                             // Map the moduleName to the corresponding key in data.question
                             const questionKey = idMapping[moduleName];
                             const selectedId = data.question[questionKey];
-                            console.log("selectedId", selectedId); // Debugging: Ensure correct value
 
                             const id = moduleName.toLowerCase().replace(/\s+/g, '_');
 
@@ -519,8 +543,6 @@ $levels = [
                             `;
                             modalContent.appendChild(selectField);
                         }
-
-
                         const questionNumberField = document.createElement('div');
                         questionNumberField.className = 'mb-4';
                         questionNumberField.innerHTML = `
@@ -530,13 +552,12 @@ $levels = [
                         `;
                         modalContent.appendChild(questionNumberField);
 
-
                         // Add Photo Link
                         const photoLinkField = document.createElement('div');
                         photoLinkField.className = 'mb-4';
                         photoLinkField.innerHTML = `
                             <label for="photo_link" class="block text-sm font-medium">Photo Link</label>
-                            <input id="photo_link" type="text" name="photo_link" class="block w-full p-2 border rounded required"
+                            <input id="photo_link" type="text" name="photo_link" class="block w-full p-2 border rounded"
                                 value="${data.question.photo_link || ''}" placeholder="Photo Link" />
                         `;
                         modalContent.appendChild(photoLinkField);
@@ -545,13 +566,14 @@ $levels = [
                         const uploadPhotoField = document.createElement('div');
                         uploadPhotoField.className = 'flex justify-between w-full mb-2';
                         uploadPhotoField.innerHTML = `
-                            <div class='w-[48%] relative'>
+                            <div class='relative'>
                                 <label for="fileInput-new" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Photo</label>
+                                <button class="remove-image" style='background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;position: absolute;top: 20px;left: 110px;z-index:10;'>X</button>
                                 <input type="hidden" id="photo-${data.question.id}" name="photo" value="${data.question.photo}" />
-                                <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput${data.question.id}" />
-                                <div class="image-container">
-                                    <img id="imagePreview${data.question.id}" class="w-full h-full object-cover rounded-lg"
-                                        src="${data.question.photo ? data.question.photo : '/dummy.jpg'}" alt="Image Preview" width="100" />
+                                <input type="file" accept="image/*" name="photo" style="height: 155px;" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer fileInput" id="fileInput${data.question.id}" />
+                                <div class="image-container" style="height: 155px;">
+                                    <img id="imagePreview${data.question.id}" class="h-full object-cover rounded-lg imagepreview"
+                                        src="${data.question.photo ? '/storage/questions/'+data.question.photo : '/dummy.jpg'}" alt="Image Preview" width="150" />
                                 </div>
                                 <button type="button" id="fileButton${data.question.id}" class="absolute top-[0px] z-[-1] custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                     Upload Photo
@@ -562,18 +584,25 @@ $levels = [
                         // Append the field to the modal content
                         modalContent.appendChild(uploadPhotoField);
 
-                        const questionText = data.question.question ?
-                            new DOMParser().parseFromString(data.question.question, 'text/html').body.textContent :
-                            '';
-
                         const questionField = document.createElement('div');
                         questionField.className = 'mb-4';
+                        questionField.style.height = '200px';
                         questionField.innerHTML = `
                             <label for="questionText" class="block text-sm font-medium">Question</label>
-                            <textarea id="questionText" name="question" class="block w-full p-2 border rounded required">${questionText}</textarea>
+                            <div id="questionText" class="editor-question required bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 h-50">
+                            ${data.question?.question || ''}
+                            </div>
+                            <input type="hidden" name="question[]" class="question-input-edit required" value="${data.question?.question || ''}" />
                         `;
                         modalContent.appendChild(questionField);
 
+                        quillQuestion = new Quill('#questionText', {
+                            theme: 'snow'
+                        });
+
+                        $('#Update-btn').on('click', function() {
+                            $('.question-input-edit').val(quillQuestion.root.innerHTML);
+                        });
 
                         const optionsContainer = document.createElement('div');
                         optionsContainer.className = 'grid grid-cols-2 gap-4';
@@ -589,7 +618,6 @@ $levels = [
                         });
                         modalContent.appendChild(optionsContainer);
 
-
                         const answerField = document.createElement('div');
                         answerField.className = 'mb-4';
                         answerField.innerHTML = `
@@ -603,26 +631,18 @@ $levels = [
                         `;
                         modalContent.appendChild(answerField);
 
+
                         // Add the "Level" dropdown
                         const levelField = document.createElement('div');
                         levelField.className = 'mb-4';
                         levelField.innerHTML = `
-                            <label for="level" class="block text-sm font-medium">Level</label>
-                            <select id="level" name="level" class="block w-full p-2 border rounded">
-                                <option value="">Select Level</option>
-                                ${[
-                                    { value: '1', label: 'Easy' },
-                                    { value: '2', label: 'Medium' },
-                                    { value: '3', label: 'Hard' }
-                                ].map(level => ` <
-                            option value = "${level.value}"
-                        $ {
-                            data.question?.level === level.value ? 'selected' : ''
-                        } > $ {
-                            level.label
-                        } < /option>
-                        `).join('')}
-                            </select>
+                        <label for="level" class="block text-sm font-medium">Level</label>
+                        <select class='block w-full p-2 border rounded' name='level'>
+                        <option>Select</option>
+                        <option value=1 ${data.question?.level === '1' ? 'selected' : ''}>Easy</option>
+                        <option value=2 ${data.question?.level === '2' ? 'selected' : ''}>Medium</option>
+                        <option value=3 ${data.question?.level === '3' ? 'selected' : ''}>Hard</option>
+                        </select>
                         `;
                         modalContent.appendChild(levelField);
 
@@ -632,15 +652,15 @@ $levels = [
                         notesField.className = 'w-full';
                         notesField.innerHTML = `
                             <label for="notes" class="block text-sm font-medium">Notes</label>
-                            <textarea id="notes" name="notes[]" rows="3" class="block w-full p-2 border rounded required" placeholder="Notes">${data.question.notes}</textarea>
+                            <textarea id="notes" name="notes[]" rows="3" class="block w-full p-2 border rounded" placeholder="Notes">${data.question.notes??''}</textarea>
                         `;
                         modalContent.appendChild(notesField);
                         document.getElementById('editModal').style.display = 'flex';
                     })
                     .catch(error => console.error('Error fetching question data:', error));
             });
-        });
 
+        });
 
         document.getElementById('questioneditForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -652,47 +672,51 @@ $levels = [
 
             // Validate required fields
             requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    allFieldsFilled = false;
-                    missingFields.push(field.name || field.id || 'Unnamed field');
+                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(field.tagName)) {
+                    // If it's an input, textarea, or select, check its value
+                    if (!field.value.trim()) {
+                        allFieldsFilled = false;
+                        missingFields.push(field.name || field.id || 'Unnamed field');
+                    }
                 }
             });
+
+            let content = quillQuestion.getText().trim();
+            if (content.length === 0) {
+                alert('Question field is required.');
+                e.preventDefault(); // Prevent form submission
+                return;
+            }
 
             if (!allFieldsFilled) {
                 alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
                 return;
             }
 
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
+            // for (let [key, value] of formData.entries()) {
+            //     console.log(`${key}: ${value}`);
+            // }
 
-            console.log("formData", formData);
-
-            fetch(actionUrl, {
-                    method: this.method,
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        // Handle validation errors if any
-                        console.error(data.errors);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        });
-
-
-
-        document.getElementById('closeEditModal').addEventListener('click', function() {
-            document.getElementById('editModal').style.display = 'none';
+            setTimeout(() => {
+                fetch(actionUrl, {
+                        method: this.method,
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            // Handle validation errors if any
+                            console.error(data.errors);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 500)
         });
 
         $(document).on('change', `.file-input`, function(event) {
@@ -709,123 +733,16 @@ $levels = [
             }
         });
 
-
+        document.getElementById('closeEditModal').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
 
         document.getElementById('createButton').addEventListener('click', function() {
             document.getElementById('modal').style.display = 'flex';
         });
 
-
         document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('modal').style.display = 'none';
-        });
-        $('#question-form').on('submit', function(e) {
-            e.preventDefault(); // Prevent the default form submission
-            setTimeout(() => {
-                $.ajax({
-                    type: 'POST',
-                    url: $(this).attr('action'), // Form action URL
-                    data: new FormData(this), // Send the form data
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        // Display success message
-                        alert(response.success); // You can replace this with a better UI notification
-                        // Reload the page or reset the form if necessary
-                        location.reload(); // Optionally reload the page
-                    },
-                    error: function(xhr) {
-                        // Handle errors
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = '';
-                        for (let field in errors) {
-                            errorMessage += errors[field].join(' ') + '\n';
-                        }
-                        alert(errorMessage || 'An error occurred. Please try again.');
-                    }
-                });
-            }, 1000)
-        });
-        // Load saved settings from localStorage
-        const savedColumns = localStorage.getItem('selectedColumns');
-        const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
-
-        function generateTableHeaders() {
-            const headers = {
-                id: 'ID',
-                language: 'Language',
-                image: 'Image',
-                question: 'Question',
-                optionA: 'Option A',
-                optionB: 'Option B',
-                optionC: 'Option C',
-                optionD: 'Option D',
-                level: 'Level',
-                action: 'Action'
-            };
-
-            const headerRow = $('#table-headers');
-            headerRow.empty();
-
-            selectedColumns.forEach(column => {
-                if (headers[column]) {
-                    headerRow.append(`<th scope="col" class="p-2" data-column="${column}">${headers[column]}</th>`);
-                }
-            });
-        }
-
-        function toggleColumns() {
-            $('#columnSelectDropdown input[type="checkbox"]').each(function() {
-                const value = $(this).val();
-                if ($(this).is(':checked')) {
-                    $(`[data-column="${value}"]`).show();
-                } else {
-                    $(`[data-column="${value}"]`).hide();
-                }
-            });
-        }
-
-        $('#columnSelectToggle').click(function() {
-            $('#columnSelectDropdown').toggle();
-        });
-
-
-        // Set the initial state of checkboxes and columns
-        $('#columnSelectDropdown input[type="checkbox"]').each(function() {
-            const value = $(this).val();
-            if ($.inArray(value, selectedColumns) !== -1) {
-                $(this).prop('checked', true);
-                $(`[data-column="${value}"]`).show();
-            } else {
-                $(this).prop('checked', false);
-                $(`[data-column="${value}"]`).hide();
-            }
-        });
-
-        // Handle checkbox changes
-        $('#columnSelectDropdown input[type="checkbox"]').change(function() {
-            const selectedOptions = [];
-
-            // Show/hide columns based on checked checkboxes
-            $('#columnSelectDropdown input[type="checkbox"]').each(function() {
-                const value = $(this).val();
-                if ($(this).is(':checked')) {
-                    selectedOptions.push(value);
-                    $(`[data-column="${value}"]`).show();
-                } else {
-                    $(`[data-column="${value}"]`).hide();
-                }
-            });
-
-            // Save the selected columns to localStorage
-            localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
-        });
-
-        // Close dropdown when clicking outside of it
-        $(document).click(function(event) {
-            if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
-                $('#columnSelectDropdown').hide();
-            }
         });
 
         // SweetAlert2 export button logic
@@ -1028,121 +945,12 @@ $levels = [
                 }
             });
         });
-    });
-</script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-<script>
-    $(document).ready(function() {
         var languageId = $('#select_language').val();
         var categoryId = $('#select_category').val();
         var subCategoryId = $('#select_sub_category').val();
         var subjectId = $('#select_subject').val();
         var topicId = $('#select_topic').val();
-        let rowCounter = 0;
-        var languageCount = 0;
-
-        $(document).on('click', '#addLanguage', function() {
-            languageCount++;
-
-            var qno = $('input[name="qno"]').last().val() || '';
-            var question = $('textarea[name="question[]"]').last().val() || '';
-            var optionA = $('input[name="option_a[]"]').last().val() || '';
-            var optionB = $('input[name="option_b[]"]').last().val() || '';
-            var optionC = $('input[name="option_c[]"]').last().val() || '';
-            var optionD = $('input[name="option_d[]"]').last().val() || '';
-            var answer = $('select[name="answer[]"]').last().val() || '';
-            var level = $('input[name="level[]"]').last().val() || '';
-            var notes = $('textarea[name="notes[]"]').last().val() || '';
-            var language = $('select[name="language[]"]').last().val() || '';
-
-            var newLanguage = `
-                <div id="language-section-${languageCount}">
-                    <div>
-                        <div class="border-t border-gray-300 mt-5"></div>
-                        <div class="flex justify-end">
-                            <button type="button" class="remove-language text-red-700 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm w-8 h-8 flex justify-center items-center dark:text-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800" data-section-id="${languageCount}">
-                                X
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-4 items-center text-center mt-5 language-section">
-                        <!-- Image Upload -->
-                        <div class="col-span-2">
-                            <input type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="qno[]" disabled
-                                    placeholder="Question No." value="${qno}"/>
-                        </div>
-
-                        <!-- Question Field -->
-                        <div class="col-span-4 text-left">
-                            <div class='mb-2'>
-                                <div class="editor-question required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    ${question}
-                                </div>
-                                <input type="hidden" name="question[]" class="question-input" />
-                                <div class="text-red-500 text-xs validation-msg"></div>
-                            </div>
-                        </div>
-
-                        <!-- Options A-D -->
-                        <div class="col-span-4 grid grid-cols-2 gap-2">
-                            <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                name="option_a[]" 
-                                placeholder="Option A" value="${optionA}"/>
-                            <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                name="option_b[]" 
-                                placeholder="Option B" value="${optionB}"/>
-                            <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                name="option_c[]" 
-                                placeholder="Option C" value="${optionC}"/>
-                            <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                name="option_d[]" 
-                                placeholder="Option D" value="${optionD}"/>
-                        </div>
-
-                        <!-- Notes and Level -->
-                        <div class="col-span-5 grid gap-2 w-[40%]">
-                            <textarea class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="notes[]" 
-                                    placeholder="Notes" 
-                                    rows="3" cols="3">${notes}</textarea>
-                        </div>
-
-                        </div>
-                        </div>
-                    `;
-            // <div class="col-span-3">
-            //     <select id="selectlangauge${languageCount}" name="language[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            //         <option value="">Select Language</option>
-            //         @foreach($languages as $item)
-            //             <option value="{{$item->id}}" ${language == '{{$item->id}}' ? 'selected' : ''}>{{$item->name}}</option>
-            //         @endforeach
-            //     </select>
-            // </div>
-
-            $('#languages-container').append(newLanguage);
-
-            $('#languages-container').removeClass('hidden');
-
-            var quillQuestion = new Quill('.editor-question', {
-                theme: 'snow'
-            });
-
-            $('form').on('submit', function() {
-                // Set the hidden input's value to the content of the Quill editor (HTML)
-                $('.question-input').val(quillQuestion.root.innerHTML);
-            });
-        });
-
-
-        // Remove language section
-        $(document).on('click', '.remove-language', function() {
-            var sectionId = $(this).data('section-id');
-            $('#language-section-' + sectionId).remove();
-        });
 
         function fetchQuestions() {
             languageId = $('#select_language').val();
@@ -1151,18 +959,17 @@ $levels = [
             subjectId = $('#select_subject').val();
             topicId = $('#select_topic').val();
 
-
             if (categoryId && subCategoryId || subjectId || topicId) {
                 $('#input-rows').empty();
                 var newRow = `
                     <div class="input-row pb-5 border-b-2">   
                         <div class="flex flex-col gap-4 items-center w-full">
-
+        
                             <!-- Question Number -->
                             <div class="w-full flex gap-2">
                                 <div class="w-[50%]">
                                     <label for="qno" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Question No.</label>
-                                    <input id="qno" type="text" class="w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    <input id="qno" type="text" class="required w-full mb-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         name="qno"
                                         placeholder="Question No."/>
                                 </div>
@@ -1173,56 +980,55 @@ $levels = [
                                         placeholder="Photo link"/>
                                 </div>
                             </div>
-
+        
                             <!-- Photo Link and Upload -->
                             <div class="flex justify-between w-full mb-2">
-                                <div class='w-[48%] relative'>
+                                <div class='relative'>
                                     <label for="fileInput-new" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Photo</label>
+                                    <button class="remove-image" style='background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;position: absolute;top: 20px;left: 78px;z-index:10;'>X</button>
                                     <input type="hidden" id="photo-new" name="photo" value="" />
-                                    <input type="file" accept="image/*" name="photo" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
-                                    <button type="button" id="fileButton-new" class="custom-file-button bg-gray-50 w-full h-full border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                        Upload Photo
-                                    </button>
+                                    <input type="file" accept="image/*" name="photo" style="height: 155px;" class="file-input absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="fileInput-new" />
+                                    <div class="image-container" >
+                                        <img id="imagePreview14" class="h-full object-cover rounded-lg imagepreview" src="/dummy.jpg" alt="Image Preview" width="150" style="width: 100px;">
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Question Text -->
-                            <div class="w-full">
+        
+                            <div class="w-full mt-4">
                                 <label for="editor-question" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Question</label>
-                                <div id="editor-question" class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="question[]"></div>
-                                <input type="hidden" name="question[]" class="question-input" />
+                                <div id="editor-question" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="question[]"></div>
+                                <input type="hidden" name="question[]" class="question-input required" />
                             </div>
-
+        
                             <!-- Options A-D -->
                             <div class="grid grid-cols-2 gap-4 w-full">
                                 <div>
                                     <label for="option_a" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option A</label>
-                                    <input type="text" id="option_a" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="option_a[]" placeholder="Option A" />
+                                    <input type="text" id="option_a" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required" 
+                                        name="option_a[]" placeholder="Option A"  />
                                 </div>
                                 <div>
                                     <label for="option_b" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option B</label>
-                                    <input type="text" id="option_b" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="option_b[]" placeholder="Option B" />
+                                    <input type="text" id="option_b" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required" 
+                                        name="option_b[]" placeholder="Option B"  />
                                 </div>
                                 <div>
                                     <label for="option_c" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option C</label>
-                                    <input type="text" id="option_c" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="option_c[]" placeholder="Option C" />
+                                    <input type="text" id="option_c" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required" 
+                                        name="option_c[]" placeholder="Option C"  />
                                 </div>
                                 <div>
                                     <label for="option_d" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Option D</label>
-                                    <input type="text" id="option_d" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        name="option_d[]" placeholder="Option D" />
+                                    <input type="text" id="option_d" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 required" 
+                                        name="option_d[]" placeholder="Option D"  />
                                 </div>
                             </div>
-
+        
                             <!-- Answer and Level -->
                             <div class="flex justify-between w-full">
                                 <div class="w-[48%]">
                                     <label for="answer" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Answer</label>
-                                    <select id="answer" class="required-field bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    <select id="answer" class="required bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         name="answer">
                                         <option value="">Select Answer</option>
                                         <option value="A">A</option>
@@ -1231,7 +1037,7 @@ $levels = [
                                         <option value="D">D</option>
                                     </select>
                                 </div>
-
+        
                                 <div class="w-[48%]">
                                     <label for="level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Level</label>
                                     <select id="level" class="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -1243,28 +1049,39 @@ $levels = [
                                     </select>
                                 </div>
                             </div>
-
+        
                             <!-- Notes -->
                             <div class="w-full mt-4">
                                 <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
                                 <textarea id="notes" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                     name="notes[]" placeholder="Notes" rows="3"></textarea>
                             </div>
-
+        
                         </div>
-
+        
                         <select id="selectlangauge" name="language[]" class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option value="">Select Language</option>
                             @foreach($languages as $item)
                             <option value="{{$item->id}}" >{{$item->name}}</option>
                             @endforeach
                         </select>
-
+        
                         <div id="languages-container" class="ms-5"></div>
                     </div>
                 `;
 
                 $('#input-rows').append(newRow);
+
+                document.getElementById('fileInput-new').addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('imagePreview14').src = e.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
 
                 var quillQuestion = new Quill('#editor-question', {
                     theme: 'snow'
@@ -1278,6 +1095,14 @@ $levels = [
                 attachFileInputHandlers();
             }
         }
+
+        $(document).on('click', '.remove-image', function(event) {
+            event.preventDefault(); // Prevent default button behavior
+
+            $('input[name=photo]').val('');
+
+            $('.imagepreview').attr('src', '/dummy.jpg');
+        });
 
         fetchQuestions();
 
@@ -1363,34 +1188,6 @@ $levels = [
             }
         });
 
-        $(document).on('click', '.remove-question', function(event) {
-            event.preventDefault();
-            var id = this.id.split('-')[2];
-
-            if (id) {
-                // If the row is associated with a question ID (existing question)
-                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                $.ajax({
-                    url: '/question-bank/' + id + '/delete',
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    success: function(data) {
-                        $('#remove-question-' + id).closest('.input-row').remove();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error:", error);
-                    }
-                });
-            } else {
-                if ($('.input-row').length > 1) {
-                    $(this).closest('.input-row').remove();
-                }
-            }
-        });
-
         attachFileInputHandlers();
 
         $('.file-input').each(function() {
@@ -1417,6 +1214,7 @@ $levels = [
             });
         });
 
+        // Start Create Question Form
         $('#save-btn').click(function(e) {
             e.preventDefault(); // Prevent the form from submitting immediately
             var isValid = true;
@@ -1427,7 +1225,102 @@ $levels = [
                 alert('Please select a category to add a question');
             }
         });
+
+        $('#question-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+            const requiredFields = this.querySelectorAll('.required');
+            let allFieldsFilled = true;
+            let missingFields = [];
+
+            // Validate required fields
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allFieldsFilled = false;
+                    missingFields.push(field.name.replace('[]', '') || field.id || 'Unnamed field');
+                }
+            });
+
+            if (!allFieldsFilled) {
+                alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            setTimeout(() => {
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'), // Form action URL
+                    data: new FormData(this), // Send the form data
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Display success message
+                        alert(response.success); // You can replace this with a better UI notification
+                        // Reload the page or reset the form if necessary
+                        location.reload(); // Optionally reload the page
+                    },
+                    error: function(xhr) {
+                        // Handle errors
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessage = '';
+                        for (let field in errors) {
+                            errorMessage += errors[field].join(' ') + '\n';
+                        }
+                        alert(errorMessage || 'An error occurred. Please try again.');
+                    }
+                });
+            }, 1000)
+        });
+        // End Create Question Form
+
+        // Start Load saved settings from localStorage
+        const savedColumns = localStorage.getItem('selectedColumns');
+        const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
+
+        $('#columnSelectToggle').click(function() {
+            $('#columnSelectDropdown').toggle();
+        });
+
+        // Set the initial state of checkboxes and columns
+        $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+            const value = $(this).val();
+            if ($.inArray(value, selectedColumns) !== -1) {
+                $(this).prop('checked', true);
+                $(`[data-column="${value}"]`).show();
+            } else {
+                $(this).prop('checked', false);
+                $(`[data-column="${value}"]`).hide();
+            }
+        });
+
+        // Handle checkbox changes
+        $('#columnSelectDropdown input[type="checkbox"]').change(function() {
+            const selectedOptions = [];
+
+            // Show/hide columns based on checked checkboxes
+            $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+                const value = $(this).val();
+                if ($(this).is(':checked')) {
+                    selectedOptions.push(value);
+                    $(`[data-column="${value}"]`).show();
+                } else {
+                    $(`[data-column="${value}"]`).hide();
+                }
+            });
+
+            // Save the selected columns to localStorage
+            localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
+        });
+
+        // Close dropdown when clicking outside of it
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
+                $('#columnSelectDropdown').hide();
+            }
+        });
+        // End Load saved settings from localStorage
     });
 </script>
+
 @include('script')
+
 @endpush

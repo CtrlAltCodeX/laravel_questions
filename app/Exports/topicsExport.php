@@ -52,7 +52,7 @@ class topicsExport implements FromCollection, WithHeadings
                 'id' => $Topic->id,
                 'name' => $Topic->name,
                 'subject_id' => $Topic->subject_id,
-                'photo' => $Topic->photo ? asset('storage/' . $Topic->photo) : '',
+                'photo' => explode('/', $Topic->photo)[1] ?? $Topic->photo,
             ];
         });
     }

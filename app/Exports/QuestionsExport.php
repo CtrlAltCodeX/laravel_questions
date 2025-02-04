@@ -72,35 +72,35 @@ class QuestionsExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        $headings = ['Qno'];
+        $headings = ['qno'];
     
         // Add language headings
         foreach ($this->languages as $languageId) {
-            $headings[] = "Language $languageId";
+            $headings[] = "language_id";
         }
     
         // Add static headings
         $headings = array_merge($headings, [
-            'Category', 'SubCategory', 'Subject', 'Topic'
+            'category', 'subcategory', 'subject', 'topic'
         ]);
     
         // Add question headings for each language
         foreach ($this->languages as $languageId) {
             $languageName = Language::findOrFail($languageId)->name;
-            $headings[] = "Question $languageName";
+            $headings[] = "question";
         }
     
         // Add option headings for each language
-        foreach (['Option A', 'Option B', 'Option C', 'Option D'] as $option) {
+        foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
             foreach ($this->languages as $languageId) {
                 $languageName = Language::findOrFail($languageId)->name;
-                $headings[] = "$option $languageName";
+                $headings[] = "$option";
             }
         }
     
         // Add other field headings
         $headings = array_merge($headings, [
-            'Answer', 'Notes', 'Level', 'Photo', 'Photo Link'
+            'answer', 'notes', 'level', 'photo', 'photo_link'
         ]);
     
         return $headings;

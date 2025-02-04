@@ -56,6 +56,7 @@ use Illuminate\Support\Str;
                 </svg>
             </button>
         </div>
+
         <ul class="space-y-2 font-medium mt-4">
             @foreach ($menuItems as $item)
             @if(!isset($item['sub-menus']))
@@ -80,7 +81,7 @@ use Illuminate\Support\Str;
                 <!-- Dropdown Content -->
                 <div class="mt-2 space-y-2 pl-14 dropdown" style="background-color: #eee;">
                     @foreach($item['sub-menus'] as $subMenu)
-                    <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'desc', 'data' => 10]) }}"
+                    <a href="{{ route($subMenu['route'], ['sort'=>'id', 'direction' => 'asc', 'data' => 10]) }}"
                         class="block px-2 py-2 rounded {{ Str::startsWith(url()->current(),route($subMenu['route'])) ? 'bg-gray-900 text-white':'hover:bg-gray-200'}}">
 
                         <i class="{{ $subMenu['icon'] }}"></i>
@@ -146,7 +147,7 @@ use Illuminate\Support\Str;
         });
 
         // Open dropdowns for current route
-        var currentUrl = window.location.href;
+        var currentUrl = new URL(window.location.href).pathname; // Get the base path without query params
 
         // Loop through each dropdown
         $('.dropdown').each(function() {
@@ -155,11 +156,12 @@ use Illuminate\Support\Str;
 
             // Collect all related routes (sub-menus)
             $(this).find('a').each(function() {
-                relatedRoutes.push($(this).attr('href'));
+                var routePath = new URL($(this).attr('href'), window.location.origin).pathname; // Get base path
+                relatedRoutes.push(routePath);
             });
 
             // Check if current URL matches any related route
-            if (relatedRoutes.some(route => currentUrl.startsWith(route))) {
+            if (relatedRoutes.some(route => currentUrl === route)) {
                 $(this).slideDown(200); // Open dropdown
                 parentButton.find('svg').addClass('rotate-180'); // Rotate arrow
             }

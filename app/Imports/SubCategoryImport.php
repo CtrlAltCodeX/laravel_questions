@@ -13,12 +13,11 @@ class SubCategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithVa
 {
     use SkipsErrors;
 
-    public $validationErrors = []; 
+    public $validationErrors = [];
 
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer',
             'photo' => 'nullable|string',
@@ -26,23 +25,23 @@ class SubCategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithVa
     }
 
     public function model(array $row)
-    {   
+    {
         $subCategory = SubCategory::find($row['id']);
 
         if ($subCategory) {
             $subCategory->update([
                 'name' => $row['name'],
                 'category_id' => $row['category_id'],
-                'photo' => $row['photo'], 
+                'photo' => $row['photo'] ? ("sub_category/" . $row['photo']) ?? null : null,
             ]);
             return null;
         } else {
             // Create new record
             return new SubCategory([
-                'id' => $row['id'], 
+                'id' => $row['id'],
                 'name' => $row['name'],
                 'category_id' => $row['category_id'],
-                'photo' => $row['photo'],
+                'photo' => $row['photo'] ? ("sub_category/" . $row['photo']) ?? null : null,
             ]);
         }
     }

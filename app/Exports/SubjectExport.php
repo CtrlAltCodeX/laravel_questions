@@ -47,13 +47,14 @@ class SubjectExport implements FromCollection, WithHeadings
                 'id' => $Subject->id,
                 'name' => $Subject->name,
                 'sub_category_id' => $Subject->sub_category_id,
-                'photo' => $Subject->photo ? asset('storage/' . $Subject->photo) : '',
+                'photo' => explode('/', $Subject->photo)[1] ?? $Subject->photo,
+                'parent_id' => $Subject->parent_id
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['id', 'name', 'sub_category_id', 'photo'];
+        return ['id', 'name', 'sub_category_id', 'photo', 'parent_id'];
     }
 }

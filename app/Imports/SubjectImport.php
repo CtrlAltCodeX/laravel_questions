@@ -13,12 +13,11 @@ class SubjectImport implements ToModel, WithHeadingRow, SkipsOnError, WithValida
 {
     use SkipsErrors;
 
-    public $validationErrors = []; 
+    public $validationErrors = [];
 
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
             'name' => 'required|string|max:255',
             'sub_category_id' => 'required|integer',
             'photo' => 'nullable|string|max:255',
@@ -27,24 +26,25 @@ class SubjectImport implements ToModel, WithHeadingRow, SkipsOnError, WithValida
 
     public function model(array $row)
     {
-   
         $Subject = Subject::find($row['id']);
-
+        
         if ($Subject) {
-          
             $Subject->update([
                 'name' => $row['name'],
                 'sub_category_id' => $row['sub_category_id'],
-                'photo' => $row['photo'], 
+                'photo' => $row['photo'] ? ("subject/" . $row['photo'] ?? null) : null,
+                'parent_id' => $row['parent_id'],
             ]);
+
             return null;
         } else {
             // Create new record
             return new Subject([
-                'id' => $row['id'], 
+                'id' => $row['id'],
                 'name' => $row['name'],
                 'sub_category_id' => $row['sub_category_id'],
-                'photo' => $row['photo'],
+                'photo' => $row['photo'] ? ("subject/" . $row['photo'] ?? null) : null,
+                'parent_id' => $row['parent_id'],
             ]);
         }
     }

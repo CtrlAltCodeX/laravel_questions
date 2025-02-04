@@ -80,7 +80,7 @@ class SubCategoryController extends Controller
     {
         $languageId = $request->get('language_id');
         $categoryId = $request->get('category_id');
-       
+
         return Excel::download(new SubCategoryExport($languageId,  $categoryId), 'Subcategories.xlsx');
     }
 
@@ -101,7 +101,19 @@ class SubCategoryController extends Controller
         $importer = new SubCategoryImport();
 
         try {
-            Excel::import($importer, $request->file('file'));
+            $rows = Excel::import($importer, $request->file('file'));
+
+            foreach ($rows as $key => $row) {
+                $rowCount = $key + 2;
+
+                if (empty($row['category_id'])) {
+                    return back()->with('error', 'Row: ' . $rowCount . '- Subcategory is required.');
+                }
+
+                if (!$this->getCategoryId($row['category_id'])) {
+                    return back()->with('error', 'Subcategory - "' . $row['category_id'] . '" not available');
+                }
+            }
         } catch (\Exception $e) {
             return redirect()->route('sub-category.index')
                 ->with('import_errors', [$e->getMessage()]);
@@ -115,7 +127,10 @@ class SubCategoryController extends Controller
         return redirect()->route('sub-category.index')->with('success', 'Sub Categories imported successfully!');
     }
 
-
+    private function getCategoryId($id)
+    {
+        return \App\Models\Category::find($id)->id ?? null;
+    }
 
     public function create()
     {
@@ -137,7 +152,7 @@ class SubCategoryController extends Controller
         $subcategory = SubCategory::create(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "sub_category/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 
@@ -174,7 +189,7 @@ class SubCategoryController extends Controller
         $subcategory->update(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "sub_category/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 

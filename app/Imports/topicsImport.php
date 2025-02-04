@@ -15,40 +15,37 @@ class topicsImport implements ToModel, WithHeadingRow, SkipsOnError, WithValidat
 
     use SkipsErrors;
 
-    public $validationErrors = []; 
+    public $validationErrors = [];
 
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
             'name' => 'required|string|max:255',
             'subject_id' => 'required|integer',
             'photo' => 'nullable|string|max:255',
         ];
     }
 
-
     public function model(array $row)
     {
-    $Topic = Topic::find($row['id']);
+        $Topic = Topic::find($row['id']);
 
-    if ($Topic) {
-      
-        $Topic->update([
-            'name' => $row['name'],
-            'subject_id' => $row['subject_id'],
-            'photo' => $row['photo'], 
-        ]);
-        return null;
-    } else {
-        // Create new record
-        return new Topic([
-            'id' => $row['id'], 
-            'name' => $row['name'],
-            'subject_id' => $row['subject_id'],
-            'photo' => $row['photo'],
-        ]);
+        if ($Topic) {
+            $Topic->update([
+                'name' => $row['name'],
+                'subject_id' => $row['subject_id'],
+                'photo' => $row['photo'] ? ("topic/" . $row['photo'] ?? null) : null,
+            ]);
+
+            return null;
+        } else {
+
+            return new Topic([
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'subject_id' => $row['subject_id'],
+                'photo' => $row['photo'] ? ("topic/" . $row['photo'] ?? null) : null,
+            ]);
+        }
     }
-
-}
 }

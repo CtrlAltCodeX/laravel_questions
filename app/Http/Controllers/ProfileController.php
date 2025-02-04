@@ -90,7 +90,7 @@ class ProfileController extends Controller
 
     public function users()
     {
-        $users = GoogleUser::all();
+        $users = GoogleUser::paginate(10);
         
         return view('users.index', compact('users'));
     }

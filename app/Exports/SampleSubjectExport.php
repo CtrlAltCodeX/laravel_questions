@@ -16,6 +16,6 @@ class SampleSubjectExport implements FromArray, WithHeadings
     public function headings(): array
     {
       
-        return ['id', 'name', 'sub_category_id', 'photo'];
+        return ['id', 'name', 'sub_category_id', 'photo', 'parent_id'];
     }
 }

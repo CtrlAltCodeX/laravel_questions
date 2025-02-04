@@ -5,17 +5,11 @@
 @section('content')
 
 <div class="flex justify-between items-center mb-4">
-    <!-- Heading -->
-
-
     <h1 class="text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">
         Category
     </h1>
 
-
-
     <div class="flex justify-end items-center gap-2">
-
         <a href="{{ route('category.export', request()->query()) }}" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
             Export
         </a>
@@ -95,7 +89,7 @@
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->id}}</th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->language->name}}</th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        <img src="{{ $category->photo ? asset('/public/storage/' . $category->photo) : '/dummy.jpg' }}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
+                        <img src="{{ $category->photo ? asset('/storage/' . $category->photo) : '/dummy.jpg' }}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                     </th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->name}}</th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->question_count}}</th>
@@ -125,7 +119,7 @@
         </table>
         @if(request()->data != 'all')
         <div class="flex justify-between items-center">
-            <div>
+            <div style="width: 92%;">
                 {{ $categorys->appends(request()->query())->links() }}
 
             </div>
@@ -146,7 +140,7 @@
     <div style="background-color: white;border-radius: 10px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);width: 30%;margin: auto;padding: 24px;position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
-            <button id="closeModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">
+            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">
                 X
             </button>
         </div>

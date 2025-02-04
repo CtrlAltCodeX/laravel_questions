@@ -40,7 +40,7 @@ class SubCategoryExport implements FromCollection, WithHeadings
                 'id' => $SubCategory->id,
                 'name' => $SubCategory->name,
                 'category_id' => $SubCategory->category_id,
-                'photo' => $SubCategory->photo ? asset('storage/' . $SubCategory->photo) : '',
+                'photo' => explode('/', $SubCategory->photo)[1] ?? $SubCategory->photo,
             ];
         });
     }

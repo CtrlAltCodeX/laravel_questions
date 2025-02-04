@@ -164,7 +164,7 @@
                     {{$topic->subject->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <img src="{{ $topic->photo ? '/public/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
+                    <img src="{{ $topic->photo ? '/storage/'.$topic->photo : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -209,7 +209,7 @@
 
     @if(request()->data != 'all')
     <div class="flex justify-between items-center">
-        <div>
+        <div style="width: 92%;">
             {{ $topics->appends(request()->query())->links() }}
 
         </div>
@@ -240,7 +240,7 @@
     ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
-            <button id="closeModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">X</button>
+            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
             @csrf

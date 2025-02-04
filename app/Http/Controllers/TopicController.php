@@ -101,7 +101,7 @@ class TopicController extends Controller
         $topic = Topic::create(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "topic/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 
@@ -122,7 +122,7 @@ class TopicController extends Controller
         $categoryId = $request->get('category_id');
         $subCategoryId = $request->get('sub_category_id');
         $subjectId = $request->get('subject_id');
-        
+
         return Excel::download(new topicsExport($languageId, $categoryId, $subCategoryId,  $subjectId), 'Topic.xlsx');
     }
 
@@ -143,7 +143,19 @@ class TopicController extends Controller
         $importer = new topicsImport();
 
         try {
-            Excel::import($importer, $request->file('file'));
+            $rows = Excel::import($importer, $request->file('file'));
+
+            foreach ($rows as $key => $row) {
+                $rowCount = $key + 2;
+
+                if (empty($row['subject_id'])) {
+                    return back()->with('error', 'Row: ' . $rowCount . '- Subcategory is required.');
+                }
+
+                if (!$this->getTopicId($row['subject_id'])) {
+                    return back()->with('error', 'Subcategory - "' . $row['subject_id'] . '" not available');
+                }
+            }
         } catch (\Exception $e) {
             return redirect()->route('topic.index')
                 ->with('import_errors', [$e->getMessage()]);
@@ -155,6 +167,11 @@ class TopicController extends Controller
         }
 
         return redirect()->route('topic.index')->with('success', 'topics imported successfully!');
+    }
+
+    private function getTopicId($id)
+    {
+        return \App\Models\Topic::find($id)->id ?? null;
     }
 
     /**
@@ -194,7 +211,7 @@ class TopicController extends Controller
         $topic->update(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "topic/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 

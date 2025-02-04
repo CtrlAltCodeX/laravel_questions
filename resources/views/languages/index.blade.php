@@ -55,7 +55,7 @@
     <div style="background-color: white;border-radius: 10px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);width: 30%;margin: auto;padding: 24px;position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
-            <button id="closeModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">
+            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">
                 X
             </button>
         </div>

@@ -12,7 +12,7 @@ class CategoryExport implements FromCollection, WithHeadings
 
     public function __construct($languageId = null)
     {
-        $this->languageId = $languageId; 
+        $this->languageId = $languageId;
     }
 
     public function collection()
@@ -28,7 +28,7 @@ class CategoryExport implements FromCollection, WithHeadings
                 'id' => $category->id,
                 'name' => $category->name,
                 'language_id' => $category->language_id,
-                'photo' => $category->photo ? asset('storage/' . $category->photo) : '',
+                'photo' => explode('/', $category->photo)[1] ?? $category->photo,
             ];
         });
     }

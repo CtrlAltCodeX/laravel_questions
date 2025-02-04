@@ -45,7 +45,7 @@ class CategoryController extends Controller
     public function export(Request $request)
     {
         $languageId = $request->get('language_id');
-     
+
         return Excel::download(new CategoryExport($languageId), 'categories.xlsx');
     }
 
@@ -64,7 +64,28 @@ class CategoryController extends Controller
         $importer = new CategoryImport();
 
         try {
-            Excel::import($importer, $request->file('file'));
+            // $ids = [];
+            $rows = Excel::import($importer, $request->file('file'));
+
+            foreach ($rows as $key => $row) {
+                $rowCount = $key + 2;
+
+                // if (!empty($row['id'])) {
+                //     if (in_array($row['id'], $ids)) {
+                //         return back()->with('error', 'Row: ' . $rowCount . ' - Duplicate ID found: ' . $row['id']);
+                //     }
+
+                //     $ids[] = $row['id']; // Store ID in array
+                // }
+
+                if (empty($row['language_id'])) {
+                    return back()->with('error', 'Row: ' . $rowCount . '- Subcategory is required.');
+                }
+
+                if (!$this->getLanguageId($row['language_id'])) {
+                    return back()->with('error', 'Subcategory - "' . $row['language_id'] . '" not available');
+                }
+            }
         } catch (\Exception $e) {
             return redirect()->route('category.index')
                 ->with('import_errors', [$e->getMessage()]);
@@ -78,6 +99,10 @@ class CategoryController extends Controller
         return redirect()->route('category.index')->with('success', 'Categories imported successfully!');
     }
 
+    private function getLanguageId($id)
+    {
+        return \App\Models\Language::find($id)->id ?? null;
+    }
 
     public function create()
     {
@@ -95,7 +120,7 @@ class CategoryController extends Controller
 
         $category = Category::create(request()->all());
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "category/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 
@@ -129,7 +154,7 @@ class CategoryController extends Controller
         $category->update(request()->all());
 
         if ($request->hasFile('photo')) {
-            $fileName = "site/" . time() . "_photo.jpg";
+            $fileName = "category/" . time() . "_photo.jpg";
 
             $request->file('photo')->storePubliclyAs('public', $fileName);
 

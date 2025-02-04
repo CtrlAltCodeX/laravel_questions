@@ -15,12 +15,11 @@ class CategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithValid
 {
     use SkipsErrors;
 
-    public $validationErrors = []; 
+    public $validationErrors = [];
 
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
             'name' => 'required|string|max:255',
             'language_id' => 'required|integer',
             'photo' => 'nullable|string|max:255',
@@ -29,13 +28,13 @@ class CategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithValid
 
     public function model(array $row)
     {
-        // Validation happens automatically before this method is called
         $category = Category::find($row['id']);
+
         if ($category) {
             $category->update([
                 'name' => $row['name'],
                 'language_id' => $row['language_id'],
-                'photo' => $row['photo'],
+                'photo' => $row['photo'] ? ("category/" . $row['photo']) ?? null : null,
             ]);
             return null;
         } else {
@@ -43,7 +42,7 @@ class CategoryImport implements ToModel, WithHeadingRow, SkipsOnError, WithValid
                 'id' => $row['id'],
                 'name' => $row['name'],
                 'language_id' => $row['language_id'],
-                'photo' => $row['photo'],
+                'photo' => $row['photo'] ? ("category/" . $row['photo']) ?? null : null,
             ]);
         }
     }

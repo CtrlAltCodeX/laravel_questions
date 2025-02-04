@@ -247,7 +247,7 @@
                                         <td class="p-2" data-column="subject">
                                             <input type="hidden" value="${subject1.id}" id='subject_${i}' />
                                             <input type="hidden" value="${subject2.id}" id='subject2_${i}' />
-                                            ${subject1.name} | ${subject2.name}
+                                            ${subject1.name} | ${subject2.name??''}
                                         </td>
                                         <td class="p-2" data-column="questions">
                                             <input id="questions_${i}" data-id="${i}" name="subjects[${subject2.id}]" type="text" class="questionno px-4 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:border-blue-600" placeholder="Questions">

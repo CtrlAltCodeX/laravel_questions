@@ -187,9 +187,9 @@ class QuestionBankController extends Controller
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
                 // Update the hidden input value with the new file path
-                $data['photo'] = '/storage/questions/' . $profileImage;
+                $data['photo'] = $profileImage;
             } else {
-                !empty($file) ? $profileImage = '/storage/questions/' . $file : $profileImage = null;
+                !empty($file) ? $profileImage = $file : $profileImage = null;
             }
         }
 
@@ -245,7 +245,7 @@ class QuestionBankController extends Controller
         $subCategories = SubCategory::where('category_id', $question->category_id)->get();
         $subjects = Subject::where('sub_category_id', $question->sub_category_id)->get();
         $topics = Topic::where('subject_id', $question->subject_id)->get();
-    
+
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories,
@@ -253,7 +253,7 @@ class QuestionBankController extends Controller
             'Select Subject' => $subjects,
             'Select Topic' => $topics,
         ];
-    
+
 
         return response()->json([
             'success' => true,
@@ -266,7 +266,7 @@ class QuestionBankController extends Controller
             'topics' => $topics,
         ]);
     }
-    
+
     /**
      * Update the specified resource in storage.
      */
@@ -307,20 +307,20 @@ class QuestionBankController extends Controller
             if ($file instanceof UploadedFile) {
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
-                $data['photo'] = '/storage/questions/' . $profileImage;;
+                $data['photo'] = $profileImage;
             } else {
                 !empty($file) ? $profileImage = $file : $profileImage = null;
             }
         }
 
-        $questionObj = Question::updateOrCreate(
+        Question::updateOrCreate(
             [
                 'id' => $data['id'],
             ],
             [
                 'id' => $data['id'],
                 'question_number' => $data['qno'][0],
-                'question' => $data['question'],
+                'question' => $data['question'][0],
                 'photo' => $data['photo'] ?? null,
                 'photo_link' => $data['photo_link'] ?? null,
                 'notes' => $data['notes'][0],
@@ -461,16 +461,45 @@ class QuestionBankController extends Controller
                 }
             }
 
+            if (empty($row['qno'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Question No. is required.');
+            }
+
+            if (empty($row['question'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Question is required.');
+            }
+
+            if (empty($row['option_a'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Option A is required.');
+            }
+
+            if (empty($row['option_b'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Option B is required.');
+            }
+
+            if (empty($row['option_c'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Option C is required.');
+            }
+
+            if (empty($row['option_d'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Option D is required.');
+            }
+
+            if (empty($row['answer'])) {
+                return back()->with('error', 'Row: ' . $rowCount . '- Answer is required.');
+            }
+
+            if (!in_array($row['answer'], ['A', 'B', 'C', 'D'])) {
+                return back()->with('error', 'Row: ' . $rowCount . ' - Answer must be A, B, C, or D.');
+            }
+
             if (empty($row['language_id'])) {
                 return back()->with('error', 'Row: ' . $rowCount . '- language is required.');
             }
 
-            // Perform validation checks for required IDs
-            // foreach ($languageIds as $languageId) {
             if (!$this->getLanguageId($row['language_id'])) {
                 return back()->with('error', 'Language -  "' . $row['language_id'] . '" not available');
             }
-            // }
 
             if (empty($row['category'])) {
                 return back()->with('error', 'Row: ' . $rowCount . '- Category is required.');
@@ -572,11 +601,6 @@ class QuestionBankController extends Controller
         }
 
         return response()->json(['message' => 'No questions selected.'], 400);
-    }
-
-    public function printToConsole($data)
-    {
-        echo "<script>console.log(" . json_encode($data) . ");</script>";
     }
 
     public function questionNoExist()
@@ -720,7 +744,7 @@ class QuestionBankController extends Controller
                             } else {
                                 foreach ($filteredQuestions as $questionFirst) {
                                     $img = isset($questionFirst->photo) && $questionFirst->photo != 0
-                                        ? '<br><img src="{{ url("/") }}public/storage/questions/' . $questionFirst->photo . '"/>'
+                                        ? '<br><img src="https://iti.online2study.in/storage/questions/' . $questionFirst->photo . '"/>'
                                         : (isset($questionFirst->photo_link)
                                             ? '<br><img src="' . $questionFirst->photo_link . '"/>'
                                             : '');

@@ -127,7 +127,7 @@
                     {{$sub_category->category->name}}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <img src="{{$sub_category->photo ?asset('/public/storage/' .$sub_category->photo) : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
+                    <img src="{{$sub_category->photo ?asset('/storage/' .$sub_category->photo) : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -170,7 +170,7 @@
     </table>
     @if(request()->data != 'all')
     <div class="flex justify-between items-center">
-        <div>
+        <div style="width: 92%;">
             {{ $sub_categories->appends(request()->query())->links() }}
 
         </div>
@@ -190,7 +190,7 @@
     <div style="background-color: white;border-radius: 10px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);width: 30%;margin: auto;padding: 24px;position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
-            <button id="closeModal" style="background: none; border: none; cursor: pointer; color: #6B7280;">
+            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">
                 X
             </button>
         </div>

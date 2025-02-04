@@ -29,12 +29,17 @@
                 <div class="flex items-center">
                     <div class="flex items-center ms-3 relative">
                         <div>
-                            <button type="button" id='profile' class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+                            <button
+                                type="button"
+                                id="profile"
+                                class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
                                 <span class="sr-only">Open user menu</span>
-                                <img class="w-8 h-8 rounded-full" src="/dummy.jpg" alt="user photo">
+                                <img class="w-16 w-16 rounded-full border" src="/dummy-profile.jpg" alt="user photo">
                             </button>
                         </div>
-                        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600 absolute top-[20px] right-[2px]" id="dropdown-user">
+                        <div
+                            class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600 absolute top-[20px] right-[2px]"
+                            id="dropdown-user">
                             <div class="px-4 py-3" role="none">
                                 <p class="text-sm text-gray-900 dark:text-white" role="none">
                                     {{auth()->user()->name}}
@@ -47,7 +52,11 @@
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
-                                        <button type="submit" class="w-full block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</button>
+                                        <button
+                                            type="submit"
+                                            class="w-full block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
+                                            Sign out
+                                        </button>
                                     </form>
                                 </li>
                             </ul>
@@ -62,14 +71,16 @@
             </div>
             @endif
             @if(session('import_errors'))
-    <div class="alert alert-danger">
-        <ul>
-            @foreach(session('import_errors') as $error)
-                <li><h4>Import Errors:</h4> {{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach(session('import_errors') as $error)
+                    <li>
+                        <h4>Import Errors:</h4> {{ $error }}
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             @if(session()->has('error'))
             <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
                 <span class="font-medium">{{session()->get('error')}}</span>
@@ -87,9 +98,32 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#profile').on('click', function() {
-                $("#dropdown-user").toggleClass('hidden');
+        // $(document).ready(function() {
+        //     $('#profile').on('click', function() {
+        //         $("#dropdown-user").toggleClass('hidden');
+        //     });
+        // });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const profileButton = document.getElementById("profile");
+            const dropdownMenu = document.getElementById("dropdown-user");
+
+            // Toggle dropdown on button click
+            profileButton.addEventListener("click", function(e) {
+                e.stopPropagation(); // Prevent click from propagating to document
+                dropdownMenu.classList.toggle("hidden");
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", function() {
+                dropdownMenu.classList.add("hidden");
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            dropdownMenu.addEventListener("click", function(e) {
+                e.stopPropagation();
             });
         });
     </script>

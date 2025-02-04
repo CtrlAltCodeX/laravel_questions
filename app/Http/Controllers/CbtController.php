@@ -100,7 +100,7 @@ class CbtController extends Controller
 
             $subject->questions = $questions;
 
-            $subjects2[] = Subject::where('parent_id', $subject->id)->first()->toArray();
+            $subjects2[] = Subject::where('parent_id', $subject->id)->first()?->toArray()??[];
         }
 
         return response()->json(['subjects1' => $subjects1, 'subjects2' => $subjects2]);
@@ -161,7 +161,7 @@ class CbtController extends Controller
 
             foreach ($questionArray as $key => $getQuestions) {
                 $img = isset($getQuestions->photo) && $getQuestions->photo != 0
-                    ? '<br><img src="https://iti.online2study.in/public/storage/questions/' . $getQuestions->photo . '"/>'
+                    ? '<br><img src="https://iti.online2study.in/storage/questions/' . $getQuestions->photo . '"/>'
                     : (isset($getQuestions->photo_link)
                         ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                         : '');
