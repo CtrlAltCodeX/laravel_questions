@@ -217,7 +217,9 @@ class QuizController extends Controller
         $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
         // Get all the subjects for the subcategories
-        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+        // $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+
+        $subjects = isset($data['Subject']) ? Subject::where('id', $data['Subject'])->get() : Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
 
         // Get all the topics for the subjects
         $topics = isset($data['Topic']) ? Topic::where('id', $data['Topic'])->get() : Topic::where('subject_id', $subjects->pluck('id')->toArray()[0])->get();
@@ -262,8 +264,9 @@ class QuizController extends Controller
 
         $subcategories = isset($data['SubCategory_2']) ? SubCategory::where('id', $data['SubCategory_2'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
+        $subjects = isset($data['Subject_2']) ? Subject::where('id', $data['Subject_2'])->get() : Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
         // Get all the subjects for the subcategories
-        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+        // $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
 
         // Get all the topics for the subjects
         $topics = isset($data['Topic_2']) ? Topic::where('id', $data['Topic_2'])->get() : Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();

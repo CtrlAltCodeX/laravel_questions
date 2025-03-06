@@ -321,7 +321,7 @@ class QuestionBankController extends Controller
                 'id' => $data['id'],
                 'question_number' => $data['qno'][0],
                 'question' => $data['question'][0],
-                'photo' => $data['photo'] ?? null,
+                'photo' => ($data['photo'] != 'null') ? $data['photo'] : null,
                 'photo_link' => $data['photo_link'] ?? null,
                 'notes' => $data['notes'][0],
                 'level' => $data['level'],

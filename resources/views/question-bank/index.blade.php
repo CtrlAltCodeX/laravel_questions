@@ -445,6 +445,7 @@ $levels = [
     </div>
 </div>
 
+@if(count($questions))
 <div id="editModal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style="
         background-color: white; 
@@ -477,6 +478,7 @@ $levels = [
         </form>
     </div>
 </div>
+@endif
 
 @endsection
 
