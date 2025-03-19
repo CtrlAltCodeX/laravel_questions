@@ -4,6 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CbtController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\ScoreBoardController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\WalletHistoryController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,3 +35,18 @@ Route::middleware('authapi')->group(function () {
 
     Route::get('cbt', [CbtController::class, 'deploy']);
 });
+
+
+Route::get('/reports', [ReportController::class, 'index']);
+Route::post('/reports', [ReportController::class, 'store']); 
+
+// wallet
+
+Route::get('/wallet-history', [WalletHistoryController::class, 'index']);
+Route::post('/wallet-add', [WalletHistoryController::class, 'walletAdd']);
+Route::post('/wallet-charges', [WalletHistoryController::class, 'walletCharges']);
+
+
+Route::post('/scoreboard', [ScoreBoardController::class, 'store']);
+Route::get('/scoreboard/{userId}', [ScoreBoardController::class, 'show']);
+

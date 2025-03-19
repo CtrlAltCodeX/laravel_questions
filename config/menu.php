@@ -55,6 +55,7 @@ return [
                     'route' => 'bank-question.index',
                     'icon' => 'fa fa-folder-open',
                 ],
+               
                 [
                     'name' => 'Quiz',
                     'route' => 'quiz.index',
@@ -84,6 +85,38 @@ return [
                     'icon' => 'fa fa-shield',
                 ],
             ],
+        ],
+
+        [
+            'name' => 'Offer',
+            'route' => 'offers.index',
+            'icon' => 'fa fa-home',
+        ],
+        [
+            'name' => 'Videos',
+            'route' => 'videos.index',
+            'icon' => 'fa fa-home',
+        ],
+        [
+            'name' => 'Reports',
+            'route' => 'reports.index',
+            'icon' => 'fa fa-home',
+        ],
+
+        [
+            'name' => 'Wallet History',
+            'route' => 'WalletHistory.index',
+            'icon' => 'fa fa-home',
+        ],
+        [
+            'name' => 'Score Board',
+            'route' => 'ScoreBoard.index',
+            'icon' => 'fa fa-home',
+        ],
+        [
+            'name' => 'Setting',
+            'route' => 'settings.index',
+            'icon' => 'fa fa-home',
         ],
     ],
 ];

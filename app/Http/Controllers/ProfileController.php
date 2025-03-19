@@ -88,10 +88,43 @@ class ProfileController extends Controller
         return redirect()->route('users.index')->with('success','User deleted successfully!');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = GoogleUser::paginate(10);
-        
+        $query = GoogleUser::with(['category' => function($q) {
+            $q->with('language'); // Category ke saath Language ka data bhi load karega
+        }]);
+    
+        if ($request->filled('category_id')) { // Ensure category_id is not empty/null
+            $query->where('category_id', $request->category_id);
+        }
+    
+        $users = $query->paginate(10);
+    
+    
         return view('users.index', compact('users'));
     }
+    
+ 
+    public function updateCoinsAndStatus(Request $request, $id)
+{
+    $request->validate([
+        'coins' => 'required|integer|min:0',
+        'status' => 'required|boolean'
+    ]);
+
+    // GoogleUser ko dhoondein
+    $user = GoogleUser::findOrFail($id);
+
+    // Existing coins me naye coins add karein
+    $user->coins += $request->coins;
+
+    // Status update karein
+    $user->status = $request->status;
+
+    // Database me save karein
+    $user->save();
+    return response()->json(['success' => true, 'message' => 'Coins and status updated successfully.', 'user' => $user], 201);
+
+}
+
 }

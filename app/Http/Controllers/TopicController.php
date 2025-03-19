@@ -31,7 +31,7 @@ class TopicController extends Controller
         $subcategory_id = $request->get('sub_category_id');
         $category_id = $request->get('category_id');
         $language_id = $request->get('language_id');
-
+       
         $sortColumn = $request->get('sort', 'topics.id');
         $sortDirection = $request->get('direction', 'desc');
 

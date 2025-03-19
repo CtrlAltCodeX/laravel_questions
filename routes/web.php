@@ -9,10 +9,17 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TopicController;
+use App\Http\Controllers\OfferController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\WalletHistoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ScoreBoardController;
+use App\Http\Controllers\SettingController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -47,6 +54,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
+    Route::put('/users/update-coins-status/{id}', [ProfileController::class, 'updateCoinsAndStatus'])
+    ->name('users.updateCoinsAndStatus');
+
+
     Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
@@ -69,6 +80,24 @@ Route::middleware('auth')->group(function () {
     Route::post('subject/import/file', [SubjectController::class, 'import'])->name('subject.import');
 
     Route::resource('topic', TopicController::class);
+    Route::resource('offers', OfferController::class);
+    Route::resource('videos', VideoController::class);
+    Route::get('videos/export/file', [VideoController::class, 'export'])->name('videos.export');
+    Route::post('videos/import/file', [VideoController::class, 'import'])->name('videos.import');
+
+    Route::get('/reports', [ReportController::class, 'webindex'])->name('reports.index');
+    Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])->name('WalletHistory.index');
+    Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])->name('reports.updateVideo');
+    Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])->name('reports.updateQuestion');
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
+
+    Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])->name('reports.edit');
+
+    Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+
     Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
     Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');
     Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');
