@@ -21,18 +21,18 @@ class QuestionsExport implements FromCollection, WithHeadings
     public function collection()
     {
         $formattedQuestions = [];
-    
+
         foreach ($this->questions as $question) {
             $formattedQuestion = [];
-    
+
             // Add question number
             $formattedQuestion[] = $question['qno'];
-    
+
             // Add language names
             // foreach ($this->languages as $languageId) {
             //     $formattedQuestion[] = $question['language'][$languageId] ?? '';
             // }
-    
+
             // Add category, subCategory, subject, and topic
             $formattedQuestion[] = $question['language_id'];
             $formattedQuestion[] = $question['category'];
@@ -44,65 +44,71 @@ class QuestionsExport implements FromCollection, WithHeadings
             $formattedQuestion[] = $question['option_b'];
             $formattedQuestion[] = $question['option_c'];
             $formattedQuestion[] = $question['option_d'];
-    
+
             // Add questions for each language
             // foreach ($this->languages as $languageId) {
             //     $formattedQuestion[] = $question['question'][$languageId] ?? '';
             // }
-    
+
             // // Add options for each language
             // foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
             //     foreach ($this->languages as $languageId) {
             //         $formattedQuestion[] = $question[$option][$languageId] ?? '';
             //     }
             // }
-    
+
             // Add other fields
             $formattedQuestion[] = $question['answer'];
             $formattedQuestion[] = $question['notes'];
             $formattedQuestion[] = $question['level'];
             $formattedQuestion[] = $question['photo'];
             $formattedQuestion[] = $question['photo_link'];
-    
+
             $formattedQuestions[] = $formattedQuestion;
         }
-    
+
         return new Collection($formattedQuestions);
     }
 
     public function headings(): array
     {
-        $headings = ['qno'];
-    
+        $headings = [];
+
         // Add language headings
-        foreach ($this->languages as $languageId) {
-            $headings[] = "language_id";
-        }
-    
+        // foreach ($this->languages as $languageId) {
+        //     $headings[] = "language_id";
+        // }
+
         // Add static headings
         $headings = array_merge($headings, [
-            'category', 'subcategory', 'subject', 'topic'
+            'id',
+            'qno ',
+            'language_id',
+            'category',
+            'subcategory',
+            'subject',
+            'topic'
         ]);
-    
+
         // Add question headings for each language
-        foreach ($this->languages as $languageId) {
-            $languageName = Language::findOrFail($languageId)->name;
-            $headings[] = "question";
-        }
-    
-        // Add option headings for each language
-        foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
-            foreach ($this->languages as $languageId) {
-                $languageName = Language::findOrFail($languageId)->name;
-                $headings[] = "$option";
-            }
-        }
-    
+        // foreach ($this->languages as $languageId) {
+        //     $languageName = Language::findOrFail($languageId)->name;
+        //     $headings[] = "question";
+        // }
+
+        // // Add option headings for each language
+        // foreach (['option_a', 'option_b', 'option_c', 'option_d'] as $option) {
+        //     foreach ($this->languages as $languageId) {
+        //         $languageName = Language::findOrFail($languageId)->name;
+        //         $headings[] = "$option";
+        //     }
+        // }
+
+        $columns = ['question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
+
         // Add other field headings
-        $headings = array_merge($headings, [
-            'answer', 'notes', 'level', 'photo', 'photo_link'
-        ]);
-    
+        $headings = array_merge($headings, $columns);
+
         return $headings;
     }
 }

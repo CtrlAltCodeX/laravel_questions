@@ -370,7 +370,11 @@ class QuestionBankController extends Controller
     public function export(Request $request)
     {
         $languages = $request->input('languages', []);
-        $query = Question::whereIn('language_id', $languages);
+        $query = Question::query();
+
+        if ($request->language_id != '') {
+            $query->where('language_id', $request->language_id);
+        }
 
         if ($request->category_id != '') {
             $query->where('category_id', $request->category_id);
@@ -390,6 +394,7 @@ class QuestionBankController extends Controller
 
         // Get the questions based on filters
         $question_query = $query->with(['topic', 'subject', 'subCategory', 'category'])->get();
+
         $questions = [];
 
         foreach ($question_query as $question) {
@@ -452,7 +457,7 @@ class QuestionBankController extends Controller
 
         foreach ($rows[0] as $key => $row) {
             $rowCount = $key + 2;
-            $requiredKeys = ['qno', 'language_id', 'category', 'subcategory', 'subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
+            $requiredKeys = ['id', 'qno', 'language_id', 'category', 'subcategory', 'subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
 
             // Check if all required keys exist in the row
             foreach ($requiredKeys as $requiredKey) {

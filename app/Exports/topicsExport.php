@@ -66,6 +66,6 @@ class topicsExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['ID', 'Name', 'Subject ID', 'Photo'];
+        return ['id', 'name', 'subject_id', 'photo'];
     }
 }

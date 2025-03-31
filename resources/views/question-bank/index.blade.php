@@ -2,17 +2,17 @@
 @section('title', 'Question')
 @php
 $dropdown_list = [
-'Select Language' => $languages,
-'Select Category' => $categories,
-'Select Sub Category' => $subcategories ?? [],
-'Select Subject' => $subjects ?? [],
-'Select Topic' => $topics ?? [],
+    'Select Language' => $languages,
+    'Select Category' => $categories,
+    'Select Sub Category' => $subcategories ?? [],
+    'Select Subject' => $subjects ?? [],
+    'Select Topic' => $topics ?? [],
 ];
 
 $levels = [
-'1' => 'Easy',
-'2' => 'Medium',
-'3' => 'Hard',
+    '1' => 'Easy',
+    '2' => 'Medium',
+    '3' => 'Hard',
 ]
 @endphp
 <style>
@@ -73,10 +73,18 @@ $levels = [
         <div class="flex justify-end items-center gap-2">
             <a href="/questions.xlsx" download="" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Download Sample</a>
 
-            <button id="exportButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+            <form action="{{ route('questions.export') }}" class="mb-0">
+                <input type="hidden" value="{{ request()->language_id }}" name="language_id">
+                <input type="hidden" value="{{ request()->category_id }}" name="category_id">
+                <input type="hidden" value="{{ request()->sub_category_id }}" name="sub_category_id">
+                <input type="hidden" value="{{ request()->subject_id }}" name="subject_id">
+                <input type="hidden" value="{{ request()->topic_id }}" name="topic_id">
+
+                <button type='submit' class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Export</button>
+            </form>
 
             <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-
+            
             <input type="file" id="importInput" name="file" class="form-control hidden" required>
 
             <button id="createButton" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
@@ -752,7 +760,7 @@ $levels = [
             let languageCheckBoxes = "";
             @foreach($languages as $language)
             languageCheckBoxes += `
-            <div id="languageSelectContainer">
+                <div id="languageSelectContainer">
                     <div class="flex gap-x-5 items-center">
             
                           <input type="checkbox" id="language_{{ $language->id }}" value="{{ $language->id }}">
