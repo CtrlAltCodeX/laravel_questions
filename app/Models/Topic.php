@@ -16,7 +16,9 @@ class Topic extends Model
     protected $fillable = [
         'name',
         'subject_id',
-        'photo'
+        'photo',
+        'status',
+        'access'
     ];
 
     public function subject()

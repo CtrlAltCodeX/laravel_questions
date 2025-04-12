@@ -140,6 +140,14 @@
                 <th scope="col" class="px-6 py-3">
                     Question Count
                 </th>
+
+                <th scope="col" class="px-6 py-3">
+                    Status
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Access
+                </th>
+
                 <th scope="col" class="px-6 py-3">
                     Action
                 </th>
@@ -174,6 +182,24 @@
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ count($topic->question) }}
                 </th>
+                @php
+    $status = ucfirst($topic->status);
+    $statusClass = $topic->status === 'enabled' ? 'text-green-600' : 'text-red-600';
+@endphp
+
+<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
+    {{ $status }}
+</th>
+
+
+@php
+    $access = ucfirst($topic->access);
+    $accessClass = $topic->access === 'unlock' ? 'text-green-600' : 'text-red-600';
+@endphp
+
+<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $accessClass }}">
+    {{ $access }}
+</th>
 
                 <td class="px-6 py-4 flex gap-4">
                     <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -183,7 +209,9 @@
                         data-photo="{{ $topic->photo }}"
                         data-category-id="{{ $topic->subject->subCategory->category->id }}"
                         data-sub-category-id="{{ $topic->subject->subCategory->id }}"
-                        data-subject-id="{{ $topic->subject->id }}">
+                        data-subject-id="{{ $topic->subject->id }}"
+                        data-status="{{ $topic->status }}"
+                        data-access="{{ $topic->access }}">
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg>
@@ -309,6 +337,23 @@
                 @enderror
             </div>
 
+            <div class="form-group">
+    <label for="status">Status</label>
+    <select name="status" id="status" class="form-control">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="access">Access</label>
+    <select name="access" id="access" class="form-control">
+    <option value="unlock">Unlock</option>
+        <option value="lock">Lock</option>
+      
+    </select>
+</div>
+
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Save
             </button>
@@ -357,12 +402,16 @@
                 const subCategoryId = this.getAttribute('data-sub-category-id');
                 const subjectId = this.getAttribute('data-subject-id');
 
+                const status = this.getAttribute('data-status');
+                const access = this.getAttribute('data-access');
                 // Set modal for editing a subcategory
                 document.getElementById('modalTitle').innerText = 'Edit Topics';
                 document.getElementById('modalForm').action = `/topic/${id}`;
                 document.getElementById('modalForm').method = 'POST';
                 document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
                 document.getElementById('name').value = name;
+                document.getElementById('status').value = status;
+                document.getElementById('access').value = access;
                 document.getElementById('select_language').value = languageId;
                 document.getElementById('select_category').value = categoryId;
                 document.getElementById('select_sub_category').value = subCategoryId;

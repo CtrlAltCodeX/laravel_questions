@@ -144,27 +144,37 @@ class SubCategoryController extends Controller
 
     public function store(Request $request)
     {
-        request()->validate([
+        // Validate incoming request
+        $request->validate([
             'category_id' => 'required',
             'name' => 'required',
+        
         ]);
-
-        $subcategory = SubCategory::create(request()->all());
-
+    
+        // Prepare data for insertion
+        $data = $request->only(['category_id', 'name', 'plan_type','status']);
+    
+        // Convert plans array to JSON string
+        $data['plans'] = json_encode($request->plans);
+    
+        // Create subcategory with basic info
+        $subcategory = SubCategory::create($data);
+    
+        // Handle image upload if exists
         if ($request->hasFile('photo')) {
             $fileName = "sub_category/" . time() . "_photo.jpg";
-
             $request->file('photo')->storePubliclyAs('public', $fileName);
-
             $subcategory->photo = $fileName;
-
             $subcategory->save();
         }
-
-        // return redirect()->route('sub-category.index');
-        return response()->json(['success' => true, 'message' => 'Successfully Created', 'subcategory' => $subcategory]);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'SubCategory created successfully with plan details!',
+            'subcategory' => $subcategory
+        ]);
     }
-
+    
     public function edit(string $id)
     {
         $sub_categories = SubCategory::find($id);
@@ -179,30 +189,41 @@ class SubCategoryController extends Controller
 
     public function update(Request $request, string $id)
     {
-        request()->validate([
+        // Validate incoming request
+        $request->validate([
             'category_id' => 'required',
             'name' => 'required',
         ]);
-
-        $subcategory = SubCategory::find($id);
-
-        $subcategory->update(request()->all());
-
+    
+        // Find the subcategory
+        $subcategory = SubCategory::findOrFail($id);
+    
+        // Prepare the data for update
+        $data = $request->only(['category_id', 'name', 'plan_type','status']);
+    
+        // Convert plans array to JSON string if provided
+        if ($request->has('plans')) {
+            $data['plans'] = json_encode($request->plans);
+        }
+    
+        // Update subcategory
+        $subcategory->update($data);
+    
+        // Handle image upload if exists
         if ($request->hasFile('photo')) {
             $fileName = "sub_category/" . time() . "_photo.jpg";
-
             $request->file('photo')->storePubliclyAs('public', $fileName);
-
             $subcategory->photo = $fileName;
-
             $subcategory->save();
         }
-
-        return response()->json(['success' => true, 'message' => 'Successfully Updated', 'subcategory' => $subcategory]);
-        // return redirect()->route('sub-category.index');
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'SubCategory updated successfully!',
+            'subcategory' => $subcategory
+        ]);
     }
-
-
+    
     public function destroy(string $id)
     {
         SubCategory::find($id)

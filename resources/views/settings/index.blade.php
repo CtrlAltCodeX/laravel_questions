@@ -13,14 +13,23 @@
 
     <form action="{{ route('settings.store') }}" method="POST">
         @csrf
-        <div class="mb-3">
-            <label for="refer_coin" class="form-label">Refer Coin</label>
-            <input type="number" class="form-control" id="refer_coin" name="refer_coin" value="{{ $setting->refer_coin ?? '' }}" required>
-        </div>
-        <div class="mb-3">
-            <label for="welcome_coin" class="form-label">Welcome Coin</label>
-            <input type="number" class="form-control" id="welcome_coin" name="welcome_coin" value="{{ $setting->welcome_coin ?? '' }}" required>
-        </div>
+        <div class="flex flex-row items-center gap-4">
+    <div class="flex flex-col">
+        <label for="refer_coin" class="form-label mb-1">Refer Coin</label>
+        <input type="number" class="form-control" id="refer_coin" name="refer_coin" value="{{ $setting->refer_coin ?? '' }}" required>
+    </div>
+
+    <div class="flex flex-col">
+        <label for="welcome_coin" class="form-label mb-1">Welcome Coin</label>
+        <input type="number" class="form-control" id="welcome_coin" name="welcome_coin" value="{{ $setting->welcome_coin ?? '' }}" required>
+    </div>
+
+    <div class="mt-6">
         <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</div>
+
+
+
     </form>
 @endsection

@@ -17,6 +17,10 @@ class Subject extends Model
         'sub_category_id',
         'name',
         'photo',
+        'status',
+        'plan',
+        'amount',
+        'validity',
         'parent_id',
     ];
 
