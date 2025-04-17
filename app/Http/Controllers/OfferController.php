@@ -141,6 +141,73 @@ class OfferController extends Controller {
     }
 
 
+    public function getOffersApi(Request $request)
+{
+    $subject_id = $request->get('subject_id');
+    $subcategory_id = $request->get('sub_category_id');
+    $category_id = $request->get('category_id');
+    $language_id = $request->get('language_id');
+    $sortColumn = $request->get('sort', 'offers.id');
+    $sortDirection = $request->get('direction', 'desc');
+
+    $query = Offer::select('offers.*')->with('subject.subCategory.category.language');
+
+    if ($subject_id) {
+        $query->where('subject_id', $subject_id);
+    }
+
+    if ($subcategory_id) {
+        $query->whereHas('subject', function ($q) use ($subcategory_id) {
+            $q->where('sub_category_id', $subcategory_id);
+        });
+    }
+
+    if ($category_id) {
+        $query->whereHas('subject.subCategory', function ($q) use ($category_id) {
+            $q->where('category_id', $category_id);
+        });
+    }
+
+    if ($language_id) {
+        $query->whereHas('subject.subCategory.category', function ($q) use ($language_id) {
+            $q->where('language_id', $language_id);
+        });
+    }
+
+    $sortableColumns = [
+        'id' => 'offers.id',
+        'name' => 'offers.name',
+        'language' => 'languages.name',
+        'category' => 'categories.name',
+        'sub_category' => 'sub_categories.name',
+        'subject' => 'subjects.name'
+    ];
+
+    if (array_key_exists($sortColumn, $sortableColumns)) {
+        $query->join('subjects', 'offers.subject_id', '=', 'subjects.id')
+            ->join('sub_categories', 'subjects.sub_category_id', '=', 'sub_categories.id')
+            ->join('categories', 'sub_categories.category_id', '=', 'categories.id')
+            ->join('languages', 'categories.language_id', '=', 'languages.id');
+
+        $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
+    }
+
+    if ($request->get('data') == 'all') {
+        $offers = $query->get();
+    } else {
+        $offers = $query->paginate($request->get('data', 10));
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Offers fetched successfully',
+        'data' => $offers
+    ]);
+}
+
+
+
+
     public function destroy(string $id)
     {
         Offer::destroy($id);
@@ -150,3 +217,5 @@ class OfferController extends Controller {
         return redirect()->route('offers.index');
     }
 }
+
+

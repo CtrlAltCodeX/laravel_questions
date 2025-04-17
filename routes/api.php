@@ -7,9 +7,11 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ScoreBoardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WalletHistoryController;
-
+use App\Http\Controllers\GoogleUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OfferController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,4 +51,26 @@ Route::post('/wallet-charges', [WalletHistoryController::class, 'walletCharges']
 
 Route::post('/scoreboard', [ScoreBoardController::class, 'store']);
 Route::get('/scoreboard/{userId}', [ScoreBoardController::class, 'show']);
+
+// for post and get user
+// Route::post('/user/update', [GoogleUserController::class, 'updateUser']);
+// Route::post('/user/update-language-category', [GoogleUserController::class, 'updateLanguageCategory']);
+// Route::post('/user/delete', [GoogleUserController::class, 'deleteUser']);
+// Route::get('/user/profile', [GoogleUserController::class, 'getProfile']);
+
+
+Route::post('/user/delete/{id}', [GoogleUserController::class, 'deleteUser']);
+Route::get('/user/profile/{id}', [GoogleUserController::class, 'getProfile']);
+Route::post('/user/update/{id}', [GoogleUserController::class, 'updateUser']);
+Route::post('/user/update-language-category/{id}', [GoogleUserController::class, 'updateLanguageCategory']);
+
+// get offer 
+Route::get('/offers', [OfferController::class, 'getOffersApi']);
+
+// get 7. Refer and Welcome Coin
+Route::get('/coins', [SettingController::class, 'getSettingsApi']);
+
+
+
+
 

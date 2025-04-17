@@ -14,6 +14,26 @@ class SettingController extends Controller
         return view('settings.index', compact('setting'));
     }
 
+    public function getSettingsApi()
+{
+    $setting = Setting::first();
+
+    if ($setting) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Settings fetched successfully',
+            'data' => $setting
+        ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'No settings found',
+            'data' => null
+        ], 404);
+    }
+}
+
+
     public function store(Request $request)
     {
         $request->validate([
