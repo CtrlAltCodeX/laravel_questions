@@ -138,7 +138,7 @@ class VideoController extends Controller
         $subjectId = $request->get('subject_id');
         $topicId = $request->get('topic_id');
 
-        return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId,$topicId), 'Videos.xlsx');
+        return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId, $topicId), 'Videos.xlsx');
     }
 
 
@@ -191,43 +191,50 @@ class VideoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-        public function store(Request $request)
-        {
-            request()->validate([
-                'name' => 'required',
-                'topic_id' => 'required',
-              
+    public function store(Request $request)
+    {
+        request()->validate([
+            'name' => 'required',
+            'topic_id' => 'required',
+        ]);
 
-            ]);
-        
-            // Create Video with duration set to current time
-            $Video = Video::create(array_merge($request->all(), [
-                'duration' => now()->format('H:i:s') // Storing only current time (HH:MM:SS)
-            ]));
-        
-            if ($request->hasFile('thumbnail')) {
-                $fileName = "thumbnail/" . time() . "_photo.jpg";
-                $request->file('thumbnail')->storePubliclyAs('public', $fileName);
-                $Video->thumbnail = $fileName;
-            
-            }
-            if ($request->hasFile('pdf_link')) {
-                $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
-                $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
-                $Video->pdf_link = $pdfFileName;
-            }
-        
-            $Video->save();
-        
-            session()->flash('success', 'Video Successfully Created');
-        
-            return response()->json([
-                'success' => true, 
-                'message' => 'Video Successfully Created', 
-                'Video' => $Video
-            ]);
+        $Video = Video::create(array_merge($request->all(), [
+            'duration' => now()->format('H:i:s') // Storing only current time (HH:MM:SS)
+        ]));
+
+        if ($request->hasFile('thumbnail')) {
+            $fileName = "thumbnail/" . time() . "_photo.jpg";
+            $request->file('thumbnail')->storePubliclyAs('public', $fileName);
+            $Video->thumbnail = $fileName;
         }
-    
+        if ($request->hasFile('pdf_link')) {
+            $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
+            $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
+            $Video->pdf_link = $pdfFileName;
+        }
+
+        $request->file('video')->store('videos', 's3');
+
+        $Video->save();
+
+        session()->flash('success', 'Video Successfully Created');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Video Successfully Created',
+            'Video' => $Video
+        ]);
+    }
+
+    public function listVideos()
+    {
+        $files = Storage::disk('s3')->files('videos');
+        $urls = array_map(fn($file) => Storage::disk('s3')->url($file), $files);
+
+        return response()->json($urls);
+    }
+
+
     /**
      * Display the specified resource.
      */
@@ -248,48 +255,45 @@ class VideoController extends Controller
      * Update the specified resource in storage.
      */
 
-public function update(Request $request, string $id)
-{
-    request()->validate([
-        'name' => 'required',
-        'topic_id' => 'required'
-    ]);
+    public function update(Request $request, string $id)
+    {
+        request()->validate([
+            'name' => 'required',
+            'topic_id' => 'required'
+        ]);
 
-    $Video = Video::find($id);
-    if (!$Video) {
-        return response()->json(['success' => false, 'message' => 'Video not found'], 404);
-    }
-
-    // Update basic fields except 'thumbnail' and 'pdf_link' to handle files separately
-    $Video->update($request->except(['thumbnail', 'pdf_link']));
-
-    // Update thumbnail if new file is uploaded
-    if ($request->hasFile('thumbnail')) {
-        $fileName = "thumbnail/" . time() . "_photo.jpg";
-        $request->file('thumbnail')->storePubliclyAs('public', $fileName);
-        $Video->thumbnail = $fileName;
-    }
-
-    // Delete old PDF and upload new one if provided
-    if ($request->hasFile('pdf_link')) {
-        // Delete old PDF if exists
-        if ($Video->pdf_link && Storage::exists('public/' . $Video->pdf_link)) {
-            Storage::delete('public/' . $Video->pdf_link);
+        $Video = Video::find($id);
+        if (!$Video) {
+            return response()->json(['success' => false, 'message' => 'Video not found'], 404);
         }
 
-        // Upload new PDF
-        $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
-        $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
-        $Video->pdf_link = $pdfFileName;
+        // Update basic fields except 'thumbnail' and 'pdf_link' to handle files separately
+        $Video->update($request->except(['thumbnail', 'pdf_link']));
+
+        // Update thumbnail if new file is uploaded
+        if ($request->hasFile('thumbnail')) {
+            $fileName = "thumbnail/" . time() . "_photo.jpg";
+            $request->file('thumbnail')->storePubliclyAs('public', $fileName);
+            $Video->thumbnail = $fileName;
+        }
+
+        // Delete old PDF and upload new one if provided
+        if ($request->hasFile('pdf_link')) {
+            // Delete old PDF if exists
+            if ($Video->pdf_link && Storage::exists('public/' . $Video->pdf_link)) {
+                Storage::delete('public/' . $Video->pdf_link);
+            }
+
+            // Upload new PDF
+            $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
+            $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
+            $Video->pdf_link = $pdfFileName;
+        }
+
+        $Video->save();
+
+        return response()->json(['success' => true, 'message' => 'Video Successfully Updated', 'Video' => $Video]);
     }
-
-    $Video->save();
-
-    return response()->json(['success' => true, 'message' => 'Video Successfully Updated', 'Video' => $Video]);
-
-    }
-    
-    
 
     /**
      * Remove the specified resource from storage.

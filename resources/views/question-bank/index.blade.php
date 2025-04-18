@@ -648,7 +648,7 @@ $levels = [
                         levelField.innerHTML = `
                         <label for="level" class="block text-sm font-medium">Level</label>
                         <select class='block w-full p-2 border rounded' name='level'>
-                        <option>Select</option>
+                        <option value=''>Select</option>
                         <option value=1 ${data.question?.level === '1' ? 'selected' : ''}>Easy</option>
                         <option value=2 ${data.question?.level === '2' ? 'selected' : ''}>Medium</option>
                         <option value=3 ${data.question?.level === '3' ? 'selected' : ''}>Hard</option>
