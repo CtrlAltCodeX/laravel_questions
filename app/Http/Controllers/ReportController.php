@@ -92,18 +92,6 @@ class ReportController extends Controller
         return response()->json(['success' => true, 'message' => 'Report added successfully', 'data' => $report], 201);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/reports/edit",
-     *     summary="Get report details by type and ID",
-     *     tags={"Reports"},
-     *     @OA\Parameter(name="type", in="query", required=true, @OA\Schema(type="string", enum={"Video", "Question"})),
-     *     @OA\Parameter(name="id", in="query", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Success"),
-     *     @OA\Response(response=400, description="Invalid request"),
-     *     @OA\Response(response=404, description="Data not found")
-     * )
-     */
     public function edit(Request $request)
     {
         $type = $request->query('type');
@@ -124,36 +112,6 @@ class ReportController extends Controller
         return response()->json(['success' => true, 'data' => $data], 200);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/video/{videoId}/{id}",
-     *     summary="Update Video and Remove Report",
-     *     tags={"Video"},
-     *     @OA\Parameter(
-     *         name="videoId",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name", "topic_id"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="topic_id", type="integer"),
-     *             @OA\Property(property="thumbnail", type="string", format="binary")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Video updated and report removed successfully"),
-     *     @OA\Response(response=404, description="Report not found"),
-     * )
-     */
     public function updateVideo(Request $request, $videoId, $id)
     {
         request()->validate([
@@ -177,43 +135,10 @@ class ReportController extends Controller
         if (!$report) return response()->json(['success' => false, 'message' => 'Report not found'], 404);
 
         $report->delete();
-        return response()->json(['success' => true, 'message' => 'Video Updated and Report removed successfully', 'Video' => $Video]);
+        
+        return response()->json(['success' => true, 'message' => 'Video Updated and Report removed successfully', 'Video' => $video]);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/question/{questionId}/{id}",
-     *     summary="Update Question and Remove Report",
-     *     tags={"Question"},
-     *     @OA\Parameter(
-     *         name="questionId",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"question", "option_a", "option_b", "option_c", "option_d", "answer"},
-     *             @OA\Property(property="question", type="string"),
-     *             @OA\Property(property="option_a", type="string"),
-     *             @OA\Property(property="option_b", type="string"),
-     *             @OA\Property(property="option_c", type="string"),
-     *             @OA\Property(property="option_d", type="string"),
-     *             @OA\Property(property="answer", type="string"),
-     *             @OA\Property(property="module", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Question updated and report removed successfully"),
-     *     @OA\Response(response=404, description="Report not found"),
-     * )
-     */
     public function updateQuestion(Request $request, $questionId, $id)
     {
         $rules = [];
@@ -301,16 +226,6 @@ class ReportController extends Controller
         // return response()->json(['success' => true, 'message' => 'Report removed successfully'], 200);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/reports/{id}",
-     *     summary="Delete a report",
-     *     tags={"Reports"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Report deleted successfully"),
-     *     @OA\Response(response=404, description="Report not found")
-     * )
-     */
     public function destroy(string $id)
     {
         $report = Report::find($id);

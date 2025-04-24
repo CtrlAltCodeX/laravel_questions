@@ -1,0 +1,784 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Wallet API",
+        "description": "API documentation for Wallet transactions",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/user/{id}/update": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user details",
+                "operationId": "5eb66ffe40068603997795f987752abe",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone_number": {
+                                        "type": "string"
+                                    },
+                                    "login_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "google",
+                                            "facebook",
+                                            "apple"
+                                        ]
+                                    },
+                                    "referral_code": {
+                                        "type": "string"
+                                    },
+                                    "friend_code": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Enabled",
+                                            "Disabled"
+                                        ]
+                                    },
+                                    "login_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "profile_image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/GoogleUser"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/update/language/category": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user's language and category",
+                "operationId": "cd172d26b5774cfc588afde0f2726e1f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Language and Category updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/GoogleUser"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/{id}/user": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "231c3aabca02870cfc76be8c6eb68a5f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "operationId": "d5e62c81fc0d4d5f9c1099543acac7e7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/GoogleUser"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/offers": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Get a list of offers with filters and sorting",
+                "operationId": "3a56496f000faffd87f42c4036770f0e",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "description": "Filter by Subject ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sub_category_id",
+                        "in": "query",
+                        "description": "Filter by Sub Category ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter by Category ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "language_id",
+                        "in": "query",
+                        "description": "Filter by Language ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort column",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "description": "Sort direction (asc or desc)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "data",
+                        "in": "query",
+                        "description": "Pagination or 'all'",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of offers"
+                    }
+                }
+            }
+        },
+        "/api/reports": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Fetch all reports",
+                "operationId": "42398321972bc3074eef76718e0fd9dc",
+                "responses": {
+                    "200": {
+                        "description": "List of reports"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Create a new report",
+                "operationId": "318de4ef8123b483320dc9dbb45b6a43",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "title",
+                                    "type",
+                                    "message",
+                                    "date"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Video",
+                                            "Question"
+                                        ]
+                                    },
+                                    "question_id": {
+                                        "type": "integer"
+                                    },
+                                    "video_id": {
+                                        "type": "integer"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Report created successfully"
+                    }
+                }
+            }
+        },
+        "/api/scoreboard": {
+            "post": {
+                "tags": [
+                    "ScoreBoard"
+                ],
+                "summary": "Save or update scoreboard",
+                "operationId": "ac5116d41593d2f7ddc58dcd78229c48",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "sub_category_id",
+                                    "total_videos",
+                                    "quiz_practice",
+                                    "test_rank"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "sub_category_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "total_videos": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "quiz_practice": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "test_rank": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Scoreboard saved successfully"
+                    },
+                    "400": {
+                        "description": "Validation Error"
+                    }
+                }
+            }
+        },
+        "/api/scoreboard/{userId}": {
+            "get": {
+                "tags": [
+                    "ScoreBoard"
+                ],
+                "summary": "Get scoreboard by user ID",
+                "operationId": "dce6cc83de98c5a4900583d188b41605",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scoreboard retrieved successfully"
+                    },
+                    "404": {
+                        "description": "No scoreboard found for this user"
+                    }
+                }
+            }
+        },
+        "/api/coins": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Get application settings",
+                "operationId": "2cd379e0086bbaa285081d64b7e7b146",
+                "responses": {
+                    "200": {
+                        "description": "Settings fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Settings fetched successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "site_name": {
+                                                    "type": "string",
+                                                    "example": "My App"
+                                                },
+                                                "logo": {
+                                                    "type": "string",
+                                                    "example": "logo.png"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No settings found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No settings found"
+                                        },
+                                        "data": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wallet/history": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get all wallet histories",
+                "operationId": "e074c2fd13342bd3690edfb52c159a90",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/wallet/add": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Add coins to the wallet",
+                "operationId": "4d5a141fc4de4c0de156dde6914449d7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "coin",
+                                    "method",
+                                    "date",
+                                    "transaction_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "coin": {
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "PayPal"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-03-31"
+                                    },
+                                    "transaction_id": {
+                                        "type": "string",
+                                        "example": "txn_123456"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Wallet credited successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/wallet/charges": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Deduct coins from the wallet",
+                "operationId": "3e81695396c7e6c53e279b8f37458e18",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "coin",
+                                    "method",
+                                    "date",
+                                    "transaction_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "coin": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "Bank Transfer"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-03-31"
+                                    },
+                                    "transaction_id": {
+                                        "type": "string",
+                                        "example": "txn_654321"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.25
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Wallet debited successfully"
+                    },
+                    "400": {
+                        "description": "Insufficient coins or validation errors"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "GoogleUser": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "login_type": {
+                        "type": "string"
+                    },
+                    "referral_code": {
+                        "type": "string"
+                    },
+                    "friend_code": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "login_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "profile_image": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Users",
+            "description": "Users"
+        },
+        {
+            "name": "Offers",
+            "description": "Offers"
+        },
+        {
+            "name": "Reports",
+            "description": "Reports"
+        },
+        {
+            "name": "ScoreBoard",
+            "description": "ScoreBoard"
+        },
+        {
+            "name": "Settings",
+            "description": "Settings"
+        },
+        {
+            "name": "Wallet",
+            "description": "Wallet"
+        }
+    ]
+}

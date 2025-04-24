@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PhonePe & Razorpay Integration</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    button {
+      padding: 12px 25px;
+      margin: 15px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+    button:hover {
+      background-color: #0f5bb5;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Choose Payment Method</h2>
+  <button onclick="payWithPhonePe()">Pay with PhonePe</button>
+  <button onclick="payWithRazorpay()">Pay with Razorpay</button>
+
+  <script>
+    // 🔵 PhonePe Payment (You need server-side support for actual working)
+    function payWithPhonePe() {
+      alert("PhonePe integration requires backend to generate secure X-VERIFY hash. Not implemented in this example.");
+      // You can replace this with actual backend call if ready
+    }
+
+    // 🟢 Razorpay Payment
+    function payWithRazorpay() {
+      var options = {
+        "key": "rzp_test_9S8YYnOLUvUmvj", // ✅ Your Razorpay Test Key ID
+        "amount": 10000, // amount in paise = ₹100
+        "currency": "INR",
+        "name": "Your App",
+        "description": "Test Transaction",
+        "image": "https://yourlogo.com/logo.png", // optional logo
+        "handler": function (response) {
+          alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+        },
+        "prefill": {
+          "name": "Test User",
+          "email": "testuser@example.com",
+          "contact": "8750771589"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+  </script>
+
+</body>
+</html>

@@ -123,17 +123,17 @@
                 </th>
 
                 <th scope="col" class="px-6 py-3">
-                    Parent ID 
+                    Parent ID
                 </th>
                 <th scope="col" class="px-6 py-3">
-                 Status
+                    Status
                 </th>
 
                 <th scope="col" class="px-6 py-3">
-                 Plan
+                    Plan
                 </th>
                 <th scope="col" class="px-6 py-3">
-                 Amount
+                    Amount
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -172,25 +172,25 @@
                 </th>
 
                 @php
-    $status = ucfirst($subject->status);
-    $statusClass = $subject->status === 'enabled' ? 'text-green-600' : 'text-red-600';
-@endphp
+                $status = ucfirst($subject->status);
+                $statusClass = $subject->status === 'enabled' ? 'text-green-600' : 'text-red-600';
+                @endphp
 
-<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
-    {{ $status }}
-</th>
+                <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
+                    {{ $status }}
+                </th>
 
 
-@php
-    $plan = ucfirst($subject->plan);
-    $planClass = $subject->plan === 'Free' ? 'text-green-600' : 'text-red-600';
-@endphp
+                @php
+                $plan = ucfirst($subject->plan);
+                $planClass = $subject->plan === 'Free' ? 'text-green-600' : 'text-red-600';
+                @endphp
 
-<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $planClass }}">
-    {{ $plan }}
-</th>
+                <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $planClass }}">
+                    {{ $plan }}
+                </th>
 
-<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$subject->amount}}
                 </th>
 
@@ -202,10 +202,10 @@
                         data-photo="{{ $subject->photo }}"
                         data-category-id="{{ $subject->subCategory->category->id }}"
                         data-parent-id="{{ $subject->parent_id }}"
-                         data-status="{{ $subject->status }}"
-                         data-plan="{{ $subject->plan }}"
-                          data-amount="{{ $subject->amount }}"
-                             data-validity="{{ $subject->validity }}"
+                        data-status="{{ $subject->status }}"
+                        data-plan="{{ $subject->plan }}"
+                        data-amount="{{ $subject->amount }}"
+                        data-validity="{{ $subject->validity }}"
                         data-sub-category-id="{{ $subject->subCategory->id }}">
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
@@ -234,7 +234,6 @@
     <div class="flex justify-between items-center">
         <div style="width: 92%;">
             {{ $subjects->appends(request()->query())->links() }}
-
         </div>
 
         <div>
@@ -246,8 +245,6 @@
     </div>
     @endif
 </div>
-
-
 
 <div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style=" background-color: white; 
@@ -319,19 +316,20 @@
                 <div class="text-red-500">{{ $message }}</div>
                 @enderror
             </div>
+            
 
             <div class="form-group">
-    <label for="status">Status</label>
-    <select name="status" id="status" class="form-control">
-        <option value="enabled">Enabled</option>
-        <option value="disabled">Disabled</option>
-    </select>
-</div>
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
 
-<div class="mb-4">
+            <div class="mb-4">
                 <label class="block mb-2 text-sm font-medium text-gray-900">Plan</label>
                 <select name="plan" id="plan" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
-                <option value="">Select Plan</option>
+                    <option value="">Select Plan</option>
                     <option value="Free">Free</option>
                     <option value="Paid">Paid</option>
                 </select>
@@ -339,13 +337,13 @@
 
             <div class="mb-4">
 
-        
-        <div class="grid grid-cols-2 gap-4">
-            <input type="number" step="0.01" name="amount" id="amount" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Amount" >
-            
-            <input type="number" name="validity" id="validity" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Validity" >
-        </div>
-    </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" step="0.01" name="amount" id="amount" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Amount">
+
+                    <input type="number" name="validity" id="validity" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Validity">
+                </div>
+            </div>
 
             <div class="mx-auto mb-5">
                 <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent ID</label>
@@ -359,8 +357,6 @@
     </div>
 </div>
 
-
-
 @endsection
 
 @push('scripts')
@@ -368,7 +364,6 @@
 @include('script')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
         document.getElementById('createButton').addEventListener('click', function() {
             // Reset fields for creating a new subcategory
             document.getElementById('modalTitle').innerText = 'Create Subject';
@@ -392,13 +387,13 @@
                 const photo = this.getAttribute('data-photo');
                 const categoryId = this.getAttribute('data-category-id');
                 const subCategoryId = this.getAttribute('data-sub-category-id');
-                const parentId = this.getAttribute('data-parent-id'); 
+                const parentId = this.getAttribute('data-parent-id');
                 const status = this.getAttribute('data-status');
                 const plan = this.getAttribute('data-plan');
                 const dataamount = this.getAttribute('data-amount');
                 const validity = this.getAttribute('data-validity');
-                console.log("plan",plan);
-                console.log("validity",validity)
+                console.log("plan", plan);
+                console.log("validity", validity)
                 // Set modal for editing a subcategory
                 document.getElementById('modalTitle').innerText = 'Edit Subject';
                 document.getElementById('modalForm').action = `/subject/${id}`;
@@ -450,7 +445,6 @@
                 form.appendTo('body').submit();
             });
         });
-
     });
 </script>
 

@@ -55,11 +55,11 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy');
 
     Route::put('/users/update-coins-status/{id}', [ProfileController::class, 'updateCoinsAndStatus'])
-    ->name('users.updateCoinsAndStatus');
+        ->name('users.updateCoinsAndStatus');
 
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard.total.count');
+        ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
 
     Route::resource('category', CategoryController::class);
@@ -96,7 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+    Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
     Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
     Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');

@@ -27,7 +27,7 @@ class WalletHistoryController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/wallet-histories",
+     *      path="/api/wallet/history",
      *      summary="Get all wallet histories",
      *      tags={"Wallet"},
      *      @OA\Response(
@@ -38,7 +38,9 @@ class WalletHistoryController extends Controller
      */
     public function index()
     {
-        $walletHistories = WalletHistory::with('user:id,name')->get();
+        $walletHistories = WalletHistory::with('user:id,name')
+            ->get();
+
         return response()->json(['status' => true, 'data' => $walletHistories], 200);
     }
 
@@ -50,7 +52,7 @@ class WalletHistoryController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/wallet/add",
+     *      path="/api/wallet/add",
      *      summary="Add coins to the wallet",
      *      tags={"Wallet"},
      *      @OA\RequestBody(
@@ -91,7 +93,7 @@ class WalletHistoryController extends Controller
         }
 
         DB::beginTransaction();
-        
+
         try {
             $user = GoogleUser::find($request->google_user_id);
 
@@ -120,7 +122,7 @@ class WalletHistoryController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/wallet/charges",
+     *      path="/api/wallet/charges",
      *      summary="Deduct coins from the wallet",
      *      tags={"Wallet"},
      *      @OA\RequestBody(

@@ -38,21 +38,21 @@ Route::middleware('authapi')->group(function () {
     Route::get('cbt', [CbtController::class, 'deploy']);
 });
 
-Route::get('/reports', [ReportController::class, 'index']);
-Route::post('/reports', [ReportController::class, 'store']);
+Route::get('reports', [ReportController::class, 'index']);
+Route::post('reports', [ReportController::class, 'store']);
 
 // wallet
-Route::get('/wallet-history', [WalletHistoryController::class, 'index']);
-Route::post('/wallet-add', [WalletHistoryController::class, 'walletAdd']);
-Route::post('/wallet-charges', [WalletHistoryController::class, 'walletCharges']);
+Route::get('wallet/history', [WalletHistoryController::class, 'index']);
+Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
+Route::post('wallet/charges', [WalletHistoryController::class, 'walletCharges']);
 
-Route::post('/scoreboard', [ScoreBoardController::class, 'store']);
-Route::get('/scoreboard/{userId}', [ScoreBoardController::class, 'show']);
+Route::post('scoreboard', [ScoreBoardController::class, 'store']);
+Route::get('scoreboard/{userId}', [ScoreBoardController::class, 'show']);
 
-Route::post('user/delete/{id}', [GoogleUserController::class, 'deleteUser']);
+Route::post('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
 Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
-Route::post('user/update/{id}', [GoogleUserController::class, 'updateUser']);
-Route::post('user/{id}/update-language-category/', [GoogleUserController::class, 'updateLanguageCategory']);
+Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
+Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
 
 // get offer 
 Route::get('offers', [OfferController::class, 'getOffersApi']);

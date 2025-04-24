@@ -29,7 +29,7 @@ class GoogleUserController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/api/users/{id}/update",
+     *     path="/api/user/{id}/update",
      *     summary="Update user details",
      *     tags={"Users"},
      *     @OA\Parameter(
@@ -79,7 +79,7 @@ class GoogleUserController extends Controller
             'friend_code'    => 'nullable|string',
             'status'         => 'nullable|in:Enabled,Disabled',
             'login_date'     => 'nullable|date',
-            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         $user = GoogleUser::find($id);
@@ -109,7 +109,7 @@ class GoogleUserController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/users/{id}/update-language-category",
+     *     path="/api/user/{id}/update/language/category",
      *     summary="Update user's language and category",
      *     tags={"Users"},
      *     @OA\Parameter(
@@ -166,7 +166,7 @@ class GoogleUserController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/users/{id}",
+     *     path="/api/{id}/user",
      *     summary="Delete user",
      *     tags={"Users"},
      *     @OA\Parameter(
@@ -207,7 +207,7 @@ class GoogleUserController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/users/{id}/profile",
+     *     path="/api/user/{id}/profile",
      *     summary="Get user profile",
      *     tags={"Users"},
      *     @OA\Parameter(
@@ -241,7 +241,7 @@ class GoogleUserController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Profile fetched',
+            'message' => 'User profile retrieved successfully',
             'data' => $user
         ]);
     }

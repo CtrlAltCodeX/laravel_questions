@@ -32,7 +32,7 @@ class ScoreBoardController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'google_user_id' => 'required|exists:google_users,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
             'total_videos' => 'required|integer|min:0',
@@ -45,15 +45,6 @@ class ScoreBoardController extends Controller
         return response()->json(['message' => 'Scoreboard saved successfully!', 'data' => $scoreboard], 200);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/scoreboard",
-     *     summary="Get scoreboard data",
-     *     tags={"ScoreBoard"},
-     *     @OA\Response(response=200, description="Scoreboard retrieved successfully"),
-     *     @OA\Response(response=404, description="No scoreboard found")
-     * )
-     */
     public function index(Request $request)
     {
         $languages = Language::all();
@@ -113,9 +104,9 @@ class ScoreBoardController extends Controller
     public function show($userId)
     {
         $scoreboard = ScoreBoard::where('google_user_id', $userId)->with(['user', 'subCategory'])->get();
-        if ($scoreboard->isEmpty()) {
-            return response()->json(['message' => 'No scoreboard found for this user.'], 404);
-        }
-        return response()->json($scoreboard);
+
+        if ($scoreboard->isEmpty()) return response()->json(['message' => 'No scoreboard found for this user.'], 404);
+
+        return response()->json(['message' => 'Scoreboard retrieved successfully!', 'data' => $scoreboard], 200);
     }
 }

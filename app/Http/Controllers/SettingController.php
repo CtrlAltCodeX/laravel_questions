@@ -2,15 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use App\Models\Setting;
+use App\Models\SubCategory;
 
 class SettingController extends Controller
 {
     public function index()
     {
         $setting = Setting::first();
-        return view('settings.index', compact('setting'));
+
+        $languages = Language::all();
+
+        $categories = Category::all();
+
+        $sub_categories = SubCategory::all();
+
+        return view('settings.index', compact('setting', 'languages', 'categories', 'sub_categories'));
     }
 
     /**
@@ -60,7 +70,6 @@ class SettingController extends Controller
             'data' => $setting
         ]);
     }
-
 
     public function store(Request $request)
     {
