@@ -72,14 +72,12 @@ class GoogleUserController extends Controller
     {
         $request->validate([
             'name'           => 'nullable|string',
-            'email'          => 'nullable|email',
             'phone_number'   => 'nullable|string',
             'login_type'     => 'nullable|in:google,facebook,apple',
-            'referral_code'  => 'nullable|string',
             'friend_code'    => 'nullable|string',
-            'status'         => 'nullable|in:Enabled,Disabled',
-            'login_date'     => 'nullable|date',
-            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category_id'    => 'nullable|integer|exists:categories,id', 
+            'language_id'    => 'nullable|integer|exists:languages,id' 
         ]);
 
         $user = GoogleUser::find($id);
@@ -137,32 +135,32 @@ class GoogleUserController extends Controller
      *     @OA\Response(response=404, description="User not found")
      * )
      */
-    public function updateLanguageCategory(Request $request, $id)
-    {
-        $request->validate([
-            'language_id' => 'nullable|integer',
-            'category_id' => 'nullable|integer'
-        ]);
+    // public function updateLanguageCategory(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'language_id' => 'nullable|integer',
+    //         'category_id' => 'nullable|integer'
+    //     ]);
 
-        $user = GoogleUser::find($id);
+    //     $user = GoogleUser::find($id);
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
 
-        $user->language_id = $request->language_id ?? $user->language_id;
-        $user->category_id = $request->category_id ?? $user->category_id;
-        $user->save();
+    //     $user->language_id = $request->language_id ?? $user->language_id;
+    //     $user->category_id = $request->category_id ?? $user->category_id;
+    //     $user->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Language and Category updated',
-            'data' => $user
-        ]);
-    }
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Language and Category updated',
+    //         'data' => $user
+    //     ]);
+    // }
 
     /**
      * @OA\Delete(

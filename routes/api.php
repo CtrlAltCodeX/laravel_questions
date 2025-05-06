@@ -8,6 +8,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\GoogleUserController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ScoreBoardController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\WalletHistoryController;
@@ -52,7 +53,11 @@ Route::get('scoreboard/{userId}', [ScoreBoardController::class, 'show']);
 Route::post('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
 Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
 Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
-Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
+// Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
+
+// get category 
+Route::get('/get-categories/{language_id}', [CategoryController::class, 'getCategoriesByLanguage']);
+
 
 // get offer 
 Route::get('offers', [OfferController::class, 'getOffersApi']);

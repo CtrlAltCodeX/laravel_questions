@@ -182,4 +182,22 @@ class CategoryController extends Controller
 
         return redirect()->route('category.index');
     }
+
+    public function getCategoriesByLanguage($language_id)
+{
+    $categories = Category::where('language_id', $language_id)->get();
+
+    if ($categories->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No categories found for this language ID.'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => $categories
+    ]);
+}
+
 }
