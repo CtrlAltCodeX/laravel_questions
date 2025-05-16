@@ -9,6 +9,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\GoogleUserController;
 use App\Http\Controllers\CategoryController;
+
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\ScoreBoardController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\WalletHistoryController;
@@ -64,3 +66,4 @@ Route::get('offers', [OfferController::class, 'getOffersApi']);
 
 // get 7. Refer and Welcome Coin
 Route::get('coins', [SettingController::class, 'getSettingsApi']);
+Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);

@@ -183,6 +183,10 @@ class CategoryController extends Controller
         return redirect()->route('category.index');
     }
 
+
+    
+
+
     public function getCategoriesByLanguage($language_id)
 {
     $categories = Category::where('language_id', $language_id)->get();

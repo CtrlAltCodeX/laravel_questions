@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SubCategoryExport;
 use App\Exports\SampleSubCategoryExport;
 use App\Imports\SubCategoryImport;
+use App\Models\Offer;
 
 class SubCategoryController extends Controller
 {
@@ -224,6 +225,36 @@ class SubCategoryController extends Controller
         ]);
     }
     
+
+    public function getSubCategoryDetailsWithOffers($id)
+{
+   
+    $subCategory = SubCategory::find($id);
+
+    if (!$subCategory) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Sub Category not found'
+        ], 404);
+    }
+
+   
+    $offers = Offer::where('sub_category_id', $id)->get();
+
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Sub Category Details with Offers',
+        'data' => [
+            'sub_category' => $subCategory,
+            'offers' => $offers
+        ]
+    ]);
+}
+
+
+
+
     public function destroy(string $id)
     {
         SubCategory::find($id)

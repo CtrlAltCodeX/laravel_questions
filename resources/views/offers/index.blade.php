@@ -132,16 +132,16 @@
                     <img src="{{ $offer->banner ? '/storage/'.$offer->banner : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$offer->subject->subCategory->category->language->name}}
+                    {{$offer->language_name }}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$offer->subject->subCategory->category->name}}
+                    {{$offer->category_name }}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$offer->subject->subCategory->name}}
+                    {{$offer->sub_category_name }}
                 </th>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$offer->subject->name}}
+                    {{$offer->subject_name }}
                 </th>
            
 
@@ -170,11 +170,11 @@
                     <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
                         data-id="{{ $offer->id }}"
                         data-name="{{ $offer->name }}"
-                        data-language-id="{{ $offer->subject->subCategory->category->language->id }}"
+                        data-language-id="{{ $offer->language_id }}"
                       
-                        data-category-id="{{ $offer->subject->subCategory->category->id }}"
-                        data-sub-category-id="{{ $offer->subject->subCategory->id }}"
-                        data-subject-id="{{ $offer->subject->id }}"
+                        data-category-id="{{ $offer->category_id }}"
+                        data-sub-category-id="{{ $offer->sub_category_id }}"
+                        data-subject-id="{{ $offer->subject_id }}"
                         data-discount="{{ $offer->discount }}"
                         data-valid-until="{{ $offer->valid_until }}"
                         data-mode="{{ $offer->mode }}"
@@ -251,10 +251,9 @@
             </div>
 
             <div class="mb-3">
-                <input type="text" id="name" placeholder="Offer Name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name" required />
-                @error('name')
-                <div class="text-danger">{{ $message }}</div>
-                @enderror
+                <input type="text" id="name" placeholder="Offer Name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name"  />
+                  <div style="color: red;" id="error-name"></div>  
+
             </div>
             <div class="mx-auto mb-3">
                 <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -263,9 +262,9 @@
                     <option value="{{$item->id}}">{{$item->name}}</option>
                     @endforeach
                 </select>
-                @error('language_id')
-                <div class="text-red-500">{{ $message }}</div>
-                @enderror
+                             <div id="error-language_id" class="error-text" style="color: red;"></div>
+
+
             </div>
 
             <div class="mx-auto mb-3">
@@ -275,6 +274,8 @@
                     <option value="{{$item->id}}">{{$item->name}}</option>
                     @endforeach
                 </select>
+                    <div id="error-category_id" class="error-text" style="color: red;"></div>
+
             </div>
 
 
@@ -286,6 +287,8 @@
                     <option value="{{$item->id}}">{{$item->name}}</option>
                     @endforeach
                 </select>
+                   <div id="error-sub_category_id" class="error-text" style="color: red;"></div>
+
             </div>
 
             <div class="mx-auto mb-3">
@@ -295,20 +298,22 @@
                     <option value="{{$subject->id}}">{{$subject->name}}</option>
                     @endforeach
                 </select>
-                @error('subject_id')
-                <div class="text-red-500">{{ $message }}</div>
-                @enderror
+                            <div id="error-subject_id" class="error-text" style="color: red;"></div>
+
             </div>
 
             <!-- Discount & Valid Until -->
 <div class="flex justify-between mb-3">
     <input type="text" id="discount" placeholder="Discount" name="discount" style="margin-right: 10px;"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
+         />
+                            <div id="error-discount" class="error-text" style="color: red;"></div>
 
     <input type="text" id="valid_until" name="valid_until"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
+         />
+                                     <div id="error-valid_until" class="error-text" style="color: red;"></div>
+
 </div>
 
 <!-- Mode Dropdown -->
@@ -319,6 +324,8 @@
         <option value="Regular">Regular</option>
         <option value="Upgrade Plan">Upgrade Plan</option>
     </select>
+                                         <div id="error-mode" class="error-text" style="color: red;"></div>
+
 </div>
 
 <div class="mb-3">
@@ -328,6 +335,8 @@
         <option value="1">Enabled</option>
         <option value="0">Disabled</option>
     </select>
+                 <div id="error-status" class="error-text" style="color: red;"></div>
+
 </div>
 
 
@@ -422,15 +431,7 @@
             document.getElementById('status').value = status;
             document.getElementById('offerImage').src = banner ? `/storage/${banner}` : '/dummy.jpg';
 
-            // Handling status checkboxes
-            // if (status === "1") {
-            //     document.getElementById('status_enabled').checked = true;
-            //     document.getElementById('status_disabled').checked = false;
-            // } else {
-            //     document.getElementById('status_enabled').checked = false;
-            //     document.getElementById('status_disabled').checked = true;
-            // }
-                // document.getElementById('topicImage').src = photo ? `/storage/${photo}` : '/dummy.jpg';
+          
                 document.getElementById('modal').style.display = 'flex';
             });
         });

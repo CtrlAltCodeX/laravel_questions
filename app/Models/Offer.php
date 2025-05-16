@@ -14,14 +14,34 @@ class Offer extends Model
     protected $table = 'offers';
 
     protected $fillable = [
-        'name', 'status', 'subject_id','mode', 'discount', 'valid_until','banner'
+        'name', 'status','language_id','category_id','sub_category_id', 'subject_id','mode', 'discount', 'valid_until','banner'
      
     ];
 
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
+  
+
+
+    public function language()
+{
+    return $this->belongsTo(Language::class);
+}
+
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+
+public function subCategory()
+{
+    return $this->belongsTo(SubCategory::class);
+}
+
+public function subject()
+{
+    return $this->belongsTo(Subject::class);
+}
+
+
 
     public function question()
     {

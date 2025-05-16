@@ -121,14 +121,30 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    $('#modal').hide();
-                    location.reload();
-                } else {
-                    // Handle validation errors if any
-                    console.error(data.errors);
-                }
+                   if (data.success) {
+            alert(data.message);
+            document.getElementById('modal').style.display = 'none';  // hide modal
+            location.reload();
+        } else if (data.errors) {
+          // 🔴 First clear all previous error messages
+    const errorFields = ['name', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'discount', 'valid_until', 'mode', 'status'];
+    errorFields.forEach(field => {
+        const errorContainer = document.getElementById(`error-${field}`);
+        if (errorContainer) {
+            errorContainer.innerText = ''; // Clear old errors
+        }
+    });
+
+    // 🔵 Show new validation errors
+    for (const [field, messages] of Object.entries(data.errors)) {
+        const errorContainer = document.getElementById(`error-${field}`);
+        if (errorContainer) {
+            errorContainer.innerText = messages.join(', ');
+        }
+    }
+        } else {
+            console.error('Unknown error:', data);
+        }
             })
             .catch(error => console.error('Error:', error));
     });
