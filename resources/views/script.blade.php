@@ -38,6 +38,26 @@
         }
     });
 
+
+        $(document).on('change', '.select_category', function() {
+        var categoryId = $(this).val();
+
+        if (categoryId) {
+            $.ajax({
+                url: '/get-subcategories/' + categoryId,
+                method: 'GET',
+                success: function(data) {
+                    $('#subCategorySelect').empty().append('<option value="all">Select All</option>');
+                    $.each(data, function(key, value) {
+                        $('#subCategorySelect').append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('#subCategorySelect').empty().append('<option value="">Select Sub Category</option>');
+        }
+    });
+
     $(document).on('change', '.select_sub_category', function() {
         var subCategoryId = $(this).val();
 

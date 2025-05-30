@@ -9,6 +9,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TopicController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\QuestionBankController;
@@ -84,6 +85,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('videos', VideoController::class);
     Route::get('videos/export/file', [VideoController::class, 'export'])->name('videos.export');
     Route::post('videos/import/file', [VideoController::class, 'import'])->name('videos.import');
+
+    Route::resource('/courses', CourseController::class);
+Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
+
 
     Route::get('/reports', [ReportController::class, 'webindex'])->name('reports.index');
     Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])->name('WalletHistory.index');

@@ -87,6 +87,12 @@ return [
             ],
         ],
 
+          [
+            'name' => 'Course',
+            'route' => 'courses.index',
+            'icon' => 'fa fa-home',
+        ],
+
         [
             'name' => 'Offer',
             'route' => 'offers.index',
