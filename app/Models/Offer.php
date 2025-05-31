@@ -12,11 +12,10 @@ class Offer extends Model
     protected $guarded = [];
 
     protected $table = 'offers';
-
-    protected $fillable = [
-        'name', 'status','language_id','category_id','sub_category_id', 'subject_id','mode', 'discount', 'valid_until','banner'
-     
-    ];
+protected $fillable = [
+    'name', 'status', 'discount', 'banner',
+    'course', 'subscription', 'upgrade', 'valid_from', 'valid_to'
+];
 
   
 

@@ -9,95 +9,138 @@ use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\Subject;
+use App\Models\Course;
+
 
 class OfferController extends Controller
 {
 
-    public function index(Request $request)
-{
-    $languages = Language::all();
-    $categories = Category::all();
-    $subcategories = SubCategory::all();
-    $subjects = Subject::all();
+//     public function index(Request $request)
+// {
+//     $languages = Language::all();
+//     $categories = Category::all();
+//     $subcategories = SubCategory::all();
+//     $subjects = Subject::all();
 
-    $subject_id = $request->get('subject_id');
-    $subcategory_id = $request->get('sub_category_id');
-    $category_id = $request->get('category_id');
-    $language_id = $request->get('language_id');
+//     $subject_id = $request->get('subject_id');
+//     $subcategory_id = $request->get('sub_category_id');
+//     $category_id = $request->get('category_id');
+//     $language_id = $request->get('language_id');
 
-    $sortColumn = $request->get('sort', 'offers.id');
-    $sortDirection = $request->get('direction', 'desc');
+//     $sortColumn = $request->get('sort', 'offers.id');
+//     $sortDirection = $request->get('direction', 'desc');
 
-    // Build query manually without relationship
-    $query = Offer::select(
-        'offers.*',
-'subjects.name as subject_name',
-        'sub_categories.name as sub_category_name',
-        'categories.name as category_name',
-        'languages.name as language_name'
-    )
-        ->leftJoin('subjects', 'offers.subject_id', '=', 'subjects.id')
-        ->leftJoin('sub_categories', 'offers.sub_category_id', '=', 'sub_categories.id')
-        ->leftJoin('categories', 'offers.category_id', '=', 'categories.id')
-        ->leftJoin('languages', 'offers.language_id', '=', 'languages.id');
+//     // Build query manually without relationship
+//     $query = Offer::select(
+//         'offers.*',
+// 'subjects.name as subject_name',
+//         'sub_categories.name as sub_category_name',
+//         'categories.name as category_name',
+//         'languages.name as language_name'
+//     )
+//         ->leftJoin('subjects', 'offers.subject_id', '=', 'subjects.id')
+//         ->leftJoin('sub_categories', 'offers.sub_category_id', '=', 'sub_categories.id')
+//         ->leftJoin('categories', 'offers.category_id', '=', 'categories.id')
+//         ->leftJoin('languages', 'offers.language_id', '=', 'languages.id');
 
-    // Apply filters
-if ($subject_id) {
-    $query->where('subject_id', $subject_id);
-} elseif ($subcategory_id) {
-    $query->whereHas('subject', function ($q) use ($subcategory_id) {
-        $q->where('sub_category_id', $subcategory_id);
-    });
-} elseif ($category_id) {
-    $query->whereHas('subject.subCategory', function ($q) use ($category_id) {
-        $q->where('category_id', $category_id);
-    });
-} elseif ($language_id) {
-    $query->whereHas('subject.subCategory.category', function ($q) use ($language_id) {
-        $q->where('language_id', $language_id);
-    });
-}
+//     // Apply filters
+// if ($subject_id) {
+//     $query->where('subject_id', $subject_id);
+// } elseif ($subcategory_id) {
+//     $query->whereHas('subject', function ($q) use ($subcategory_id) {
+//         $q->where('sub_category_id', $subcategory_id);
+//     });
+// } elseif ($category_id) {
+//     $query->whereHas('subject.subCategory', function ($q) use ($category_id) {
+//         $q->where('category_id', $category_id);
+//     });
+// } elseif ($language_id) {
+//     $query->whereHas('subject.subCategory.category', function ($q) use ($language_id) {
+//         $q->where('language_id', $language_id);
+//     });
+// }
 
 
-    // Sortable columns
-    $sortableColumns = [
-        'id' => 'offers.id',
-        'name' => 'offers.name',
-        'language' => 'languages.name',
-        'category' => 'categories.name',
-        'sub_category' => 'sub_categories.name',
-        'subject' => 'subjects.name',
-    ];
+//     // Sortable columns
+//     $sortableColumns = [
+//         'id' => 'offers.id',
+//         'name' => 'offers.name',
+//         'language' => 'languages.name',
+//         'category' => 'categories.name',
+//         'sub_category' => 'sub_categories.name',
+//         'subject' => 'subjects.name',
+//     ];
 
-    if (array_key_exists($sortColumn, $sortableColumns)) {
-        $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
+//     if (array_key_exists($sortColumn, $sortableColumns)) {
+//         $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
+//     }
+
+//     $offers = request()->data == 'all' ? $query->get() : $query->paginate(request()->data);
+
+//     $dropdown_list = [
+//         'Select Language' => $languages,
+//         'Select Category' => $categories,
+//         'Select Sub Category' => $subcategories ?? [],
+//         'Select Subject' => $subjects ?? [],
+//     ];
+
+//     return view('offers.index', compact(
+//         'offers',
+//         'categories',
+//         'subcategories',
+//         'subjects',
+//         'languages',
+//         'subject_id',
+//         'subcategory_id',
+//         'category_id',
+//         'language_id',
+//         'sortColumn',
+//         'sortDirection',
+//         'dropdown_list'
+//     ));
+// }
+
+
+public function index(Request $request)
+    {
+        $sortColumn = $request->get('sort', 'id');
+        $sortDirection = $request->get('direction', 'desc');
+            $Courses = Course::all();
+
+        $course = $request->get('course');
+
+        $sortableColumns = [
+            'id' => 'id',
+            'name' => 'name',
+            'status' => 'status',
+            'discount' => 'discount',
+            'course' => 'course',
+            'valid_from' => 'valid_from',
+            'valid_to' => 'valid_to',
+        ];
+
+        $query = Offer::query();
+
+        // Filter by course if provided
+        if ($course) {
+            $query->where('course', $course);
+        }
+
+        // Sort
+        if (array_key_exists($sortColumn, $sortableColumns)) {
+            $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
+        }
+
+        $offers = $request->data == 'all' ? $query->get() : $query->paginate($request->data);
+
+        return view('offers.index', compact(
+            'offers',
+            'sortColumn',
+            'sortDirection',
+            'course',
+            'Courses'
+        ));
     }
-
-    $offers = request()->data == 'all' ? $query->get() : $query->paginate(request()->data);
-
-    $dropdown_list = [
-        'Select Language' => $languages,
-        'Select Category' => $categories,
-        'Select Sub Category' => $subcategories ?? [],
-        'Select Subject' => $subjects ?? [],
-    ];
-
-    return view('offers.index', compact(
-        'offers',
-        'categories',
-        'subcategories',
-        'subjects',
-        'languages',
-        'subject_id',
-        'subcategory_id',
-        'category_id',
-        'language_id',
-        'sortColumn',
-        'sortDirection',
-        'dropdown_list'
-    ));
-}
-
 
     // public function index(Request $request)
     // {
@@ -192,26 +235,34 @@ if ($subject_id) {
     // }
 
 
-    public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'name' => 'required',
-        'language_id' => 'required|exists:languages,id',
-        'category_id' => 'required|exists:categories,id',
-        'sub_category_id' => 'required|exists:sub_categories,id',
-        'subject_id' => 'nullable|exists:subjects,id',
-        'banner' => 'nullable|image',
+        'course' => 'required|array',
+        'course.*' => 'exists:courses,id',
+        'subscription' => 'required|array',
+        'subscription.*' => 'in:Monthly,Semi-Annual,Annual',
         'discount' => 'required',
-        'valid_until' => 'required',
-        'mode' => 'required',
-        'status' => 'required|in:0,1'
+        'upgrade' => 'nullable|string',
+        'valid_from' => 'required|date',
+        'valid_to' => 'required|date|after_or_equal:valid_from',
+        'banner' => 'nullable|image',
+        'status' => 'required|in:0,1',
     ]);
 
-    $data = $request->only([
-        'name', 'language_id', 'category_id', 'sub_category_id',
-        'subject_id', 'discount', 'valid_until', 'mode', 'status'
-    ]);
+    $data = [
+        'name' => $request->name,
+        'discount' => $request->discount,
+        'upgrade' => $request->upgrade,
+        'valid_from' => $request->valid_from,
+        'valid_to' => $request->valid_to,
+        'status' => $request->status,
+        'course' => json_encode($request->course), // save as JSON
+        'subscription' => json_encode($request->subscription), // save as JSON
+    ];
 
+    // Handle banner upload
     if ($request->hasFile('banner')) {
         $file = $request->file('banner');
         $filename = time() . '.' . $file->getClientOriginalExtension();
@@ -221,54 +272,57 @@ if ($subject_id) {
 
     Offer::create($data);
 
-    // return redirect()->back()->with('success', 'Offer created successfully.');
-            session()->flash('success', 'Offer Successfully Created');
+    session()->flash('success', 'Offer Successfully Created');
 
-        return response()->json(['success' => true, 'message' => 'Offer Successfully Created']);
+    return response()->json(['success' => true, 'message' => 'Offer Successfully Created']);
 }
-
 public function update(Request $request, string $id)
 {
     $request->validate([
         'name' => 'required',
-        'language_id' => 'required|exists:languages,id',
-        'category_id' => 'required|exists:categories,id',
-        'sub_category_id' => 'required|exists:sub_categories,id',
-        'subject_id' => 'nullable|exists:subjects,id',
-        'banner' => 'nullable|image',
+        'course' => 'required|array',
+        'course.*' => 'exists:courses,id',
+        'subscription' => 'required|array',
+        'subscription.*' => 'in:Monthly,Semi-Annual,Annual',
         'discount' => 'required',
-        'valid_until' => 'required',
-        'mode' => 'required',
+        'upgrade' => 'nullable|string',
+        'valid_from' => 'required|date',
+        'valid_to' => 'required|date|after_or_equal:valid_from',
+        'banner' => 'nullable|image',
         'status' => 'required|in:0,1',
     ]);
 
-    $Offer = Offer::findOrFail($id);
+    $offer = Offer::findOrFail($id);
 
-    // Collect only validated and allowed fields
-    $data = $request->only([
-        'name', 'language_id', 'category_id', 'sub_category_id',
-        'subject_id', 'discount', 'valid_until', 'mode', 'status'
-    ]);
+    $data = [
+        'name' => $request->name,
+        'discount' => $request->discount,
+        'upgrade' => $request->upgrade,
+        'valid_from' => $request->valid_from,
+        'valid_to' => $request->valid_to,
+        'status' => $request->status,
+        'course' => json_encode($request->course),
+        'subscription' => json_encode($request->subscription),
+    ];
 
-    // Handle banner file upload if present
     if ($request->hasFile('banner')) {
         $file = $request->file('banner');
         $filename = time() . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('uploads/offers'), $filename);
-
-        // If you want to delete the old banner file, you can do it here
-
         $data['banner'] = $filename;
+
+        // Optionally delete old banner:
+        if ($offer->banner && file_exists(public_path('uploads/offers/' . $offer->banner))) {
+            unlink(public_path('uploads/offers/' . $offer->banner));
+        }
     }
 
-    // Update the Offer with new data
-    $Offer->update($data);
+    $offer->update($data);
 
     session()->flash('success', 'Offer Successfully Updated');
 
-    return response()->json(['success' => true, 'message' => 'Offer Successfully Updated', 'Offer' => $Offer]);
+    return response()->json(['success' => true, 'message' => 'Offer Successfully Updated', 'Offer' => $offer]);
 }
-
 
     public function edit(Offer $offer)
     {
