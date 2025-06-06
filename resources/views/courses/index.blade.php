@@ -104,7 +104,9 @@
                         @endif
                     </a>
                 </th>
-               
+                 <th scope="col" class="px-6 py-3">
+                    Topics
+                </th>
                   <th scope="col" class="px-6 py-3">
                     Price
                 </th>
@@ -133,6 +135,8 @@
                 <td class="px-4 py-3 text-center">{{ $course->sub_category_names }}</td>
                 <td class="px-4 py-3 text-center">{{ $course->subject_names }}</td>
                 <td class="px-4 py-3 text-center">{{ $course->name }}</td>
+                <td class="px-4 py-3 text-center">{{ $course->topics_count }}</td>
+
                 <td class="px-4 py-3 text-center">{{ $course->formatted_prices ?? '-' }}</td>
                 <td class="px-4 py-3 text-center">{{ $course->subscription_names ?? '-' }}</td>
                 <td class="px-4 py-3 text-center font-bold {{ $course->status == 1 ? 'text-green-600' : 'text-red-600' }}">
@@ -247,24 +251,48 @@
 
             </div>
 
+
 <div class="mb-4">
     <label class="block text-sm font-medium text-gray-700 mb-1">Sub Categories</label>
-    <select id="subCategorySelect" name="subcategories[]" class="select_sub_category w-full border-gray-300 rounded-md" multiple>
-        <option value="all">Select All</option>
-        @foreach($subcategories as $sub)
-            <option value="{{ $sub->id }}">{{ $sub->name }}</option>
-        @endforeach
-    </select>
+    <div class="relative">
+        <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+            <span id="subcategoryButtonLabel">Select Sub Categories</span>
+        </button>
+        <div id="dropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
+            <label class="flex items-center px-4 py-2">
+                <input type="checkbox" onchange="toggleSelectAll(this)" />
+                <span class="ml-2">Select All</span>
+            </label>
+            @foreach($subcategories as $sub)
+                <label class="flex items-center px-4 py-2">
+                    <input type="checkbox" name="subcategories[]" value="{{ $sub->id }}" class="subcategory-checkbox" data-name="{{ $sub->name }}" />
+                    <span class="ml-2">{{ $sub->name }}</span>
+                </label>
+            @endforeach
+        </div>
+    </div>
 </div>
+
+
 
 <div class="mb-4">
     <label class="block text-sm font-medium text-gray-700 mb-1">Subjects</label>
-    <select id="subjectSelect" name="subjects[]" multiple class="w-full border-gray-300 rounded-md">
-    @foreach($subjects as $subject)
-                    <option value="{{$subject->id}}">{{$subject->name}}</option>
-                    @endforeach
-</select>
+    <div class="relative">
+        <button type="button" onclick="toggleSubjectDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+            <span id="selectedSubjectsText">Select Subjects</span>
+        </button>
+        <div id="subjectDropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
+ @foreach($subjects as $subject)
+                <label class="flex items-center px-4 py-2">
+                    <input type="checkbox" name="subjects[]" value="{{ $subject->id }}" class="subject-checkbox" data-name="{{ $subject->name }}"/>
+                    <span class="ml-2">{{ $subject->name }}</span>
+                </label>
+            @endforeach        </div>
+    </div>
 </div>
+
+
+
 
 <div class="mb-4">
     <label class="block text-sm font-medium text-gray-700 mb-2">Subscription Plans</label>
@@ -274,7 +302,7 @@
         <input type="checkbox" id="monthlyCheck" name="subscription[monthly][active]" value="1" class="subscriptionCheck" />
         <label for="monthlyCheck" class="w-24">Monthly</label>
         <input type="number" name="subscription[monthly][amount]" placeholder="Amount" class="border border-gray-300 rounded p-1 w-28" />
-        <input type="number" name="subscription[monthly][validity]" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
+        <input type="number" name="subscription[monthly][validity]" value="30" max="30" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
     </div>
 
     <!-- Semi Annual -->
@@ -282,7 +310,7 @@
         <input type="checkbox" id="semiAnnualCheck" name="subscription[semi_annual][active]" value="1" class="subscriptionCheck" />
         <label for="semiAnnualCheck" class="w-24">Semi Annual</label>
         <input type="number" name="subscription[semi_annual][amount]" placeholder="Amount" class="border border-gray-300 rounded p-1 w-28" />
-        <input type="number" name="subscription[semi_annual][validity]" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
+        <input type="number" name="subscription[semi_annual][validity]"  value="180" max="180" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
     </div>
 
     <!-- Annual -->
@@ -290,7 +318,7 @@
         <input type="checkbox" id="annualCheck" name="subscription[annual][active]" value="1" class="subscriptionCheck" />
         <label for="annualCheck" class="w-24">Annual</label>
         <input type="number" name="subscription[annual][amount]" placeholder="Amount" class="border border-gray-300 rounded p-1 w-28" />
-        <input type="number" name="subscription[annual][validity]" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
+        <input type="number" name="subscription[annual][validity]" value="365" max="365" placeholder="Validity " class="border border-gray-300 rounded p-1 w-36" />
     </div>
 </div>
 
@@ -324,26 +352,77 @@
 
 @include('script')
 
+
 <script>
-    $(document).ready(function () {
-     
 
-        // Select All Logic
-        $('#subCategorySelect').on('change', function (e) {
-            let selected = $(this).val();
-            let allValues = $('#subCategorySelect option').map(function () {
-                return $(this).val();
-            }).get();
+function updateSubCategoryLabel() {
+    const checked = document.querySelectorAll('.subcategory-checkbox:checked');
+    const labelSpan = document.getElementById('subcategoryButtonLabel');
+    
+    if (checked.length === 0) {
+        labelSpan.textContent = 'Select Sub Categories';
+        return;
+    }
 
-            if (selected.includes("all")) {
-                // Remove "all" and select everything else
-                $(this).val(allValues.filter(val => val !== "all")).trigger('change');
-                            $('#subCategorySelect').val(allValues).trigger('change');
+    const names = Array.from(checked).map(cb => cb.dataset.name);
+    labelSpan.textContent = names.join(', ');
+}
 
-            }
-        });
+// Add change listeners to subcategory checkboxes
+document.querySelectorAll('.subcategory-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+        updateSubCategoryLabel();
+        fetchSubjects(); // Optional: if you still want to fetch subjects on change
     });
+});
+
+// Update label when dropdown is closed (click outside)
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('dropdownMenu');
+    const button = event.target.closest('button');
+
+    if (!dropdown.contains(event.target) && !button) {
+        dropdown.classList.add('hidden');
+        updateSubCategoryLabel(); // 👈 Ensure label is updated when dropdown is closed
+    }
+});
+
+
+    function toggleSubjectDropdown() {
+    document.getElementById('subjectDropdownMenu').classList.toggle('hidden');
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('subjectDropdownMenu');
+    const button = event.target.closest('button');
+    if (!dropdown.contains(event.target) && !button) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('dropdownMenu');
+        const button = event.target.closest('button');
+        if (!dropdown.contains(event.target) && !button) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    function toggleSelectAll(masterCheckbox) {
+        const checkboxes = document.querySelectorAll('.subcategory-checkbox');
+        checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+    }
 </script>
+
+
 
 
 <script>
@@ -384,7 +463,23 @@
             document.getElementById('name').value = '';
             document.getElementById('select_language').value = '';
             document.getElementById('select_category').value = '';
-         
+             document.getElementById('status').selectedIndex = "";
+             // Reset checkboxes for subcategories
+    document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
+    document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
+
+    // Reset checkboxes for subjects
+    document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
+    document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
+
+    // Reset subscription checkboxes and inputs
+    document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
+
+
+    // Clear error messages
+    document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
+
+
             document.getElementById('offerImage').src = '/dummy.jpg';
             document.getElementById('modal').style.display = 'flex';
         });
@@ -412,19 +507,39 @@
                 document.getElementById('name').value = name || '';
                 document.getElementById('select_language').value = languageId || '';
                 document.getElementById('select_category').value = categoryId || '';
+// Set subcategories (checkboxes inside dropdown)
+const subcategoryCheckboxes = document.querySelectorAll('.subcategory-checkbox');
+subcategoryCheckboxes.forEach(checkbox => {
+    const val = checkbox.value;
+    checkbox.checked = subcategories.includes(val) || subcategories.includes(parseInt(val));
+});
 
-               // Set subcategories
-        const subSelect = document.querySelector('#subCategorySelect');
-        Array.from(subSelect.options).forEach(opt => {
-            opt.selected = subcategories.includes(opt.value) || subcategories.includes(parseInt(opt.value));
-        });
+// OPTIONAL: Update dropdown label to show selected names
+const checkedSubCats = Array.from(subcategoryCheckboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.getAttribute('data-name'));
+
+document.getElementById('subcategoryButtonLabel').innerText = checkedSubCats.length
+    ? checkedSubCats.join(', ')
+    : 'Select Sub Categories';
 
         // Set subjects
-        const subjectSelect = document.querySelector('#subjectSelect');
-        Array.from(subjectSelect.options).forEach(opt => {
-            opt.selected = subjects.includes(opt.value) || subjects.includes(parseInt(opt.value));
-        });
-    
+     // Set subjects (checkbox-style dropdown)
+const subjectCheckboxes = document.querySelectorAll('.subject-checkbox');
+subjectCheckboxes.forEach(checkbox => {
+    const val = checkbox.value;
+    checkbox.checked = subjects.includes(val) || subjects.includes(parseInt(val));
+});
+
+// Optional: Update dropdown button label
+const checkedSubjects = Array.from(subjectCheckboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.getAttribute('data-name'));
+
+document.getElementById('selectedSubjectsText').innerText = checkedSubjects.length
+    ? checkedSubjects.join(', ')
+    : 'Select Subjects';
+
 
               // Monthly
 document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
@@ -454,53 +569,144 @@ document.querySelector('input[name="subscription[annual][validity]"]').value = s
 
     });
 </script>
-<script>
-    function handleSelectAll(selectEl) {
-        const selected = Array.from(selectEl.selectedOptions).map(opt => opt.value);
-        const isAllSelected = selected.includes('all');
 
-        if (isAllSelected) {
-            // Select all except "all"
-            for (let option of selectEl.options) {
-                if (option.value !== 'all') option.selected = true;
-            }
-        } else if (!selected.length) {
-            // Clear all
-            for (let option of selectEl.options) {
-                option.selected = false;
-            }
-        }
+<script>
+    function toggleDropdown() {
+        document.getElementById('dropdownMenu').classList.toggle('hidden');
     }
 
-    document.getElementById('subCategorySelect').addEventListener('change', function () {
-        handleSelectAll(this);
-
-        const selected = Array.from(this.selectedOptions)
-            .map(opt => opt.value)
-            .filter(val => val !== 'all'); // exclude "all" from request
-
-        if (selected.length > 0) {
-            fetch(`/get-subjects?ids=${selected.join(',')}`)
-                .then(res => res.json())
-                .then(data => {
-                    const subjectSelect = document.getElementById('subjectSelect');
-                    subjectSelect.innerHTML = '<option value="all">Select All</option>'; // reset and add 'all'
-
-                    data.forEach(subject => {
-                        const option = document.createElement('option');
-                        option.value = subject.id;
-                        option.textContent = subject.name;
-                        subjectSelect.appendChild(option);
-                    });
-                });
-        } else {
-            document.getElementById('subjectSelect').innerHTML = '<option value="all">Select All</option>';
+    document.addEventListener('click', function (event) {
+        const dropdown = document.getElementById('dropdownMenu');
+        const button = event.target.closest('button');
+        if (!dropdown.contains(event.target) && !button) {
+            dropdown.classList.add('hidden');
         }
     });
 
-    document.getElementById('subjectSelect').addEventListener('change', function () {
-        handleSelectAll(this);
+    function toggleSelectAll(masterCheckbox) {
+        const checkboxes = document.querySelectorAll('.subcategory-checkbox');
+        checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        fetchSubjects(); // Trigger fetch
+    }
+
+    // Fetch subject data based on selected subcategories
+ function fetchSubjects() {
+    const selected = Array.from(document.querySelectorAll('.subcategory-checkbox:checked'))
+        .map(cb => cb.value);
+
+    const container = document.getElementById('subjectDropdownMenu');
+    container.innerHTML = ''; // clear previous
+
+    if (selected.length > 0) {
+        fetch(`/get-subjects?ids=${selected.join(',')}`)
+            .then(res => res.json())
+          .then(data => {
+    if (data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm px-4 py-2">No subjects found</p>';
+        updateSelectedSubjectsDisplay();
+        return;
+    }
+
+    // Add "Select All" checkbox first
+    const selectAllLabel = document.createElement('label');
+    selectAllLabel.className = 'flex items-center px-4 py-2';
+
+    const selectAllCheckbox = document.createElement('input');
+    selectAllCheckbox.type = 'checkbox';
+    selectAllCheckbox.id = 'selectAllSubjects';
+    selectAllCheckbox.className = 'mr-2';
+
+    const selectAllText = document.createElement('span');
+    selectAllText.textContent = 'Select All';
+
+    selectAllLabel.appendChild(selectAllCheckbox);
+    selectAllLabel.appendChild(selectAllText);
+    container.appendChild(selectAllLabel);
+
+    // Add subject checkboxes
+    data.forEach(subject => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center px-4 py-2 hover:bg-gray-100';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'subjects[]';
+        checkbox.value = subject.id;
+        checkbox.className = 'mr-2 subject-checkbox';
+
+        const span = document.createElement('span');
+        span.textContent = subject.name;
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
+
+    // Add event listeners
+    setTimeout(() => {
+        document.querySelectorAll('.subject-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateSelectedSubjectsDisplay);
+        });
+
+        // Select All toggle for subjects
+        document.getElementById('selectAllSubjects').addEventListener('change', function () {
+            const isChecked = this.checked;
+            document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = isChecked);
+            updateSelectedSubjectsDisplay();
+        });
+    }, 0);
+
+    updateSelectedSubjectsDisplay();
+});
+
+    } else {
+        container.innerHTML = '<p class="text-gray-400 text-sm px-4 py-2">Select sub-categories to view subjects</p>';
+        updateSelectedSubjectsDisplay(); // Clear display
+    }
+}
+
+
+function updateSelectedSubjectsDisplay() {
+    const selectedSubjects = Array.from(document.querySelectorAll('.subject-checkbox:checked'))
+        .map(cb => cb.nextSibling.textContent.trim());
+
+    const displaySpan = document.getElementById('selectedSubjectsText');
+
+    if (selectedSubjects.length > 0) {
+        displaySpan.textContent = selectedSubjects.join(', ');
+    } else {
+        displaySpan.textContent = 'Select Subjects';
+    }
+}
+
+
+
+    // Trigger fetch when any checkbox is clicked
+    document.querySelectorAll('.subcategory-checkbox').forEach(cb => {
+        cb.addEventListener('change', fetchSubjects);
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const validityLimits = {
+            'monthly': 30,
+            'semi_annual': 180,
+            'annual': 365
+        };
+
+        Object.entries(validityLimits).forEach(([plan, maxVal]) => {
+            const input = document.querySelector(`input[name="subscription[${plan}][validity]"]`);
+            if (input) {
+                input.addEventListener('input', function () {
+                    if (parseInt(this.value) > maxVal) {
+                        this.value = maxVal;
+                    }
+                });
+            }
+        });
+    });
+</script>
+
 
 @endpush

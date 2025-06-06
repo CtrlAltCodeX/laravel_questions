@@ -30,4 +30,11 @@ class GoogleUser extends Model
         return $this->belongsTo(Category::class);
     }
 
+    // In GoogleUser.php model
+public function userCourses()
+{
+    return $this->hasMany(UserCourse::class, 'user_id');
+}
+
+
 }

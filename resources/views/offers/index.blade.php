@@ -219,29 +219,54 @@
         <div style="color: red;" id="error-name"></div>
     </div>
 
-    <!-- Course -->
-<div class="mb-4">
-    <label class="block text-sm font-medium text-gray-700 mb-1">Select Course</label>
-    <select id="CourseSelect" name="course[]" multiple class="w-full border-gray-300 rounded-md">
-                <option value="all">Select All</option>
 
-        @foreach($Courses as $cur)
-            <option value="{{ $cur->id }}">{{ $cur->name }}</option>
-        @endforeach
-    </select>
-    <div style="color: red;" id="error-course"></div>
+<div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Sub Course</label>
+    <div class="relative">
+        <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+            <span id="CourseButtonLabel">Select Course</span>
+        </button>
+        <div id="dropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
+            <label class="flex items-center px-4 py-2">
+                <input type="checkbox" onchange="toggleSelectAll(this)" />
+                <span class="ml-2">Select All</span>
+            </label>
+            @foreach($Courses as $cur)
+                <label class="flex items-center px-4 py-2">
+                    <input type="checkbox" name="course[]" value="{{ $cur->id }}" class="Course-checkbox" data-name="{{ $cur->name }}" />
+                    <span class="ml-2">{{ $cur->name }}</span>
+                </label>
+            @endforeach
+        </div>
+    </div>
 </div>
-
 <!-- Subscription -->
-<div class="mb-4">
+<!-- Subscription (Custom Dropdown) -->
+<div class="mb-4 relative">
     <label class="block text-sm font-medium text-gray-700 mb-1">Select Subscription</label>
-    <select id="subscriptionSelect" name="subscription[]" multiple class="w-full border-gray-300 rounded-md">
-        <option value="Monthly">Monthly</option>
-        <option value="Semi-Annual">Semi-Annual</option>
-        <option value="Annual">Annual</option>
-    </select>
+
+    <button type="button" onclick="toggleSubscriptionDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+        <span id="SubscriptionButtonLabel">Select Subscription</span>
+    </button>
+
+    <div id="subscriptionDropdown" class="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full hidden max-h-48 overflow-y-auto">
+        <div class="px-4 py-2">
+            <label><input type="checkbox" id="selectAllSubscription" onchange="toggleSelectAllSubscription(this)"> Select All</label>
+        </div>
+        <div class="px-4 py-1">
+            <label><input type="checkbox" class="subscription-checkbox" value="Monthly" data-name="Monthly" name="subscription[]"> Monthly</label>
+        </div>
+        <div class="px-4 py-1">
+            <label><input type="checkbox" class="subscription-checkbox" value="Semi-Annual" data-name="Semi-Annual" name="subscription[]"> Semi-Annual</label>
+        </div>
+        <div class="px-4 py-1">
+            <label><input type="checkbox" class="subscription-checkbox" value="Annual" data-name="Annual" name="subscription[]"> Annual</label>
+        </div>
+    </div>
+
     <div style="color: red;" id="error-subscription"></div>
 </div>
+
 
 
     <!-- Discount -->
@@ -302,133 +327,255 @@
 
 @include('script')
 
-<script>
-    $(document).ready(function () {
-     
+    <script>
 
-        // Select All Logic
-        $('#CourseSelect').on('change', function (e) {
-            let selected = $(this).val();
-            let allValues = $('#CourseSelect option').map(function () {
-                return $(this).val();
-            }).get();
 
-            if (selected.includes("all")) {
-                // Remove "all" and select everything else
-                $(this).val(allValues.filter(val => val !== "all")).trigger('change');
-                            $('#CourseSelect').val(allValues).trigger('change');
-
-            }
-        });
+  function toggleSelectAll(checkbox) {
+    const allCourseCheckboxes = document.querySelectorAll('.Course-checkbox');
+    allCourseCheckboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
     });
-</script>
+    updateCourseButtonLabel();
+}
 
-<script>
+function updateCourseButtonLabel() {
+    const checkedCourses = Array.from(document.querySelectorAll('.Course-checkbox:checked'))
+        .map(cb => cb.getAttribute('data-name'));
+    
+    document.getElementById('CourseButtonLabel').innerText = checkedCourses.length
+        ? checkedCourses.join(', ')
+        : 'Select Course';
+}
 
-
-    document.getElementById('searchFilter').addEventListener('input', function () {
-        let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll('#offersTable .offerRow');
-        
-        rows.forEach(row => {
-            let text = row.textContent.toLowerCase();
-            row.style.display = text.includes(filter) ? '' : 'none';
-        });
-    });
-
-
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var output = document.getElementById('offerImage');
-                output.src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        });
-
-
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-        document.getElementById('createButton').addEventListener('click', function() {
-            // Reset fields for creating a new subcategory
-            document.getElementById('modalTitle').innerText = 'Create Offers';
-            document.getElementById('modalForm').action = "{{ route('offers.store') }}";
-            document.getElementById('modalForm').method = 'POST';
-            document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
-            document.getElementById('name').value = '';
-     
-            document.getElementById('offerImage').src = '/dummy.jpg';
-            document.getElementById('modal').style.display = 'flex';
-        });
-const editButtons = document.querySelectorAll('.editButton');
-editButtons.forEach(button => {
-    button.addEventListener('click', function () {
-        const id = this.getAttribute('data-id');
-        const name = this.getAttribute('data-name');
-        const discount = this.getAttribute('data-discount');
-        const upgrade = this.getAttribute('data-upgrade');
-        const validFrom = this.getAttribute('data-valid_from');
-        const validTo = this.getAttribute('data-valid_to');
-        const status = this.getAttribute('data-status');
-        const banner = this.getAttribute('data-banner');
-
-        // Safe parsing with fallback to empty array
-        let courses = [];
-        try {
-            courses = JSON.parse(this.getAttribute('data-courses') || '[]') || [];
-        } catch (e) {
-            courses = [];
-        }
-
-        let subscriptions = [];
-        try {
-            subscriptions = JSON.parse(this.getAttribute('data-subscriptions') || '[]') || [];
-        } catch (e) {
-            subscriptions = [];
-        }
-
-        // Update modal fields
-        document.getElementById('modalTitle').innerText = 'Edit Offers';
-        const modalForm = document.getElementById('modalForm');
-        modalForm.action = `/offers/${id}`;
-        modalForm.method = 'POST';
-        modalForm.querySelector('input[name="_method"]').value = 'PUT';
-
-        document.getElementById('name').value = name;
-        document.getElementById('discount').value = discount;
-        document.getElementById('upgrade').value = upgrade;
-        document.getElementById('valid_from').value = validFrom;
-        document.getElementById('valid_to').value = validTo;
-        document.getElementById('status').value = status;
-        document.getElementById('offerImage').src = banner ? `/uploads/offers/${banner}` : '/dummy.jpg';
-
-        // Clear & Set selected courses
-        const courseSelect = document.getElementById('CourseSelect');
-        if (courseSelect) {
-            Array.from(courseSelect.options).forEach(option => {
-                option.selected = courses.includes(parseInt(option.value));
-            });
-        }
-
-        // Clear & Set selected subscriptions
-        const subscriptionSelect = document.getElementById('subscriptionSelect');
-        if (subscriptionSelect) {
-            Array.from(subscriptionSelect.options).forEach(option => {
-                option.selected = subscriptions.includes(option.value);
-            });
-        }
-
-        // Show modal
-        document.getElementById('modal').style.display = 'flex';
+// Attach event listener to individual course checkboxes
+document.addEventListener('DOMContentLoaded', function () {
+    const courseCheckboxes = document.querySelectorAll('.Course-checkbox');
+    courseCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateCourseButtonLabel);
     });
 });
 
 
-
+   function toggleDropdown() {
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.classList.toggle('hidden');
+    }
+      // Close dropdown on outside click
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('dropdownMenu');
+        const button = event.target.closest('button');
+        if (!dropdown.contains(event.target) && !button) {
+            dropdown.classList.add('hidden');
+        }
     });
+
+        document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('subscriptionDropdown');
+        const button = event.target.closest('button');
+        if (!dropdown.contains(event.target) && !button) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    </script>
+
+    <script>
+
+
+        document.getElementById('searchFilter').addEventListener('input', function () {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#offersTable .offerRow');
+            
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var output = document.getElementById('offerImage');
+                    output.src = reader.result;
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            });
+
+
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+          document.getElementById('createButton').addEventListener('click', function () {
+    // Set modal title and form action
+    document.getElementById('modalTitle').innerText = 'Create Offers';
+    document.getElementById('modalForm').action = "{{ route('offers.store') }}";
+    document.getElementById('modalForm').method = 'POST';
+    document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
+
+    // Reset all input fields
+    document.getElementById('name').value = '';
+    document.getElementById('discount').value = '';
+    document.getElementById('upgrade').value = '';
+    document.getElementById('valid_from').value = '';
+    document.getElementById('valid_to').value = '';
+    document.getElementById('status').value = '';
+
+    // Reset course checkboxes
+    document.querySelectorAll('.Course-checkbox').forEach(cb => cb.checked = false);
+    document.querySelector('input[type="checkbox"][onchange="toggleSelectAll(this)"]').checked = false;
+    document.getElementById('CourseButtonLabel').innerText = 'Select Course';
+
+    // Reset subscription checkboxes
+    document.querySelectorAll('.subscription-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAllSubscription').checked = false;
+    document.getElementById('SubscriptionButtonLabel').innerText = 'Select Subscription';
+
+    // Reset image
+    document.getElementById('offerImage').src = '/dummy.jpg';
+    document.getElementById('fileInput').value = '';
+
+    // Clear error messages
+    ['error-name', 'error-subscription', 'error-discount', 'error-upgrade', 'error-valid_from', 'error-valid_to', 'error-status']
+        .forEach(id => document.getElementById(id).innerText = '');
+
+    // Show modal
+    document.getElementById('modal').style.display = 'flex';
+});
+
+    const editButtons = document.querySelectorAll('.editButton');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const discount = this.getAttribute('data-discount');
+            const upgrade = this.getAttribute('data-upgrade');
+            const validFrom = this.getAttribute('data-valid_from');
+            const validTo = this.getAttribute('data-valid_to');
+            const status = this.getAttribute('data-status');
+            const banner = this.getAttribute('data-banner');
+
+             let courses = [];
+        try {
+            courses = JSON.parse(this.getAttribute('data-courses') || '[]');
+        } catch (e) {
+            courses = [];
+        }
+            // Set courses (checkboxes inside dropdown)
+const courseCheckboxes = document.querySelectorAll('.Course-checkbox');
+courseCheckboxes.forEach(checkbox => {
+    const val = checkbox.value;
+    checkbox.checked = courses.includes(val) || courses.includes(parseInt(val));
+});
+
+// OPTIONAL: Update dropdown label to show selected course names
+const checkedCourses = Array.from(courseCheckboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.getAttribute('data-name'));
+
+document.getElementById('CourseButtonLabel').innerText = checkedCourses.length
+    ? checkedCourses.join(', ')
+    : 'Select Course';
+
+
+            let subscriptions = [];
+            try {
+                subscriptions = JSON.parse(this.getAttribute('data-subscriptions') || '[]') || [];
+            } catch (e) {
+                subscriptions = [];
+            }
+
+            // Update modal fields
+            document.getElementById('modalTitle').innerText = 'Edit Offers';
+            const modalForm = document.getElementById('modalForm');
+            modalForm.action = `/offers/${id}`;
+            modalForm.method = 'POST';
+            modalForm.querySelector('input[name="_method"]').value = 'PUT';
+
+            document.getElementById('name').value = name;
+            document.getElementById('discount').value = discount;
+            document.getElementById('upgrade').value = upgrade;
+            document.getElementById('valid_from').value = validFrom;
+            document.getElementById('valid_to').value = validTo;
+            document.getElementById('status').value = status;
+            document.getElementById('offerImage').src = banner ? `/uploads/offers/${banner}` : '/dummy.jpg';
+
+                    
+            // Set checkboxes based on saved values
+            const subCheckboxes = document.querySelectorAll('.subscription-checkbox');
+            subCheckboxes.forEach(cb => {
+                cb.checked = subscriptions.includes(cb.value);
+            });
+
+            // Update label
+            const checkedSubs = Array.from(subCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.getAttribute('data-name'));
+
+            document.getElementById('SubscriptionButtonLabel').innerText = checkedSubs.length
+                ? checkedSubs.join(', ')
+                : 'Select Subscription';
+
+            // Update "Select All" checkbox status
+            document.getElementById('selectAllSubscription').checked = subCheckboxes.length === subCheckboxes.length &&
+                Array.from(subCheckboxes).every(cb => cb.checked);
+
+                        // Show modal
+                        document.getElementById('modal').style.display = 'flex';
+                    });
+                });
+
+
+
+        });
+    </script>
+
+
+<script>
+function toggleSubscriptionDropdown() {
+    document.getElementById('subscriptionDropdown').classList.toggle('hidden');
+}
+
+function toggleSelectAllSubscription(source) {
+    const allSubs = document.querySelectorAll('.subscription-checkbox');
+    allSubs.forEach(cb => cb.checked = source.checked);
+    updateSubscriptionLabel();
+}
+
+function updateSubscriptionLabel() {
+    const checked = Array.from(document.querySelectorAll('.subscription-checkbox:checked'))
+        .map(cb => cb.getAttribute('data-name'));
+
+    document.getElementById('subscriptionButtonLabel').innerText = checked.length
+        ? checked.join(', ')
+        : 'Select Subscription';
+}
+
+// Update label when individual checkbox clicked
+document.addEventListener('DOMContentLoaded', function () {
+    const subs = document.querySelectorAll('.subscription-checkbox');
+    subs.forEach(cb => {
+        cb.addEventListener('change', updateSubscriptionLabel);
+    });
+});
+
+document.getElementById('createButton').addEventListener('click', function() {
+    // Existing reset fields...
+
+    // ✅ Default check all subscription checkboxes
+    const subCheckboxes = document.querySelectorAll('.subscription-checkbox');
+    subCheckboxes.forEach(cb => cb.checked = true);
+
+    // ✅ Also check 'Select All'
+    document.getElementById('selectAllSubscription').checked = true;
+
+    // ✅ Update label text
+    updateSubscriptionLabel();
+});
+
 </script>
+
+
 
 @endpush

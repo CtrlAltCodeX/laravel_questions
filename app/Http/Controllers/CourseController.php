@@ -9,6 +9,9 @@ use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\Subject;
+use App\Models\Topic;
+use App\Models\Offer;
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -74,20 +77,20 @@ class CourseController extends Controller
     $allSubjects = Subject::pluck('name', 'id')->toArray();
 
     
-    foreach ($courses as $course) {
+    // foreach ($courses as $course) {
       
-        $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
-        $subjectIds = json_decode($course->subject_id, true) ?? [];
+    //     $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
+    //     $subjectIds = json_decode($course->subject_id, true) ?? [];
 
-        $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
-        $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');
+    //     $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
+    //     $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');
 
-        $subCategoryNames = array_filter(array_map(fn($id) => $allSubcategories[$id] ?? null, $subCategoryIds));
-        $subjectNames = array_filter(array_map(fn($id) => $allSubjects[$id] ?? null, $subjectIds));
+    //     $subCategoryNames = array_filter(array_map(fn($id) => $allSubcategories[$id] ?? null, $subCategoryIds));
+    //     $subjectNames = array_filter(array_map(fn($id) => $allSubjects[$id] ?? null, $subjectIds));
 
-        $course->sub_category_names = implode(', ', $subCategoryNames);
-        $course->subject_names = implode(', ', $subjectNames);
-    }
+    //     $course->sub_category_names = implode(', ', $subCategoryNames);
+    //     $course->subject_names = implode(', ', $subjectNames);
+    // }
 
   
     $dropdown_list = [
@@ -110,6 +113,9 @@ foreach ($courses as $course) {
     $course->sub_category_names = implode(', ', $subCategoryNames);
     $course->subject_names = implode(', ', $subjectNames);
 
+        $course->topics_count = Topic::whereIn('subject_id', $subjectIds)->count();
+
+        
     if (is_string($course->subscription)) {
         $subscriptionData = json_decode($course->subscription, true);
     } elseif (is_array($course->subscription)) {
@@ -278,6 +284,45 @@ public function getSubjects(Request $request)
         ->get(['id', 'name']);
 
     return response()->json($subjects);
+}
+
+public function getCoursesWithOffers()
+{
+    $courses = Course::all()->map(function ($course) {
+        // Latest offer jisme JSON field 'course' me course ID ho
+        $offer = Offer::whereJsonContains('course', (string) $course->id)
+                      ->latest('created_at') // latest offer based on created_at
+                      ->first();
+
+        return [
+            'id' => $course->id,
+            'name' => $course->name,
+            'language_id' => $course->language_id,
+            'category_id' => $course->category_id,
+            'sub_category_id' => $course->sub_category_id,
+            'subject_id' => $course->subject_id,
+            'status' => $course->status,
+            'subscription' => $course->subscription,
+            'banner' => $course->banner,
+            'offer' => $offer ? [
+                'id' => $offer->id,
+                'name' => $offer->name,
+                'status' => $offer->status,
+                'discount' => $offer->discount,
+                'banner' => $offer->banner,
+                'course' => $offer->course,
+                'subscription' => $offer->subscription,
+                'upgrade' => $offer->upgrade,
+                'valid_from' => $offer->valid_from,
+                'valid_to' => $offer->valid_to,
+            ] : null,
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'data' => $courses
+    ]);
 }
 
 

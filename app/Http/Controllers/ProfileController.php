@@ -88,23 +88,22 @@ class ProfileController extends Controller
         return redirect()->route('users.index')->with('success','User deleted successfully!');
     }
 
-    public function users(Request $request)
-    {
-        $query = GoogleUser::with(['category' => function($q) {
-            $q->with('language'); // Category ke saath Language ka data bhi load karega
-        }]);
-    
-        if ($request->filled('category_id')) { // Ensure category_id is not empty/null
-            $query->where('category_id', $request->category_id);
-        }
-    
-        $users = $query->paginate(10);
-    
-    
-        return view('users.index', compact('users'));
+  public function users(Request $request)
+{
+    $query = GoogleUser::with([
+        'category.language',
+        'userCourses.course' 
+    ]);
+
+    if ($request->filled('category_id')) {
+        $query->where('category_id', $request->category_id);
     }
-    
- 
+
+    $users = $query->paginate(10);
+
+    return view('users.index', compact('users'));
+}
+
     public function updateCoinsAndStatus(Request $request, $id)
 {
     $request->validate([

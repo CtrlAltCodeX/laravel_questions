@@ -9,6 +9,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\GoogleUserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\UserCourseController;
 
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\ScoreBoardController;
@@ -67,3 +69,9 @@ Route::get('offers', [OfferController::class, 'getOffersApi']);
 // get 7. Refer and Welcome Coin
 Route::get('coins', [SettingController::class, 'getSettingsApi']);
 Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);
+
+// get course
+Route::get('/courses-with-offers', [CourseController::class, 'getCoursesWithOffers']);
+
+
+Route::get('/user-courses/{userId}', [UserCourseController::class, 'getUserCourses']);

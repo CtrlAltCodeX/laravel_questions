@@ -17,7 +17,9 @@
                 <th scope="col" class="px-6 py-3">Phone Number</th>
                 <th scope="col" class="px-6 py-3">Email Id</th>
                 <th scope="col" class="px-6 py-3">Login Type</th>
-                <th scope="col" class="px-6 py-3">Coins</th>
+            <th scope="col" class="px-6 py-3"> Courses</th>
+<th scope="col" class="px-6 py-3">Start Dates</th>
+
                 <th scope="col" class="px-6 py-3">Plans</th>
                 <th scope="col" class="px-6 py-3">Referral Code</th>
                 <th scope="col" class="px-6 py-3">Friend Code</th>
@@ -42,6 +44,16 @@
                 <td class="px-6 py-4">{{ $user->phone_number }}</td>
                 <td class="px-6 py-4">{{ $user->email }}</td>
                 <td class="px-6 py-4">{{ $user->login_type }}</td>
+                {{-- Course Names --}}
+<td class="px-6 py-4">
+    {{ $user->userCourses->pluck('course.name')->filter()->implode(', ') }}
+</td>
+
+{{-- Start Dates --}}
+<td class="px-6 py-4">
+    {{ $user->userCourses->pluck('created_at')->map(fn($date) => \Carbon\Carbon::parse($date)->format('d-m-Y'))->implode(', ') }}
+</td>
+
                 <td class="px-6 py-4">{{ $user->coins }}</td>
                 <td class="px-6 py-4">{{ $user->plans }}</td>
                 <td class="px-6 py-4">{{ $user->refferal_code }}</td>

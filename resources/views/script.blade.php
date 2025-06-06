@@ -39,24 +39,51 @@
     });
 
 
-        $(document).on('change', '.select_category', function() {
-        var categoryId = $(this).val();
+ $(document).on('change', '.select_category', function () {
+    const categoryId = $(this).val();
 
-        if (categoryId) {
-            $.ajax({
-                url: '/get-subcategories/' + categoryId,
-                method: 'GET',
-                success: function(data) {
-                    $('#subCategorySelect').empty().append('<option value="all">Select All</option>');
-                    $.each(data, function(key, value) {
-                        $('#subCategorySelect').append('<option value="' + value.id + '">' + value.name + '</option>');
-                    });
-                }
-            });
-        } else {
-            $('#subCategorySelect').empty().append('<option value="">Select Sub Category</option>');
-        }
-    });
+    if (categoryId) {
+        $.ajax({
+            url: '/get-subcategories/' + categoryId,
+            method: 'GET',
+            success: function (data) {
+                const dropdownMenu = $('#dropdownMenu');
+                dropdownMenu.empty(); // Clear old checkboxes
+
+                // Add Select All option
+                dropdownMenu.append(`
+                    <label class="flex items-center px-4 py-2">
+                        <input type="checkbox" onchange="toggleSelectAll(this)" />
+                        <span class="ml-2">Select All</span>
+                    </label>
+                `);
+
+                // Add each sub-category
+                data.forEach(function (sub) {
+                    dropdownMenu.append(`
+                        <label class="flex items-center px-4 py-2">
+                            <input type="checkbox" name="subcategories[]" value="${sub.id}" class="subcategory-checkbox" data-name="${sub.name}" />
+                            <span class="ml-2">${sub.name}</span>
+                        </label>
+                    `);
+                });
+
+                // Re-bind change listener for label update
+                $('.subcategory-checkbox').on('change', function () {
+                    updateSubCategoryLabel();
+                    fetchSubjects(); // if you want to fetch subjects on change
+                });
+
+                // Reset label
+                updateSubCategoryLabel();
+            }
+        });
+    } else {
+        $('#dropdownMenu').html('<p class="text-sm text-gray-400 px-4 py-2">Please select a category</p>');
+        updateSubCategoryLabel(); // Clear label
+    }
+});
+
 
     $(document).on('change', '.select_sub_category', function() {
         var subCategoryId = $(this).val();
