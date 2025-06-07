@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OTP;
 use Illuminate\Http\Request;
 use App\Models\GoogleUser;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * @OA\Schema(
@@ -27,16 +29,19 @@ use App\Models\GoogleUser;
  */
 class GoogleUserController extends Controller
 {
+
     /**
-     * @OA\Post(
+     * @OA\Put(
      *     path="/api/user/{id}/update",
-     *     summary="Update user details",
+     *     operationId="updateUser",
      *     tags={"Users"},
+     *     summary="Update user information",
+     *     description="Updates the specified user's details including name, phone number, profile image, and preferences.",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
+     *         description="ID of the user to update",
      *         required=true,
-     *         description="User ID",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\RequestBody(
@@ -44,15 +49,13 @@ class GoogleUserController extends Controller
      *         @OA\MediaType(
      *             mediaType="multipart/form-data",
      *             @OA\Schema(
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="email", type="string", format="email"),
-     *                 @OA\Property(property="phone_number", type="string"),
-     *                 @OA\Property(property="login_type", type="string", enum={"google", "facebook", "apple"}),
-     *                 @OA\Property(property="referral_code", type="string"),
-     *                 @OA\Property(property="friend_code", type="string"),
-     *                 @OA\Property(property="status", type="string", enum={"Enabled", "Disabled"}),
-     *                 @OA\Property(property="login_date", type="string", format="date"),
-     *                 @OA\Property(property="profile_image", type="string", format="binary")
+     *                 required={},
+     *                 @OA\Property(property="phone_number", type="string", example="9876543210"),
+     *                 @OA\Property(property="login_type", type="string", enum={"google", "facebook", "apple"}, example="google"),
+     *                 @OA\Property(property="friend_code", type="string", example="FRIEND123"),
+     *                 @OA\Property(property="profile_image", type="string", format="binary"),
+     *                 @OA\Property(property="category_id", type="integer", example=1),
+     *                 @OA\Property(property="language_id", type="integer", example=2)
      *             )
      *         )
      *     ),
@@ -60,12 +63,31 @@ class GoogleUserController extends Controller
      *         response=200,
      *         description="User updated successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean"),
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="data", ref="#/components/schemas/GoogleUser")
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="User updated successfully"),
+     *             @OA\Property(property="data", type="object")
      *         )
      *     ),
-     *     @OA\Response(response=404, description="User not found")
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 example={"profile_image": {"The profile image must be an image."}}
+     *             )
+     *         )
+     *     )
      * )
      */
     public function updateUser(Request $request, $id)
@@ -75,9 +97,9 @@ class GoogleUserController extends Controller
             'phone_number'   => 'nullable|string',
             'login_type'     => 'nullable|in:google,facebook,apple',
             'friend_code'    => 'nullable|string',
-            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'category_id'    => 'nullable|integer|exists:categories,id', 
-            'language_id'    => 'nullable|integer|exists:languages,id' 
+            'profile_image'  => 'nullable',
+            'category_id'    => 'nullable|integer|exists:categories,id',
+            'language_id'    => 'nullable|integer|exists:languages,id'
         ]);
 
         $user = GoogleUser::find($id);
@@ -89,14 +111,18 @@ class GoogleUserController extends Controller
             ], 404);
         }
 
+        $data = $request->except('profile_image');
+
         if ($request->hasFile('profile_image')) {
             $file = $request->file('profile_image');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->storeAs('public/profile_images', $filename);
-            $user->profile_image = 'profile_images/' . $filename;
+            $data['profile_image'] = 'profile_images/' . $filename;
+        } elseif ($request->filled('profile_image')) {
+            $data['profile_image'] = $request->profile_image;
         }
 
-        $user->update($request->except(['profile_image']));
+        $user->update($data);
 
         return response()->json([
             'status' => true,
@@ -105,62 +131,18 @@ class GoogleUserController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/user/{id}/update/language/category",
-     *     summary="Update user's language and category",
-     *     tags={"Users"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="language_id", type="integer"),
-     *             @OA\Property(property="category_id", type="integer")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Language and Category updated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean"),
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="data", ref="#/components/schemas/GoogleUser")
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="User not found")
-     * )
-     */
-    // public function updateLanguageCategory(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'language_id' => 'nullable|integer',
-    //         'category_id' => 'nullable|integer'
-    //     ]);
+    public function generateOTP($n)
+    {
+        $generator = "1357902468";
+        $result = "";
 
-    //     $user = GoogleUser::find($id);
+        for ($i = 1; $i <= $n; $i++) {
+            $result .= substr($generator, rand() % strlen($generator), 1);
+        }
 
-    //     if (!$user) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'User not found'
-    //         ], 404);
-    //     }
-
-    //     $user->language_id = $request->language_id ?? $user->language_id;
-    //     $user->category_id = $request->category_id ?? $user->category_id;
-    //     $user->save();
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Language and Category updated',
-    //         'data' => $user
-    //     ]);
-    // }
+        // Returning the result
+        return $result;
+    }
 
     /**
      * @OA\Delete(
@@ -187,6 +169,33 @@ class GoogleUserController extends Controller
     public function deleteUser($id)
     {
         $user = GoogleUser::find($id);
+
+        if (!request()->otp) {
+            $otp = $this->generateOTP(6);
+
+            Mail::to($user->email)
+                ->send(new OTP([
+                    'otp' => __($otp),
+                ]));
+
+            $user->update([
+                'otp' => $otp
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP successfully sent'
+            ], 200);
+        } else {
+            $originalOTP = $user->otp;
+
+            if ($originalOTP != request()->otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP'
+                ], 404);
+            }
+        }
 
         if (!$user) {
             return response()->json([

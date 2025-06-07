@@ -22,7 +22,8 @@ class GoogleUser extends Model
         'status',
         'category_id',
         'language_id',
-        'login_date'
+        'login_date',
+        'otp'
     ];
 
     public function category()
