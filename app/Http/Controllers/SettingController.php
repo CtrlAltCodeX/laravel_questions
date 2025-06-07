@@ -23,54 +23,6 @@ class SettingController extends Controller
         return view('settings.index', compact('setting', 'languages', 'categories', 'sub_categories'));
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/coins",
-     *     summary="Get application settings",
-     *     tags={"Settings"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Settings fetched successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Settings fetched successfully"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="site_name", type="string", example="My App"),
-     *                 @OA\Property(property="logo", type="string", example="logo.png")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="No settings found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="No settings found"),
-     *             @OA\Property(property="data", type="null", example=null)
-     *         )
-     *     )
-     * )
-     */
-    public function getSettingsApi()
-    {
-        $setting = Setting::first();
-
-        if (!$setting) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No settings found',
-                'data' => null
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Settings fetched successfully',
-            'data' => $setting
-        ]);
-    }
-
     public function store(Request $request)
     {
         $request->validate([

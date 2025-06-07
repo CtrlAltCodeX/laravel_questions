@@ -8,6 +8,7 @@ use App\Models\Topic;
 use App\Models\Subject;
 use App\Models\Video;
 use App\Models\Category;
+use App\Models\GoogleUser;
 use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\Question;
@@ -36,23 +37,6 @@ class ReportController extends Controller
     }
 
     /**
-     * @OA\Get(
-     *     path="/api/reports",
-     *     summary="Fetch all reports",
-     *     tags={"Reports"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of reports"
-     *     )
-     * )
-     */
-    public function index()
-    {
-        $reports = Report::all();
-        return response()->json(['success' => true, 'data' => $reports], 200);
-    }
-
-    /**
      * @OA\Post(
      *     path="/api/reports",
      *     summary="Create a new report",
@@ -61,7 +45,7 @@ class ReportController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name", "title", "type", "message", "date"},
-     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="user_id", type="integer"),
      *             @OA\Property(property="title", type="string"),
      *             @OA\Property(property="type", type="string", enum={"Video", "Question"}),
      *             @OA\Property(property="question_id", type="integer"),
@@ -79,7 +63,7 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'user_id' => 'required|integer',
             'title' => 'required|string',
             'type' => 'required|in:Video,Question',
             'question_id' => 'nullable|integer',
@@ -87,6 +71,8 @@ class ReportController extends Controller
             'message' => 'required|string',
             'date' => 'required|date'
         ]);
+
+        if (!$user = GoogleUser::find($request->user_id)) return response()->json(['success' => false, 'message' => 'User not Found'], 404);
 
         $report = Report::create($request->all());
         return response()->json(['success' => true, 'message' => 'Report added successfully', 'data' => $report], 201);
@@ -135,7 +121,7 @@ class ReportController extends Controller
         if (!$report) return response()->json(['success' => false, 'message' => 'Report not found'], 404);
 
         $report->delete();
-        
+
         return response()->json(['success' => true, 'message' => 'Video Updated and Report removed successfully', 'Video' => $video]);
     }
 

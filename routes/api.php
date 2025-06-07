@@ -54,7 +54,7 @@ Route::post('wallet/charges', [WalletHistoryController::class, 'walletCharges'])
 Route::post('scoreboard', [ScoreBoardController::class, 'store']);
 Route::get('scoreboard/{userId}', [ScoreBoardController::class, 'show']);
 
-Route::post('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
+Route::delete('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
 Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
 Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
 // Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);

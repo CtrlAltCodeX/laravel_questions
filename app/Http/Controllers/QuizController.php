@@ -153,26 +153,37 @@ class QuizController extends Controller
                             ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                             : '');
 
-                    $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
-                        (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;
-                    $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
-                        (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_a : '');
-                    $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
-                        (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_b : '');
-                    $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
-                        (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_c : '');
-                    $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
-                        (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_d : '');
-                    $questionAccTop[$key]['answer']   = $getQuestions->answer;
+                    if ($getQuestions->question_number == $questionsSecond[$i]->question_number) {
+                        $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
+                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;
+                        $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
+                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_a : '');
+                        $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
+                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_b : '');
+                        $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
+                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_c : '');
+                        $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
+                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_d : '');
+                        $questionAccTop[$key]['answer']   = $getQuestions->answer;
 
-                    $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
-                        ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
-                        ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' | ' . $questionsSecond[$i]->notes : '')
-                        : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
+                        $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
+                            ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
+                            ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' | ' . $questionsSecond[$i]->notes : '')
+                            : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
 
-                    ++$i;
+                        ++$i;
+                    } else {
+                        $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' . $img;
+                        $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>';
+                        $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>';
+                        $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>';
+                        $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>';
+                        $questionAccTop[$key]['answer']   = $getQuestions->answer;
+
+                        $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
+                            ? '<span class="notranslate">' . $getQuestions->notes . '</span>' : '';
+                    }
                 }
-
 
                 $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topicsName] = $questionAccTop;
             }

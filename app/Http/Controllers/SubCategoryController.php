@@ -12,6 +12,34 @@ use App\Exports\SampleSubCategoryExport;
 use App\Imports\SubCategoryImport;
 use App\Models\Offer;
 
+/**
+ * @OA\Schema(
+ *     schema="SubCategory",
+ *     type="object",
+ *     title="SubCategory",
+ *     required={"id", "name"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Electronics"),
+ *     @OA\Property(property="description", type="string", example="All kinds of electronics"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T12:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T13:00:00Z")
+ * )
+ */
+
+/**
+ * @OA\Schema(
+ *     schema="Offer",
+ *     type="object",
+ *     title="Offer",
+ *     required={"id", "title", "sub_category_id"},
+ *     @OA\Property(property="id", type="integer", example=101),
+ *     @OA\Property(property="title", type="string", example="20% Discount on Accessories"),
+ *     @OA\Property(property="sub_category_id", type="integer", example=1),
+ *     @OA\Property(property="valid_till", type="string", format="date", example="2025-12-31"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T12:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T13:00:00Z")
+ * )
+ */
 class SubCategoryController extends Controller
 {
     public function index(Request $request)
@@ -76,7 +104,6 @@ class SubCategoryController extends Controller
         ));
     }
 
-
     public function export(Request $request)
     {
         $languageId = $request->get('language_id');
@@ -85,13 +112,10 @@ class SubCategoryController extends Controller
         return Excel::download(new SubCategoryExport($languageId,  $categoryId), 'Subcategories.xlsx');
     }
 
-
     public function sample()
     {
         return Excel::download(new SampleSubCategoryExport, 'SampleSubCategories.xlsx');
     }
-
-
 
     public function import(Request $request)
     {
@@ -149,18 +173,18 @@ class SubCategoryController extends Controller
         $request->validate([
             'category_id' => 'required',
             'name' => 'required',
-        
+
         ]);
-    
+
         // Prepare data for insertion
-        $data = $request->only(['category_id', 'name', 'plan_type','status']);
-    
+        $data = $request->only(['category_id', 'name', 'plan_type', 'status']);
+
         // Convert plans array to JSON string
         $data['plans'] = json_encode($request->plans);
-    
+
         // Create subcategory with basic info
         $subcategory = SubCategory::create($data);
-    
+
         // Handle image upload if exists
         if ($request->hasFile('photo')) {
             $fileName = "sub_category/" . time() . "_photo.jpg";
@@ -168,14 +192,14 @@ class SubCategoryController extends Controller
             $subcategory->photo = $fileName;
             $subcategory->save();
         }
-    
+
         return response()->json([
             'success' => true,
             'message' => 'SubCategory created successfully with plan details!',
             'subcategory' => $subcategory
         ]);
     }
-    
+
     public function edit(string $id)
     {
         $sub_categories = SubCategory::find($id);
@@ -195,21 +219,21 @@ class SubCategoryController extends Controller
             'category_id' => 'required',
             'name' => 'required',
         ]);
-    
+
         // Find the subcategory
         $subcategory = SubCategory::findOrFail($id);
-    
+
         // Prepare the data for update
-        $data = $request->only(['category_id', 'name', 'plan_type','status']);
-    
+        $data = $request->only(['category_id', 'name', 'plan_type', 'status']);
+
         // Convert plans array to JSON string if provided
         if ($request->has('plans')) {
             $data['plans'] = json_encode($request->plans);
         }
-    
+
         // Update subcategory
         $subcategory->update($data);
-    
+
         // Handle image upload if exists
         if ($request->hasFile('photo')) {
             $fileName = "sub_category/" . time() . "_photo.jpg";
@@ -217,43 +241,90 @@ class SubCategoryController extends Controller
             $subcategory->photo = $fileName;
             $subcategory->save();
         }
-    
+
         return response()->json([
             'success' => true,
             'message' => 'SubCategory updated successfully!',
             'subcategory' => $subcategory
         ]);
     }
-    
 
+    /**
+     * @OA\Get(
+     *     path="/api/sub/category/details/{id}",
+     *     summary="Get sub-category details with associated offers",
+     *     description="Returns details of a specific sub-category along with all its related offers",
+     *     operationId="getSubCategoryDetailsWithOffers",
+     *     tags={"Sub Categories"},
+     *     
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the sub-category",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sub Category Details with Offers",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Sub Category Details with Offers"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="sub_category",
+     *                     type="object",
+     *                     description="SubCategory object",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="offers",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/Offer")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     
+     *     @OA\Response(
+     *         response=404,
+     *         description="Sub Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Sub Category not found")
+     *         )
+     *     )
+     * )
+     */
     public function getSubCategoryDetailsWithOffers($id)
-{
-   
-    $subCategory = SubCategory::find($id);
+    {
+        $subCategory = SubCategory::where('category_id', $id)
+            ->get();
 
-    if (!$subCategory) {
+        if (!$subCategory) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sub Category not found'
+            ], 404);
+        }
+
+        foreach ($subCategory as $key => $subCat) {
+            $offers = Offer::where('sub_category_id', $subCat->id)->first();
+
+            $subCategory[$key]['offers'] = $offers;
+        }
+
+
         return response()->json([
-            'status' => false,
-            'message' => 'Sub Category not found'
-        ], 404);
+            'status' => true,
+            'message' => 'Sub Category Details with Offers',
+            'data' => [
+                'sub_category' => $subCategory,
+            ]
+        ]);
     }
-
-   
-    $offers = Offer::where('sub_category_id', $id)->get();
-
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Sub Category Details with Offers',
-        'data' => [
-            'sub_category' => $subCategory,
-            'offers' => $offers
-        ]
-    ]);
-}
-
-
-
 
     public function destroy(string $id)
     {

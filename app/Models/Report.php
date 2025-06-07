@@ -10,6 +10,6 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'title', 'type', 'question_id', 'video_id', 'message', 'date'
+        'name', 'title', 'type', 'question_id', 'video_id', 'message', 'date', 'user_id'
     ];
 }
