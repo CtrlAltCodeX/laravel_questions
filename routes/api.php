@@ -67,11 +67,9 @@ Route::get('/get-categories/{language_id}', [CategoryController::class, 'getCate
 Route::get('offers', [OfferController::class, 'getOffersApi']);
 
 // get 7. Refer and Welcome Coin
-Route::get('coins', [SettingController::class, 'getSettingsApi']);
 Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);
 
 // get course
-Route::get('/courses-with-offers', [CourseController::class, 'getCoursesWithOffers']);
+Route::get('/courses/offers', [CourseController::class, 'getCoursesWithOffers']);
 
-
-Route::get('/user-courses/{userId}', [UserCourseController::class, 'getUserCourses']);
+Route::get('/user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
