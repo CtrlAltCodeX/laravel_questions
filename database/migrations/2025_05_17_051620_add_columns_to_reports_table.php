@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             $table->bigInteger('user_id')->unsigned()->after('id');
-            $table->foreign('user_id')->references('id')->on('google_users');
         });
     }
 

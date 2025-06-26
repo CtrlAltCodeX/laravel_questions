@@ -114,6 +114,8 @@ return [
             'route' => 'WalletHistory.index',
             'icon' => 'fa fa-home',
         ],
+
+        
         [
             'name' => 'Score Board',
             'route' => 'ScoreBoard.index',

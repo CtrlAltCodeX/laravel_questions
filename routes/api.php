@@ -11,6 +11,7 @@ use App\Http\Controllers\GoogleUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\UserCourseController;
+use App\Http\Controllers\PaymentController;
 
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\ScoreBoardController;
@@ -73,3 +74,6 @@ Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCa
 Route::get('/courses/offers', [CourseController::class, 'getCoursesWithOffers']);
 
 Route::get('/user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
+Route::post('/user/courses', [UserCourseController::class, 'assignCourseToUser']);
+
+Route::post('/save-payment', [PaymentController::class, 'store']);

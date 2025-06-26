@@ -21,6 +21,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ScoreBoardController;
 use App\Http\Controllers\SettingController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -108,6 +109,9 @@ Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
     Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');
 
     Route::resource('question', QuestionBankController::class);
+
+
+
 
     Route::resource('bank-question', QuestionBankApiController::class);
 
