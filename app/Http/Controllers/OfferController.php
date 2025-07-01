@@ -113,7 +113,6 @@ class OfferController extends Controller
             'id' => 'id',
             'name' => 'name',
             'status' => 'status',
-            'discount' => 'discount',
             'course' => 'course',
             'valid_from' => 'valid_from',
             'valid_to' => 'valid_to',
@@ -133,6 +132,17 @@ class OfferController extends Controller
 
         $offers = $request->data == 'all' ? $query->get() : $query->paginate($request->data);
 
+// Enhance each offer with decoded subscription details
+$offers->each(function ($offer) {
+    $subscriptions = json_decode($offer->subscription, true);
+    $offer->subscription_prepared = collect($subscriptions)->map(function ($data, $type) {
+        return [
+            'type' => ucfirst(str_replace('_', ' ', $type)),
+            'discount' => $data['discount'] ?? '-',
+            'upgrade' => $data['upgrade'] ?? '-',
+        ];
+    })->values(); // ensures it's a list of arrays
+});
         return view('offers.index', compact(
             'offers',
             'sortColumn',
@@ -241,20 +251,33 @@ class OfferController extends Controller
             'name' => 'required',
             'course' => 'required|array',
             'course.*' => 'exists:courses,id',
-            'subscription' => 'required|array',
-            'subscription.*' => 'in:Monthly,Semi-Annual,Annual',
-            'discount' => 'required',
-            'upgrade' => 'nullable|string',
+        
+          
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'banner' => 'nullable|image',
             'status' => 'required|in:0,1',
         ]);
 
+     $subscriptions = [];
+
+foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+    if (isset($request->subscription[$type]['active'])) {
+        $subscriptions[$type] = [
+            'discount' => $request->subscription[$type]['discount'],
+        ];
+
+        // Only add 'upgrade' if NOT monthly
+        if ($type !== 'monthly') {
+            $subscriptions[$type]['upgrade'] = $request->subscription[$type]['upgrade'];
+        }
+    }
+}
+
+
         $data = [
             'name' => $request->name,
-            'discount' => $request->discount,
-            'upgrade' => $request->upgrade,
+          
             'valid_from' => $request->valid_from,
             'valid_to' => $request->valid_to,
             'status' => $request->status,
@@ -276,53 +299,64 @@ class OfferController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Offer Successfully Created']);
     }
+
+
     public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'name' => 'required',
-            'course' => 'required|array',
-            'course.*' => 'exists:courses,id',
-            'subscription' => 'required|array',
-            'subscription.*' => 'in:Monthly,Semi-Annual,Annual',
-            'discount' => 'required',
-            'upgrade' => 'nullable|string',
-            'valid_from' => 'required|date',
-            'valid_to' => 'required|date|after_or_equal:valid_from',
-            'banner' => 'nullable|image',
-            'status' => 'required|in:0,1',
-        ]);
+{
+    $request->validate([
+        'name' => 'required',
+        'course' => 'required|array',
+        'course.*' => 'exists:courses,id',
+        'valid_from' => 'required|date',
+        'valid_to' => 'required|date|after_or_equal:valid_from',
+        'banner' => 'nullable|image',
+        'status' => 'required|in:0,1',
+    ]);
 
-        $offer = Offer::findOrFail($id);
+    $offer = Offer::findOrFail($id);
 
-        $data = [
-            'name' => $request->name,
-            'discount' => $request->discount,
-            'upgrade' => $request->upgrade,
-            'valid_from' => $request->valid_from,
-            'valid_to' => $request->valid_to,
-            'status' => $request->status,
-            'course' => json_encode($request->course),
-            'subscription' => json_encode($request->subscription),
-        ];
+    $subscriptions = [];
 
-        if ($request->hasFile('banner')) {
-            $file = $request->file('banner');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/offers'), $filename);
-            $data['banner'] = $filename;
+    foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+        if (isset($request->subscription[$type]['active'])) {
+            $subscriptions[$type] = [
+                'discount' => $request->subscription[$type]['discount'],
+            ];
 
-            // Optionally delete old banner:
-            if ($offer->banner && file_exists(public_path('uploads/offers/' . $offer->banner))) {
-                unlink(public_path('uploads/offers/' . $offer->banner));
+            if ($type !== 'monthly') {
+                $subscriptions[$type]['upgrade'] = $request->subscription[$type]['upgrade'];
             }
         }
-
-        $offer->update($data);
-
-        session()->flash('success', 'Offer Successfully Updated');
-
-        return response()->json(['success' => true, 'message' => 'Offer Successfully Updated', 'Offer' => $offer]);
     }
+
+    $data = [
+        'name' => $request->name,
+        'valid_from' => $request->valid_from,
+        'valid_to' => $request->valid_to,
+        'status' => $request->status,
+        'course' => json_encode($request->course),
+        'subscription' => json_encode($subscriptions), // ✅ fixed here
+    ];
+
+    if ($request->hasFile('banner')) {
+        $file = $request->file('banner');
+        $filename = time() . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('uploads/offers'), $filename);
+        $data['banner'] = $filename;
+
+        // Delete old file
+        if ($offer->banner && file_exists(public_path('uploads/offers/' . $offer->banner))) {
+            unlink(public_path('uploads/offers/' . $offer->banner));
+        }
+    }
+
+    $offer->update($data);
+
+    session()->flash('success', 'Offer Successfully Updated');
+
+    return response()->json(['success' => true, 'message' => 'Offer Successfully Updated', 'Offer' => $offer]);
+}
+
 
     public function edit(Offer $offer)
     {

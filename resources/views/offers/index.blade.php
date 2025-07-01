@@ -63,15 +63,11 @@
                 <th scope="col" class="px-6 py-3">
                     Course IDs
                 </th>
-                <th scope="col" class="px-6 py-3">
-                    Subscriptions
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Discount
-                </th>
-                 <th scope="col" class="px-6 py-3">
-                    Upgrade
-                </th>
+                <th scope="col" class="px-6 py-3">Subscription</th>
+<th scope="col" class="px-6 py-3">Discount</th>
+<th scope="col" class="px-6 py-3">Upgrade</th>
+
+            
                   <th scope="col" class="px-6 py-3">
                     Valid Till
                 </th>
@@ -101,20 +97,25 @@
 
 
                 </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {{ implode(', ', json_decode($offer->subscription, true) ?? []) }}
+            
+             
+     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+    @foreach($offer->subscription_prepared as $sub)
+        <div>{{ $sub['type'] }}</div>
+    @endforeach
+</th>
 
+<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+    @foreach($offer->subscription_prepared as $sub)
+        <div>{{ $sub['discount'] }}</div>
+    @endforeach
+</th>
 
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                       {{$offer->discount}}
-
-                </th>
-           
-
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$offer->upgrade}}
-                </th>
+<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+    @foreach($offer->subscription_prepared as $sub)
+        <div>{{ $sub['upgrade'] }}</div>
+    @endforeach
+</th>
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 {{ \Carbon\Carbon::parse($offer->valid_from)->format('d M Y') }} to 
@@ -135,14 +136,12 @@
   class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
   data-id="{{ $offer->id }}"
   data-name="{{ $offer->name }}"
-  data-discount="{{ $offer->discount }}"
-  data-upgrade="{{ $offer->upgrade }}"
   data-valid_from="{{ $offer->valid_from }}"
   data-valid_to="{{ $offer->valid_to }}"
   data-status="{{ $offer->status }}"
   data-banner="{{ $offer->banner }}"
-  data-courses='@json($offer->course)' {{-- assuming $offer->course is an array --}}
-  data-subscriptions='@json($offer->subscription)' {{-- assuming $offer->subscription is an array --}}
+  data-courses='@json($offer->course)'
+data-subscriptions='@json(json_decode($offer->subscription))'
 >
   <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
@@ -242,48 +241,54 @@
         </div>
     </div>
 </div>
-<!-- Subscription -->
-<!-- Subscription (Custom Dropdown) -->
-<div class="mb-4 relative">
-    <label class="block text-sm font-medium text-gray-700 mb-1">Select Subscription</label>
 
-    <button type="button" onclick="toggleSubscriptionDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
-        <span id="SubscriptionButtonLabel">Select Subscription</span>
-    </button>
 
-    <div id="subscriptionDropdown" class="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full hidden max-h-48 overflow-y-auto">
-        <div class="px-4 py-2">
-            <label><input type="checkbox" id="selectAllSubscription" onchange="toggleSelectAllSubscription(this)"> Select All</label>
-        </div>
-        <div class="px-4 py-1">
-            <label><input type="checkbox" class="subscription-checkbox" value="Monthly" data-name="Monthly" name="subscription[]"> Monthly</label>
-        </div>
-        <div class="px-4 py-1">
-            <label><input type="checkbox" class="subscription-checkbox" value="Semi-Annual" data-name="Semi-Annual" name="subscription[]"> Semi-Annual</label>
-        </div>
-        <div class="px-4 py-1">
-            <label><input type="checkbox" class="subscription-checkbox" value="Annual" data-name="Annual" name="subscription[]"> Annual</label>
-        </div>
+
+<div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Subscription Plans</label>
+
+    <!-- Monthly -->
+    <div class="flex items-center gap-2 mb-2">
+        <input type="checkbox" id="monthlyCheck" name="subscription[monthly][active]" value="1" class="subscriptionCheck" />
+        <label for="monthlyCheck" class="w-24">Monthly</label>
+        <input type="number" name="subscription[monthly][discount]" placeholder="Discount" class="border border-gray-300 rounded p-1 w-28" />
+        
     </div>
 
-    <div style="color: red;" id="error-subscription"></div>
+    <!-- Semi Annual -->
+    <div class="flex items-center gap-2 mb-2">
+        <input type="checkbox" id="semiAnnualCheck" name="subscription[semi_annual][active]" value="1" class="subscriptionCheck" />
+        <label for="semiAnnualCheck" class="w-24">Semi Annual</label>
+        <input type="number" name="subscription[semi_annual][discount]" placeholder="Discount" class="border border-gray-300 rounded p-1 w-28" />
+        <input type="number" name="subscription[semi_annual][upgrade]"  value=""  placeholder="upgrade " class="border border-gray-300 rounded p-1 w-36" />
+    </div>
+
+    <!-- Annual -->
+    <div class="flex items-center gap-2">
+        <input type="checkbox" id="annualCheck" name="subscription[annual][active]" value="1" class="subscriptionCheck" />
+        <label for="annualCheck" class="w-24">Annual</label>
+        <input type="number" name="subscription[annual][discount]" placeholder="Discount" class="border border-gray-300 rounded p-1 w-28" />
+        <input type="number" name="subscription[annual][upgrade]" value="" max="" placeholder="upgrade " class="border border-gray-300 rounded p-1 w-36" />
+    </div>
+
+        <div style="color: red;" id="error-subscription"></div>
+
 </div>
 
 
-
     <!-- Discount -->
-    <div class="mb-3">
+    <!-- <div class="mb-3">
         <input type="text" id="discount" placeholder="Discount" name="discount"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" />
         <div id="error-discount" style="color: red;"></div>
-    </div>
+    </div> -->
 
     <!-- Upgrade -->
-    <div class="mb-3">
+    <!-- <div class="mb-3">
         <input type="text" id="upgrade" placeholder="Upgrade" name="upgrade"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" />
         <div id="error-upgrade" style="color: red;"></div>
-    </div>
+    </div> -->
 
 
     <!-- Valid From -->
@@ -418,28 +423,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reset all input fields
     document.getElementById('name').value = '';
-    document.getElementById('discount').value = '';
-    document.getElementById('upgrade').value = '';
+    // document.getElementById('discount').value = '';
+    // document.getElementById('upgrade').value = '';
     document.getElementById('valid_from').value = '';
     document.getElementById('valid_to').value = '';
     document.getElementById('status').value = '';
 
     // Reset course checkboxes
     document.querySelectorAll('.Course-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
+
     document.querySelector('input[type="checkbox"][onchange="toggleSelectAll(this)"]').checked = false;
     document.getElementById('CourseButtonLabel').innerText = 'Select Course';
 
-    // Reset subscription checkboxes
-    document.querySelectorAll('.subscription-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('selectAllSubscription').checked = false;
-    document.getElementById('SubscriptionButtonLabel').innerText = 'Select Subscription';
-
+  
     // Reset image
     document.getElementById('offerImage').src = '/dummy.jpg';
     document.getElementById('fileInput').value = '';
 
     // Clear error messages
-    ['error-name', 'error-subscription', 'error-discount', 'error-upgrade', 'error-valid_from', 'error-valid_to', 'error-status']
+    ['error-name', 'error-subscription', 'error-valid_from', 'error-valid_to', 'error-status']
         .forEach(id => document.getElementById(id).innerText = '');
 
     // Show modal
@@ -451,12 +454,12 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
             const name = this.getAttribute('data-name');
-            const discount = this.getAttribute('data-discount');
-            const upgrade = this.getAttribute('data-upgrade');
+         
             const validFrom = this.getAttribute('data-valid_from');
             const validTo = this.getAttribute('data-valid_to');
             const status = this.getAttribute('data-status');
             const banner = this.getAttribute('data-banner');
+                const subscriptions = JSON.parse(this.getAttribute('data-subscriptions') || '{}');
 
              let courses = [];
         try {
@@ -481,12 +484,21 @@ document.getElementById('CourseButtonLabel').innerText = checkedCourses.length
     : 'Select Course';
 
 
-            let subscriptions = [];
-            try {
-                subscriptions = JSON.parse(this.getAttribute('data-subscriptions') || '[]') || [];
-            } catch (e) {
-                subscriptions = [];
-            }
+     
+              // Monthly
+document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
+document.querySelector('input[name="subscription[monthly][discount]"]').value = subscriptions.monthly?.discount || '';
+
+// Semi Annual
+document.getElementById('semiAnnualCheck').checked = !!subscriptions.semi_annual;
+document.querySelector('input[name="subscription[semi_annual][discount]"]').value = subscriptions.semi_annual?.discount || '';
+document.querySelector('input[name="subscription[semi_annual][upgrade]"]').value = subscriptions.semi_annual?.upgrade || '';
+
+// Annual
+document.getElementById('annualCheck').checked = !!subscriptions.annual;
+document.querySelector('input[name="subscription[annual][discount]"]').value = subscriptions.annual?.discount || '';
+document.querySelector('input[name="subscription[annual][upgrade]"]').value = subscriptions.annual?.upgrade || '';
+
 
             // Update modal fields
             document.getElementById('modalTitle').innerText = 'Edit Offers';
@@ -496,8 +508,6 @@ document.getElementById('CourseButtonLabel').innerText = checkedCourses.length
             modalForm.querySelector('input[name="_method"]').value = 'PUT';
 
             document.getElementById('name').value = name;
-            document.getElementById('discount').value = discount;
-            document.getElementById('upgrade').value = upgrade;
             document.getElementById('valid_from').value = validFrom;
             document.getElementById('valid_to').value = validTo;
             document.getElementById('status').value = status;
@@ -515,15 +525,7 @@ document.getElementById('CourseButtonLabel').innerText = checkedCourses.length
                 .filter(cb => cb.checked)
                 .map(cb => cb.getAttribute('data-name'));
 
-            document.getElementById('SubscriptionButtonLabel').innerText = checkedSubs.length
-                ? checkedSubs.join(', ')
-                : 'Select Subscription';
-
-            // Update "Select All" checkbox status
-            document.getElementById('selectAllSubscription').checked = subCheckboxes.length === subCheckboxes.length &&
-                Array.from(subCheckboxes).every(cb => cb.checked);
-
-                        // Show modal
+     
                         document.getElementById('modal').style.display = 'flex';
                     });
                 });

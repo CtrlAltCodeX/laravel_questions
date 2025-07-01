@@ -9,23 +9,26 @@ use App\Models\Payment;
 
 class PaymentController extends Controller
 {
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'payment_id' => 'required|unique:payments',
-            'amount'     => 'required|integer',
-            'currency'   => 'required|string',
-            'status'     => 'required|string',
-            'email'      => 'nullable|email',
-            'contact'    => 'nullable|string',
-        ]);
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'payment_id' => 'required|unique:payments',
+        'amount'     => 'required|integer',
+        'currency'   => 'required|string',
+        'status'     => 'required|string',
+        'email'      => 'nullable|email',
+        'contact'    => 'nullable|string',
+        'user_id'    => 'required',
+        'course_id'  => 'required',
+    ]);
 
-        $payment = Payment::create($validated);
+    $payment = Payment::create($validated);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Payment saved successfully',
-            'data' => $payment
-        ]);
-    }
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Payment saved successfully',
+        'data'    => $payment
+    ]);
+}
+
 }

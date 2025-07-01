@@ -334,42 +334,54 @@ class CourseController extends Controller
      *     )
      * )
      */
-    public function getCoursesWithOffers()
-    {
-        $courses = Course::all()->map(function ($course) {
-            // Latest offer jisme JSON field 'course' me course ID ho
-            $offer = Offer::whereJsonContains('course', (string) $course->id)
-                ->latest('created_at') // latest offer based on created_at
-                ->first();
+   public function getCoursesWithOffers()
+{
+    $courses = Course::all()->map(function ($course) {
+       
+        $offer = Offer::whereJsonContains('course', (string) $course->id)
+            ->latest('created_at')
+            ->first();
 
-            return [
-                'id' => $course->id,
-                'name' => $course->name,
-                'language_id' => $course->language_id,
-                'category_id' => $course->category_id,
-                'sub_category_id' => $course->sub_category_id,
-                'subject_id' => $course->subject_id,
-                'status' => $course->status,
-                'subscription' => $course->subscription,
-                'banner' => $course->banner,
-                'offer' => $offer ? [
-                    'id' => $offer->id,
-                    'name' => $offer->name,
-                    'status' => $offer->status,
-                    'discount' => $offer->discount,
-                    'banner' => $offer->banner,
-                    'course' => $offer->course,
-                    'subscription' => $offer->subscription,
-                    'upgrade' => $offer->upgrade,
-                    'valid_from' => $offer->valid_from,
-                    'valid_to' => $offer->valid_to,
-                ] : null,
-            ];
-        });
+        $courseSubscription = $course->subscription;
+        $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
 
-        return response()->json([
-            'status' => true,
-            'data' => $courses
-        ]);
-    }
+    
+        foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+            if (isset($courseSubscription[$type]['amount'])) {
+                $amount = floatval($courseSubscription[$type]['amount']);
+                $discount = isset($offerSubscription[$type]['discount']) ? floatval($offerSubscription[$type]['discount']) : 0;
+                $finalAmount = $amount - (($discount / 100) * $amount);
+                $courseSubscription[$type]['final_amount'] = round($finalAmount, 2); 
+            }
+        }
+
+        return [
+            'id' => $course->id,
+            'name' => $course->name,
+            'language_id' => $course->language_id,
+            'category_id' => $course->category_id,
+            'sub_category_id' => $course->sub_category_id,
+            'subject_id' => $course->subject_id,
+            'status' => $course->status,
+            'subscription' => $courseSubscription,
+            'banner' => $course->banner,
+            'offer' => $offer ? [
+                'id' => $offer->id,
+                'name' => $offer->name,
+                'status' => $offer->status,
+                'banner' => $offer->banner,
+                'course' => $offer->course,
+                'subscription' => $offerSubscription,
+                'valid_from' => $offer->valid_from,
+                'valid_to' => $offer->valid_to,
+            ] : null,
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'data' => $courses
+    ]);
+}
+
 }
