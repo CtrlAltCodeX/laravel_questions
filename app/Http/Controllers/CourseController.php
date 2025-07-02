@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\GoogleUser;
+use App\Models\UserCourse;
 
 use App\Models\Category;
 use App\Models\Language;
@@ -285,98 +287,83 @@ class CourseController extends Controller
         return response()->json($subjects);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/courses/offers",
-     *     summary="Get all courses with their latest applicable offer",
-     *     description="Fetches all courses and attaches the latest offer (if any) from the JSON field `course` in the offer table.",
-     *     operationId="getCoursesWithOffers",
-     *     tags={"Courses"},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful response with courses and their latest offers",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(
-     *                     type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="name", type="string", example="Mathematics Basics"),
-     *                     @OA\Property(property="language_id", type="integer", example=2),
-     *                     @OA\Property(property="category_id", type="integer", example=5),
-     *                     @OA\Property(property="sub_category_id", type="integer", example=12),
-     *                     @OA\Property(property="subject_id", type="integer", example=20),
-     *                     @OA\Property(property="status", type="boolean", example=true),
-     *                     @OA\Property(property="subscription", type="string", example="monthly"),
-     *                     @OA\Property(property="banner", type="string", example="course-banner.jpg"),
-     *                     @OA\Property(
-     *                         property="offer",
-     *                         type="object",
-     *                         nullable=true,
-     *                         @OA\Property(property="id", type="integer", example=10),
-     *                         @OA\Property(property="name", type="string", example="Summer Discount"),
-     *                         @OA\Property(property="status", type="boolean", example=true),
-     *                         @OA\Property(property="discount", type="number", format="float", example=20.5),
-     *                         @OA\Property(property="banner", type="string", example="offer-banner.jpg"),
-     *                         @OA\Property(property="course", type="array", @OA\Items(type="integer"), example={1,2,3}),
-     *                         @OA\Property(property="subscription", type="string", example="monthly"),
-     *                         @OA\Property(property="upgrade", type="string", example="premium"),
-     *                         @OA\Property(property="valid_from", type="string", format="date-time", example="2025-06-01T00:00:00Z"),
-     *                         @OA\Property(property="valid_to", type="string", format="date-time", example="2025-06-30T23:59:59Z")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     )
-     * )
-     */
-   public function getCoursesWithOffers()
+  
+public function getCoursesWithOffers($user_id)
 {
-    $courses = Course::all()->map(function ($course) {
-       
-        $offer = Offer::whereJsonContains('course', (string) $course->id)
-            ->latest('created_at')
-            ->first();
+    // Step 1: Get user
+    $user = GoogleUser::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'User not found.'
+        ], 404);
+    }
 
-        $courseSubscription = $course->subscription;
-        $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
+    // Step 2: Get user preferences
+    $category_id = $user->category_id;
+    $language_id = $user->language_id;
 
-    
-        foreach (['monthly', 'semi_annual', 'annual'] as $type) {
-            if (isset($courseSubscription[$type]['amount'])) {
-                $amount = floatval($courseSubscription[$type]['amount']);
-                $discount = isset($offerSubscription[$type]['discount']) ? floatval($offerSubscription[$type]['discount']) : 0;
-                $finalAmount = $amount - (($discount / 100) * $amount);
-                $courseSubscription[$type]['final_amount'] = round($finalAmount, 2); 
+    // Step 3: Get user purchased courses IDs
+    $purchasedCourseIds = UserCourse::where('user_id', $user_id)->pluck('course_id')->toArray();
+
+    // Step 4: Get matching courses
+    $courses = Course::where('category_id', $category_id)
+        ->where('language_id', $language_id)
+        ->get()
+        ->map(function ($course) use ($user_id, $purchasedCourseIds) {
+            
+            $offer = Offer::whereJsonContains('course', (string) $course->id)
+                ->latest('created_at')
+                ->first();
+
+            $courseSubscription = $course->subscription;
+            $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
+
+            foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+                if (isset($courseSubscription[$type]['amount'])) {
+                    $amount = floatval($courseSubscription[$type]['amount']);
+                    $discount = 0;
+
+                    // Step 5: Check if user purchased this course
+                    if (in_array($course->id, $purchasedCourseIds)) {
+                        // Apply upgrade logic here if any
+                        $discount = isset($offerSubscription[$type]['upgrade']) 
+                            ? floatval($offerSubscription[$type]['upgrade']) 
+                            : 0;
+                    } else {
+                        // Normal discount
+                        $discount = isset($offerSubscription[$type]['discount']) 
+                            ? floatval($offerSubscription[$type]['discount']) 
+                            : 0;
+                    }
+
+                    $finalAmount = $amount - (($discount / 100) * $amount);
+                    $courseSubscription[$type]['final_amount'] = round($finalAmount, 2);
+                }
             }
-        }
 
-        return [
-            'id' => $course->id,
-            'name' => $course->name,
-            'language_id' => $course->language_id,
-            'category_id' => $course->category_id,
-            'sub_category_id' => $course->sub_category_id,
-            'subject_id' => $course->subject_id,
-            'status' => $course->status,
-            'subscription' => $courseSubscription,
-            'banner' => $course->banner,
-            'offer' => $offer ? [
-                'id' => $offer->id,
-                'name' => $offer->name,
-                'status' => $offer->status,
-                'banner' => $offer->banner,
-                'course' => $offer->course,
-                'subscription' => $offerSubscription,
-                'valid_from' => $offer->valid_from,
-                'valid_to' => $offer->valid_to,
-            ] : null,
-        ];
-    });
+            return [
+                'id' => $course->id,
+                'name' => $course->name,
+                'language_id' => $course->language_id,
+                'category_id' => $course->category_id,
+                'sub_category_id' => $course->sub_category_id,
+                'subject_id' => $course->subject_id,
+                'status' => $course->status,
+                'subscription' => $courseSubscription,
+                'banner' => $course->banner,
+                'offer' => $offer ? [
+                    'id' => $offer->id,
+                    'name' => $offer->name,
+                    'status' => $offer->status,
+                    'banner' => $offer->banner,
+                    'course' => $offer->course,
+                    'subscription' => $offerSubscription,
+                    'valid_from' => $offer->valid_from,
+                    'valid_to' => $offer->valid_to,
+                ] : null,
+            ];
+        });
 
     return response()->json([
         'status' => true,

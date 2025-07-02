@@ -71,7 +71,7 @@ Route::get('offers', [OfferController::class, 'getOffersApi']);
 Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);
 
 // get course
-Route::get('/courses/offers', [CourseController::class, 'getCoursesWithOffers']);
+Route::get('/courses/offers/{user_id}', [CourseController::class, 'getCoursesWithOffers']);
 
 Route::get('/user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
 Route::post('/user/courses', [UserCourseController::class, 'assignCourseToUser']);
