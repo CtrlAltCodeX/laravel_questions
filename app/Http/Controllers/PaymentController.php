@@ -80,6 +80,25 @@ $finalAmount = round($finalAmount, 2);
     // Save payment
     $payment = Payment::create($validated);
 
+     // Handle UserCourse validity
+    $validFrom = now();
+    $validityDays = isset($courseSubscription[$plan]['validity']) ? intval($courseSubscription[$plan]['validity']) : 0;
+    $validTo = $validFrom->copy()->addDays($validityDays);
+
+    // Create or update UserCourse
+    \App\Models\UserCourse::updateOrCreate(
+        [
+            'user_id' => $validated['user_id'],
+            'course_id' => $validated['course_id'],
+        ],
+        [
+            'subscription_type' => $plan,
+            'valid_from' => $validFrom,
+            'valid_to' => $validTo,
+        ]
+    );
+
+
     return response()->json([
         'status' => 'success',
         'message' => 'Payment saved successfully',
