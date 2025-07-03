@@ -77,3 +77,4 @@ Route::get('/user/courses/{userId}', [UserCourseController::class, 'getUserCours
 Route::post('/user/courses', [UserCourseController::class, 'assignCourseToUser']);
 
 Route::post('/save-payment', [PaymentController::class, 'store']);
+Route::get('/get-final-amount', [PaymentController::class, 'getFinalAmount']);
