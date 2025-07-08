@@ -29,6 +29,11 @@ class Subject extends Model
         return $this->belongsTo(SubCategory::class);
     }
 
+    public function topic()
+    {
+        return $this->hasMany(Topic::class);
+    }
+
     public function question()
     {
         return $this->hasMany(Question::class);
