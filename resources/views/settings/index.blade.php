@@ -135,6 +135,44 @@
     </div>
 
     <div>
+        <label>
+            <input type='radio' name='part' />
+            Subject Wise
+        </label>
+        <label>
+            <input type='radio' name='part' />
+            Part Wise
+        </label>
+    </div>
+    <div class='d-flex' style='grid-gap:10px;'>
+        <table class='table w-25'>
+            <tr>
+                <th>Subject Name</th>
+                <th>Limit</th>
+            </tr>
+            <tr>
+                <td>Subject Name</td>
+                <td>Limit</td>
+            </tr>
+        </table>
+    
+        <table class='table w-25'>
+            <tr>
+                <th>Subject Name</th>
+                <th>Limit</th>
+                <th>Subject Name</th>
+                <th>Limit</th>
+            </tr>
+            <tr>
+                <td>Subject Name</td>
+                <td>Limit</td>
+                <td>Subject Name</td>
+                <td>Limit</td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
         <button type="submit" class="btn btn-primary">Save</button>
     </div>
 </form>
