@@ -104,6 +104,10 @@ Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
+    Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])->name('settings.quiz.save');
+Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])->name('settings.cbt.save');
+
+
     Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
     Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');
     Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');

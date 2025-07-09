@@ -16,6 +16,7 @@
                 <th scope="col" class="px-6 py-3">Profile Photo</th>
                 <th scope="col" class="px-6 py-3">Phone Number</th>
                 <th scope="col" class="px-6 py-3">Email Id</th>
+                 <th scope="col" class="px-6 py-3">Coins</th>
                 <th scope="col" class="px-6 py-3">Login Type</th>
             <th scope="col" class="px-6 py-3"> Courses</th>
 <th scope="col" class="px-6 py-3">Start Dates</th>
@@ -43,6 +44,7 @@
                 </td>
                 <td class="px-6 py-4">{{ $user->phone_number }}</td>
                 <td class="px-6 py-4">{{ $user->email }}</td>
+                 <td class="px-6 py-4">{{ $user->coins }}</td>
                 <td class="px-6 py-4">{{ $user->login_type }}</td>
                 {{-- Course Names --}}
 <td class="px-6 py-4">
