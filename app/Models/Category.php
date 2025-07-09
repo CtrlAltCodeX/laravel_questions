@@ -24,6 +24,11 @@ class Category extends Model
         return $this->belongsTo(Language::class);
     }
 
+    public function subcategory()
+    {
+        return $this->hasMany(SubCategory::class);
+    }
+
     public function question()
     {
         return $this->hasMany(Question::class);

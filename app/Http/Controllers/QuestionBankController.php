@@ -614,7 +614,7 @@ class QuestionBankController extends Controller
             $questionNo = Question::where('category_id', request()->category_id)
                 ->where('sub_category_id', request()->sub_category_id)
                 ->where('subject_id', request()->subject_id)
-                // ->where('topic_id', request()->topic_id)
+                ->where('topic_id', request()->topic_id)
                 ->max('question_number');
 
             return $questionNo;

@@ -672,6 +672,7 @@ $levels = [
 
         });
 
+        @if(count($questions))
         document.getElementById('questioneditForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -729,6 +730,11 @@ $levels = [
             }, 500)
         });
 
+        document.getElementById('closeEditModal').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+        @endif
+
         $(document).on('change', `.file-input`, function(event) {
             const inputId = $(this).attr('id');
 
@@ -741,10 +747,6 @@ $levels = [
                 };
                 reader.readAsDataURL(file);
             }
-        });
-
-        document.getElementById('closeEditModal').addEventListener('click', function() {
-            document.getElementById('editModal').style.display = 'none';
         });
 
         document.getElementById('createButton').addEventListener('click', function() {
