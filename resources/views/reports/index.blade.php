@@ -150,7 +150,7 @@
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="">
-            <div class="relative" style="height: 100px;">
+            <div class="mb-3 relative" style="height: 100px;">
                 <div class="container">
                     <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="thumbnail" style="width: 100px; height:100px;" id='fileInput' />
                     <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="/dummy.jpg" alt="" id='VideoImage' style='width:100px;height:100px;'>

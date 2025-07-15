@@ -10,22 +10,24 @@
 
     <!-- Import & Export Buttons -->
     <div class="flex gap-2">
-        <a href="{{ route('videos.export',request()->query()) }}" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+        <!-- <a href="{{ route('videos.export',request()->query()) }}" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
             Export
         </a>
 
         <button id="importButton" class="text-center hover:text-white border border-bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Import</button>
-        <input type="file" id="importInput" name="file" class="form-control hidden" required>
+        <input type="file" id="importInput" name="file" class="form-control hidden" required> -->
 
         <button id="createButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none">
             Create
         </button>
+                <input type="text" id="searchFilter" placeholder="Search Videos..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
+
     </div>
 </div>
 
 <!-- Filter Section -->
 <div class="flex justify-between items-center gap-4 mb-4">
-    <form action="{{ route('videos.index') }}" method="GET" id='data' class="flex gap-2 w-full">
+    <!-- <form action="{{ route('videos.index') }}" method="GET" id='data' class="flex gap-2 w-full">
         <input type="hidden" value="{{ request()->per_page }}" name="per_page" />
         <input type="hidden" value="{{ request()->search }}" name="search" />
         <input type="hidden" value="{{ request()->sort }}" name="sort" />
@@ -48,13 +50,13 @@
         <button id="filter-btn" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none">
             Filter
         </button>
-    </form>
+    </form> -->
 
     <!-- Create Button & Search -->
-    <div class="flex gap-2">
+    <!-- <div class="flex gap-2">
         <input type="text" id="searchFilter" placeholder="Search Videos..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
     </div>
-</div>
+</div> -->
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
@@ -328,7 +330,7 @@
             @csrf
             <input type="hidden" name="_method" value="">
             <input type="hidden" name="youtube_link" value="123`">
-            <div class="relative" style="height: 100px;">
+            <div class="mb-3 relative" style="height: 100px;">
                 <div class="container">
                     <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="thumbnail" style="width: 100px; height:100px;" id='fileInput' />
                     <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="/dummy.jpg" alt="" id='VideoImage' style='width:100px;height:100px;'>

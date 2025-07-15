@@ -7,7 +7,7 @@
 <form class="max-w-sm mx-auto" method="POST" action="{{ route('sub-category.update', $sub_categories->id) }}" enctype="multipart/form-data">
     @method('PUT')
     @csrf
-    <div class="relative" style="height: 100px;">
+    <div class="mb-3 relative" style="height: 100px;">
         <div class="container">
             <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="photo" style="width: 100px; height:100px;" id='fileInput' />
             <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="{{ $sub_categories->photo ? '/public/'.Storage::url($sub_categories->photo) : '/dummy.jpg' }}" alt="" id='subCategoryImage' style='width:100px;height:100px;'>

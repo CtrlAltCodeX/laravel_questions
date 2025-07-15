@@ -214,7 +214,7 @@
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="">
-            <div class="relative" style="height: 100px;">
+            <div class="mb-3 relative" style="height: 100px;">
                 <div class="container">
                     <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="banner" style="width: 100px; height:100px;" id='fileInput' />
                     <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="/dummy.jpg" alt="" id='offerImage' style='width:100px;height:100px;'>
@@ -249,7 +249,7 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Sub Categories</label>
-                <div class="relative">
+                <div class="mb-3 relative">
                     <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
                         <span id="subcategoryButtonLabel">Select Sub Categories</span>
                     </button>
@@ -270,7 +270,7 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Subjects</label>
-                <div class="relative">
+                <div class="mb-3 relative">
                     <button type="button" onclick="toggleSubjectDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
                         <span id="selectedSubjectsText">Select Subjects</span>
                     </button>

@@ -24,7 +24,7 @@
 
         <tbody>
             @forelse($rowData as $data)
-            <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+            <tr class="offerRow bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                 @forelse($rows as $key => $row)
                     @php $value = $row['value']; @endphp
                     @switch($row['type'])
@@ -54,7 +54,8 @@
                             </td>
                             @break;
                         @case ('text')
-                            <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white">{{ $data->$value }}</td>
+                            <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white">    {{ Str::limit($data->$value, 50) }}
+</td>
                             @break;
                     @endswitch
                 @endforeach
