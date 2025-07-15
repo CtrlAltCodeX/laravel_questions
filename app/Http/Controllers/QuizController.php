@@ -11,6 +11,8 @@ use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\UserSession;
 use Illuminate\Http\Request;
+use App\Models\Quiz;
+use App\Models\Course;
 
 class QuizController extends Controller
 {
@@ -85,21 +87,33 @@ class QuizController extends Controller
         //
     }
 
-    public function deploy(Request $request)
+    public function deploy(Request $request, $userId, $courseId)
     {
         if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
 
         if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
             $data = $request->all();
+            $course = Course::find($courseId);
+            if ($course->language) {
+                $category = Category::find($data['Category']);
+                $subcategory = SubCategory::find($data['SubCategory']);
+                $subject = Subject::find($data['Subject']);
 
-            $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
+                $data['Language_2'] = 1;
+                $data['Category_2'] = $category->parent_id;
+                $data['SubCategory_2'] = $subcategory->parent_id;
+                $data['Subject_2'] = $subject->parent_id;
+                // $data['Topic_2'] = 1;
+            }
+
+            $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
             $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
-            $language = $this->getFirstDropdownData($data)['language'];
-            $categories = $this->getFirstDropdownData($data)['categories'][0];
-            $subcategories = $this->getFirstDropdownData($data)['subcategories'][0];
-            $subjects = $this->getFirstDropdownData($data)['subjects'][0];
-            $topics = $this->getFirstDropdownData($data)['topics'];
+            $language = $this->getFirstDropdownData($data, $course)['language'];
+            $categories = $this->getFirstDropdownData($data, $course)['categories'][0];
+            $subcategories = $this->getFirstDropdownData($data, $course)['subcategories'][0];
+            $subjects = $this->getFirstDropdownData($data, $course)['subjects'][0];
+            $topics = $this->getFirstDropdownData($data, $course)['topics'];
 
             $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
             $categories2 = $this->getSecondDropdownData($data)['categories'] ?? [];
@@ -153,26 +167,28 @@ class QuizController extends Controller
                             ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                             : '');
 
-                    if ($getQuestions->question_number == $questionsSecond[$i]->question_number) {
-                        $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
-                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;
-                        $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
-                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_a : '');
-                        $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
-                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_b : '');
-                        $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
-                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_c : '');
-                        $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
-                            (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_d : '');
-                        $questionAccTop[$key]['answer']   = $getQuestions->answer;
-
-                        $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
-                            ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
-                            ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' | ' . $questionsSecond[$i]->notes : '')
-                            : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
-
-                        ++$i;
-                    } else {
+                    if (isset($questionsSecond[$i]->question_number)){
+                        if ($getQuestions->question_number == $questionsSecond[$i]->question_number) {
+                            $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
+                                (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;
+                            $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
+                                (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_a : '');
+                            $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
+                                (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_b : '');
+                            $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
+                                (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_c : '');
+                            $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
+                                (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->option_d : '');
+                            $questionAccTop[$key]['answer']   = $getQuestions->answer;
+    
+                            $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
+                                ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
+                                ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' | ' . $questionsSecond[$i]->notes : '')
+                                : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
+    
+                            ++$i;
+                        }
+                     } else {
                         $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' . $img;
                         $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>';
                         $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>';
@@ -189,12 +205,12 @@ class QuizController extends Controller
             }
 
             return response()->json($jsonResponse);
-        } else {
-            return response()->json(['error' => 'Session ID does not Matched'], 401);
-        }
+        // } else {
+        //     return response()->json(['error' => 'Session ID does not Matched'], 401);
+        // }
     }
 
-    function getFirstDropdownData($data)
+    function getFirstDropdownData($data, $course)
     {
         $languageId = $data['Language'] ?? null;
 
@@ -217,6 +233,10 @@ class QuizController extends Controller
         }
         if (isset($data['Topic'])) {
             $query->where('topic_id', $data['Topic']);
+        }
+
+        if ($course) {
+            $query->limit($course->question_limit);
         }
 
         $questions = $query->with(['subCategory',  'subject', 'topic'])->get();

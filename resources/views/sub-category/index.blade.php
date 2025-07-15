@@ -109,6 +109,9 @@
                     Question Count
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Parent Id
+                </th>
+                <th scope="col" class="px-6 py-3">
                   Status
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -141,14 +144,18 @@
                     {{ count($sub_category->question) }}
                 </th>
 
-                @php
-    $status = ucfirst($sub_category->status);
-    $statusClass = $sub_category->status === 'enabled' ? 'text-green-600' : 'text-red-600';
-@endphp
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $sub_category->parent_id }}
+                </th>
 
-<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
-    {{ $status }}
-</th>
+                @php
+                    $status = ucfirst($sub_category->status);
+                    $statusClass = $sub_category->status === 'enabled' ? 'text-green-600' : 'text-red-600';
+                @endphp
+
+                <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
+                    {{ $status }}
+                </th>
 
 
                 <td class="px-6 py-4 flex gap-4">
@@ -158,10 +165,11 @@
                         data-language-id="{{$sub_category->category->language->id}}"
                         data-photo="{{$sub_category->photo}}"
                         data-plans='{{$sub_category->plans}}'
-                          data-plan_type='{{$sub_category->plan_type}}'
-                           data-status='{{$sub_category->status}}'
-
-                        data-category-id="{{$sub_category->category_id}}">
+                        data-plan_type='{{$sub_category->plan_type}}'
+                        data-status='{{$sub_category->status}}'
+                        data-category-id="{{$sub_category->category_id}}"
+                        data-parent_id="{{$sub_category->parent_id}}"
+                        >
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg>
@@ -230,6 +238,7 @@
                     <div class="bg-black/[0.5] overlay absolute h-[100%] top-[0px] w-[100px] rounded-full opacity-0 flex justify-center items-center text-white">Upload Pic</div>
                 </div>
             </div>
+
             <div class="mb-5">
                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
                 <input type="text" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name" required />
@@ -263,13 +272,14 @@
                 <div class="text-red-500">{{ $message }}</div>
                 @enderror
             </div>
+
             <div class="form-group">
-    <label for="status">Status</label>
-    <select name="status" id="status" class="form-control">
-        <option value="enabled">Enabled</option>
-        <option value="disabled">Disabled</option>
-    </select>
-</div>
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
 
             <div class="mb-4">
                 <label class="block mb-2 text-sm font-medium text-gray-900">Plan</label>
@@ -281,20 +291,28 @@
             </div>
 
             @php
-    $plans = ['Plan-1', 'Plan-2', 'Plan-3'];
-@endphp
+                $plans = ['Plan-1', 'Plan-2', 'Plan-3'];
+            @endphp
 
-@foreach ($plans as $index => $plan)
-    <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">{{ $plan }}</label>
-        
-        <div class="grid grid-cols-2 gap-4">
-            <input type="number" step="0.01" name="plans[{{ $index }}][amount]" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Amount" >
-            
-            <input type="number" name="plans[{{ $index }}][validity]" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Validity" >
-        </div>
-    </div>
-@endforeach
+            @foreach ($plans as $index => $plan)
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ $plan }}</label>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" step="0.01" name="plans[{{ $index }}][amount]" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Amount" >
+                        
+                        <input type="number" name="plans[{{ $index }}][validity]" class="block w-full border-gray-300 rounded-md shadow-sm" placeholder="Validity" >
+                    </div>
+                </div>
+            @endforeach
+
+            <div class="mb-5">
+                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent id</label>
+                <input type="text" id="parent_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="parent_id" required />
+                @error('parent_id')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
 
 
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
@@ -333,6 +351,7 @@
                 const plan_type = this.getAttribute('data-plan_type');
                 const status = this.getAttribute('data-status');
                 const categoryId = this.getAttribute('data-category-id');
+                const parentId = this.getAttribute('data-parent_id');
                 const plans = JSON.parse(this.getAttribute('data-plans') || '[]');
 
                 // Set modal for editing a subcategory
@@ -345,13 +364,15 @@
                 document.getElementById('select_category').value = categoryId;
                 document.getElementById('plan_type').value = plan_type;
                 document.getElementById('status').value = status;
-                plans.forEach((plan, index) => {
-    const amountInput = document.querySelector(`input[name="plans[${index}][amount]"]`);
-    const validityInput = document.querySelector(`input[name="plans[${index}][validity]"]`);
+                document.getElementById('parent_id').value = parentId;
 
-    if (amountInput) amountInput.value = plan.amount;
-    if (validityInput) validityInput.value = plan.validity;
-});
+                plans.forEach((plan, index) => {
+                    const amountInput = document.querySelector(`input[name="plans[${index}][amount]"]`);
+                    const validityInput = document.querySelector(`input[name="plans[${index}][validity]"]`);
+
+                    if (amountInput) amountInput.value = plan.amount;
+                    if (validityInput) validityInput.value = plan.validity;
+                });
 
                 document.getElementById('subCategoryImage').src = photo ? `/storage/${photo}` : '/dummy.jpg';
                 document.getElementById('modal').style.display = 'flex';

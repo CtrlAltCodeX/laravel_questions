@@ -45,8 +45,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/{id}', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
-
-
     Route::put('/profile/{id}', [ProfileController::class, 'update'])
         ->name('profile.update');
 
@@ -88,9 +86,8 @@ Route::middleware('auth')->group(function () {
     Route::post('videos/import/file', [VideoController::class, 'import'])->name('videos.import');
 
     Route::resource('/courses', CourseController::class);
-Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
 
-
+    Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
     Route::get('/reports', [ReportController::class, 'webindex'])->name('reports.index');
     Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])->name('WalletHistory.index');
     Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])->name('reports.updateVideo');
@@ -105,17 +102,14 @@ Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
     Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])->name('settings.quiz.save');
-Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])->name('settings.cbt.save');
 
+    Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])->name('settings.cbt.save');
 
     Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
     Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');
     Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');
 
     Route::resource('question', QuestionBankController::class);
-
-
-
 
     Route::resource('bank-question', QuestionBankApiController::class);
 
@@ -178,10 +172,6 @@ Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])->name('
 
     Route::get('/admin-profile/{id}', [SuperAdminController::class, 'edit'])
         ->name('admin-profile.edit');
-
-
-
-
 });
 
 require __DIR__ . '/auth.php';

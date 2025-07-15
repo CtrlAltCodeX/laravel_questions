@@ -17,10 +17,8 @@ use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
-
     public function index(Request $request)
     {
-        // Fetch all languages, categories, subcategories, subjects for filters/dropdowns
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
@@ -72,28 +70,10 @@ class CourseController extends Controller
             $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
 
-
         $courses = $request->data == 'all' ? $query->get() : $query->paginate($request->data);
 
         $allSubcategories = SubCategory::pluck('name', 'id')->toArray();
         $allSubjects = Subject::pluck('name', 'id')->toArray();
-
-
-        // foreach ($courses as $course) {
-
-        //     $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
-        //     $subjectIds = json_decode($course->subject_id, true) ?? [];
-
-        //     $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
-        //     $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');
-
-        //     $subCategoryNames = array_filter(array_map(fn($id) => $allSubcategories[$id] ?? null, $subCategoryIds));
-        //     $subjectNames = array_filter(array_map(fn($id) => $allSubjects[$id] ?? null, $subjectIds));
-
-        //     $course->sub_category_names = implode(', ', $subCategoryNames);
-        //     $course->subject_names = implode(', ', $subjectNames);
-        // }
-
 
         $dropdown_list = [
             'Select Language' => $languages,
@@ -149,9 +129,14 @@ class CourseController extends Controller
             }
         }
 
+        $courseTableHeader = $this->header();
+        
+        $courseTableRow = $this->columns();
 
         // Return view with all required data
         return view('courses.index', compact(
+            'courseTableHeader',
+            'courseTableRow',
             'courses',
             'categories',
             'subcategories',
@@ -167,12 +152,44 @@ class CourseController extends Controller
         ));
     }
 
+    public function header()
+    {
+        return [
+            'id' => '#', 
+            'image' => 'Banner', 
+            'language' => 'Language Name', 
+            'category' => 'Category Name', 
+            'sub_category' => 'Sub-Category Name', 
+            'subject' => 'Subject Name', 
+            'topic' => 'Topic',
+            'name' => 'Course name', 
+            'price' => 'Price',
+            'subscription' => 'Subscription',
+            'status' => 'Status',
+            'action' => 'Action',
+        ];
+    }
+
+    public function columns()
+    {
+        return [
+            ['type' => 'text', 'value' => 'id'],
+            ['type' => 'image', 'value' => 'banner'],
+            ['type' => 'text', 'value' => 'language_name'],
+            ['type' => 'text', 'value' => 'category_name'],
+            ['type' => 'text', 'value' => 'sub_category_names'],
+            ['type' => 'text', 'value' => 'subject_names'],
+            ['type' => 'text', 'value' => 'topics_count'],
+            ['type' => 'text', 'value' => 'name'],
+            ['type' => 'text', 'value' => 'formatted_prices'],
+            ['type' => 'text', 'value' => 'subscription_names'],
+            ['type' => 'text', 'value' => 'status'],
+            ['type' => 'action', 'value' => 'courses.destroy'],
+        ];
+    }
 
     public function store(Request $request)
     {
-
-        // echo "<pre>";
-        // print_r($request->all());die;
         $request->validate([
             'name' => 'required|string',
             'language_id' => 'required|integer',
@@ -180,7 +197,6 @@ class CourseController extends Controller
             'subcategories' => 'required|array',
             'subjects' => 'required|array',
             'status' => 'required|boolean',
-
         ]);
         $subscriptions = [];
 
@@ -209,11 +225,12 @@ class CourseController extends Controller
             'status' => $request->status,
             'subscription' => $subscriptions,
             'banner' => $bannerFilename,
+            'language' => $request->language == 'on' ? 1 : 0,
+            'question_limit' => $request->question_limit,
 
         ]);
         return response()->json(['success' => true, 'message' => 'Course created successfully']);
     }
-
 
     public function update(Request $request, $id)
     {
@@ -259,12 +276,13 @@ class CourseController extends Controller
         $course->subject_id = json_encode($request->subjects);
         $course->status = $request->status;
         $course->subscription = $subscriptions;
+        $course->language = $request->language == 'on' ? 1 : 0;
+        $course->question_limit = $request->question_limit;
 
         $course->save();
 
         return response()->json(['success' => true, 'message' => 'Course updated successfully']);
     }
-
 
     public function destroy(string $id)
     {
@@ -286,89 +304,87 @@ class CourseController extends Controller
 
         return response()->json($subjects);
     }
-
   
-public function getCoursesWithOffers($user_id)
-{
-    // Step 1: Get user
-    $user = GoogleUser::find($user_id);
-    if (!$user) {
-        return response()->json([
-            'status' => false,
-            'message' => 'User not found.'
-        ], 404);
-    }
+    public function getCoursesWithOffers($user_id)
+    {
+        // Step 1: Get user
+        $user = GoogleUser::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
 
-    // Step 2: Get user preferences
-    $category_id = $user->category_id;
-    $language_id = $user->language_id;
+        // Step 2: Get user preferences
+        $category_id = $user->category_id;
+        $language_id = $user->language_id;
 
-    // Step 3: Get user purchased courses IDs
-    $purchasedCourseIds = UserCourse::where('user_id', $user_id)->pluck('course_id')->toArray();
+        // Step 3: Get user purchased courses IDs
+        $purchasedCourseIds = UserCourse::where('user_id', $user_id)->pluck('course_id')->toArray();
 
-    // Step 4: Get matching courses
-    $courses = Course::where('category_id', $category_id)
-        ->where('language_id', $language_id)
-        ->get()
-        ->map(function ($course) use ($user_id, $purchasedCourseIds) {
-            
-            $offer = Offer::whereJsonContains('course', (string) $course->id)
-                ->latest('created_at')
-                ->first();
+        // Step 4: Get matching courses
+        $courses = Course::where('category_id', $category_id)
+            ->where('language_id', $language_id)
+            ->get()
+            ->map(function ($course) use ($user_id, $purchasedCourseIds) {
+                
+                $offer = Offer::whereJsonContains('course', (string) $course->id)
+                    ->latest('created_at')
+                    ->first();
 
-            $courseSubscription = $course->subscription;
-            $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
+                $courseSubscription = $course->subscription;
+                $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
 
-            foreach (['monthly', 'semi_annual', 'annual'] as $type) {
-                if (isset($courseSubscription[$type]['amount'])) {
-                    $amount = floatval($courseSubscription[$type]['amount']);
-                    $discount = 0;
+                foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+                    if (isset($courseSubscription[$type]['amount'])) {
+                        $amount = floatval($courseSubscription[$type]['amount']);
+                        $discount = 0;
 
-                    // Step 5: Check if user purchased this course
-                    if (in_array($course->id, $purchasedCourseIds)) {
-                        // Apply upgrade logic here if any
-                        $discount = isset($offerSubscription[$type]['upgrade']) 
-                            ? floatval($offerSubscription[$type]['upgrade']) 
-                            : 0;
-                    } else {
-                        // Normal discount
-                        $discount = isset($offerSubscription[$type]['discount']) 
-                            ? floatval($offerSubscription[$type]['discount']) 
-                            : 0;
+                        // Step 5: Check if user purchased this course
+                        if (in_array($course->id, $purchasedCourseIds)) {
+                            // Apply upgrade logic here if any
+                            $discount = isset($offerSubscription[$type]['upgrade']) 
+                                ? floatval($offerSubscription[$type]['upgrade']) 
+                                : 0;
+                        } else {
+                            // Normal discount
+                            $discount = isset($offerSubscription[$type]['discount']) 
+                                ? floatval($offerSubscription[$type]['discount']) 
+                                : 0;
+                        }
+
+                        $finalAmount = $amount - (($discount / 100) * $amount);
+                        $courseSubscription[$type]['final_amount'] = round($finalAmount, 2);
                     }
-
-                    $finalAmount = $amount - (($discount / 100) * $amount);
-                    $courseSubscription[$type]['final_amount'] = round($finalAmount, 2);
                 }
-            }
 
-            return [
-                'id' => $course->id,
-                'name' => $course->name,
-                'language_id' => $course->language_id,
-                'category_id' => $course->category_id,
-                'sub_category_id' => $course->sub_category_id,
-                'subject_id' => $course->subject_id,
-                'status' => $course->status,
-                'subscription' => $courseSubscription,
-                'banner' => $course->banner,
-                'offer' => $offer ? [
-                    'id' => $offer->id,
-                    'name' => $offer->name,
-                    'status' => $offer->status,
-                    'banner' => $offer->banner,
-                    'course' => $offer->course,
-                    'subscription' => $offerSubscription,
-                    'valid_from' => $offer->valid_from,
-                    'valid_to' => $offer->valid_to,
-                ] : null,
-            ];
-        });
+                return [
+                    'id' => $course->id,
+                    'name' => $course->name,
+                    'language_id' => $course->language_id,
+                    'category_id' => $course->category_id,
+                    'sub_category_id' => $course->sub_category_id,
+                    'subject_id' => $course->subject_id,
+                    'status' => $course->status,
+                    'subscription' => $courseSubscription,
+                    'banner' => $course->banner,
+                    'offer' => $offer ? [
+                        'id' => $offer->id,
+                        'name' => $offer->name,
+                        'status' => $offer->status,
+                        'banner' => $offer->banner,
+                        'course' => $offer->course,
+                        'subscription' => $offerSubscription,
+                        'valid_from' => $offer->valid_from,
+                        'valid_to' => $offer->valid_to,
+                    ] : null,
+                ];
+            });
 
-    return response()->json([
-        'status' => true,
-        'data' => $courses
-    ]);
-}
-
+        return response()->json([
+            'status' => true,
+            'data' => $courses
+        ]);
+    }
 }

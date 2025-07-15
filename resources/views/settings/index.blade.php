@@ -57,9 +57,9 @@
         @endforeach -->
 
         @foreach($languages as $language)
-  <input type="checkbox" name="quiz_languages[]" value="{{ $language->id }}" class="quiz-language-checkbox" data-lang="{{ strtolower($language->name) }}">
-  {{ $language->name }}
-@endforeach
+            <input type="checkbox" name="quiz_languages[]" value="{{ $language->id }}" class="quiz-language-checkbox" data-lang="{{ strtolower($language->name) }}">
+            {{ $language->name }}
+        @endforeach
     </div>
 
     <div class="flex flex-row items-center gap-4">
@@ -125,9 +125,9 @@
         @endforeach -->
 
         @foreach($languages as $language)
-  <input type="checkbox" name="cbt_languages[]" value="{{ $language->id }}" class="cbt-language-checkbox" data-lang="{{ strtolower($language->name) }}">
-  {{ $language->name }}
-@endforeach
+        <input type="checkbox" name="cbt_languages[]" value="{{ $language->id }}" class="cbt-language-checkbox" data-lang="{{ strtolower($language->name) }}">
+        {{ $language->name }}
+        @endforeach
     </div>
 
     <div class="flex flex-row items-center gap-4">

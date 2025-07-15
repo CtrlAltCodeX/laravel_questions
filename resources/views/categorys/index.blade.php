@@ -80,6 +80,7 @@
                         </a>
                     </th>
                     <th scope="col" class="px-6 py-3">Question Count</th>
+                    <th scope="col" class="px-6 py-3">Parent ID</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
@@ -93,8 +94,9 @@
                     </th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->name}}</th>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->question_count}}</th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{$category->parent_id}}</th>
                     <td class="px-6 py-4 flex gap-4">
-                        <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline" data-id="{{$category->id}}" data-name="{{$category->name}}" data-language-id="{{$category->language_id}}" data-photo="{{$category->photo}}">
+                        <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline" data-id="{{$category->id}}" data-name="{{$category->name}}" data-language-id="{{$category->language_id}}" data-photo="{{$category->photo}}" data-parent_id="{{$category->parent_id}}">
                             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
                                 <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                             </svg>
@@ -178,6 +180,14 @@
                 @enderror
             </div>
 
+            <div class="mb-5">
+                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent ID</label>
+                <input type="text" id="parent_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="parent_id" required />
+                @error('parent_id')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Save
             </button>
@@ -212,6 +222,7 @@
                 const name = this.dataset.name;
                 const languageId = this.dataset.languageId;
                 const photo = this.dataset.photo;
+                const parent_id = this.dataset.parent_id;
 
                 document.getElementById('modalTitle').innerText = 'Edit Category';
                 document.getElementById('modalForm').action = `/category/${id}`;
@@ -219,6 +230,7 @@
                 document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
                 document.getElementById('name').value = name;
                 document.getElementById('modal_language_id').value = languageId;
+                document.getElementById('parent_id').value = parent_id;
                 document.getElementById('categoryImage').src = photo ? `/storage/${photo}` : '/dummy.jpg';
 
                 document.getElementById('modal').style.display = 'flex';

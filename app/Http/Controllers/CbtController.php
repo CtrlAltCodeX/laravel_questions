@@ -11,6 +11,7 @@ use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\TranslatedQuestions;
 use App\Models\UserSession;
+use App\Models\Course;
 use Illuminate\Http\Request;
 
 class CbtController extends Controller
@@ -219,7 +220,18 @@ class CbtController extends Controller
             $query->where('topic_id', $data['Topic']);
         }
 
-        $questions = $query->with(['subCategory',  'subject'])->inRandomOrder()->limit($data['Limit'])->get();
+        $cbtSett = Course::where('language_ids', $languageId)
+            ->where('category_id', $categoryId)
+            ->where('sub_category_id', "LIKE", "%".$data['SubCategory']."%")
+            ->first();
+
+        if ($cbtSett) {
+            $query->limit($cbtSett->question_limit);
+        }
+
+        $questions = $query->with(['subCategory',  'subject'])->inRandomOrder()
+        // ->limit($data['Limit'])
+            ->get();
 
         $language = Language::find($languageId);
 

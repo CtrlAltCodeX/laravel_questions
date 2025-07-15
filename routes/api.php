@@ -37,11 +37,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
 Route::middleware('authapi')->group(function () {
-    Route::get("quiz", [QuizController::class, 'deploy']);
+    Route::get("{userId}/{CourseId}/quiz", [QuizController::class, 'deploy']);
 
     Route::get('bank-api', [QuestionBankController::class, 'deploy']);
 
-    Route::get('cbt', [CbtController::class, 'deploy']);
+    Route::get('{userId}/{CourseId}/cbt', [CbtController::class, 'deploy']);
 });
 
 Route::get('reports', [ReportController::class, 'index']);

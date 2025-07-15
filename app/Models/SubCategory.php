@@ -19,7 +19,8 @@ class SubCategory extends Model
         'photo',
         'plan_type',
         'plans',
-        'status'
+        'status',
+        'parent_id',
     ];
 
     public function category()

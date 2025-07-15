@@ -177,7 +177,7 @@ class SubCategoryController extends Controller
         ]);
 
         // Prepare data for insertion
-        $data = $request->only(['category_id', 'name', 'plan_type', 'status']);
+        $data = $request->only(['category_id', 'name', 'plan_type', 'status', 'parent_id']);
 
         // Convert plans array to JSON string
         $data['plans'] = json_encode($request->plans);
@@ -224,7 +224,7 @@ class SubCategoryController extends Controller
         $subcategory = SubCategory::findOrFail($id);
 
         // Prepare the data for update
-        $data = $request->only(['category_id', 'name', 'plan_type', 'status']);
+        $data = $request->only(['category_id', 'name', 'plan_type', 'status', 'parent_id']);
 
         // Convert plans array to JSON string if provided
         if ($request->has('plans')) {

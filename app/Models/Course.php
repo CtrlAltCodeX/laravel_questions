@@ -16,7 +16,9 @@ class Course extends Model
         'subject_id',
         'status',
         'subscription',
-        'banner'
+        'banner',
+        'language',
+        'question_limit',
     ];
 
     protected $casts = [
