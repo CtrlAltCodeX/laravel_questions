@@ -276,8 +276,16 @@ class CourseController extends Controller
         $course->subject_id = json_encode($request->subjects);
         $course->status = $request->status;
         $course->subscription = $subscriptions;
-        $course->language = $request->language == 'on' ? 1 : 0;
+        $course->language = $request->language;
         $course->question_limit = $request->question_limit;
+
+        if (request()->part == 'part') {
+            $course->part_limit = $request->part_limit;
+            $course->subject_limit = null; // Clear subject limit if part limit is set
+        } else {
+            $course->subject_limit = $request->subject_limit;
+            $course->part_limit = null; // Clear part limit if subject limit is set
+        }
 
         $course->save();
 

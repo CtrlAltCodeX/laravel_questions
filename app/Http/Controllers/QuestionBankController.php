@@ -402,7 +402,7 @@ class QuestionBankController extends Controller
 
             if (!isset($questions[$questionId])) {
                 $questions[$questionId] = [
-                    'question' => $question->question,  // Assuming question_text is part of the questions table
+                    'question' => $question->question,
                     'option_a' => $question->option_a,
                     'option_b' => $question->option_b,
                     'option_c' => $question->option_c,
@@ -421,13 +421,6 @@ class QuestionBankController extends Controller
                     'language_id' => $question->language_id,
                 ];
             }
-
-            // $questions[$questionId]['language'][$question->language_id] = $translatedQuestion->language->name;
-            // $questions[$questionId]['question'][$question->language_id] = $translatedQuestion->question_text;
-            // $questions[$questionId]['option_a'][$question->language_id] = $translatedQuestion->option_a;
-            // $questions[$questionId]['option_b'][$question->language_id] = $translatedQuestion->option_b;
-            // $questions[$questionId]['option_c'][$question->language_id] = $translatedQuestion->option_c;
-            // $questions[$questionId]['option_d'][$question->language_id] = $translatedQuestion->option_d;
         }
 
         // Export the questions as an Excel file
