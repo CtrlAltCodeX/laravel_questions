@@ -208,7 +208,9 @@
         overflow-y: auto; /* Make content scrollable if it exceeds max height */
     ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
+            <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title
+                
+            </h2>
             <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
@@ -326,15 +328,11 @@
                 <div class="flex gap-2">
                     <!-- <input type="radio" class="form-control" name="single_language"> -->
                     <input type="radio" name="language" id="single" value=0> Single Language
-
-                    <!-- <label for="single_language" class="form-label mb-0">Single Language</label> -->
                 </div>
 
                 <div class="flex gap-2">
                     <!-- <input type="radio" class="form-control" name="multi_language"> -->
                     <input type="radio" name="language" id="multiple" value=1> Multi Language
-
-                    <!-- <label for="multi_language" class="form-label mb-0">Multi Language</label> -->
                 </div>
             </div>
 
@@ -345,39 +343,75 @@
 
             <div class="flex gap-4 mb-4">
                 <label>
-                    <input type='radio' name='part' />
+                    <input type='radio' name='part' id='subject_wise' value='subject' />
                     Subject Wise
                 </label>
                 <label>
-                    <input type='radio' name='part' />
+                    <input type='radio' name='part' id='part_wise' value='part' />
                     Part Wise
                 </label>
             </div>
             <div class='d-flex' style='grid-gap:10px;'>
-                <table class='table w-25'>
+                <table class='table' id='subject' style='display:none;'>
                     <tr>
                         <th>Subject Name</th>
                         <th>Limit</th>
                     </tr>
-                    <tr>
-                        <td>Subject Name</td>
-                        <td>Limit</td>
-                    </tr>
+                    @php
+                        $subjectName = explode(',' , $course->subject_names);
+                        $subjectId = @json_decode($course->subject_id)
+                    @endphp
+                    @foreach($subjectName as $key => $subjects)
+                        <tr>
+                            <td>{{ $subjects }}</td>
+                            <td>
+                                <input 
+                                    type='text' 
+                                    class='form-control' 
+                                    placeholder='Question Limit' 
+                                    name='subject_limit[{{ $subjectId[$key] }}]' 
+                                    data-subject="{{ $subjectId[$key] }}"
+                                />
+                            </td>
+                        </tr>
+                    @endforeach
                 </table>
             
-                <table class='table w-25'>
+                <table class='table' id='part' style='display:none;'>
                     <tr>
                         <th>Subject Name</th>
                         <th>Limit</th>
                         <th>Subject Name</th>
                         <th>Limit</th>
                     </tr>
-                    <tr>
-                        <td>Subject Name</td>
-                        <td>Limit</td>
-                        <td>Subject Name</td>
-                        <td>Limit</td>
-                    </tr>
+                    @php
+                        $subjectName = explode(',' , $course->subject_names);
+                        $subjectId = @json_decode($course->subject_id)
+                    @endphp
+                    @foreach($subjectName as $key => $subjects)
+                        <tr>
+                            <td>{{ $subjects }}</td>
+                            <td>
+                                <input type='text' 
+                                    class='form-control' 
+                                    placeholder='Question Limit' 
+                                    name='part_limit[{{ $subjectId[$key] }}][]'
+                                    data-subject="{{ $subjectId[$key] }}" 
+                                    data-index="0"
+                                />
+                            </td>
+                            <td>{{ $subjects }}</td>
+                            <td>
+                                <input type='text' 
+                                    class='form-control' 
+                                    placeholder='Question Limit' 
+                                    name='part_limit[{{ $subjectId[$key] }}][]'
+                                    data-subject="{{ $subjectId[$key] }}" 
+                                    data-index="1"
+                                />
+                            </td>
+                        </tr>
+                    @endforeach
                 </table>
             </div>
 
@@ -440,7 +474,6 @@
         }
     });
 
-
     function toggleDropdown() {
         const dropdown = document.getElementById('dropdownMenu');
         dropdown.classList.toggle('hidden');
@@ -459,9 +492,7 @@
         const checkboxes = document.querySelectorAll('.subcategory-checkbox');
         checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
     }
-</script>
 
-<script>
     document.getElementById('searchFilter').addEventListener('input', function () {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll('#offersTable .offerRow');
@@ -480,9 +511,7 @@
         };
         reader.readAsDataURL(event.target.files[0]);
     });
-</script>
 
-<script>
     document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('createButton').addEventListener('click', function() {
     document.getElementById('modalTitle').innerText = 'Create Course';
@@ -525,6 +554,34 @@
                 const language = data.language;
                 const question_limit = data.question_limit;
                 const subscriptions = data.subscription;
+                const partWise = data.part_limit;
+                const subjectWise = data.subject_limit;
+
+                if (partWise) {
+                    document.querySelector('#part_wise').checked = true;
+                    document.getElementById('part').style.display = 'table';
+                    document.getElementById('subject').style.display = 'none';
+
+                    Object.entries(partWise).forEach(([subjectId, values]) => {
+                        values.forEach((value, index) => {
+                            const input = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                            if (input) {
+                                input.value = value ?? '';  // Use empty string if value is null
+                            }
+                        });
+                    });
+                } else {
+                    document.querySelector('#subject_wise').checked = true;
+                    document.getElementById('part').style.display = 'none';
+                    document.getElementById('subject').style.display = 'table';
+
+                    Object.entries(subjectWise).forEach(([subjectId, value]) => {
+                        const input = document.querySelector(`input[data-subject="${subjectId}"]`);
+                        if (input) {
+                            input.value = value ?? '';  // Set value if exists, else set to empty string
+                        }
+                    });
+                }
 
                 // Fill modal fields
                 document.getElementById('modalTitle').innerText = 'Edit Course';
@@ -569,7 +626,7 @@
                     ? checkedSubjects.join(', ')
                     : 'Select Subjects';
 
-              // Monthly
+                // Monthly
                 document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
                 document.querySelector('input[name="subscription[monthly][amount]"]').value = subscriptions.monthly?.amount || '';
                 document.querySelector('input[name="subscription[monthly][validity]"]').value = subscriptions.monthly?.validity || '';
@@ -597,12 +654,28 @@
 
                 // Show modal
                 document.getElementById('modal').style.display = 'flex';
+
+                
             });
         });
     });
-</script>
 
-<script>
+    document.querySelectorAll('input[data-subject]').forEach(input => {
+        input.addEventListener('input', function () {
+            const subjectId = this.getAttribute('data-subject');
+            const index = this.getAttribute('data-index');
+            const otherIndex = index === "0" ? "1" : "0";
+
+            const otherInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${otherIndex}"]`);
+
+            if (this.value.trim() !== "") {
+                otherInput.readOnly = true;
+            } else {
+                otherInput.readOnly = false;
+            }
+        });
+    });
+
     function toggleDropdown() {
         document.getElementById('dropdownMenu').classList.toggle('hidden');
     }
@@ -696,7 +769,6 @@
         }
     }
 
-
     function updateSelectedSubjectsDisplay() {
         const selectedSubjects = Array.from(document.querySelectorAll('.subject-checkbox:checked'))
             .map(cb => cb.nextSibling.textContent.trim());
@@ -714,9 +786,7 @@
     document.querySelectorAll('.subcategory-checkbox').forEach(cb => {
         cb.addEventListener('change', fetchSubjects);
     });
-</script>
 
-<script>
     document.addEventListener('DOMContentLoaded', function () {
         const validityLimits = {
             'monthly': 30,
@@ -733,6 +803,20 @@
                     }
                 });
             }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function(){
+        $('#subject_wise').click(function() {
+            $('#subject').show();
+            $('#part').hide();
+        });
+
+        $('#part_wise').click(function() {
+            $('#subject').hide();
+            $('#part').show();
         });
     });
 </script>

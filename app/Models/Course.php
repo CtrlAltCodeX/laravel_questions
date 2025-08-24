@@ -19,9 +19,13 @@ class Course extends Model
         'banner',
         'language',
         'question_limit',
+        'subject_limit',
+        'part_limit'
     ];
 
     protected $casts = [
         'subscription' => 'array',
+        'subject_limit' => 'array',
+        'part_limit' => 'array',
     ];
 }

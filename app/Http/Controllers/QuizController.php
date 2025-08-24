@@ -89,25 +89,37 @@ class QuizController extends Controller
 
     public function deploy(Request $request, $userId, $courseId)
     {
-        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
+        // if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
 
-        if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+        // if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
             $data = $request->all();
-            $course = Course::find($courseId);
+            if (!$course = Course::find($courseId)) {
+                return response()->json(['error' => 'Course not found'], 404);
+            }
+
             if ($course->language) {
-                $category = Category::find($data['Category']);
+                $categoryId = $course->category_id;
+                $category = Category::find($categoryId);
                 $subcategory = SubCategory::find($data['SubCategory']);
                 $subject = Subject::find($data['Subject']);
 
-                $data['Language_2'] = 1;
-                $data['Category_2'] = $category->parent_id;
-                $data['SubCategory_2'] = $subcategory->parent_id;
-                $data['Subject_2'] = $subject->parent_id;
+                $data['Language_2'] = $course->language_id;
+                $data['Category_2'] = $categoryId;
+                $data['SubCategory_2'] = $data['SubCategory'];
+                $data['Subject_2'] = $data['SubCategory'];
+
+                $data['Language'] = 1;
+                $data['Category'] = $category->parent_id;
+                $data['SubCategory'] = $subcategory->parent_id;
+                $data['Subject'] = $subject->parent_id;
                 // $data['Topic_2'] = 1;
+            } else {
+                $data['Language'] = $course->language_id;
+                $data['Category'] = $course->category_id;
             }
 
-            $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
-            $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
+            //$questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+            //$questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
             $language = $this->getFirstDropdownData($data, $course)['language'];
             $categories = $this->getFirstDropdownData($data, $course)['categories'][0];
@@ -144,13 +156,18 @@ class QuizController extends Controller
                 $subjectName .= ' | ' . $subjects2[0]->name;
             }
 
-            $i = 0;
+            
             foreach ($topics as $outkey => $topic) {
                 $topicsName = '<span class="notranslate">' . $topic->name . "</span>";
                 if (count($topics2)) {
                     $topicsName .= ' | ' . ($topics2[$outkey]->name ?? '');
                 }
-
+	
+              	$data['Topic'] = $topic->id;
+	            $data['Topic_2'] = $topics2[$outkey]->id;
+                $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+                $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
+              	
                 $questionArray = [];
                 $questionAccTop = [];
 
@@ -159,7 +176,8 @@ class QuizController extends Controller
                         $questionArray[] = $question;
                     }
                 }
-
+				
+	            $i = 0;
                 foreach ($questionArray as $key => $getQuestions) {
                     $img = isset($getQuestions->photo) && $getQuestions->photo != 0
                         ? '<br><img src="https://iti.online2study.in/storage/questions/' . $getQuestions->photo . '"/>'
@@ -185,8 +203,7 @@ class QuizController extends Controller
                                 ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
                                 ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' | ' . $questionsSecond[$i]->notes : '')
                                 : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
-    
-                            ++$i;
+                            
                         }
                      } else {
                         $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' . $img;
@@ -199,6 +216,8 @@ class QuizController extends Controller
                         $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
                             ? '<span class="notranslate">' . $getQuestions->notes . '</span>' : '';
                     }
+                  
+              		++$i;    
                 }
 
                 $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topicsName] = $questionAccTop;

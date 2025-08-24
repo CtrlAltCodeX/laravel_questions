@@ -26,6 +26,7 @@ class QuestionsExport implements FromCollection, WithHeadings
             $formattedQuestion = [];
 
             // Add question number
+            $formattedQuestion[] = '';
             $formattedQuestion[] = $question['qno'];
 
             // Add language names
