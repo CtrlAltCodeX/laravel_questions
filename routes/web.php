@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::get('category/export/file', [CategoryController::class, 'export'])->name('category.export');
     Route::get('category/sample/file', [CategoryController::class, 'sample'])->name('category.sample');
     Route::post('category/import/file', [CategoryController::class, 'import'])->name('category.import');
-    
+
 
     Route::resource('sub-category', SubCategoryController::class);
     Route::get('sub-category/export/file', [SubCategoryController::class, 'export'])->name('sub-category.export');
@@ -97,7 +97,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])->name('reports.edit');
 
     Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
-
+    Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
+    Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 

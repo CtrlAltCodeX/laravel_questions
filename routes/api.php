@@ -78,3 +78,9 @@ Route::post('/user/courses', [UserCourseController::class, 'assignCourseToUser']
 
 Route::post('/save-payment', [PaymentController::class, 'store']);
 Route::get('/get-final-amount', [PaymentController::class, 'getFinalAmount']);
+Route::post('/quize-practice/store', [ScoreBoardController::class, 'quizestore']);
+Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
+
+
+Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
+Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);

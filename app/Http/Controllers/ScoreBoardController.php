@@ -7,29 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
+use App\Models\QuizePractice;
+use App\Models\QuestionBankCount;
 
 class ScoreBoardController extends Controller
 {
-    /**
-     * @OA\Post(
-     *     path="/api/scoreboard",
-     *     summary="Save or update scoreboard",
-     *     tags={"ScoreBoard"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"google_user_id", "sub_category_id", "total_videos", "quiz_practice", "test_rank"},
-     *             @OA\Property(property="google_user_id", type="integer", example=1),
-     *             @OA\Property(property="sub_category_id", type="integer", example=2),
-     *             @OA\Property(property="total_videos", type="integer", example=10),
-     *             @OA\Property(property="quiz_practice", type="integer", example=5),
-     *             @OA\Property(property="test_rank", type="integer", example=3)
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Scoreboard saved successfully"),
-     *     @OA\Response(response=400, description="Validation Error")
-     * )
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -86,21 +69,7 @@ class ScoreBoardController extends Controller
         return view('ScoreBoard.index', compact('ScoreBoards', 'categories', 'subcategories', 'languages', 'subcategory_id', 'category_id', 'language_id', 'sortColumn', 'sortDirection'));
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/scoreboard/{userId}",
-     *     summary="Get scoreboard by user ID",
-     *     tags={"ScoreBoard"},
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Scoreboard retrieved successfully"),
-     *     @OA\Response(response=404, description="No scoreboard found for this user")
-     * )
-     */
+
     public function show($userId)
     {
         $scoreboard = ScoreBoard::where('google_user_id', $userId)->with(['user', 'subCategory'])->get();
@@ -108,5 +77,79 @@ class ScoreBoardController extends Controller
         if ($scoreboard->isEmpty()) return response()->json(['message' => 'No scoreboard found for this user.'], 404);
 
         return response()->json(['message' => 'Scoreboard retrieved successfully!', 'data' => $scoreboard], 200);
+    }
+
+
+    public function quizestore(Request $request)
+    {
+        $request->validate([
+            'google_user_id' => 'required|exists:google_users,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'topic_id' => 'required|exists:topics,id',
+            'percentage' => 'required|numeric|min:0|max:100',
+            'attempt' => 'required|integer|min:1',
+        ]);
+
+        $quiz = QuizePractice::create($request->all());
+
+        return response()->json([
+            'message' => 'Quiz attempt saved successfully!',
+            'data' => $quiz
+        ], 200);
+    }
+
+
+    public function quizeshow($googleUserId)
+    {
+        $quiz = QuizePractice::where('google_user_id', $googleUserId)
+            ->with(['user', 'subjects', 'topic'])
+            ->get();
+
+        if ($quiz->isEmpty()) {
+            return response()->json([
+                'message' => 'No quiz attempt found for this user.'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Quiz attempts retrieved successfully!',
+            'data' => $quiz
+        ], 200);
+    }
+
+
+    public function questioncountstore(Request $request)
+    {
+        $request->validate([
+            'google_user_id' => 'required|exists:google_users,id',
+            'subject_id'     => 'required|exists:subjects,id',
+            'topic_id'       => 'required|exists:topics,id',
+            'count'          => 'required|integer|min:0',
+        ]);
+
+        $questionBank = QuestionBankCount::create($request->all());
+
+        return response()->json([
+            'message' => 'Question bank count saved successfully!',
+            'data' => $questionBank
+        ], 200);
+    }
+
+    public function questioncountshow($googleUserId)
+    {
+        $records = QuestionBankCount::where('google_user_id', $googleUserId)
+            ->with(['user', 'subject', 'topic'])
+            ->get();
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No question bank records found for this user.'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Question bank records retrieved successfully!',
+            'data' => $records
+        ], 200);
     }
 }
