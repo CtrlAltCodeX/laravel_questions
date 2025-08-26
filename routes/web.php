@@ -127,6 +127,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
 
+    Route::get('get-subcategories-from-subject/{subjectId}', [QuestionBankController::class, 'getSubCategoriesFromSubject']);
+
     Route::get('get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
 
     Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}/{language2_id}/{category2_id}/{subcategory2_id}', [CbtController::class, 'getQuestionsData']);

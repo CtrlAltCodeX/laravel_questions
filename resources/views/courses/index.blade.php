@@ -8,190 +8,12 @@
     <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Course</h1>
 
     <div class="flex justify-end items-center gap-2">
-       
         <button id="createButton" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
             Create
         </button>
-
         <input type="text" id="searchFilter" placeholder="Search Offers..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
     </div>
 </div>
-
-<!-- <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        #
-                        @if ($sortColumn == 'id')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    Banner
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'language', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        Language Name
-                        @if ($sortColumn == 'language')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-                
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'category', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        Category Name
-                        @if ($sortColumn == 'category')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'sub_category', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        Sub Category Name
-                        @if ($sortColumn == 'sub_category')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'subject', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        Subject Name
-                        @if ($sortColumn == 'subject')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-           
-                <th scope="col" class="px-6 py-3">
-                    <a href="{{ route('courses.index', array_merge(request()->all(), ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        Course Name
-                        @if ($sortColumn == 'name')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-                 <th scope="col" class="px-6 py-3">
-                    Topics
-                </th>
-                  <th scope="col" class="px-6 py-3">
-                    Price
-                </th>
-                  <th scope="col" class="px-6 py-3">
-                    Subscription 
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Status
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Action
-                </th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @forelse($courses as $course)
-            <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white">{{ $course->id }}</td>
-                <td class="px-4 py-3 text-center">
-                    <img src="{{ $course->banner ? '/uploads/courses/'.$course->banner : '/dummy.jpg' }}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
-                </td>
-                <td class="px-4 py-3 text-center">{{ $course->language_name }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->category_name }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->sub_category_names }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->subject_names }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->name }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->topics_count }}</td>
-
-                <td class="px-4 py-3 text-center">{{ $course->formatted_prices ?? '-' }}</td>
-                <td class="px-4 py-3 text-center">{{ $course->subscription_names ?? '-' }}</td>
-                <td class="px-4 py-3 text-center font-bold {{ $course->status == 1 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $course->status == 1 ? 'Enabled' : 'Disabled' }}
-                </td>
-                <td class="px-4 py-3 text-center">
-                    <div class="flex justify-center gap-3">
-                        <button class="text-blue-600 hover:underline editButton"
-                            data-id="{{ $course->id }}"
-                            data-name="{{ $course->name }}"
-                            data-language-id="{{ $course->language_id }}"
-                            data-category-id="{{ $course->category_id }}"
-                            data-subcategories='@json(json_decode($course->sub_category_id, true))'
-                            data-subjects='@json(json_decode($course->subject_id, true))'
-                            data-status="{{ $course->status }}"
-                            data-banner="{{ $course->banner }}"
-                            data-language="{{ $course->language }}"
-                            data-question_limit="{{ $course->question_limit }}"
-                            data-subscriptions='@json($course->subscription)'>
-                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                                <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
-                            </svg>
-                        </button>
-                        <form action="{{ route('courses.destroy', $course->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:underline">
-                                  <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                                <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
-                            </svg>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="11" class="px-4 py-4 text-center text-gray-500">No Result Found</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    @if(request()->data != 'all')
-    <div class="flex justify-between items-center">
-        <div style="width: 92%;">
-            {{ $courses->appends(request()->query())->links() }}
-        </div>
-
-        <div>
-            <a href="{{ request()->fullUrlWithQuery(['data' => 'all']) }}"
-                class="bg-blue-500 text-white rounded hover:bg-blue-600 p-2">
-                View All
-            </a>
-        </div>
-    </div>
-    @endif
-</div> -->
 
 <x-dynamic-table :columns="$courseTableHeader" :rowData="$courses" :rows="$courseTableRow" />
 
@@ -200,7 +22,7 @@
         background-color: white; 
         border-radius: 10px; 
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-        width: 30%; 
+        width: 60%; 
         max-height: 90vh; /* Maximum height to keep it within the viewport */
         margin: auto; 
         padding: 24px; 
@@ -208,14 +30,14 @@
         overflow-y: auto; /* Make content scrollable if it exceeds max height */
     ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title
-                
-            </h2>
+            <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
             <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
+
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="">
+
             <div class="mb-3 relative" style="height: 100px;">
                 <div class="container">
                     <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="banner" style="width: 100px; height:100px;" id='fileInput' />
@@ -226,9 +48,9 @@
 
             <div class="mb-3">
                 <input type="text" id="name" placeholder="Course Name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name"  />
-                  <div style="color: red;" id="error-name"></div>  
-
+                <div style="color: red;" id="error-name"></div>  
             </div>
+
             <div class="mx-auto mb-3">
                 <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Select Language</option>
@@ -252,10 +74,14 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Sub Categories</label>
                 <div class="mb-3 relative">
-                    <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+                    <select id='select_sub_category' multiple name="subcategories[]" class="select_sub_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Choose a Sub Category</option>
+                    </select>
+                    <!-- <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
                         <span id="subcategoryButtonLabel">Select Sub Categories</span>
-                    </button>
-                    <div id="dropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
+                    </button> -->
+
+                    <!-- <div id="dropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
                         <label class="flex items-center px-4 py-2">
                             <input type="checkbox" onchange="toggleSelectAll(this)" />
                             <span class="ml-2">Select All</span>
@@ -266,14 +92,18 @@
                                 <span class="ml-2">{{ $sub->name }}</span>
                             </label>
                         @endforeach
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Subjects</label>
                 <div class="mb-3 relative">
-                    <button type="button" onclick="toggleSubjectDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
+                    <select id='select_subject' multiple name="subjects[]" class="select_subject bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Choose a Subjects</option>
+                    </select>
+
+                    <!-- <button type="button" onclick="toggleSubjectDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
                         <span id="selectedSubjectsText">Select Subjects</span>
                     </button>
                     <div id="subjectDropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
@@ -283,7 +113,7 @@
                                 <span class="ml-2">{{ $subject->name }}</span>
                             </label>
                         @endforeach        
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -315,15 +145,6 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                    <option value="">Select Status</option>
-                    <option value="1">Enabled</option>
-                    <option value="0">Disabled</option>
-                </select>
-                <div id="error-status" class="error-text" style="color: red;"></div>
-            </div>
-
             <div class="flex flex-row items-center gap-4 mb-4">
                 <div class="flex gap-2">
                     <!-- <input type="radio" class="form-control" name="single_language"> -->
@@ -351,68 +172,23 @@
                     Part Wise
                 </label>
             </div>
+
             <div class='d-flex' style='grid-gap:10px;'>
                 <table class='table' id='subject' style='display:none;'>
-                    <tr>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                    </tr>
-                    @php
-                        $subjectName = explode(',' , $course->subject_names);
-                        $subjectId = @json_decode($course->subject_id)
-                    @endphp
-                    @foreach($subjectName as $key => $subjects)
-                        <tr>
-                            <td>{{ $subjects }}</td>
-                            <td>
-                                <input 
-                                    type='text' 
-                                    class='form-control' 
-                                    placeholder='Question Limit' 
-                                    name='subject_limit[{{ $subjectId[$key] }}]' 
-                                    data-subject="{{ $subjectId[$key] }}"
-                                />
-                            </td>
-                        </tr>
-                    @endforeach
                 </table>
             
                 <table class='table' id='part' style='display:none;'>
-                    <tr>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                    </tr>
-                    @php
-                        $subjectName = explode(',' , $course->subject_names);
-                        $subjectId = @json_decode($course->subject_id)
-                    @endphp
-                    @foreach($subjectName as $key => $subjects)
-                        <tr>
-                            <td>{{ $subjects }}</td>
-                            <td>
-                                <input type='text' 
-                                    class='form-control' 
-                                    placeholder='Question Limit' 
-                                    name='part_limit[{{ $subjectId[$key] }}][]'
-                                    data-subject="{{ $subjectId[$key] }}" 
-                                    data-index="0"
-                                />
-                            </td>
-                            <td>{{ $subjects }}</td>
-                            <td>
-                                <input type='text' 
-                                    class='form-control' 
-                                    placeholder='Question Limit' 
-                                    name='part_limit[{{ $subjectId[$key] }}][]'
-                                    data-subject="{{ $subjectId[$key] }}" 
-                                    data-index="1"
-                                />
-                            </td>
-                        </tr>
-                    @endforeach
+                    
                 </table>
+            </div>
+          
+            <div class="mb-3">
+                <select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="">Select Status</option>
+                    <option value="1">Enabled</option>
+                    <option value="0">Disabled</option>
+                </select>
+                <div id="error-status" class="error-text" style="color: red;"></div>
             </div>
 
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
@@ -429,6 +205,32 @@
 @include('script')
 
 <script>
+    $(document).ready(function() {
+        $('#select_sub_category').select2({
+            width: '100%'
+        });
+      
+        $('#select_subject').select2({
+            width: '100%'
+        });
+      
+      	// Add "Select All" option manually
+//        $('#select_subject').prepend('<option value="all">Select All</option>');
+
+        // Handle "Select All"
+        $('#select_subject').on('select2:select', function (e) {
+            if (e.params.data.id === "all") {
+                let allValues = [];
+                $('#select_subject option').each(function () {
+                    if ($(this).val() !== "all") {
+                        allValues.push($(this).val());
+                    }
+                });
+                $('#select_subject').val(allValues).trigger('change'); // Select everything
+            }
+        });
+    });
+
     function updateSubCategoryLabel() {
         const checked = document.querySelectorAll('.subcategory-checkbox:checked');
         const labelSpan = document.getElementById('subcategoryButtonLabel');
@@ -451,28 +253,28 @@
     });
 
     // Update label when dropdown is closed (click outside)
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('dropdownMenu');
-        const button = event.target.closest('button');
+    // document.addEventListener('click', function(event) {
+    //     const dropdown = document.getElementById('dropdownMenu');
+    //     const button = event.target.closest('button');
 
-        if (!dropdown.contains(event.target) && !button) {
-            dropdown.classList.add('hidden');
-            updateSubCategoryLabel(); // 👈 Ensure label is updated when dropdown is closed
-        }
-    });
+    //     if (!dropdown.contains(event.target) && !button) {
+    //         dropdown.classList.add('hidden');
+    //         updateSubCategoryLabel(); // 👈 Ensure label is updated when dropdown is closed
+    //     }
+    // });
 
     function toggleSubjectDropdown() {
         document.getElementById('subjectDropdownMenu').classList.toggle('hidden');
     }
 
     // Close dropdown on outside click
-    document.addEventListener('click', function (event) {
-        const dropdown = document.getElementById('subjectDropdownMenu');
-        const button = event.target.closest('button');
-        if (!dropdown.contains(event.target) && !button) {
-            dropdown.classList.add('hidden');
-        }
-    });
+    // document.addEventListener('click', function (event) {
+    //     const dropdown = document.getElementById('subjectDropdownMenu');
+    //     const button = event.target.closest('button');
+    //     if (!dropdown.contains(event.target) && !button) {
+    //         dropdown.classList.add('hidden');
+    //     }
+    // });
 
     function toggleDropdown() {
         const dropdown = document.getElementById('dropdownMenu');
@@ -480,13 +282,13 @@
     }
 
     // Close dropdown on outside click
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('dropdownMenu');
-        const button = event.target.closest('button');
-        if (!dropdown.contains(event.target) && !button) {
-            dropdown.classList.add('hidden');
-        }
-    });
+    // document.addEventListener('click', function(event) {
+    //     const dropdown = document.getElementById('dropdownMenu');
+    //     const button = event.target.closest('button');
+    //     if (!dropdown.contains(event.target) && !button) {
+    //         dropdown.classList.add('hidden');
+    //     }
+    // });
 
     function toggleSelectAll(masterCheckbox) {
         const checkboxes = document.querySelectorAll('.subcategory-checkbox');
@@ -524,11 +326,11 @@
     document.getElementById('status').selectedIndex = "";
         // Reset checkboxes for subcategories
     document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
-    document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
+    // document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
 
     // Reset checkboxes for subjects
     document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
-    document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
+    // document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
 
     // Reset subscription checkboxes and inputs
     document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
@@ -547,8 +349,8 @@
                 const name = data.name;
                 const languageId = data.language_id;
                 const categoryId = data.category_id;
-                const subcategories = data.sub_category_id;
-                const subjects = data.subject_id;
+                const subcategories = (data.sub_category_id);
+                const subjects = (data.subject_id);
                 const status = data.status;
                 const banner = data.banner;
                 const language = data.language;
@@ -556,32 +358,122 @@
                 const subscriptions = data.subscription;
                 const partWise = data.part_limit;
                 const subjectWise = data.subject_limit;
+                const subjectName = data.subject_names.split(",");
 
-                if (partWise) {
-                    document.querySelector('#part_wise').checked = true;
-                    document.getElementById('part').style.display = 'table';
-                    document.getElementById('subject').style.display = 'none';
+                $('#subject').empty();
+                $('#part').empty();
 
-                    Object.entries(partWise).forEach(([subjectId, values]) => {
-                        values.forEach((value, index) => {
-                            const input = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
-                            if (input) {
-                                input.value = value ?? '';  // Use empty string if value is null
+                $('#subject').append(`
+                    <tr>
+                        <th>Sub Category</th>
+                        <th>Subject Name</th>
+                        <th>Limit</th>
+                        <th>Position</th>
+                    </tr>
+                `);
+
+                $('#part').append(`
+                    <tr>
+                        <th colspan="4">Part A</th>
+                        <th colspan="4">Part B</th>
+                    </tr>
+                    <tr>
+                        <th>Sub Category</th>
+                        <th>Subject Name</th>
+                        <th>Limit</th>
+                        <th></th>
+                        <th>Sub Category</th>
+                        <th>Subject Name</th>
+                        <th>Limit</th>
+                        <th>Position</th>
+                    </tr>
+                `);
+
+                subjectName.forEach((name, index) => {
+                    $.ajax({
+                        url: '/get-subcategories-from-subject/' + subjects[index],
+                        method: 'GET',
+                        success: (data) => {
+                            $('#subject').append(`
+                                <tr>
+                                    <td>${data.name}</td>
+                                    <td>${name}</td>
+                                    <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
+                                    <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
+                                </tr>
+                            `);
+                            
+                            if (subjectWise) {
+                                document.querySelector('#subject_wise').checked = true;
+                                document.getElementById('part').style.display = 'none';
+                                document.getElementById('subject').style.display = 'table';
+
+                                Object.entries(subjectWise).forEach(([subjectId, value]) => {
+                                    const input = document.querySelector(`input[data-subject="${subjectId}"]`);
+                                    const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
+    
+                                    if (input) {
+                                        input.value = value ?? '';
+                                    }
+    
+                                    if (positionInput) {
+                                        positionInput.value = subjectWise.position[subjectId] ?? '';
+                                    }
+                                });
                             }
-                        });
-                    });
-                } else {
-                    document.querySelector('#subject_wise').checked = true;
-                    document.getElementById('part').style.display = 'none';
-                    document.getElementById('subject').style.display = 'table';
-
-                    Object.entries(subjectWise).forEach(([subjectId, value]) => {
-                        const input = document.querySelector(`input[data-subject="${subjectId}"]`);
-                        if (input) {
-                            input.value = value ?? '';  // Set value if exists, else set to empty string
                         }
                     });
-                }
+                });
+
+                subjectName.forEach((name, index) => {
+                    $.ajax({
+                        url: '/get-subcategories-from-subject/' + subjects[index],
+                        method: 'GET',
+                        success: (data) => {
+                            $('#part').append(`
+                                <tr>
+                                    <td>${data.name}</td>
+                                    <td>${name}</td>
+                                    <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
+                                    <td></td>
+                                    <td>${data.name}</td>
+                                    <td>${name}</td>
+                                    <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
+                                    <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
+                                </tr>
+                            `);
+                            
+                            if (partWise) {
+                                document.querySelector('#part_wise').checked = true;
+                                document.getElementById('part').style.display = 'table';
+                                document.getElementById('subject').style.display = 'none';
+
+                                Object.entries(partWise.limit).forEach(([subjectId, values]) => {
+                                    values.forEach((value, index) => {
+                                        const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                                        const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
+    
+                                        if (limitInput) {
+                                            limitInput.value = value ?? '';
+                                        }
+    
+                                        if (positionInput) {
+                                            positionInput.value = partWise.position[subjectId] ?? '';
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    });
+                });
+
+                setTimeout(() => {
+                    $("#select_sub_category").val(subcategories).trigger('change');
+                }, 1000);
+
+                setTimeout(() => {
+                    $("#select_subject").val(subjects).trigger('change');
+                }, 2000);
 
                 // Fill modal fields
                 document.getElementById('modalTitle').innerText = 'Edit Course';
@@ -605,9 +497,9 @@
                     .filter(cb => cb.checked)
                     .map(cb => cb.getAttribute('data-name'));
 
-                document.getElementById('subcategoryButtonLabel').innerText = checkedSubCats.length
-                    ? checkedSubCats.join(', ')
-                    : 'Select Sub Categories';
+                // document.getElementById('subcategoryButtonLabel').innerText = checkedSubCats.length
+                //     ? checkedSubCats.join(', ')
+                //     : 'Select Sub Categories';
 
                 // Set subjects
                 // Set subjects (checkbox-style dropdown)
@@ -622,9 +514,9 @@
                     .filter(cb => cb.checked)
                     .map(cb => cb.getAttribute('data-name'));
 
-                document.getElementById('selectedSubjectsText').innerText = checkedSubjects.length
-                    ? checkedSubjects.join(', ')
-                    : 'Select Subjects';
+                // document.getElementById('selectedSubjectsText').innerText = checkedSubjects.length
+                //     ? checkedSubjects.join(', ')
+                //     : 'Select Subjects';
 
                 // Monthly
                 document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
@@ -654,39 +546,36 @@
 
                 // Show modal
                 document.getElementById('modal').style.display = 'flex';
-
-                
             });
         });
     });
 
-    document.querySelectorAll('input[data-subject]').forEach(input => {
-        input.addEventListener('input', function () {
-            const subjectId = this.getAttribute('data-subject');
-            const index = this.getAttribute('data-index');
-            const otherIndex = index === "0" ? "1" : "0";
+    $(document).on('input', 'input[data-subject]', function () {
+        const subjectId = $(this).data('subject');
+        const index = $(this).data('index');
+        const otherIndex = index === 0 || index === "0" ? "1" : "0";
 
-            const otherInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${otherIndex}"]`);
+        const $otherInput = $(`input[data-subject="${subjectId}"][data-index="${otherIndex}"]`);
 
-            if (this.value.trim() !== "") {
-                otherInput.readOnly = true;
-            } else {
-                otherInput.readOnly = false;
-            }
-        });
+        if ($(this).val().trim() !== "") {
+            $otherInput.val('');
+            $otherInput.prop('readonly', true);
+        } else {
+            $otherInput.prop('readonly', false);
+        }
     });
 
     function toggleDropdown() {
         document.getElementById('dropdownMenu').classList.toggle('hidden');
     }
 
-    document.addEventListener('click', function (event) {
-        const dropdown = document.getElementById('dropdownMenu');
-        const button = event.target.closest('button');
-        if (!dropdown.contains(event.target) && !button) {
-            dropdown.classList.add('hidden');
-        }
-    });
+    // document.addEventListener('click', function (event) {
+    //     const dropdown = document.getElementById('dropdownMenu');
+    //     const button = event.target.closest('button');
+    //     if (!dropdown.contains(event.target) && !button) {
+    //         dropdown.classList.add('hidden');
+    //     }
+    // });
 
     function toggleSelectAll(masterCheckbox) {
         const checkboxes = document.querySelectorAll('.subcategory-checkbox');

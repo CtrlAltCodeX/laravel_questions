@@ -14,6 +14,7 @@ use App\Models\Topic;
 use App\Models\UserSession;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Course;
 
 class QuestionBankController extends Controller
 {
@@ -402,7 +403,7 @@ class QuestionBankController extends Controller
 
             if (!isset($questions[$questionId])) {
                 $questions[$questionId] = [
-                    'question' => $question->question,
+                    'question' => $question->question,  // Assuming question_text is part of the questions table
                     'option_a' => $question->option_a,
                     'option_b' => $question->option_b,
                     'option_c' => $question->option_c,
@@ -421,6 +422,13 @@ class QuestionBankController extends Controller
                     'language_id' => $question->language_id,
                 ];
             }
+
+            // $questions[$questionId]['language'][$question->language_id] = $translatedQuestion->language->name;
+            // $questions[$questionId]['question'][$question->language_id] = $translatedQuestion->question_text;
+            // $questions[$questionId]['option_a'][$question->language_id] = $translatedQuestion->option_a;
+            // $questions[$questionId]['option_b'][$question->language_id] = $translatedQuestion->option_b;
+            // $questions[$questionId]['option_c'][$question->language_id] = $translatedQuestion->option_c;
+            // $questions[$questionId]['option_d'][$question->language_id] = $translatedQuestion->option_d;
         }
 
         // Export the questions as an Excel file
@@ -575,7 +583,9 @@ class QuestionBankController extends Controller
 
     public function getSubjects($subCategoryId)
     {
-        $subjects = Subject::where('sub_category_id', $subCategoryId)->get();
+        $subCategoryIds = explode(',', $subCategoryId);
+
+        $subjects = Subject::whereIn('sub_category_id', $subCategoryIds)->get();
 
         return response()->json($subjects);
     }
@@ -623,21 +633,45 @@ class QuestionBankController extends Controller
         }
     }
 
-    public function deploy(Request $request)
+    public function deploy(Request $request, $userId, $courseId)
     {
-        if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
+        //if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
 
-        if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+        //if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
             $data = $request->all();
+            if (!$course = Course::find($courseId)) {
+                return response()->json(['error' => 'Course not found'], 404);
+            }
 
-            $questionsFirst = $this->getFirstDropdownData($data) ? $this->getFirstDropdownData($data)['questions'] : [];
+            if ($course->language) {
+                $categoryId = $course->category_id;
+                $category = Category::find($categoryId);
+                $subcategory = SubCategory::find($data['SubCategory']);
+                $subject = Subject::find($data['Subject']);
+
+                $data['Language_2'] = $course->language_id;
+                $data['Category_2'] = $categoryId;
+                $data['SubCategory_2'] = $data['SubCategory'];
+                $data['Subject_2'] = $data['SubCategory'];
+
+                $data['Language'] = 1;
+                $data['Category'] = $category->parent_id;
+                $data['SubCategory'] = $subcategory->parent_id;
+                $data['Subject'] = $subject->parent_id;
+                // $data['Topic_2'] = 1;
+            } else {
+                $data['Language'] = $course->language_id;
+                $data['Category'] = $course->category_id;
+            }
+
+            $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
             $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
-            $language = $this->getFirstDropdownData($data)['language'];
-            $categories = $this->getFirstDropdownData($data)['categories'];
-            $subcategories = $this->getFirstDropdownData($data)['subcategories'];
-            $subjects = $this->getFirstDropdownData($data)['subjects'];
-            $topics = $this->getFirstDropdownData($data)['topics'];
+            $language = $this->getFirstDropdownData($data, $course)['language'];
+            $categories = $this->getFirstDropdownData($data, $course)['categories'];
+            $subcategories = $this->getFirstDropdownData($data, $course)['subcategories'];
+            $subjects = $this->getFirstDropdownData($data, $course)['subjects'];
+            $topics = $this->getFirstDropdownData($data, $course)['topics'];
 
             $language2 = $this->getSecondDropdownData($data)['language'] ?? null;
             $categories2 = $this->getSecondDropdownData($data)['categories'] ?? collect();
@@ -662,135 +696,114 @@ class QuestionBankController extends Controller
                 } else {
                     $combinedCategoryName = $categoryName;
                 }
+                
+                foreach ($topics as $outkey => $topic) {
+                    // Filter topics based on the selected topic
+                    // if (isset($data['Topic']) && $topic->id != $data['Topic']) {
+                    //     continue;
+                    // }
 
-                foreach ($subcategories as $subcategory) {
-                    foreach ($subjects as $subject) {
-                        // Filter subjects based on the selected subject
-                        if (isset($data['Subject']) && $subject->id != $data['Subject']) {
-                            continue;
+                    $subcategoryName = $subcategories->name;
+                    $subjectName = $subjects->name;
+                    $topicName = $topic->name;
+
+                    if ($subcategories2->isNotEmpty()) {
+                        foreach ($subcategories2 as $subcategory2) {
+                            $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
                         }
+                    } else {
+                        $combinedSubcategoryName = $subcategoryName;
+                    }
 
-                        foreach ($topics as $topic) {
-                            // Filter topics based on the selected topic
-                            if (isset($data['Topic']) && $topic->id != $data['Topic']) {
-                                continue;
-                            }
+                    if ($subjects2->isNotEmpty()) {
+                        foreach ($subjects2 as $subject2) {
+                            $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
+                        }
+                    } else {
+                        $combinedSubjectName = $subjectName;
+                    }
 
-                            $subcategoryName = $subcategory->name;
-                            $subjectName = $subject->name;
-                            $topicName = $topic->name;
+                    if ($topics2->isNotEmpty()) {
+                        foreach ($topics2 as $topic2) {
+                            $combinedTopicName = $topicName . ' | ' . $topic2->name;
+                        }
+                    } else {
+                        $combinedTopicName = $topicName;
+                    }
 
-                            if ($subcategories2->isNotEmpty()) {
-                                foreach ($subcategories2 as $subcategory2) {
-                                    $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
-                                }
-                            } else {
-                                $combinedSubcategoryName = $subcategoryName;
-                            }
+                    if (!isset($jsonResponse[$languageName])) {
+                        $jsonResponse[$languageName] = [];
+                    }
+                    if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
+                        $jsonResponse[$languageName][$combinedCategoryName] = [];
+                    }
+                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
+                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
+                    }
+                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
+                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
+                    }
+                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
+                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
+                    }
+                    
+                    $data['Topic'] = $topic->id;
+                    $data['Topic_2'] = $topics2[$outkey]->id;
+                    $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+                    $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
-                            if ($subjects2->isNotEmpty()) {
-                                foreach ($subjects2 as $subject2) {
-                                    $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
-                                }
-                            } else {
-                                $combinedSubjectName = $subjectName;
-                            }
-
-                            if ($topics2->isNotEmpty()) {
-                                foreach ($topics2 as $topic2) {
-                                    $combinedTopicName = $topicName . ' | ' . $topic2->name;
-                                }
-                            } else {
-                                $combinedTopicName = $topicName;
-                            }
-
-                            if (!isset($jsonResponse[$languageName])) {
-                                $jsonResponse[$languageName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
-                            }
-                            if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
-                                $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
-                            }
-
-                            $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
-                                return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
-                            });
+                    $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
+                        return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
+                    });
 
 
-                            // foreach ($filteredQuestions as $questionFirst) {
-                            if (isset($questionsSecond)) {
-                                foreach ($questionsSecond as $key => $questionSecond) {
-                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo . '"/>' : '<img src="' . $filteredQuestions[$key]->photo_link . '"/>'),
-                                        'options' => [
-                                            (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
-                                            (htmlspecialchars($filteredQuestions[$key]->option_b)) . ' | ' . htmlspecialchars($questionSecond->option_b),
-                                            (htmlspecialchars($filteredQuestions[$key]->option_c)) . ' | ' . htmlspecialchars($questionSecond->option_c),
-                                            (htmlspecialchars($filteredQuestions[$key]->option_d)) . ' | ' . htmlspecialchars($questionSecond->option_d),
-                                        ],
-                                        'answer' => $filteredQuestions[$key]->answer, // Assuming this field 
-                                    ];
-                                }
-                            } else {
-                                foreach ($filteredQuestions as $questionFirst) {
-                                    $img = isset($questionFirst->photo) && $questionFirst->photo != 0
-                                        ? '<br><img src="https://iti.online2study.in/storage/questions/' . $questionFirst->photo . '"/>'
-                                        : (isset($questionFirst->photo_link)
-                                            ? '<br><img src="' . $questionFirst->photo_link . '"/>'
-                                            : '');
+                    // foreach ($filteredQuestions as $questionFirst) {
+                    if (isset($questionsSecond)) {
+                        foreach ($questionsSecond as $key => $questionSecond) {
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo . '"/>' : '<img src="' . $filteredQuestions[$key]->photo_link . '"/>'),
+                                'options' => [
+                                    (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
+                                    (htmlspecialchars($filteredQuestions[$key]->option_b)) . ' | ' . htmlspecialchars($questionSecond->option_b),
+                                    (htmlspecialchars($filteredQuestions[$key]->option_c)) . ' | ' . htmlspecialchars($questionSecond->option_c),
+                                    (htmlspecialchars($filteredQuestions[$key]->option_d)) . ' | ' . htmlspecialchars($questionSecond->option_d),
+                                ],
+                                'answer' => $filteredQuestions[$key]->answer, // Assuming this field 
+                            ];
+                        }
+                    } else {
+                        foreach ($filteredQuestions as $questionFirst) {
+                            $img = isset($questionFirst->photo) && $questionFirst->photo != 0
+                                ? '<br><img src="https://iti.online2study.in/storage/questions/' . $questionFirst->photo . '"/>'
+                                : (isset($questionFirst->photo_link)
+                                    ? '<br><img src="' . $questionFirst->photo_link . '"/>'
+                                    : '');
 
-                                    $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
-                                        'question_id' => $questionFirst->id,
-                                        'question' => (htmlspecialchars($questionFirst->question)) . $img,
-                                        'options' => [
-                                            htmlspecialchars($questionFirst->option_a),
-                                            htmlspecialchars($questionFirst->option_b),
-                                            htmlspecialchars($questionFirst->option_c),
-                                            htmlspecialchars($questionFirst->option_d),
-                                        ],
-                                        'answer' => $questionFirst->answer, // Assuming this field exists
-                                        'notes' => $questionFirst->notes // Assuming this field exists
-                                    ];
-                                }
-                            }
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                                'question_id' => $questionFirst->id,
+                                'question' => (htmlspecialchars($questionFirst->question)) . $img,
+                                'options' => [
+                                    htmlspecialchars($questionFirst->option_a),
+                                    htmlspecialchars($questionFirst->option_b),
+                                    htmlspecialchars($questionFirst->option_c),
+                                    htmlspecialchars($questionFirst->option_d),
+                                ],
+                                'answer' => $questionFirst->answer, // Assuming this field exists
+                                'notes' => $questionFirst->notes // Assuming this field exists
+                            ];
                         }
                     }
                 }
             }
 
             // Function to recursively remove empty arrays
-            function removeEmptyArrays($array)
-            {
-                foreach ($array as $key => &$value) {
-                    if (is_array($value)) {
-                        $value = removeEmptyArrays($value);
-                        if (empty($value)) {
-                            unset($array[$key]);
-                        }
-                    }
-                }
-                return $array;
-            }
-
-            // Remove empty arrays from the JSON response
-            $jsonResponse = removeEmptyArrays($jsonResponse);
-
-            // Return the JSON response
             return response()->json($jsonResponse);
-        } else {
-            return response()->json(['error' => 'Session ID does not Matched'], 401);
-        }
+        //} else {
+          //  return response()->json(['error' => 'Session ID does not Matched'], 401);
+        //}
     }
 
-    function getFirstDropdownData($data)
+    function getFirstDropdownData($data, $course)
     {
         $languageId = $data['Language'] ?? null;
 
@@ -814,6 +827,10 @@ class QuestionBankController extends Controller
         if (isset($data['Topic'])) {
             $query->where('topic_id', $data['Topic']);
         }
+      
+	    //if ($course) {
+          //  $query->limit($course->question_limit);
+        //}
 
         $questions = $query->with(['subCategory',  'subject', 'topic'])->get();
 
@@ -821,13 +838,13 @@ class QuestionBankController extends Controller
 
         $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
 
-        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
+        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->first() : SubCategory::where('category_id', $categoryId)->first();
 
         // Get all the subjects for the subcategories
-        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+        $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
 
         // Get all the topics for the subjects
-        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+        $topics = Topic::where('subject_id', $subjects->id)->get();
 
         return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
@@ -880,5 +897,16 @@ class QuestionBankController extends Controller
         }
 
         return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
+    }
+
+    function getSubCategoriesFromSubject($subjectId)
+    {
+        $subject = Subject::with('subCategory')->where('id', $subjectId)->first();
+
+        if (!$subject) {
+            return response()->json(['error' => 'No subcategories found for this subject.'], 404);
+        }
+
+        return response()->json($subject->subCategory);
     }
 }

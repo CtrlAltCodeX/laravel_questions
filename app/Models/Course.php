@@ -27,5 +27,7 @@ class Course extends Model
         'subscription' => 'array',
         'subject_limit' => 'array',
         'part_limit' => 'array',
+        'subject_id' => 'array',
+        'sub_category_id' => 'array'
     ];
 }

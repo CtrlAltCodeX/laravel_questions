@@ -185,7 +185,7 @@ class QuizController extends Controller
                             ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                             : '');
 
-                    if (isset($questionsSecond[$i]->question_number)){
+                    if (isset($questionsSecond[$i]->question_number)) {
                         if ($getQuestions->question_number == $questionsSecond[$i]->question_number) {
                             $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
                                 (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;

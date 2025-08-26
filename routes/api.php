@@ -63,7 +63,6 @@ Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
 // get category 
 Route::get('/get-categories/{language_id}', [CategoryController::class, 'getCategoriesByLanguage']);
 
-
 // get offer 
 Route::get('offers', [OfferController::class, 'getOffersApi']);
 
@@ -84,3 +83,5 @@ Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'qu
 
 Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
 Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
+
+Route::post('/update/course/status', [UserCourseController::class, 'updateCourseStatus']);

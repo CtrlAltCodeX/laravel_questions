@@ -83,8 +83,8 @@ class CourseController extends Controller
         ];
         foreach ($courses as $course) {
             // Decode JSON strings safely
-            $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
-            $subjectIds = json_decode($course->subject_id, true) ?? [];
+            $subCategoryIds = $course->sub_category_id ?? [];
+            $subjectIds = $course->subject_id ?? [];
 
             $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
             $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');
@@ -216,6 +216,18 @@ class CourseController extends Controller
             $file->move(public_path('uploads/courses'), $bannerFilename);
         }
 
+        $subjectLimit = null;
+        $partLimit = null;
+        if (request()->part == 'subject') {
+            foreach (request()->subjects as $subjectId) {
+                $subjectLimit[$subjectId] = null;
+            }
+        } else if (request()->part == 'part') {
+            foreach (request()->subjects as $subjectId) {
+                $partLimit[$subjectId] = [null, null];
+            }
+        }
+
         $course = Course::create([
             'name' => $request->name,
             'language_id' => $request->language_id,
@@ -227,6 +239,8 @@ class CourseController extends Controller
             'banner' => $bannerFilename,
             'language' => $request->language == 'on' ? 1 : 0,
             'question_limit' => $request->question_limit,
+            'subject_limit' => $subjectLimit,
+            'part_limit' => $partLimit,
 
         ]);
         return response()->json(['success' => true, 'message' => 'Course created successfully']);
@@ -272,8 +286,8 @@ class CourseController extends Controller
         $course->name = $request->name;
         $course->language_id = $request->language_id;
         $course->category_id = $request->category_id;
-        $course->sub_category_id = json_encode($request->subcategories);
-        $course->subject_id = json_encode($request->subjects);
+        $course->sub_category_id = ($request->subcategories);
+        $course->subject_id = ($request->subjects);
         $course->status = $request->status;
         $course->subscription = $subscriptions;
         $course->language = $request->language;

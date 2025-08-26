@@ -137,7 +137,7 @@ class CbtController extends Controller
                     $data['Language_2'],
                     $data['Category_2'],
                     $data['SubCategory_2']
-                  )->getContent(), true); // decode as associative array
+                )->getContent(), true); // decode as associative array
 
               $subjectIds2 = [];
               foreach ($response['subjects2'] as $index => $subject) {
@@ -202,78 +202,197 @@ class CbtController extends Controller
             if (count($subcategories2)) {
                 $subcategoryName .= ' | ' . $subcategories2[0]->name;
             }
-			
-      		$i = 0;
-      		foreach($subjectIds1 as $key => $subject) {
-                $subjectName = '<span class="notranslate">' . $subject[1] . '</span>';
-                if (count($subjects2)) {
-                    $subjectName .= ' | ' . $subjectIds2[$key][1];
-                }
-                
-                $questionArray = [];
-                $questionAccTop = [];
-                $data['Subject'] = $subject[0];
-                
-                if ($course->language) {
-                    $data['Subject_2'] = $subjectIds2[$key][0];
-                }
-                
-                $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
-                $questionsSecond = $this->getSecondDropdownData($data, $questionsFirst) ? $this->getSecondDropdownData($data, $questionsFirst)['questions'] : null;
-                
-                foreach ($questionsFirst as $innerKey => $question) {
-                    $questionArray[] = $question;
+
+            if (!$course->language) {
+                if (!$course->subject_limit) {
+                    $arr1 = $course->part_limit['position'];
+                } else {
+                    $arr1 = $course->subject_limit['position'];
                 }
 
-                foreach ($questionArray as $key => $getQuestions) {
-                    $img = isset($getQuestions->photo) && $getQuestions->photo != 0
-                    ? '<br><img src="https://iti.online2study.in/storage/questions/' . $getQuestions->photo . '"/>'
-                    : (isset($getQuestions->photo_link)
-                        ? '<br><img src="' . $getQuestions->photo_link . '"/>'
-                        : '');
+                asort($arr1);
 
-                    $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
-                    (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->question : '') . $img;
-                    $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
-                    (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_a : '');
-                    $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
-                    (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_b : '');
-                    $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
-                    (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_c : '');
-                    $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
-                    (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_d : '');
-                    $questionAccTop[$key]['answer']   = $getQuestions->answer;
+                $keys1 = array_keys($arr1);
 
-                    $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
-                    ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
-                    ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' <br> ' . $questionsSecond[$i]->notes : '')
-                    : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
+                $subjectIds1 = $this->reorderArrayByPositions($subjectIds1, $keys1);
 
-                    ++$i;
-                }
-
-                if ($course->part_limit) {
-                    $subjectsWithPartB = [];
-                    $subjectsWithPartA = [];
-                    foreach ($course->part_limit as $subjectId => $limit) {
-                        if ($subject[0] == $subjectId) {
-                            if ($limit[0]) {
-                                $subjectsWithPartB[] = '<span class="notranslate">' . $subject[1] . '</span>';
-                            } else if ($limit[1]) {
-                                $subjectsWithPartA[] = '<span class="notranslate">' . $subject[1] . '</span>';
+                $i = 0;
+                foreach($subjectIds1 as $key => $subject) {
+                    if (!in_array($subject[0], $course->subject_id)) continue;
+                    
+                    $subjectName = '<span class="notranslate">' . $subject[1] . '</span>';
+                    if (count($subjects2)) {
+                        $subjectName .= ' | ' . $subjectIds2[$key][1];
+                    }
+                    
+                    $questionArray = [];
+                    $questionAccTop = [];
+                    $data['Subject'] = $subject[0];
+                    
+                    if ($course->language) {
+                        $data['Subject_2'] = $subjectIds2[$key][0];
+                    }
+                    
+                    $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+                    $questionsSecond = $this->getSecondDropdownData($data, $questionsFirst) ? $this->getSecondDropdownData($data, $questionsFirst)['questions'] : null;
+                  
+                    foreach ($questionsFirst as $innerKey => $question) {
+                        $questionArray[] = $question;
+                    }
+    
+                    foreach ($questionArray as $key => $getQuestions) {
+                        $img = isset($getQuestions->photo) && $getQuestions->photo != 0
+                        ? '<br><img src="https://iti.online2study.in/storage/questions/' . $getQuestions->photo . '"/>'
+                        : (isset($getQuestions->photo_link)
+                            ? '<br><img src="' . $getQuestions->photo_link . '"/>'
+                            : '');
+        
+                        $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
+                        (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->question : '') . $img;
+                        $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
+                        (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_a : '');
+                        $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
+                        (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_b : '');
+                        $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
+                        (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_c : '');
+                        $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
+                        (isset($questionsSecond[$i]) ? ' <br> ' . $questionsSecond[$i]->option_d : '');
+                        $questionAccTop[$key]['answer']   = $getQuestions->answer;
+        
+                        $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
+                        ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
+                        ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' <br> ' . $questionsSecond[$i]->notes : '')
+                        : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
+        
+                        ++$i;
+                    }
+                  
+                    if ($course->part_limit) {
+                        $subjectsWithPartB = [];
+                        $subjectsWithPartA = [];
+                        foreach ($course->part_limit['limit'] as $subjectId => $limit) {
+                            if ($subjectId == $subject[0]) {
+                                if ($limit[0]) {
+                                    $subjectsWithPartB[] = '<span class="notranslate">' . $subject[1] . '</span>';
+                                } else if ($limit[1]) {
+                                    $subjectsWithPartA[] = '<span class="notranslate">' . $subject[1] . '</span>';
+                                }
                             }
                         }
+                        
+                        if (in_array($subjectName, $subjectsWithPartA) && $course->part_limit['limit']) {
+                            $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part B'][$subjectName] = $questionAccTop;
+                        }
+
+                        if (in_array($subjectName, $subjectsWithPartB)) {
+                            $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part A'][$subjectName] = $questionAccTop;
+                        }
+        
+                        
+                    } else if ($course->subject_limit) {
+                        $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName] = $questionAccTop;
+                    }
+                }
+            } else {
+                if (!$course->subject_limit) {
+                    $arr1 = $course->part_limit['position'];
+                } else {
+                    $arr1 = $course->subject_limit['position'];
+                }
+                
+                $arr2 = [];
+                foreach ($arr1 as $key => $value) {
+                    $subjectParentId = Subject::find($key);
+                    if ($subjectParentId) {
+                        $arr2[$subjectParentId->parent_id] = $value;
+                    }
+                }
+
+                asort($arr1);
+                asort($arr2);
+
+                $keys1 = array_keys($arr1);
+                $keys2 = array_keys($arr2);
+
+                $subjects2 = $this->reorderArrayByPositions($subjectIds2, $keys1);
+                $subjectIds1 = $this->reorderArrayByPositions($subjectIds1, $keys2);
+
+                $i = 0;
+                foreach($subjects2 as $key => $subject) {
+                    if (!in_array($subject[0], $course->subject_id)) continue;
+                    
+                    $subjectName = '<span class="notranslate">' . $subjectIds1[$key][1] . '</span>';
+                    if (count($subjects2)) {
+                        $subjectName .= ' | ' . $subject[1];
+                    }
+                    
+                    $questionArray = [];
+                    $questionAccTop = [];
+                    $data['Subject'] = $subjectIds1[$key][0];
+                    
+                    if ($course->language) {
+                        $data['Subject_2'] = $subject[0];
+                    }
+                    
+                    $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+                    $questionsSecond = $this->getSecondDropdownData($data, $questionsFirst) ? $this->getSecondDropdownData($data, $questionsFirst)['questions'] : null;
+
+                    foreach ($questionsFirst as $innerKey => $question) {
+                        $questionArray[] = $question;
                     }
     
-                    if (in_array($subjectName, $subjectsWithPartA)) {
-                        $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part A'][$subjectName] = $questionAccTop;
+                    foreach ($questionArray as $key => $getQuestions) {
+                        $img = isset($getQuestions->photo) && $getQuestions->photo != 0
+                        ? '<br><img src="https://iti.online2study.in/storage/questions/' . $getQuestions->photo . '"/>'
+                        : (isset($getQuestions->photo_link)
+                            ? '<br><img src="' . $getQuestions->photo_link . '"/>'
+                            : '');
+        
+                        $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
+                        (isset($questionsSecond[$key]) ? ' <br> ' . $questionsSecond[$key]->question : '') . $img;
+                        $questionAccTop[$key]['option_a'] = '<span class="notranslate">' . $getQuestions->option_a . '</span>' .
+                        (isset($questionsSecond[$key]) ? ' <br> ' . $questionsSecond[$key]->option_a : '');
+                        $questionAccTop[$key]['option_b'] = '<span class="notranslate">' . $getQuestions->option_b . '</span>' .
+                        (isset($questionsSecond[$key]) ? ' <br> ' . $questionsSecond[$key]->option_b : '');
+                        $questionAccTop[$key]['option_c'] = '<span class="notranslate">' . $getQuestions->option_c . '</span>' .
+                        (isset($questionsSecond[$key]) ? ' <br> ' . $questionsSecond[$key]->option_c : '');
+                        $questionAccTop[$key]['option_d'] = '<span class="notranslate">' . $getQuestions->option_d . '</span>' .
+                        (isset($questionsSecond[$key]) ? ' <br> ' . $questionsSecond[$key]->option_d : '');
+                        $questionAccTop[$key]['answer']   = $getQuestions->answer;
+        
+                        $questionAccTop[$key]['notes'] = !empty($getQuestions->notes)
+                        ? '<span class="notranslate">' . $getQuestions->notes . '</span>' .
+                        ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? ' <br> ' . $questionsSecond[$i]->notes : '')
+                        : ((isset($questionsSecond[$i]->notes) && $questionsSecond[$i]->notes != '') ? $questionsSecond[$i]->notes : '');
+        
+                        ++$i;
                     }
     
-                    if (in_array($subjectName, $subjectsWithPartB) && $course->part_limit) {
-                        $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part B'][$subjectName] = $questionAccTop;
+                    if (isset($course->part_limit['limit'])) {
+                        $subjectsWithPartB = [];
+                        $subjectsWithPartA = [];
+                        foreach ($course->part_limit['limit'] as $subjectId => $limit) {
+                            if ($subject[0] == $subjectId) {
+                                if ($limit[0]) {
+                                    $subjectsWithPartB[] = '<span class="notranslate">' . $subject[1] . '</span>';
+                                } else if ($limit[1]) {
+                                    $subjectsWithPartA[] = '<span class="notranslate">' . $subject[1] . '</span>';
+                                }
+                            }
+                        }
+                        
+                        $subjectNameData = '<span class="notranslate">' . $subject[1] . '</span>';
+        
+                        if (in_array($subjectNameData, $subjectsWithPartA)) {
+                            $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part B'][$subjectName] = $questionAccTop;
+                        }
+        
+                        if (in_array($subjectNameData, $subjectsWithPartB) && $course->part_limit['limit']) {
+                            $jsonResponse[$languageName][$categoryName][$subcategoryName]['Part A'][$subjectName] = $questionAccTop;
+                        }
+                    } else if ($course->subject_limit) {
+                        $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName] = $questionAccTop;
                     }
-                } else if ($course->subject_limit) {
-                    $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName] = $questionAccTop;
                 }
             }
 
@@ -281,6 +400,22 @@ class CbtController extends Controller
         //} else {
           //  return response()->json(['error' => 'Session ID does not Matched'], 401);
         //}
+    }
+
+    function reorderArrayByPositions(array $data, array $positions): array
+    {
+        $reordered = [];
+
+        foreach ($positions as $id) {
+            foreach ($data as $item) {
+                if ($item[0] == $id) {
+                    $reordered[] = $item;
+                    break;
+                }
+            }
+        }
+
+        return $reordered;
     }
 
     function getFirstDropdownData($data, $course)
@@ -307,17 +442,27 @@ class CbtController extends Controller
         if (isset($data['Topic'])) {
             $query->where('topic_id', $data['Topic']);
         }
-
+      
+      	$subject = $data['Subject'];
+      	if ($course->language) {
+          $subject = $data['Subject_2'];
+        }
+      
+		$skip = false;
         if (gettype($data['Subject']) != 'array') {
             if ($course->subject_limit) {
+             	if (!$course->subject_limit[$subject]) {
+      				$skip = true;	
+      			}
+              
                 foreach ($course->subject_limit as $subjectId => $limit) {
-                    if ($data['Subject'] == $subjectId) {
+                    if ($subject == $subjectId) {
                         $query->limit($limit);
                     }
                 }
             } else if ($course->part_limit) {
                  foreach ($course->part_limit as $subjectId => $limit) {
-                    if ($data['Subject'] == $subjectId) {
+                    if ($subject == $subjectId) {
                         if ($limit[0]) {
                             $query->limit($limit[0]);
                         } else if ($limit[1]) {
@@ -330,6 +475,8 @@ class CbtController extends Controller
 
         $questions = $query->with(['subCategory',  'subject'])->inRandomOrder()
             ->get();
+     	
+      	if ($skip) $questions = [];
 
         $language = Language::find($languageId);
 

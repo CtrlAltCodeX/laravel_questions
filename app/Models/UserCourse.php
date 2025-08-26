@@ -9,13 +9,14 @@ class UserCourse extends Model
 {
     use HasFactory;
 
-  protected $fillable = [
-    'user_id',
-    'course_id',
-    'subscription_type',
-    'valid_from',
-    'valid_to',
-];
+    protected $fillable = [
+        'user_id',
+        'course_id',
+        'subscription_type',
+        'valid_from',
+        'valid_to',
+        'status'
+    ];
 
     public function course()
 {

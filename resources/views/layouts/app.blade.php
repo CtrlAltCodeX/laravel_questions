@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -95,25 +96,11 @@
 
     @yield('scripts')
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-<!-- Add in <head> -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<!-- Add before </body> -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Add in <head> -->
 
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-
-
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // $(document).ready(function() {
-        //     $('#profile').on('click', function() {
-        //         $("#dropdown-user").toggleClass('hidden');
-        //     });
-        // });
-    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -137,7 +124,11 @@
             });
         });
     </script>
+
     @stack("scripts")
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </body>
 
 </html>
