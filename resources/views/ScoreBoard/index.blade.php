@@ -21,6 +21,7 @@
                 <th scope="col" class="px-6 py-3">Sub-Category Name</th>
                 <th scope="col" class="px-6 py-3">Learning Progress</th>
                 <th scope="col" class="px-6 py-3">Quize Paractice</th>
+                <th scope="col" class="px-6 py-3">Mock Test CBT</th>
                 <th scope="col" class="px-6 py-3">Question Bank</th>
             </tr>
         </thead>
@@ -42,7 +43,15 @@
                         <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
                     </svg>
                 </td>
-
+                <td class="px-6 py-4 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="mock-test-eye cursor-pointer mx-auto"
+                        data-user="{{ $ScoreBoard->google_user_id }}"
+                        width="32" height="32" fill="blue" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
+                    </svg>
+                </td>
                 <td class="px-6 py-4 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="question-bank-eye cursor-pointer mx-auto"
@@ -52,6 +61,8 @@
                         <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
                     </svg>
                 </td>
+
+
             </tr>
             @empty
             <tr>
@@ -122,7 +133,7 @@
                     <tr><td colspan="6" class="text-center py-3">Loading...</td></tr>
                 `;
 
-               
+
                     fetch(`${options.url}/${userId}`)
                         .then(res => res.json())
                         .then(data => {
@@ -177,6 +188,26 @@
             </tr>
         `
         });
+
+
+        // Mock Test
+        handleEyeClick(".mock-test-eye", {
+            headings: ["#", "Sub-Category", "Right Ans.","Wrong Ans.", "Attempt", "Time Taken", "Date/Time"],
+            url: "/mock-test",
+            title: "Mock Test Data",
+            renderRow: (quiz, index) => `
+        <tr class="border-b">
+            <td class="px-4 py-2">${index + 1}</td>
+            <td class="px-4 py-2">${quiz.sub_category?.name ?? 'N/A'}</td>
+            <td class="px-4 py-2">${quiz.right_answer}</td>
+            <td class="px-4 py-2">${quiz.attempt}</td>
+             <td class="px-4 py-2">${quiz.wrong_answer}</td>
+            <td class="px-4 py-2">${quiz.time_taken} sec</td>
+            <td class="px-4 py-2">${new Date(quiz.created_at).toLocaleString()}</td>
+        </tr>
+    `
+        });
+
 
         // Close modal
         document.getElementById("closeModal").addEventListener("click", function() {

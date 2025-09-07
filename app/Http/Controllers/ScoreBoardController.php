@@ -9,6 +9,7 @@ use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\QuizePractice;
 use App\Models\QuestionBankCount;
+use App\Models\MockTest;
 
 class ScoreBoardController extends Controller
 {
@@ -118,22 +119,34 @@ class ScoreBoardController extends Controller
     }
 
 
-    public function questioncountstore(Request $request)
-    {
-        $request->validate([
-            'google_user_id' => 'required|exists:google_users,id',
-            'subject_id'     => 'required|exists:subjects,id',
-            'topic_id'       => 'required|exists:topics,id',
-            'count'          => 'required|integer|min:0',
-        ]);
+   public function questioncountstore(Request $request)
+{
+    $request->validate([
+        'google_user_id' => 'required|exists:google_users,id',
+        'subject_id'     => 'required|exists:subjects,id',
+        'topic_id'       => 'required|exists:topics,id',
+        'count'          => 'required|integer|min:0',
+    ]);
 
-        $questionBank = QuestionBankCount::create($request->all());
+    $questionBank = QuestionBankCount::updateOrCreate(
+        [
+            'google_user_id' => $request->google_user_id,
+            'subject_id'     => $request->subject_id,
+            'topic_id'       => $request->topic_id,
+        ],
+        [
+            'count' => $request->count,
+        ]
+    );
 
-        return response()->json([
-            'message' => 'Question bank count saved successfully!',
-            'data' => $questionBank
-        ], 200);
-    }
+    return response()->json([
+        'message' => $questionBank->wasRecentlyCreated 
+            ? 'Question bank count created successfully!' 
+            : 'Question bank count updated successfully!',
+        'data' => $questionBank
+    ], 200);
+}
+
 
     public function questioncountshow($googleUserId)
     {
@@ -152,4 +165,42 @@ class ScoreBoardController extends Controller
             'data' => $records
         ], 200);
     }
+
+public function mockTestStore(Request $request)
+{
+    $request->validate([
+        'google_user_id' => 'required|exists:google_users,id',
+        'sub_category_id' => 'required|exists:sub_categories,id',
+        'right_answer'   => 'required|integer|min:0',
+        'wrong_answer'   => 'required|integer|min:0',
+        'attempt'        => 'required|integer|min:0',
+        'time_taken'     => 'required|integer|min:0',
+    ]);
+
+    $mock = MockTest::create($request->all());
+
+    return response()->json([
+        'message' => 'Mock test saved successfully!',
+        'data' => $mock
+    ], 200);
+}
+
+public function mockTestShow($googleUserId)
+{
+    $records = MockTest::where('google_user_id', $googleUserId)
+        ->with(['user', 'subCategory'])
+        ->get();
+
+    if ($records->isEmpty()) {
+        return response()->json([
+            'message' => 'No mock test records found for this user.'
+        ], 404);
+    }
+
+    return response()->json([
+        'message' => 'Mock test records retrieved successfully!',
+        'data' => $records
+    ], 200);
+}
+
 }

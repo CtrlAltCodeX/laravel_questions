@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
     Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
     Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
+    Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
+
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
