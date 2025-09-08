@@ -510,9 +510,6 @@ class ScoreBoardController extends Controller
 
         $testExist = MockTest::where('google_user_id', request()->google_user_id)
             ->where('sub_category_id', request()->sub_category_id)
-            ->where('right_answer', request()->right_answer)
-            ->where('wrong_answer', request()->wrong_answer)
-            ->where('time_taken', request()->time_taken)
             ->orderBy('id', 'desc')
             ->first();
 
