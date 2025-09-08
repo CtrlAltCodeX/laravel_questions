@@ -44,12 +44,11 @@ Route::middleware('authapi')->group(function () {
     Route::get('{userId}/{CourseId}/cbt', [CbtController::class, 'deploy']);
 });
 
-Route::get('reports', [ReportController::class, 'index']);
 Route::post('reports', [ReportController::class, 'store']);
 
 // wallet
 Route::get('wallet/history', [WalletHistoryController::class, 'index']);
-Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
+// Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
 Route::post('wallet/charges', [WalletHistoryController::class, 'walletCharges']);
 
 Route::post('scoreboard', [ScoreBoardController::class, 'store']);
@@ -80,12 +79,10 @@ Route::get('/get-final-amount', [PaymentController::class, 'getFinalAmount']);
 Route::post('/quize-practice/store', [ScoreBoardController::class, 'quizestore']);
 Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
 
-
 Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
 Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
 
 Route::post('/mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
 Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
-
 
 Route::post('/update/course/status', [UserCourseController::class, 'updateCourseStatus']);

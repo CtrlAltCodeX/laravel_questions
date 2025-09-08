@@ -698,11 +698,6 @@ class QuestionBankController extends Controller
                 }
                 
                 foreach ($topics as $outkey => $topic) {
-                    // Filter topics based on the selected topic
-                    // if (isset($data['Topic']) && $topic->id != $data['Topic']) {
-                    //     continue;
-                    // }
-
                     $subcategoryName = $subcategories->name;
                     $subjectName = $subjects->name;
                     $topicName = $topic->name;
@@ -723,32 +718,25 @@ class QuestionBankController extends Controller
                         $combinedSubjectName = $subjectName;
                     }
 
+                    // if ($topics2->isNotEmpty()) {
+                    //     foreach ($topics2 as $topic2) {
+                    //         $combinedTopicName = $topicName . ' | ' . $topic2->name;
+                    //     }
+                    // } else {
+                    //     $combinedTopicName = $topicName;
+                    // }
+                    
+                    $data['Topic'] = $topic->id;
+                    $data['Topic_2'] = $topics2[$outkey]->id;
+
                     if ($topics2->isNotEmpty()) {
                         foreach ($topics2 as $topic2) {
-                            $combinedTopicName = $topicName . ' | ' . $topic2->name;
+                            $combinedTopicName = $topicName . ' | ' . $topics2[$outkey]->name;
                         }
                     } else {
                         $combinedTopicName = $topicName;
                     }
 
-                    if (!isset($jsonResponse[$languageName])) {
-                        $jsonResponse[$languageName] = [];
-                    }
-                    if (!isset($jsonResponse[$languageName][$combinedCategoryName])) {
-                        $jsonResponse[$languageName][$combinedCategoryName] = [];
-                    }
-                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName])) {
-                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName] = [];
-                    }
-                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName])) {
-                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName] = [];
-                    }
-                    if (!isset($jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName])) {
-                        $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName] = [];
-                    }
-                    
-                    $data['Topic'] = $topic->id;
-                    $data['Topic_2'] = $topics2[$outkey]->id;
                     $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
                     $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
@@ -756,11 +744,10 @@ class QuestionBankController extends Controller
                         return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
                     });
 
-
                     // foreach ($filteredQuestions as $questionFirst) {
                     if (isset($questionsSecond)) {
                         foreach ($questionsSecond as $key => $questionSecond) {
-                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$data['Topic']][$combinedTopicName][] = [
                                 'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo . '"/>' : '<img src="' . $filteredQuestions[$key]->photo_link . '"/>'),
                                 'options' => [
                                     (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
@@ -768,7 +755,7 @@ class QuestionBankController extends Controller
                                     (htmlspecialchars($filteredQuestions[$key]->option_c)) . ' | ' . htmlspecialchars($questionSecond->option_c),
                                     (htmlspecialchars($filteredQuestions[$key]->option_d)) . ' | ' . htmlspecialchars($questionSecond->option_d),
                                 ],
-                                'answer' => $filteredQuestions[$key]->answer, // Assuming this field 
+                                'answer' => $filteredQuestions[$key]->answer,
                             ];
                         }
                     } else {
@@ -907,6 +894,6 @@ class QuestionBankController extends Controller
             return response()->json(['error' => 'No subcategories found for this subject.'], 404);
         }
 
-        return response()->json($subject->subCategory);
+        return response()->json([$subject, $subject->subCategory]);
     }
 }

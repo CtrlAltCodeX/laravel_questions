@@ -183,9 +183,76 @@ class CategoryController extends Controller
         return redirect()->route('category.index');
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/categories/language/{language_id}",
+     *     summary="Get categories by language",
+     *     description="Retrieve all categories for a given language along with their subcategories, subjects, and topics.",
+     *     operationId="getCategoriesByLanguage",
+     *     tags={"Categories"},
+     *
+     *     @OA\Parameter(
+     *         name="language_id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the language",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Categories retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Science"),
+     *                     @OA\Property(property="language_id", type="integer", example=1),
+     *                     @OA\Property(
+     *                         property="subcategory",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             @OA\Property(property="id", type="integer", example=10),
+     *                             @OA\Property(property="name", type="string", example="Physics"),
+     *                             @OA\Property(
+     *                                 property="subject",
+     *                                 type="array",
+     *                                 @OA\Items(
+     *                                     @OA\Property(property="id", type="integer", example=100),
+     *                                     @OA\Property(property="name", type="string", example="Mechanics"),
+     *                                     @OA\Property(
+     *                                         property="topic",
+     *                                         type="array",
+     *                                         @OA\Items(
+     *                                             @OA\Property(property="id", type="integer", example=1000),
+     *                                             @OA\Property(property="name", type="string", example="Newton's Laws")
+     *                                         )
+     *                                     )
+     *                                 )
+     *                             )
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="No categories found for this language ID",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="No categories found for this language ID.")
+     *         )
+     *     )
+     * )
+     */
     public function getCategoriesByLanguage($language_id)
     {
-        $categories = Category::with('subcategory.subject.topic')->where('language_id', $language_id)->get();
+        $categories = Category::with('subcategory.subject.topic')
+            ->where('language_id', $language_id)
+            ->get();
 
         if ($categories->isEmpty()) {
             return response()->json([
@@ -199,5 +266,4 @@ class CategoryController extends Controller
             'data' => $categories
         ]);
     }
-
 }

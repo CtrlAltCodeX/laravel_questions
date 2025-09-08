@@ -106,7 +106,7 @@ class QuizController extends Controller
                 $data['Language_2'] = $course->language_id;
                 $data['Category_2'] = $categoryId;
                 $data['SubCategory_2'] = $data['SubCategory'];
-                $data['Subject_2'] = $data['SubCategory'];
+                $data['Subject_2'] = $data['Subject'];
 
                 $data['Language'] = 1;
                 $data['Category'] = $category->parent_id;

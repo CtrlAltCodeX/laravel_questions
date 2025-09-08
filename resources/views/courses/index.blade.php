@@ -102,18 +102,6 @@
                     <select id='select_subject' multiple name="subjects[]" class="select_subject bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Choose a Subjects</option>
                     </select>
-
-                    <!-- <button type="button" onclick="toggleSubjectDropdown()" class="w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
-                        <span id="selectedSubjectsText">Select Subjects</span>
-                    </button>
-                    <div id="subjectDropdownMenu" style="max-height: 200px;" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-auto">
-                        @foreach($subjects as $subject)
-                            <label class="flex items-center px-4 py-2">
-                                <input type="checkbox" name="subjects[]" value="{{ $subject->id }}" class="subject-checkbox" data-name="{{ $subject->name }}"/>
-                                <span class="ml-2">{{ $subject->name }}</span>
-                            </label>
-                        @endforeach        
-                    </div> -->
                 </div>
             </div>
 
@@ -213,9 +201,6 @@
         $('#select_subject').select2({
             width: '100%'
         });
-      
-      	// Add "Select All" option manually
-//        $('#select_subject').prepend('<option value="all">Select All</option>');
 
         // Handle "Select All"
         $('#select_subject').on('select2:select', function (e) {
@@ -363,15 +348,6 @@
                 $('#subject').empty();
                 $('#part').empty();
 
-                $('#subject').append(`
-                    <tr>
-                        <th>Sub Category</th>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                        <th>Position</th>
-                    </tr>
-                `);
-
                 $('#part').append(`
                     <tr>
                         <th colspan="4">Part A</th>
@@ -389,83 +365,83 @@
                     </tr>
                 `);
 
-                subjectName.forEach((name, index) => {
-                    $.ajax({
-                        url: '/get-subcategories-from-subject/' + subjects[index],
-                        method: 'GET',
-                        success: (data) => {
-                            $('#subject').append(`
-                                <tr>
-                                    <td>${data.name}</td>
-                                    <td>${name}</td>
-                                    <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
-                                    <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
-                                </tr>
-                            `);
+                // subjectName.forEach((name, index) => {
+                //     $.ajax({
+                //         url: '/get-subcategories-from-subject/' + subjects[index],
+                //         method: 'GET',
+                //         success: (data) => {
+                //             $('#subject').append(`
+                //                 <tr>
+                //                     <td>${data.name}</td>
+                //                     <td>${name}</td>
+                //                     <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
+                //                     <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
+                //                 </tr>
+                //             `);
                             
-                            if (subjectWise) {
-                                document.querySelector('#subject_wise').checked = true;
-                                document.getElementById('part').style.display = 'none';
-                                document.getElementById('subject').style.display = 'table';
+                //             if (subjectWise) {
+                //                 document.querySelector('#subject_wise').checked = true;
+                //                 document.getElementById('part').style.display = 'none';
+                //                 document.getElementById('subject').style.display = 'table';
 
-                                Object.entries(subjectWise).forEach(([subjectId, value]) => {
-                                    const input = document.querySelector(`input[data-subject="${subjectId}"]`);
-                                    const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
+                //                 Object.entries(subjectWise).forEach(([subjectId, value]) => {
+                //                     const input = document.querySelector(`input[data-subject="${subjectId}"]`);
+                //                     const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
     
-                                    if (input) {
-                                        input.value = value ?? '';
-                                    }
+                //                     if (input) {
+                //                         input.value = value ?? '';
+                //                     }
     
-                                    if (positionInput) {
-                                        positionInput.value = subjectWise.position[subjectId] ?? '';
-                                    }
-                                });
-                            }
-                        }
-                    });
-                });
+                //                     if (positionInput) {
+                //                         positionInput.value = subjectWise.position[subjectId] ?? '';
+                //                     }
+                //                 });
+                //             }
+                //         }
+                //     });
+                // });
 
-                subjectName.forEach((name, index) => {
-                    $.ajax({
-                        url: '/get-subcategories-from-subject/' + subjects[index],
-                        method: 'GET',
-                        success: (data) => {
-                            $('#part').append(`
-                                <tr>
-                                    <td>${data.name}</td>
-                                    <td>${name}</td>
-                                    <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
-                                    <td></td>
-                                    <td>${data.name}</td>
-                                    <td>${name}</td>
-                                    <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
-                                    <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
-                                </tr>
-                            `);
+                // subjectName.forEach((name, index) => {
+                //     $.ajax({
+                //         url: '/get-subcategories-from-subject/' + subjects[index],
+                //         method: 'GET',
+                //         success: (data) => {
+                //             $('#part').append(`
+                //                 <tr>
+                //                     <td>${data.name}</td>
+                //                     <td>${name}</td>
+                //                     <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
+                //                     <td></td>
+                //                     <td>${data.name}</td>
+                //                     <td>${name}</td>
+                //                     <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
+                //                     <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
+                //                 </tr>
+                //             `);
                             
-                            if (partWise) {
-                                document.querySelector('#part_wise').checked = true;
-                                document.getElementById('part').style.display = 'table';
-                                document.getElementById('subject').style.display = 'none';
+                //             if (partWise) {
+                //                 document.querySelector('#part_wise').checked = true;
+                //                 document.getElementById('part').style.display = 'table';
+                //                 document.getElementById('subject').style.display = 'none';
 
-                                Object.entries(partWise.limit).forEach(([subjectId, values]) => {
-                                    values.forEach((value, index) => {
-                                        const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
-                                        const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
+                //                 Object.entries(partWise.limit).forEach(([subjectId, values]) => {
+                //                     values.forEach((value, index) => {
+                //                         const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                //                         const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
     
-                                        if (limitInput) {
-                                            limitInput.value = value ?? '';
-                                        }
+                //                         if (limitInput) {
+                //                             limitInput.value = value ?? '';
+                //                         }
     
-                                        if (positionInput) {
-                                            positionInput.value = partWise.position[subjectId] ?? '';
-                                        }
-                                    });
-                                });
-                            }
-                        }
-                    });
-                });
+                //                         if (positionInput) {
+                //                             positionInput.value = partWise.position[subjectId] ?? '';
+                //                         }
+                //                     });
+                //                 });
+                //             }
+                //         }
+                //     });
+                // });
 
                 setTimeout(() => {
                     $("#select_sub_category").val(subcategories).trigger('change');
@@ -473,7 +449,102 @@
 
                 setTimeout(() => {
                     $("#select_subject").val(subjects).trigger('change');
+
+                     $('#select_subject').prepend('<option value="all">Select All</option>');
                 }, 2000);
+
+                $('#select_subject').change(function() {
+                    $("#subject").empty();
+
+                    $('#subject').append(`
+                        <tr>
+                            <th>Sub Category</th>
+                            <th>Subject Name</th>
+                            <th>Limit</th>
+                            <th>Position</th>
+                        </tr>
+                    `);
+
+                    const subjects = $(this).val();
+                    
+                    $(this).val().forEach((name, index) => {
+                        $.ajax({
+                            url: '/get-subcategories-from-subject/' + subjects[index],
+                            method: 'GET',
+                            success: (data) => {
+                                $('#subject').append(`
+                                    <tr>
+                                        <td>${data[1].name}</td>
+                                        <td>${data[0].name}</td>
+                                        <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
+                                        <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
+                                    </tr>
+                                `);
+                                
+                                if (subjectWise) {
+                                    document.querySelector('#subject_wise').checked = true;
+                                    document.getElementById('part').style.display = 'none';
+                                    document.getElementById('subject').style.display = 'table';
+
+                                    Object.entries(subjectWise).forEach(([subjectId, value]) => {
+                                        const input = document.querySelector(`input[data-subject="${subjectId}"]`);
+                                        const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
+        
+                                        if (input) {
+                                            input.value = value ?? '';
+                                        }
+        
+                                        if (positionInput) {
+                                            positionInput.value = subjectWise.position[subjectId] ?? '';
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    });
+
+                    subjects.forEach((name, index) => {
+                        $.ajax({
+                            url: '/get-subcategories-from-subject/' + subjects[index],
+                            method: 'GET',
+                            success: (data) => {
+                                $('#part').append(`
+                                    <tr>
+                                        <td>${data[1].name}</td>
+                                        <td>${data[0].name}</td>
+                                        <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
+                                        <td></td>
+                                        <td>${data[1].name}</td>
+                                        <td>${data[0].name}</td>
+                                        <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
+                                        <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
+                                    </tr>
+                                `);
+                                
+                                if (partWise) {
+                                    document.querySelector('#part_wise').checked = true;
+                                    document.getElementById('part').style.display = 'table';
+                                    document.getElementById('subject').style.display = 'none';
+
+                                    Object.entries(partWise.limit).forEach(([subjectId, values]) => {
+                                        values.forEach((value, index) => {
+                                            const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                                            const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
+        
+                                            if (limitInput) {
+                                                limitInput.value = value ?? '';
+                                            }
+        
+                                            if (positionInput) {
+                                                positionInput.value = partWise.position[subjectId] ?? '';
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
 
                 // Fill modal fields
                 document.getElementById('modalTitle').innerText = 'Edit Course';
