@@ -364,89 +364,80 @@ class ScoreBoardController extends Controller
             'google_user_id' => 'required|exists:google_users,id',
             'subject_id'     => 'required|exists:subjects,id',
             'topic_id'       => 'required|exists:topics,id',
-            'count'          => 'required|integer|min:0',
         ]);
 
-        $questionBank = QuestionBankCount::updateOrCreate(
-            [
+        $today = now()->toDateString();
+
+        $questionBank = QuestionBankCount::where('google_user_id', $request->google_user_id)
+            ->where('subject_id', $request->subject_id)
+            ->where('topic_id', $request->topic_id)
+            ->whereDate('created_at', $today)
+            ->first();
+
+        if ($questionBank) {
+         
+            $questionBank->increment('count', 1);
+            $message = 'Question bank Updated successfully!';
+        } else {
+            // Agar record nahi mila to naya record banao with count = 1
+            $questionBank = QuestionBankCount::create([
                 'google_user_id' => $request->google_user_id,
                 'subject_id'     => $request->subject_id,
                 'topic_id'       => $request->topic_id,
-            ],
-            [
-                'count' => $request->count,
-            ]
-        );
+                'count'          => 1,
+            ]);
+            $message = 'Question bank created successfully!';
+        }
 
         return response()->json([
-            'message' => $questionBank->wasRecentlyCreated 
-                ? 'Question bank count created successfully!' 
-                : 'Question bank count updated successfully!',
+            'message' => $message,
             'data' => $questionBank
         ], 200);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/question-bank-count/{google_user_id}",
-     *     summary="Get question bank counts by user",
-     *     description="Retrieve all question bank count records for a given user, including related user, subject, and topic.",
-     *     operationId="questionCountShow",
-     *     tags={"Question Bank"},
-     *
-     *     @OA\Parameter(
-     *         name="google_user_id",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the Google user",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Records retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Question bank records retrieved successfully!"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="google_user_id", type="integer", example=1),
-     *                     @OA\Property(property="subject_id", type="integer", example=2),
-     *                     @OA\Property(property="topic_id", type="integer", example=5),
-     *                     @OA\Property(property="count", type="integer", example=10)
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=404,
-     *         description="No records found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No question bank records found for this user.")
-     *         )
-     *     )
-     * )
-     */
-    public function questioncountshow($googleUserId)
-    {
-        $records = QuestionBankCount::where('google_user_id', $googleUserId)
-            ->with(['user', 'subject', 'topic'])
-            ->get();
+public function questioncountshow($googleUserId)
+{
 
-        if ($records->isEmpty()) {
-            return response()->json([
-                'message' => 'No question bank records found for this user.'
-            ], 404);
-        }
+    $dates = collect(range(6, 0))->map(function ($i) {
+        return now()->subDays($i)->toDateString();
+    });
 
+    $records = QuestionBankCount::where('google_user_id', $googleUserId)
+        ->whereDate('created_at', '>=', $dates->first()) 
+        ->get();
+
+    if ($records->isEmpty()) {
         return response()->json([
-            'message' => 'Question bank records retrieved successfully!',
-            'data' => $records
+            'message' => 'No question bank records found for this user in the last 7 days.',
+            'labels' => $dates,
+            'series' => []
         ], 200);
     }
+
+    $grouped = $records->groupBy('subject_id');
+
+    $series = $grouped->map(function ($items, $subjectId) use ($dates) {
+        $data = $dates->map(function ($date) use ($items) {
+
+            return $items->whereBetween('created_at', [
+                $date . " 00:00:00",
+                $date . " 23:59:59"
+            ])->sum('count');
+        });
+
+        return [
+            'subject_id' => (int) $subjectId,
+            'data' => $data
+        ];
+    })->values();
+
+    return response()->json([
+        'message' => 'Question bank records retrieved successfully!',
+        'labels' => $dates,
+        'series' => $series
+    ], 200);
+}
+
 
     /**
      * @OA\Post(
