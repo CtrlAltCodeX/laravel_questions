@@ -82,6 +82,7 @@ Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'qu
 Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
 Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
 
+
 Route::post('/mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
 Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
 

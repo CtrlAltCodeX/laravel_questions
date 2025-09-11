@@ -159,7 +159,7 @@
         // Question Bank
         handleEyeClick(".question-bank-eye", {
             headings: questionBankTableHeadings,
-            url: "/question-bank-count",
+            url: "/question-bank-count-AllData",
             title: "Question Bank Data",
             renderRow: (quiz, index) => `
             <tr class="border-b">

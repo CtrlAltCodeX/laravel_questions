@@ -375,7 +375,7 @@ class ScoreBoardController extends Controller
             ->first();
 
         if ($questionBank) {
-         
+
             $questionBank->increment('count', 1);
             $message = 'Question bank Updated successfully!';
         } else {
@@ -395,48 +395,67 @@ class ScoreBoardController extends Controller
         ], 200);
     }
 
-public function questioncountshow($googleUserId)
-{
 
-    $dates = collect(range(6, 0))->map(function ($i) {
-        return now()->subDays($i)->toDateString();
-    });
+    public function questioncountshowAllData($googleUserId)
+    {
+        $records = QuestionBankCount::where('google_user_id', $googleUserId)
+            ->with(['user', 'subject', 'topic'])
+            ->get();
 
-    $records = QuestionBankCount::where('google_user_id', $googleUserId)
-        ->whereDate('created_at', '>=', $dates->first()) 
-        ->get();
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No question bank records found for this user.'
+            ], 404);
+        }
 
-    if ($records->isEmpty()) {
         return response()->json([
-            'message' => 'No question bank records found for this user in the last 7 days.',
-            'labels' => $dates,
-            'series' => []
+            'message' => 'Question bank records retrieved successfully!',
+            'data' => $records
         ], 200);
     }
 
-    $grouped = $records->groupBy('subject_id');
+    public function questioncountshow($googleUserId)
+    {
 
-    $series = $grouped->map(function ($items, $subjectId) use ($dates) {
-        $data = $dates->map(function ($date) use ($items) {
-
-            return $items->whereBetween('created_at', [
-                $date . " 00:00:00",
-                $date . " 23:59:59"
-            ])->sum('count');
+        $dates = collect(range(6, 0))->map(function ($i) {
+            return now()->subDays($i)->toDateString();
         });
 
-        return [
-            'subject_id' => (int) $subjectId,
-            'data' => $data
-        ];
-    })->values();
+        $records = QuestionBankCount::where('google_user_id', $googleUserId)
+            ->whereDate('created_at', '>=', $dates->first())
+            ->get();
 
-    return response()->json([
-        'message' => 'Question bank records retrieved successfully!',
-        'labels' => $dates,
-        'series' => $series
-    ], 200);
-}
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No question bank records found for this user in the last 7 days.',
+                'labels' => $dates,
+                'series' => []
+            ], 200);
+        }
+
+        $grouped = $records->groupBy('subject_id');
+
+        $series = $grouped->map(function ($items, $subjectId) use ($dates) {
+            $data = $dates->map(function ($date) use ($items) {
+
+                return $items->whereBetween('created_at', [
+                    $date . " 00:00:00",
+                    $date . " 23:59:59"
+                ])->sum('count');
+            });
+
+            return [
+                'subject_id' => (int) $subjectId,
+                'data' => $data
+            ];
+        })->values();
+
+        return response()->json([
+            'message' => 'Question bank records retrieved successfully!',
+            'labels' => $dates,
+            'series' => $series
+        ], 200);
+    }
 
 
     /**
