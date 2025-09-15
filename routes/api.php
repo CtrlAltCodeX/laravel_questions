@@ -80,7 +80,7 @@ Route::post('/quize-practice/store', [ScoreBoardController::class, 'quizestore']
 Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
 
 Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
-Route::get('/question-bank-count/{google_user_id}', [ScoreBoardController::class, 'questioncountshow']);
+Route::get('/question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questioncountshow']);
 
 
 Route::post('/mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
