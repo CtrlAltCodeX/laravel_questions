@@ -112,7 +112,6 @@ class QuizController extends Controller
                 $data['Category'] = $category->parent_id;
                 $data['SubCategory'] = $subcategory->parent_id;
                 $data['Subject'] = $subject->parent_id;
-                // $data['Topic_2'] = 1;
             } else {
                 $data['Language'] = $course->language_id;
                 $data['Category'] = $course->category_id;
@@ -156,7 +155,6 @@ class QuizController extends Controller
                 $subjectName .= ' | ' . $subjects2[0]->name;
             }
 
-            
             foreach ($topics as $outkey => $topic) {
                 $topicsName = '<span class="notranslate">' . $topic->name . "</span>";
                 if (count($topics2)) {
@@ -164,7 +162,10 @@ class QuizController extends Controller
                 }
 	
               	$data['Topic'] = $topic->id;
-	            $data['Topic_2'] = $topics2[$outkey]->id;
+                if ($course->language) {
+                	$data['Topic_2'] = $topics2[$outkey]->id;
+                }
+	            
                 $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
                 $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
               	
@@ -185,7 +186,7 @@ class QuizController extends Controller
                             ? '<br><img src="' . $getQuestions->photo_link . '"/>'
                             : '');
 
-                    if (isset($questionsSecond[$i]->question_number)) {
+                    if (isset($questionsSecond[$i]->question_number)){
                         if ($getQuestions->question_number == $questionsSecond[$i]->question_number) {
                             $questionAccTop[$key]['question'] = '<span class="notranslate">' . $getQuestions->question . '</span>' .
                                 (isset($questionsSecond[$i]) ? ' | ' . $questionsSecond[$i]->question : '') . $img;
@@ -220,7 +221,7 @@ class QuizController extends Controller
               		++$i;    
                 }
 
-                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topicsName] = $questionAccTop;
+                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics2[$outkey]->id][$topicsName] = $questionAccTop;
             }
 
             return response()->json($jsonResponse);

@@ -652,7 +652,7 @@ class QuestionBankController extends Controller
                 $data['Language_2'] = $course->language_id;
                 $data['Category_2'] = $categoryId;
                 $data['SubCategory_2'] = $data['SubCategory'];
-                $data['Subject_2'] = $data['SubCategory'];
+                $data['Subject_2'] = $data['Subject'];
 
                 $data['Language'] = 1;
                 $data['Category'] = $category->parent_id;
@@ -663,9 +663,9 @@ class QuestionBankController extends Controller
                 $data['Language'] = $course->language_id;
                 $data['Category'] = $course->category_id;
             }
-
-            $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
-            $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
+      
+            //$questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
+            //$questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
             $language = $this->getFirstDropdownData($data, $course)['language'];
             $categories = $this->getFirstDropdownData($data, $course)['categories'];
@@ -696,13 +696,20 @@ class QuestionBankController extends Controller
                 } else {
                     $combinedCategoryName = $categoryName;
                 }
-                
+              
+              
+              
                 foreach ($topics as $outkey => $topic) {
+                    // Filter topics based on the selected topic
+                    // if (isset($data['Topic']) && $topic->id != $data['Topic']) {
+                    //     continue;
+                    // }
+
                     $subcategoryName = $subcategories->name;
                     $subjectName = $subjects->name;
                     $topicName = $topic->name;
 
-                    if ($subcategories2->isNotEmpty()) {
+                    if ($subcategories2) {
                         foreach ($subcategories2 as $subcategory2) {
                             $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
                         }
@@ -717,37 +724,31 @@ class QuestionBankController extends Controller
                     } else {
                         $combinedSubjectName = $subjectName;
                     }
-
-                    // if ($topics2->isNotEmpty()) {
-                    //     foreach ($topics2 as $topic2) {
-                    //         $combinedTopicName = $topicName . ' | ' . $topic2->name;
-                    //     }
-                    // } else {
-                    //     $combinedTopicName = $topicName;
-                    // }
                     
                     $data['Topic'] = $topic->id;
                     $data['Topic_2'] = $topics2[$outkey]->id;
-
-                    if ($topics2->isNotEmpty()) {
+                  	
+                  	if ($topics2->isNotEmpty()) {
                         foreach ($topics2 as $topic2) {
                             $combinedTopicName = $topicName . ' | ' . $topics2[$outkey]->name;
                         }
                     } else {
                         $combinedTopicName = $topicName;
                     }
-
+                  
+                  
                     $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
                     $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
-                    $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
+                  	$filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
                         return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
                     });
+
 
                     // foreach ($filteredQuestions as $questionFirst) {
                     if (isset($questionsSecond)) {
                         foreach ($questionsSecond as $key => $questionSecond) {
-                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$data['Topic']][$combinedTopicName][] = [
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$data['Topic_2']][$combinedTopicName][] = [
                                 'question' => (htmlspecialchars($filteredQuestions[$key]->question)) . ' | ' . htmlspecialchars($questionSecond->question) . (isset($filteredQuestions[$key]->photo) ? '<br>' . '<img src="' . $filteredQuestions[$key]->photo . '"/>' : '<img src="' . $filteredQuestions[$key]->photo_link . '"/>'),
                                 'options' => [
                                     (htmlspecialchars($filteredQuestions[$key]->option_a)) . ' | ' . htmlspecialchars($questionSecond->option_a),
@@ -766,7 +767,7 @@ class QuestionBankController extends Controller
                                     ? '<br><img src="' . $questionFirst->photo_link . '"/>'
                                     : '');
 
-                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$combinedTopicName][] = [
+                            $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$data['Topic']][$combinedTopicName][] = [
                                 'question_id' => $questionFirst->id,
                                 'question' => (htmlspecialchars($questionFirst->question)) . $img,
                                 'options' => [
@@ -805,12 +806,15 @@ class QuestionBankController extends Controller
         if (isset($data['Language'])) {
             $query->where('language_id', $data['Language']);
         }
+      
         if (isset($data['SubCategory'])) {
             $query->where('sub_category_id', $data['SubCategory']);
         }
+      
         if (isset($data['Subject'])) {
             $query->where('subject_id', $data['Subject']);
         }
+      
         if (isset($data['Topic'])) {
             $query->where('topic_id', $data['Topic']);
         }
@@ -828,11 +832,13 @@ class QuestionBankController extends Controller
         $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->first() : SubCategory::where('category_id', $categoryId)->first();
 
         // Get all the subjects for the subcategories
-        $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
+//        $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
+      
+	    $subjects = Subject::find($data['Subject']);
 
         // Get all the topics for the subjects
         $topics = Topic::where('subject_id', $subjects->id)->get();
-
+      
         return ['language' => $language, 'categories' => $categories, 'subcategories' => $subcategories, 'subjects' => $subjects, 'topics' => $topics, 'questions' => $questions];
     }
 
@@ -875,10 +881,12 @@ class QuestionBankController extends Controller
 
         // Get all the subjects for the subcategories
         $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
-
+	    //  $subjects = Subject::where('sub_category_id', $subcategories->id)->get();
+      
         // Get all the topics for the subjects
-        $topics = isset($data['Topic_2']) ? Topic::where('id', $data['Topic_2'])->get() : Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
-
+        //$topics = isset($data['Topic_2']) ? Topic::where('id', $data['Topic_2'])->get() : Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+	    $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+      
         if ($questions->isEmpty()) {
             return null;
         }

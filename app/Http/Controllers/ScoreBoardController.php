@@ -247,7 +247,7 @@ class ScoreBoardController extends Controller
             'subject_id' => request()->subject_id,
             'topic_id' => request()->topic_id,
             'percentage' => request()->percentage,
-            'attempt' => $quizExist ? $quizExist->attempt++ : 1,
+            'attempt' => $quizExist ? ++$quizExist->attempt : 1,
         ];
 
         $quiz = QuizePractice::create($data);
@@ -260,7 +260,7 @@ class ScoreBoardController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/quize/show/{googleUserId}",
+     *     path="/api/quize/{googleUserId}",
      *     summary="Get quiz attempts by Google User ID",
      *     description="Retrieve all quiz attempts for a specific Google user with related subject and topic details.",
      *     tags={"Quize"},
@@ -364,6 +364,7 @@ class ScoreBoardController extends Controller
             'google_user_id' => 'required|exists:google_users,id',
             'subject_id'     => 'required|exists:subjects,id',
             'topic_id'       => 'required|exists:topics,id',
+            'count'         => 'required|integer|min:0',
         ]);
 
         $today = now()->toDateString();
@@ -375,8 +376,9 @@ class ScoreBoardController extends Controller
             ->first();
 
         if ($questionBank) {
-
-            $questionBank->increment('count', 1);
+            $questionBank->update([
+                'count' => $request->count,
+            ]);
             $message = 'Question bank Updated successfully!';
         } else {
             // Agar record nahi mila to naya record banao with count = 1
@@ -384,7 +386,7 @@ class ScoreBoardController extends Controller
                 'google_user_id' => $request->google_user_id,
                 'subject_id'     => $request->subject_id,
                 'topic_id'       => $request->topic_id,
-                'count'          => 1,
+                'count'          => $request->count,
             ]);
             $message = 'Question bank created successfully!';
         }
@@ -415,52 +417,52 @@ class ScoreBoardController extends Controller
     }
 
     public function questioncountshow($googleUserId, $subCategoryId)
-{
-   
-    $dates = collect(range(6, 0))->map(function ($i) {
-        return now()->subDays($i)->toDateString();
-    });
+    {
 
-   
-    $records = QuestionBankCount::where('google_user_id', $googleUserId)
-        ->whereDate('created_at', '>=', $dates->first())
-        ->whereHas('subject', function ($q) use ($subCategoryId) {
-            $q->where('sub_category_id', $subCategoryId);
-        })
-        ->with(['subject'])
-        ->get();
-
-    if ($records->isEmpty()) {
-        return response()->json([
-            'message' => 'No question bank records found for this user in the last 7 days.',
-            'labels' => $dates,
-            'series' => []
-        ], 200);
-    }
-
-   
-    $grouped = $records->groupBy('subject_id');
-
-    $series = $grouped->map(function ($items, $subjectId) use ($dates) {
-        $data = $dates->map(function ($date) use ($items) {
-            return $items->whereBetween('created_at', [
-                $date . " 00:00:00",
-                $date . " 23:59:59"
-            ])->sum('count');
+        $dates = collect(range(6, 0))->map(function ($i) {
+            return now()->subDays($i)->toDateString();
         });
 
-        return [
-            'subject_id' => (int) $subjectId,
-            'data' => $data
-        ];
-    })->values();
 
-    return response()->json([
-        'message' => 'Question bank records retrieved successfully!',
-        'labels' => $dates,
-        'series' => $series
-    ], 200);
-}
+        $records = QuestionBankCount::where('google_user_id', $googleUserId)
+            ->whereDate('created_at', '>=', $dates->first())
+            ->whereHas('subject', function ($q) use ($subCategoryId) {
+                $q->where('sub_category_id', $subCategoryId);
+            })
+            ->with(['subject'])
+            ->get();
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No question bank records found for this user in the last 7 days.',
+                'labels' => $dates,
+                'series' => []
+            ], 200);
+        }
+
+
+        $grouped = $records->groupBy('subject_id');
+
+        $series = $grouped->map(function ($items, $subjectId) use ($dates) {
+            $data = $dates->map(function ($date) use ($items) {
+                return $items->whereBetween('created_at', [
+                    $date . " 00:00:00",
+                    $date . " 23:59:59"
+                ])->sum('count');
+            });
+
+            return [
+                'subject_id' => (int) $subjectId,
+                'data' => $data
+            ];
+        })->values();
+
+        return response()->json([
+            'message' => 'Question bank records retrieved successfully!',
+            'labels' => $dates,
+            'series' => $series
+        ], 200);
+    }
 
     // public function questioncountshow($googleUserId)
     // {
