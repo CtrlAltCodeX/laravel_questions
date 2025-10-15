@@ -237,37 +237,15 @@ class ScoreBoardController extends Controller
             'percentage'     => 'required|numeric|min:0|max:100',
         ]);
 
-        $today = now()->toDateString();
+        $quiz = QuizePractice::create([
+            'google_user_id' => $request->google_user_id,
+            'subject_id'     => $request->subject_id,
+            'topic_id'       => $request->topic_id,
+            'percentage'     => $request->percentage,
 
-        $quizExist = QuizePractice::where('google_user_id', $request->google_user_id)
-            ->where('subject_id', $request->subject_id)
-            ->where('topic_id', $request->topic_id)
-            ->whereDate('created_at', $today)
-            ->first();
-
-        if ($quizExist) {
-            $quizExist->update([
-                'percentage' => $request->percentage,
-                'attempt'    => $quizExist->attempt + 1,
-            ]);
-
-            $message = 'Quiz attempt updated successfully!';
-            $quiz = $quizExist;
-        } else {
-
-            $quiz = QuizePractice::create([
-                'google_user_id' => $request->google_user_id,
-                'subject_id'     => $request->subject_id,
-                'topic_id'       => $request->topic_id,
-                'percentage'     => $request->percentage,
-                'attempt'        => 1,
-            ]);
-
-            $message = 'Quiz attempt created successfully!';
-        }
-
+        ]);
         return response()->json([
-            'message' => $message,
+            'message' => 'Quiz attempt created successfully!',
             'data'    => $quiz
         ], 200);
     }
@@ -310,50 +288,64 @@ class ScoreBoardController extends Controller
             ->whereHas('subjects', function ($q) use ($subCategoryId) {
                 $q->where('sub_category_id', $subCategoryId);
             })
-            ->with(['user', 'subjects', 'topic'])
+            ->with(['subjects:id,name,sub_category_id'])
             ->get();
 
-        $data = $dates->map(function ($date) {
-            $dayName = Carbon::parse($date)->format('l');
+        if ($records->isEmpty()) {
+            return response()->json([
+                "message" => "No quiz records found for this user in the last 7 days.",
+                "meta" => [
+                    "user_id" => (int) $googleUserId,
+                    "sub_category_id" => (int) $subCategoryId,
+                    "range" => "weekly",
+                ],
+                "data" => []
+            ], 200);
+        }
+
+        // Group by subject_id
+        $groupedBySubject = $records->groupBy('subject_id');
+
+        $data = $groupedBySubject->map(function ($items, $subjectId) use ($dates) {
+            $subjectName = $items->first()->subjects->name ?? 'Unknown Subject';
+
+            $summary = $dates->map(function ($date) use ($items) {
+                $dayName = Carbon::parse($date)->format('l');
+                $dailyItems = $items->filter(function ($record) use ($date) {
+                    return Carbon::parse($record->created_at)->toDateString() === $date;
+                });
+
+
+                $totalRecords = $dailyItems->count();
+                $totalPercentage = $dailyItems->sum('percentage');
+                $avgPercentage = $totalRecords > 0
+                    ? round($totalPercentage / $totalRecords, 2)
+                    : 0;
+
+                return [
+                    'day' => $dayName,
+                    'date' => $date,
+                    'percentage' => $avgPercentage,
+                    'attempts' => $totalRecords
+                ];
+            })->values();
+
             return [
-                'day' => $dayName,
-                'date' => $date,
-                'percentage' => 0,
-                'attempts' => 0,
+                'subject_id' => (int) $subjectId,
+                'subject_name' => $subjectName,
+                'summary' => $summary
             ];
-        })->keyBy('date')->toArray();
+        })->values();
 
-        foreach ($records as $record) {
-            $date = Carbon::parse($record->created_at)->toDateString();
-
-            if (isset($data[$date])) {
-                $data[$date]['attempts'] += 1;
-                $data[$date]['percentage'] += (float) $record->percentage;
-            }
-        }
-
-        foreach ($data as &$item) {
-            if ($item['attempts'] > 0) {
-                $item['percentage'] = round($item['percentage'] / $item['attempts'], 2);
-            }
-        }
-
-        $firstRecord = $records->first();
-
-        $response = [
+        return response()->json([
             "message" => "Subject-wise daily summary (all attempts included)",
-            "id" => $firstRecord?->id ?? null,
-            "google_user_id" => $firstRecord?->google_user_id ?? (int) $googleUserId,
-            "subject_id" => $firstRecord?->subject_id ?? null,
-            "topic_id" => $firstRecord?->topic_id ?? null,
-            "percentage" => $firstRecord?->percentage ?? 0,
-            "attempt" => $firstRecord?->attempt ?? 0,
-            "created_at" => $firstRecord?->created_at ?? now(),
-            "updated_at" => $firstRecord?->updated_at ?? now(),
-            "data" => array_values($data),
-        ];
-
-        return response()->json($response, 200);
+            "meta" => [
+                "user_id" => (int) $googleUserId,
+                "sub_category_id" => (int) $subCategoryId,
+                "range" => "weekly",
+            ],
+            "data" => $data
+        ], 200);
     }
 
     /**
@@ -613,34 +605,29 @@ class ScoreBoardController extends Controller
     public function mockTestStore(Request $request)
     {
         $request->validate([
-            'google_user_id' => 'required|exists:google_users,id',
+            'google_user_id'  => 'required|exists:google_users,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
-            'right_answer'   => 'required|integer|min:0',
-            'wrong_answer'   => 'required|integer|min:0',
-            'time_taken'     => 'required|integer|min:0',
+            'right_answer'    => 'required|integer|min:0',
+            'wrong_answer'    => 'required|integer|min:0',
+            'total_questions' => 'required|integer|min:0', 
+            'time_taken'      => 'required|integer|min:0',
         ]);
 
-        $testExist = MockTest::where('google_user_id', request()->google_user_id)
-            ->where('sub_category_id', request()->sub_category_id)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $data = [
-            'google_user_id' => request()->google_user_id,
-            'sub_category_id' => request()->sub_category_id,
-            'right_answer' => request()->right_answer,
-            'wrong_answer' => request()->wrong_answer,
-            'time_taken'   => request()->time_taken,
-            'attempt' => $testExist ? $testExist->attempt++ : 1,
-        ];
-
-        $mock = MockTest::create($data);
+        $mock = MockTest::create([
+            'google_user_id'  => $request->google_user_id,
+            'sub_category_id' => $request->sub_category_id,
+            'right_answer'    => $request->right_answer,
+            'wrong_answer'    => $request->wrong_answer,
+            'total_questions' => $request->total_questions,
+            'time_taken'      => $request->time_taken,
+        ]);
 
         return response()->json([
             'message' => 'Mock test saved successfully!',
             'data' => $mock
         ], 200);
     }
+
 
 
     /**
@@ -689,21 +676,49 @@ class ScoreBoardController extends Controller
      *     )
      * )
      */
-    public function mockTestShow($googleUserId)
-    {
-        $records = MockTest::where('google_user_id', $googleUserId)
-            ->with(['user', 'subCategory'])
-            ->get();
+  public function mockTestShow($googleUserId, $subCategoryId)
+{
+    $records = MockTest::where('google_user_id', $googleUserId)
+        ->where('sub_category_id', $subCategoryId)
+        ->with(['user', 'subCategory'])
+        ->get();
 
-        if ($records->isEmpty()) {
-            return response()->json([
-                'message' => 'No mock test records found for this user.'
-            ], 404);
-        }
-
+    if ($records->isEmpty()) {
         return response()->json([
-            'message' => 'Mock test records retrieved successfully!',
-            'data' => $records
-        ], 200);
+            'status' => false,
+            'message' => 'No mock test records found for this user and sub-category.',
+            'data' => null
+        ], 404);
     }
+
+    $rightAnswerSum = $records->sum('right_answer');
+    $wrongAnswerSum = $records->sum('wrong_answer');
+    $totalQuestionsSum = $records->sum('total_questions');
+    $totalTimeTaken = $records->sum('time_taken');
+    $unanswered = $totalQuestionsSum - ($rightAnswerSum + $wrongAnswerSum);
+    $attemptNumber = $records->count();
+    $averageTimeTaken = $attemptNumber > 0 ? round($totalTimeTaken / $attemptNumber, 2) : 0;
+
+    $latestRecord = $records->sortByDesc('created_at')->first();
+
+    $data = [
+        'id' => $latestRecord->id,
+        'google_user_id' => (int) $googleUserId,
+        'sub_category_id' => (int) $subCategoryId,
+        'right_answer' => $rightAnswerSum,
+        'wrong_answer' => $wrongAnswerSum,
+        'total_questions' => $totalQuestionsSum,
+        'unanswered' => $unanswered,
+        'time_taken' => $averageTimeTaken,
+        'attempt_number' => $attemptNumber,
+        'created_at' => $latestRecord->created_at,
+    ];
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Mock test records retrieved successfully!',
+        'data' => $data
+    ], 200);
+}
+
 }

@@ -16,7 +16,6 @@ class QuizePractice extends Model
         'subject_id',
         'topic_id',
         'percentage',
-        'attempt',
     ];
 
     public function user()

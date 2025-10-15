@@ -13,7 +13,7 @@ class MockTest extends Model
         'sub_category_id',
         'right_answer',
         'wrong_answer',
-        'attempt',
+         'total_questions',
         'time_taken',
     ];
 

@@ -83,6 +83,6 @@ Route::post('store/question-bank-count', [ScoreBoardController::class, 'question
 Route::get('question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questionCountShow']);
 
 Route::post('store/mock-test', [ScoreBoardController::class, 'mockTestStore']);
-Route::get('/show/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
+Route::get('/show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'mockTestShow']);
 
 Route::post('update/course/status', [UserCourseController::class, 'updateCourseStatus']);
