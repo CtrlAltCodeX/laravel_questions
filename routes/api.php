@@ -76,13 +76,13 @@ Route::post('user/courses', [UserCourseController::class, 'assignCourseToUser'])
 Route::post('save-payment', [PaymentController::class, 'store']);
 Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
 
-Route::post('quize/store', [ScoreBoardController::class, 'quizeStore']);
-Route::get('/quiz/show/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeShowData']);
+Route::post('store/quiz', [ScoreBoardController::class, 'quizeStore']);
+Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeShow']);
 
-Route::post('question-bank-count/store', [ScoreBoardController::class, 'questionCountStore']);
+Route::post('store/question-bank-count', [ScoreBoardController::class, 'questionCountStore']);
 Route::get('question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questionCountShow']);
 
-Route::post('mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
-Route::get('mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
+Route::post('store/mock-test', [ScoreBoardController::class, 'mockTestStore']);
+Route::get('/show/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
 
 Route::post('update/course/status', [UserCourseController::class, 'updateCourseStatus']);
