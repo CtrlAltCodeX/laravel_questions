@@ -47,11 +47,20 @@
             </div>
 
             <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
                 <input type="text" id="name" placeholder="Course Name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name"  />
                 <div style="color: red;" id="error-name"></div>  
             </div>
 
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Meta Data</label>
+                <textarea id='meta_data' name='meta_data' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+
+                </textarea>
+            </div>
+
             <div class="mx-auto mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Languages</label>
                 <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Select Language</option>
                     @foreach($languages as $item)
@@ -62,6 +71,7 @@
             </div>
 
             <div class="mx-auto mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select id='select_category' name="category_id" class="select_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Choose a Category</option>
                     @foreach($categories as $item)
@@ -162,8 +172,7 @@
             </div>
 
             <div class='d-flex' style='grid-gap:10px;'>
-                <table class='table' id='subject' style='display:none;'>
-                </table>
+                <div class="accordion" id="subjectAccordion" style='width: 100%;display: flex;flex-direction: column;grid-gap: 10px;'></div>
             
                 <table class='table' id='part' style='display:none;'>
                     
@@ -171,7 +180,7 @@
             </div>
           
             <div class="mb-3">
-                <select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <select id="status" name="status" class="mt-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                     <option value="">Select Status</option>
                     <option value="1">Enabled</option>
                     <option value="0">Disabled</option>
@@ -202,7 +211,6 @@
             width: '100%'
         });
 
-        // Handle "Select All"
         $('#select_subject').on('select2:select', function (e) {
             if (e.params.data.id === "all") {
                 let allValues = [];
@@ -300,324 +308,534 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('createButton').addEventListener('click', function() {
-    document.getElementById('modalTitle').innerText = 'Create Course';
-    document.getElementById('modalForm').action = "{{ route('courses.store') }}";
-    document.getElementById('modalForm').method = 'POST';
-    document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('select_language').value = '';
-    document.getElementById('select_category').value = '';
-    document.getElementById('status').selectedIndex = "";
+        document.getElementById('createButton').addEventListener('click', function() {
+        document.getElementById('modalTitle').innerText = 'Create Course';
+        document.getElementById('modalForm').action = "{{ route('courses.store') }}";
+        document.getElementById('modalForm').method = 'POST';
+        document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('select_language').value = '';
+        document.getElementById('select_category').value = '';
+        document.getElementById('status').selectedIndex = "";
+
         // Reset checkboxes for subcategories
-    document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
-    // document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
+        document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
+        // document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
 
-    // Reset checkboxes for subjects
-    document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
-    // document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
+        // Reset checkboxes for subjects
+        document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
+        // document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
 
-    // Reset subscription checkboxes and inputs
-    document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
+        // Reset subscription checkboxes and inputs
+        document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
 
-    // Clear error messages
-    document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
-        document.getElementById('offerImage').src = '/dummy.jpg';
-        document.getElementById('modal').style.display = 'flex';
-    });
+        // Clear error messages
+        document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
+            document.getElementById('offerImage').src = '/dummy.jpg';
+            document.getElementById('modal').style.display = 'flex';
+        });
 
-    const editButtons = document.querySelectorAll('.editButton');
-        editButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                var data = JSON.parse(this.getAttribute('data'));
-                const id = data.id;
-                const name = data.name;
-                const languageId = data.language_id;
-                const categoryId = data.category_id;
-                const subcategories = (data.sub_category_id);
-                const subjects = (data.subject_id);
-                const status = data.status;
-                const banner = data.banner;
-                const language = data.language;
-                const question_limit = data.question_limit;
-                const subscriptions = data.subscription;
-                const partWise = data.part_limit;
-                const subjectWise = data.subject_limit;
-                const subjectName = data.subject_names.split(",");
+        $(document).on('click', '.editButton', function () {
+            var data = JSON.parse($(this).attr('data'));
 
-                $('#subject').empty();
-                $('#part').empty();
+            const id = data.id;
+            const name = data.name;
+            const meta_data = data.meta_data;
+            const languageId = data.language_id;
+            const categoryId = data.category_id;
+            const subcategories = (data.sub_category_id);
+            const subjects = (data.subject_id);
+            const status = data.status;
+            const banner = data.banner;
+            const language = data.language;
+            const question_limit = data.question_limit;
+            const subscriptions = data.subscription;
+            const partWise = data.part_limit;
+            const subjectWise = data.subject_limit;
+            const subjectName = data.subject_names.split(",");
 
-                $('#part').append(`
-                    <tr>
-                        <th colspan="4">Part A</th>
-                        <th colspan="4">Part B</th>
-                    </tr>
-                    <tr>
-                        <th>Sub Category</th>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                        <th></th>
-                        <th>Sub Category</th>
-                        <th>Subject Name</th>
-                        <th>Limit</th>
-                        <th>Position</th>
-                    </tr>
-                `);
+            $('#subjectAccordion').empty();
+            $('#part').empty();
 
-                // subjectName.forEach((name, index) => {
-                //     $.ajax({
-                //         url: '/get-subcategories-from-subject/' + subjects[index],
-                //         method: 'GET',
-                //         success: (data) => {
-                //             $('#subject').append(`
-                //                 <tr>
-                //                     <td>${data.name}</td>
-                //                     <td>${name}</td>
-                //                     <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
-                //                     <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
-                //                 </tr>
-                //             `);
-                            
-                //             if (subjectWise) {
-                //                 document.querySelector('#subject_wise').checked = true;
-                //                 document.getElementById('part').style.display = 'none';
-                //                 document.getElementById('subject').style.display = 'table';
+            setTimeout(() => {
+                $("#select_sub_category").val(subcategories).trigger('change');
+            }, 1000);
 
-                //                 Object.entries(subjectWise).forEach(([subjectId, value]) => {
-                //                     const input = document.querySelector(`input[data-subject="${subjectId}"]`);
-                //                     const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
-    
-                //                     if (input) {
-                //                         input.value = value ?? '';
-                //                     }
-    
-                //                     if (positionInput) {
-                //                         positionInput.value = subjectWise.position[subjectId] ?? '';
-                //                     }
-                //                 });
-                //             }
-                //         }
+            setTimeout(() => {
+                $("#select_subject").val(subjects).trigger('change');
+                $('#select_subject').prepend('<option value="all">Select All</option>');
+
+                //const subjects = $(this).val();
+                let groupedData = {};
+
+                let requests = subjects.map(subjectId => {
+                    return $.ajax({
+                        url: '/get-subcategories-from-subject/' + subjectId,
+                        method: 'GET'
+                    }).then(data => {
+                        const subCategoryId = data[1].id;    // assuming backend gives subcategory id
+                        const subCategoryName = data[1].name;
+                        const subject = { id: subjectId, name: data[0].name };
+
+                        if (!groupedData[subCategoryId]) {
+                            groupedData[subCategoryId] = {
+                                name: subCategoryName,
+                                subjects: []
+                            };
+                        }
+
+                        groupedData[subCategoryId].subjects.push(subject);
+                    });
+                });
+
+                getSubjectWise(groupedData, requests);
+
+                getPartWise(groupedData, requests);
+
+                // Promise.all(requests).then(() => {
+                //     Object.entries(groupedData).forEach(([subCategoryId, group]) => {
+                //         const collapseId = "collapse-" + subCategoryId;
+
+                //         let rows = group.subjects.map(subject => `
+                //             <tr>
+                //                 <td class="px-3 py-2 border">${group.name}</td>
+                //                 <td class="px-3 py-2 border">${subject.name}</td>
+                //                 <td class="px-3 py-2 border">
+                //                     <input type="text" name="subject_limit[${subject.id}]" 
+                //                         data-subject="${subject.id}" 
+                //                         class="w-24 border rounded px-2 py-1" />
+                //                 </td>
+                //                 <td class="px-3 py-2 border">
+                //                     <input type="number" name="subject_limit[position][${subject.id}]" 
+                //                         data-position="${subject.id}" 
+                //                         class="w-24 border rounded px-2 py-1" />
+                //                 </td>
+                //             </tr>
+                //         `).join('');
+
+                //         let accordionItem = `
+                //             <div class="border rounded-lg">
+                //                 <button type="button" 
+                //                         class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
+                //                         data-target="#${collapseId}">
+                //                     <span>${group.name}</span>
+                //                     <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                //                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                //                     </svg>
+                //                 </button>
+                //                 <div id="${collapseId}" class="hidden px-4 pb-4 pt-2">
+                //                     <div class="overflow-x-auto">
+                //                         <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
+                //                             <thead class="bg-gray-200">
+                //                                 <tr>
+                //                                     <th class="px-3 py-2 border">Sub Category</th>
+                //                                     <th class="px-3 py-2 border">Subject Name</th>
+                //                                     <th class="px-3 py-2 border">Limit</th>
+                //                                     <th class="px-3 py-2 border">Position</th>
+                //                                 </tr>
+                //                             </thead>
+                //                             <tbody>
+                //                                 ${rows}
+                //                             </tbody>
+                //                         </table>
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //         `;
+
+                //         $("#subjectAccordion").append(accordionItem);
                 //     });
+
+                //     if (typeof subjectWise !== 'undefined' && subjectWise) {
+                //         document.querySelector('#subject_wise').checked = true;
+                //         document.getElementById('part').style.display = 'none';
+                //         document.getElementById('subjectAccordion').style.display = 'block';
+
+                //         Object.entries(subjectWise).forEach(([sId, value]) => {
+                //             const input = document.querySelector(`input[data-subject="${sId}"]`);
+                //             const positionInput = document.querySelector(`input[data-position="${sId}"]`);
+
+                //             if (input) input.value = value ?? '';
+                //             if (positionInput) positionInput.value = subjectWise.position[sId] ?? '';
+                //         });
+                //     }
                 // });
 
-                // subjectName.forEach((name, index) => {
-                //     $.ajax({
-                //         url: '/get-subcategories-from-subject/' + subjects[index],
-                //         method: 'GET',
-                //         success: (data) => {
-                //             $('#part').append(`
-                //                 <tr>
-                //                     <td>${data.name}</td>
-                //                     <td>${name}</td>
-                //                     <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
-                //                     <td></td>
-                //                     <td>${data.name}</td>
-                //                     <td>${name}</td>
-                //                     <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
-                //                     <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
-                //                 </tr>
-                //             `);
-                            
-                //             if (partWise) {
-                //                 document.querySelector('#part_wise').checked = true;
-                //                 document.getElementById('part').style.display = 'table';
-                //                 document.getElementById('subject').style.display = 'none';
+                // Promise.all(requests).then(() => {
+                //     Object.entries(groupedData).forEach(([subCategoryId, group]) => {
+                //         const collapseId = "collapse-" + subCategoryId;
 
-                //                 Object.entries(partWise.limit).forEach(([subjectId, values]) => {
-                //                     values.forEach((value, index) => {
-                //                         const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
-                //                         const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
-    
-                //                         if (limitInput) {
-                //                             limitInput.value = value ?? '';
-                //                         }
-    
-                //                         if (positionInput) {
-                //                             positionInput.value = partWise.position[subjectId] ?? '';
-                //                         }
-                //                     });
-                //                 });
-                //             }
-                //         }
+                //         // Create rows (based on your old structure)
+                //         let rows = group.subjects.map(subject => `
+                //             <tr>
+                //                 <td class="px-3 py-2 border">${group.name}</td>
+                //                 <td class="px-3 py-2 border">${subject.name}</td>
+
+                //                 <!-- Limit field 1 -->
+                //                 <td class="px-3 py-2 border">
+                //                     <input 
+                //                         type="text" 
+                //                         name="part_limit[limit][${subject.id}][]"  
+                //                         data-subject="${subject.id}" 
+                //                         data-index="0"
+                //                         class="w-24 border rounded px-2 py-1"
+                //                     />
+                //                 </td>
+
+                //                 <!-- Empty td (if you want to keep spacing consistent) -->
+                //                 <td class="px-3 py-2 border"></td>
+
+                //                 <!-- Limit field 2 -->
+                //                 <td class="px-3 py-2 border">
+                //                     <input 
+                //                         type="text" 
+                //                         name="part_limit[limit][${subject.id}][]"  
+                //                         data-subject="${subject.id}" 
+                //                         data-index="1"
+                //                         class="w-24 border rounded px-2 py-1"
+                //                     />
+                //                 </td>
+
+                //                 <!-- Position field -->
+                //                 <td class="px-3 py-2 border">
+                //                     <input 
+                //                         type="number" 
+                //                         name="part_limit[position][${subject.id}]" 
+                //                         data-position="${subject.id}"
+                //                         data-index="1"
+                //                         class="w-24 border rounded px-2 py-1"
+                //                     />
+                //                 </td>
+                //             </tr>
+                //         `).join('');
+
+                //         // Create accordion section
+                //         let accordionItem = `
+                //             <div class="border rounded-lg mb-2">
+                //                 <button type="button" 
+                //                         class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
+                //                         data-target="#${collapseId}_part">
+                //                     <span>${group.name}</span>
+                //                     <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                //                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                //                     </svg>
+                //                 </button>
+                //                 <div id="${collapseId}_part" class="hidden px-4 pb-4 pt-2">
+                //                     <div class="overflow-x-auto">
+                //                         <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
+                //                             <thead class="bg-gray-200">
+                //                                 <tr>
+                //                                     <th class="px-3 py-2 border">Sub Category</th>
+                //                                     <th class="px-3 py-2 border">Subject Name</th>
+                //                                     <th class="px-3 py-2 border">Limit 1</th>
+                //                                     <th class="px-3 py-2 border"></th>
+                //                                     <th class="px-3 py-2 border">Limit 2</th>
+                //                                     <th class="px-3 py-2 border">Position</th>
+                //                                 </tr>
+                //                             </thead>
+                //                             <tbody>
+                //                                 ${rows}
+                //                             </tbody>
+                //                         </table>
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //         `;
+
+                //         $("#part").append(accordionItem);
                 //     });
-                // });
-
-                setTimeout(() => {
-                    $("#select_sub_category").val(subcategories).trigger('change');
-                }, 1000);
-
-                setTimeout(() => {
-                    $("#select_subject").val(subjects).trigger('change');
-
-                     $('#select_subject').prepend('<option value="all">Select All</option>');
-                }, 2000);
-
-                $('#select_subject').change(function() {
-                    $("#subject").empty();
-
-                    $('#subject').append(`
-                        <tr>
-                            <th>Sub Category</th>
-                            <th>Subject Name</th>
-                            <th>Limit</th>
-                            <th>Position</th>
-                        </tr>
-                    `);
-
-                    const subjects = $(this).val();
                     
-                    $(this).val().forEach((name, index) => {
-                        $.ajax({
-                            url: '/get-subcategories-from-subject/' + subjects[index],
-                            method: 'GET',
-                            success: (data) => {
-                                $('#subject').append(`
-                                    <tr>
-                                        <td>${data[1].name}</td>
-                                        <td>${data[0].name}</td>
-                                        <td><input type='text' name="subject_limit[${subjects[index]}]" data-subject="${subjects[index]}" class="w-75"/></td>
-                                        <td><input type='number' name="subject_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}" /></td>
-                                    </tr>
-                                `);
-                                
-                                if (subjectWise) {
-                                    document.querySelector('#subject_wise').checked = true;
-                                    document.getElementById('part').style.display = 'none';
-                                    document.getElementById('subject').style.display = 'table';
+                //     if (typeof partWise !== 'undefined' && partWise) {
+                //         document.querySelector('#part_wise').checked = true;
+                //         document.getElementById('part').style.display = 'table';
+                //         document.getElementById('subjectAccordion').style.display = 'none';
+    
+                //         Object.entries(partWise.limit).forEach(([subjectId, values]) => {
+                //             values.forEach((value, index) => {
+                //                 const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                //                 const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
+    
+                //                 if (limitInput) {
+                //                     limitInput.value = value ?? '';
+                //                 }
+    
+                //                 if (positionInput) {
+                //                     positionInput.value = partWise.position[subjectId] ?? '';
+                //                 }
+                //             });
+                //         });
+                //     }
+                // });
+            }, 2000);
 
-                                    Object.entries(subjectWise).forEach(([subjectId, value]) => {
-                                        const input = document.querySelector(`input[data-subject="${subjectId}"]`);
-                                        const positionInput = document.querySelector(`input[data-position="${subjectId}"]`);
-        
-                                        if (input) {
-                                            input.value = value ?? '';
-                                        }
-        
-                                        if (positionInput) {
-                                            positionInput.value = subjectWise.position[subjectId] ?? '';
-                                        }
-                                    });
-                                }
-                            }
-                        });
+            function getSubjectWise(groupedData, requests)
+            {
+                Promise.all(requests).then(() => {
+                    Object.entries(groupedData).forEach(([subCategoryId, group]) => {
+                        const collapseId = "collapse-" + subCategoryId;
+
+                        let rows = group.subjects.map(subject => `
+                            <tr>
+                                <td class="px-3 py-2 border">${group.name}</td>
+                                <td class="px-3 py-2 border">${subject.name}</td>
+                                <td class="px-3 py-2 border">
+                                    <input type="text" name="subject_limit[${subject.id}]" 
+                                        data-subject="${subject.id}" 
+                                        class="w-24 border rounded px-2 py-1" />
+                                </td>
+                                <td class="px-3 py-2 border">
+                                    <input type="number" name="subject_limit[position][${subject.id}]" 
+                                        data-position="${subject.id}" 
+                                        class="w-24 border rounded px-2 py-1" />
+                                </td>
+                            </tr>
+                        `).join('');
+
+                        let accordionItem = `
+                            <div class="border rounded-lg">
+                                <button type="button" 
+                                        class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
+                                        data-target="#${collapseId}">
+                                    <span>${group.name}</span>
+                                    <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div id="${collapseId}" class="hidden px-4 pb-4 pt-2">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
+                                            <thead class="bg-gray-200">
+                                                <tr>
+                                                    <th class="px-3 py-2 border">Sub Category</th>
+                                                    <th class="px-3 py-2 border">Subject Name</th>
+                                                    <th class="px-3 py-2 border">Limit</th>
+                                                    <th class="px-3 py-2 border">Position</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${rows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        $("#subjectAccordion").append(accordionItem);
                     });
 
-                    subjects.forEach((name, index) => {
-                        $.ajax({
-                            url: '/get-subcategories-from-subject/' + subjects[index],
-                            method: 'GET',
-                            success: (data) => {
-                                $('#part').append(`
-                                    <tr>
-                                        <td>${data[1].name}</td>
-                                        <td>${data[0].name}</td>
-                                        <td><input type='text' name="part_limit[limit][${subjects[index]}][]"  data-subject="${subjects[index]}" data-index=0 class="w-75"/></td>
-                                        <td></td>
-                                        <td>${data[1].name}</td>
-                                        <td>${data[0].name}</td>
-                                        <td><input type='text' name="part_limit[limit][${subjects[index]}][]" data-subject="${subjects[index]}" data-index=1 class="w-75" /></td>
-                                        <td><input type='number' name="part_limit[position][${subjects[index]}]" class="w-75" data-position="${subjects[index]}"  data-index=1 /></td>
-                                    </tr>
-                                `);
-                                
-                                if (partWise) {
-                                    document.querySelector('#part_wise').checked = true;
-                                    document.getElementById('part').style.display = 'table';
-                                    document.getElementById('subject').style.display = 'none';
+                    if (typeof subjectWise !== 'undefined' && subjectWise) {
+                        document.querySelector('#subject_wise').checked = true;
+                        document.getElementById('part').style.display = 'none';
+                        document.getElementById('subjectAccordion').style.display = 'block';
 
-                                    Object.entries(partWise.limit).forEach(([subjectId, values]) => {
-                                        values.forEach((value, index) => {
-                                            const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
-                                            const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
-        
-                                            if (limitInput) {
-                                                limitInput.value = value ?? '';
-                                            }
-        
-                                            if (positionInput) {
-                                                positionInput.value = partWise.position[subjectId] ?? '';
-                                            }
-                                        });
-                                    });
-                                }
-                            }
+                        Object.entries(subjectWise).forEach(([sId, value]) => {
+                            const input = document.querySelector(`input[data-subject="${sId}"]`);
+                            const positionInput = document.querySelector(`input[data-position="${sId}"]`);
+
+                            if (input) input.value = value ?? '';
+                            if (positionInput) positionInput.value = subjectWise.position[sId] ?? '';
                         });
+                    }
+                });
+            }
+
+            function getPartWise(groupedData, requests)
+            {
+                Promise.all(requests).then(() => {
+                    Object.entries(groupedData).forEach(([subCategoryId, group]) => {
+                        const collapseId = "collapse-" + subCategoryId;
+
+                        // Create rows (based on your old structure)
+                        let rows = group.subjects.map(subject => `
+                            <tr>
+                                <td class="px-3 py-2 border">${group.name}</td>
+                                <td class="px-3 py-2 border">${subject.name}</td>
+
+                                <!-- Limit field 1 -->
+                                <td class="px-3 py-2 border">
+                                    <input 
+                                        type="text" 
+                                        name="part_limit[limit][${subject.id}][]"  
+                                        data-subject="${subject.id}" 
+                                        data-index="0"
+                                        class="w-24 border rounded px-2 py-1"
+                                    />
+                                </td>
+
+                                <!-- Empty td (if you want to keep spacing consistent) -->
+                                <td class="px-3 py-2 border"></td>
+
+                                <!-- Limit field 2 -->
+                                <td class="px-3 py-2 border">
+                                    <input 
+                                        type="text" 
+                                        name="part_limit[limit][${subject.id}][]"  
+                                        data-subject="${subject.id}" 
+                                        data-index="1"
+                                        class="w-24 border rounded px-2 py-1"
+                                    />
+                                </td>
+
+                                <!-- Position field -->
+                                <td class="px-3 py-2 border">
+                                    <input 
+                                        type="number" 
+                                        name="part_limit[position][${subject.id}]" 
+                                        data-position="${subject.id}"
+                                        data-index="1"
+                                        class="w-24 border rounded px-2 py-1"
+                                    />
+                                </td>
+                            </tr>
+                        `).join('');
+
+                        // Create accordion section
+                        let accordionItem = `
+                            <div class="border rounded-lg mb-2">
+                                <button type="button" 
+                                        class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
+                                        data-target="#${collapseId}_part">
+                                    <span>${group.name}</span>
+                                    <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div id="${collapseId}_part" class="hidden px-4 pb-4 pt-2">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
+                                            <thead class="bg-gray-200">
+                                                <tr>
+                                                    <th class="px-3 py-2 border">Sub Category</th>
+                                                    <th class="px-3 py-2 border">Subject Name</th>
+                                                    <th class="px-3 py-2 border">Limit 1</th>
+                                                    <th class="px-3 py-2 border"></th>
+                                                    <th class="px-3 py-2 border">Limit 2</th>
+                                                    <th class="px-3 py-2 border">Position</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${rows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        $("#part").append(accordionItem);
                     });
+                    
+                    if (typeof partWise !== 'undefined' && partWise) {
+                        document.querySelector('#part_wise').checked = true;
+                        document.getElementById('part').style.display = 'table';
+                        document.getElementById('subjectAccordion').style.display = 'none';
+    
+                        Object.entries(partWise.limit).forEach(([subjectId, values]) => {
+                            values.forEach((value, index) => {
+                                const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
+                                const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
+    
+                                if (limitInput) {
+                                    limitInput.value = value ?? '';
+                                }
+    
+                                if (positionInput) {
+                                    positionInput.value = partWise.position[subjectId] ?? '';
+                                }
+                            });
+                        });
+                    }
                 });
+            }
 
-                // Fill modal fields
-                document.getElementById('modalTitle').innerText = 'Edit Course';
-                document.getElementById('modalForm').action = `/courses/${id}`;
-                // document.querySelector('input[name="_method"]').value = 'PUT';
-                document.getElementById('modalForm').method = 'POST';
-                document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
+            // $('#select_subject').off('change').on('change', function() {
+            //     $("#subjectAccordion").empty();
 
-                document.getElementById('name').value = name || '';
-                document.getElementById('select_language').value = languageId || '';
-                document.getElementById('select_category').value = categoryId || '';
-                // Set subcategories (checkboxes inside dropdown)
-                const subcategoryCheckboxes = document.querySelectorAll('.subcategory-checkbox');
-                subcategoryCheckboxes.forEach(checkbox => {
-                    const val = checkbox.value;
-                    checkbox.checked = subcategories.includes(val) || subcategories.includes(parseInt(val));
-                });
+                
+            // });
 
-                // OPTIONAL: Update dropdown label to show selected names
-                const checkedSubCats = Array.from(subcategoryCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.getAttribute('data-name'));
+            // Tailwind accordion toggle
+            $(document).on("click", ".accordion-toggle", function() {
+                const target = $($(this).data("target"));
+                const icon = $(this).find("svg");
 
-                // document.getElementById('subcategoryButtonLabel').innerText = checkedSubCats.length
-                //     ? checkedSubCats.join(', ')
-                //     : 'Select Sub Categories';
-
-                // Set subjects
-                // Set subjects (checkbox-style dropdown)
-                const subjectCheckboxes = document.querySelectorAll('.subject-checkbox');
-                subjectCheckboxes.forEach(checkbox => {
-                    const val = checkbox.value;
-                    checkbox.checked = subjects.includes(val) || subjects.includes(parseInt(val));
-                });
-
-                // Optional: Update dropdown button label
-                const checkedSubjects = Array.from(subjectCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.getAttribute('data-name'));
-
-                // document.getElementById('selectedSubjectsText').innerText = checkedSubjects.length
-                //     ? checkedSubjects.join(', ')
-                //     : 'Select Subjects';
-
-                // Monthly
-                document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
-                document.querySelector('input[name="subscription[monthly][amount]"]').value = subscriptions.monthly?.amount || '';
-                document.querySelector('input[name="subscription[monthly][validity]"]').value = subscriptions.monthly?.validity || '';
-
-                // Semi Annual
-                document.getElementById('semiAnnualCheck').checked = !!subscriptions.semi_annual;
-                document.querySelector('input[name="subscription[semi_annual][amount]"]').value = subscriptions.semi_annual?.amount || '';
-                document.querySelector('input[name="subscription[semi_annual][validity]"]').value = subscriptions.semi_annual?.validity || '';
-
-                // Annual
-                document.getElementById('annualCheck').checked = !!subscriptions.annual;
-                document.querySelector('input[name="subscription[annual][amount]"]').value = subscriptions.annual?.amount || '';
-                document.querySelector('input[name="subscription[annual][validity]"]').value = subscriptions.annual?.validity || '';
-
-                document.getElementById('status').value = status || '';
-                document.getElementById('offerImage').src = banner ? `/uploads/courses/${banner}` : '/dummy.jpg';
-
-                if (language == 0) {
-                    $('#single').attr('checked', 'checked');
-                } else if (language == 1) {
-                    $('#multiple').attr('checked', 'checked');
+                if (target.hasClass("hidden")) {
+                    target.removeClass("hidden");
+                    icon.addClass("rotate-180");
+                } else {
+                    target.addClass("hidden");
+                    icon.removeClass("rotate-180");
                 }
-
-                $('#question_limit').val(question_limit);
-
-                // Show modal
-                document.getElementById('modal').style.display = 'flex';
             });
+
+            // Fill modal fields
+            document.getElementById('modalTitle').innerText = 'Edit Course';
+            document.getElementById('modalForm').action = `/courses/${id}`;
+            // document.querySelector('input[name="_method"]').value = 'PUT';
+            document.getElementById('modalForm').method = 'POST';
+            document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
+
+            document.getElementById('name').value = name || '';
+            document.getElementById('meta_data').innerHTML = meta_data || '';
+            document.getElementById('select_language').value = languageId || '';
+            document.getElementById('select_category').value = categoryId || '';
+
+            const subcategoryCheckboxes = document.querySelectorAll('.subcategory-checkbox');
+            subcategoryCheckboxes.forEach(checkbox => {
+                const val = checkbox.value;
+                checkbox.checked = subcategories.includes(val) || subcategories.includes(parseInt(val));
+            });
+
+            // OPTIONAL: Update dropdown label to show selected names
+            const checkedSubCats = Array.from(subcategoryCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.getAttribute('data-name'));
+
+            // Set subjects (checkbox-style dropdown)
+            const subjectCheckboxes = document.querySelectorAll('.subject-checkbox');
+            subjectCheckboxes.forEach(checkbox => {
+                const val = checkbox.value;
+                checkbox.checked = subjects.includes(val) || subjects.includes(parseInt(val));
+            });
+
+            // Optional: Update dropdown button label
+            const checkedSubjects = Array.from(subjectCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.getAttribute('data-name'));
+
+            // document.getElementById('selectedSubjectsText').innerText = checkedSubjects.length
+            //     ? checkedSubjects.join(', ')
+            //     : 'Select Subjects';
+
+            // Monthly
+            document.getElementById('monthlyCheck').checked = !!subscriptions.monthly;
+            document.querySelector('input[name="subscription[monthly][amount]"]').value = subscriptions.monthly?.amount || '';
+            document.querySelector('input[name="subscription[monthly][validity]"]').value = subscriptions.monthly?.validity || '';
+
+            // Semi Annual
+            document.getElementById('semiAnnualCheck').checked = !!subscriptions.semi_annual;
+            document.querySelector('input[name="subscription[semi_annual][amount]"]').value = subscriptions.semi_annual?.amount || '';
+            document.querySelector('input[name="subscription[semi_annual][validity]"]').value = subscriptions.semi_annual?.validity || '';
+
+            // Annual
+            document.getElementById('annualCheck').checked = !!subscriptions.annual;
+            document.querySelector('input[name="subscription[annual][amount]"]').value = subscriptions.annual?.amount || '';
+            document.querySelector('input[name="subscription[annual][validity]"]').value = subscriptions.annual?.validity || '';
+
+            document.getElementById('status').value = status || '';
+            document.getElementById('offerImage').src = banner ? `/uploads/courses/${banner}` : '/dummy.jpg';
+
+            if (language == 0) {
+                $('#single').attr('checked', 'checked');
+            } else if (language == 1) {
+                $('#multiple').attr('checked', 'checked');
+            }
+
+            $('#question_limit').val(question_limit);
+
+            // Show modal
+            document.getElementById('modal').style.display = 'flex';
         });
     });
 
@@ -639,14 +857,6 @@
     function toggleDropdown() {
         document.getElementById('dropdownMenu').classList.toggle('hidden');
     }
-
-    // document.addEventListener('click', function (event) {
-    //     const dropdown = document.getElementById('dropdownMenu');
-    //     const button = event.target.closest('button');
-    //     if (!dropdown.contains(event.target) && !button) {
-    //         dropdown.classList.add('hidden');
-    //     }
-    // });
 
     function toggleSelectAll(masterCheckbox) {
         const checkboxes = document.querySelectorAll('.subcategory-checkbox');
@@ -770,12 +980,12 @@
 <script>
     $(document).ready(function(){
         $('#subject_wise').click(function() {
-            $('#subject').show();
+            $('#subjectAccordion').show();
             $('#part').hide();
         });
 
         $('#part_wise').click(function() {
-            $('#subject').hide();
+            $('#subjectAccordion').hide();
             $('#part').show();
         });
     });

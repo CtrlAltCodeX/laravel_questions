@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
@@ -46,7 +47,7 @@ class VideoController extends Controller
                 }]);
             }
         ]);
-        
+
         if ($topic_id) {
             $query->where('topic_id', $topic_id);
         }
@@ -127,9 +128,6 @@ class VideoController extends Controller
         ));
     }
 
-
-    
-
     public function export(Request $request)
     {
         $languageId = $request->get('language_id');
@@ -177,9 +175,6 @@ class VideoController extends Controller
         return redirect()->route('videos.index')->with('success', 'videos imported successfully!');
     }
 
-
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -193,36 +188,48 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-        request()->validate([
+        $request->validate([
             'name' => 'required',
             'topic_id' => 'required',
+            'video' => 'required|file|mimes:mp4,mov,avi|max:204800', // example validation
         ]);
 
-        $Video = Video::create(array_merge($request->all(), [
-            'duration' => now()->format('H:i:s') // Storing only current time (HH:MM:SS)
+        $video = Video::create(array_merge($request->except(['thumbnail', 'pdf_link', 'video']), [
+            'duration' => now()->format('H:i:s')
         ]));
 
+        // Upload to MinIO
         if ($request->hasFile('thumbnail')) {
             $fileName = "thumbnail/" . time() . "_photo.jpg";
             $request->file('thumbnail')->storePubliclyAs('public', $fileName);
-            $Video->thumbnail = $fileName;
+            $video->thumbnail = $fileName;
+
+            // $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+            // $fileName = $path . '/thumbnails/' . time() . '_' . $request->file('thumbnail')->getClientOriginalName();
+            // Storage::disk('minio')->put($fileName, file_get_contents($request->file('thumbnail')));
+            // $video->thumbnail = $fileName;
         }
+
         if ($request->hasFile('pdf_link')) {
-            $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
-            $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
-            $Video->pdf_link = $pdfFileName;
+            $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+
+            $pdfFileName = $path . '/pdfs/' . time() . '_' . $request->file('pdf_link')->getClientOriginalName();
+            Storage::disk('minio')->put($pdfFileName, file_get_contents($request->file('pdf_link')));
+            $video->pdf_link = $pdfFileName;
         }
 
-        $request->file('video')->store('videos', 's3');
+        if ($request->hasFile('video')) {
+            $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+            $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
+            Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
+        }
 
-        $Video->save();
-
-        session()->flash('success', 'Video Successfully Created');
+        $video->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Video Successfully Created',
-            'Video' => $Video
+            'video' => $video
         ]);
     }
 
@@ -257,43 +264,69 @@ class VideoController extends Controller
 
     public function update(Request $request, string $id)
     {
-        request()->validate([
+        $request->validate([
             'name' => 'required',
             'topic_id' => 'required'
         ]);
 
-        $Video = Video::find($id);
-        if (!$Video) {
+        $video = Video::find($id);
+        if (!$video) {
             return response()->json(['success' => false, 'message' => 'Video not found'], 404);
         }
 
-        // Update basic fields except 'thumbnail' and 'pdf_link' to handle files separately
-        $Video->update($request->except(['thumbnail', 'pdf_link']));
+        // Update text fields
+        $video->update($request->except(['thumbnail', 'pdf_link', 'video']));
 
-        // Update thumbnail if new file is uploaded
+        // === Handle Thumbnail ===
         if ($request->hasFile('thumbnail')) {
-            $fileName = "thumbnail/" . time() . "_photo.jpg";
-            $request->file('thumbnail')->storePubliclyAs('public', $fileName);
-            $Video->thumbnail = $fileName;
-        }
-
-        // Delete old PDF and upload new one if provided
-        if ($request->hasFile('pdf_link')) {
-            // Delete old PDF if exists
-            if ($Video->pdf_link && Storage::exists('public/' . $Video->pdf_link)) {
-                Storage::delete('public/' . $Video->pdf_link);
+            if ($video->thumbnail && Storage::disk('minio')->exists($video->thumbnail)) {
+                Storage::disk('minio')->delete($video->thumbnail);
             }
 
-            // Upload new PDF
-            $pdfFileName = "pdfs/" . time() . "_document." . $request->file('pdf_link')->getClientOriginalExtension();
-            $request->file('pdf_link')->storePubliclyAs('public', $pdfFileName);
-            $Video->pdf_link = $pdfFileName;
+            $fileName = "thumbnail/" . time() . "_photo.jpg";
+            $request->file('thumbnail')->storePubliclyAs('public', $fileName);
+            $video->thumbnail = $fileName;
+
+            // $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+            // $fileName = $path . '/thumbnails/' . time() . '_' . $request->file('thumbnail')->getClientOriginalName();
+            // Storage::disk('minio')->put($fileName, file_get_contents($request->file('thumbnail')));
+            // $video->thumbnail = $fileName;
         }
 
-        $Video->save();
+        // === Handle PDF ===
+        if ($request->hasFile('pdf_link')) {
+            // Delete old PDF if exists
+            if ($video->pdf_link && Storage::disk('minio')->exists($video->pdf_link)) {
+                Storage::disk('minio')->delete($video->pdf_link);
+            }
 
-        return response()->json(['success' => true, 'message' => 'Video Successfully Updated', 'Video' => $Video]);
+            $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+            $pdfFileName = $path . 'pdfs/' . time() . '_' . $request->file('pdf_link')->getClientOriginalName();
+            Storage::disk('minio')->put($pdfFileName, file_get_contents($request->file('pdf_link')));
+            $video->pdf_link = $pdfFileName;
+        }
+
+        // === Handle Video ===
+        if ($request->hasFile('video')) {
+            // Delete old video if exists
+            if ($video->video && Storage::disk('minio')->exists($video->video)) {
+                Storage::disk('minio')->delete($video->video);
+            }
+
+            $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
+            $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
+            Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
+        }
+
+        $video->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Video Successfully Updated',
+            'video' => $video
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.

@@ -6,14 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\GoogleUser;
 use App\Models\UserCourse;
-
 use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\Subject;
 use App\Models\Topic;
 use App\Models\Offer;
-use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -155,14 +153,14 @@ class CourseController extends Controller
     public function header()
     {
         return [
-            'id' => '#', 
-            'image' => 'Banner', 
-            'language' => 'Language Name', 
-            'category' => 'Category Name', 
-            'sub_category' => 'Sub-Category Name', 
-            'subject' => 'Subject Name', 
+            'id' => '#',
+            'image' => 'Banner',
+            'language' => 'Language Name',
+            'category' => 'Category Name',
+            'sub_category' => 'Sub-Category Name',
+            'subject' => 'Subject Name',
             'topic' => 'Topic',
-            'name' => 'Course name', 
+            'name' => 'Course name',
             'price' => 'Price',
             'subscription' => 'Subscription',
             'status' => 'Status',
@@ -198,6 +196,7 @@ class CourseController extends Controller
             'subjects' => 'required|array',
             'status' => 'required|boolean',
         ]);
+
         $subscriptions = [];
 
         foreach (['monthly', 'semi_annual', 'annual'] as $type) {
@@ -228,7 +227,7 @@ class CourseController extends Controller
             }
         }
 
-        $course = Course::create([
+        Course::create([
             'name' => $request->name,
             'language_id' => $request->language_id,
             'category_id' => $request->category_id,
@@ -241,8 +240,9 @@ class CourseController extends Controller
             'question_limit' => $request->question_limit,
             'subject_limit' => $subjectLimit,
             'part_limit' => $partLimit,
-
+            'meta_data' => $request->meta_data
         ]);
+
         return response()->json(['success' => true, 'message' => 'Course created successfully']);
     }
 
@@ -292,6 +292,7 @@ class CourseController extends Controller
         $course->subscription = $subscriptions;
         $course->language = $request->language;
         $course->question_limit = $request->question_limit;
+        $course->meta_data = $request->meta_data;
 
         if (request()->part == 'part') {
             $course->part_limit = $request->part_limit;
@@ -326,7 +327,7 @@ class CourseController extends Controller
 
         return response()->json($subjects);
     }
-  
+
     public function getCoursesWithOffers($user_id)
     {
         // Step 1: Get user
@@ -350,7 +351,7 @@ class CourseController extends Controller
             ->where('language_id', $language_id)
             ->get()
             ->map(function ($course) use ($user_id, $purchasedCourseIds) {
-                
+
                 $offer = Offer::whereJsonContains('course', (string) $course->id)
                     ->latest('created_at')
                     ->first();
@@ -366,13 +367,13 @@ class CourseController extends Controller
                         // Step 5: Check if user purchased this course
                         if (in_array($course->id, $purchasedCourseIds)) {
                             // Apply upgrade logic here if any
-                            $discount = isset($offerSubscription[$type]['upgrade']) 
-                                ? floatval($offerSubscription[$type]['upgrade']) 
+                            $discount = isset($offerSubscription[$type]['upgrade'])
+                                ? floatval($offerSubscription[$type]['upgrade'])
                                 : 0;
                         } else {
                             // Normal discount
-                            $discount = isset($offerSubscription[$type]['discount']) 
-                                ? floatval($offerSubscription[$type]['discount']) 
+                            $discount = isset($offerSubscription[$type]['discount'])
+                                ? floatval($offerSubscription[$type]['discount'])
                                 : 0;
                         }
 

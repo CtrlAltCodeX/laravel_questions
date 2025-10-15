@@ -228,54 +228,53 @@ class ScoreBoardController extends Controller
      *     )
      * )
      */
-   public function quizeStore(Request $request)
-{
-    $request->validate([
-        'google_user_id' => 'required|exists:google_users,id',
-        'subject_id'     => 'required|exists:subjects,id',
-        'topic_id'       => 'required|exists:topics,id',
-        'percentage'     => 'required|numeric|min:0|max:100',
-    ]);
-
-    $today = now()->toDateString();
-
-  
-    $quizExist = QuizePractice::where('google_user_id', $request->google_user_id)
-        ->where('subject_id', $request->subject_id)
-        ->where('topic_id', $request->topic_id)
-        ->whereDate('created_at', $today)
-        ->first();
-
-    if ($quizExist) {
-        $quizExist->update([
-            'percentage' => $request->percentage,
-            'attempt'    => $quizExist->attempt + 1, 
+    public function quizeStore(Request $request)
+    {
+        $request->validate([
+            'google_user_id' => 'required|exists:google_users,id',
+            'subject_id'     => 'required|exists:subjects,id',
+            'topic_id'       => 'required|exists:topics,id',
+            'percentage'     => 'required|numeric|min:0|max:100',
         ]);
 
-        $message = 'Quiz attempt updated successfully!';
-        $quiz = $quizExist;
-    } else {
-      
-        $quiz = QuizePractice::create([
-            'google_user_id' => $request->google_user_id,
-            'subject_id'     => $request->subject_id,
-            'topic_id'       => $request->topic_id,
-            'percentage'     => $request->percentage,
-            'attempt'        => 1,
-        ]);
+        $today = now()->toDateString();
 
-        $message = 'Quiz attempt created successfully!';
+        $quizExist = QuizePractice::where('google_user_id', $request->google_user_id)
+            ->where('subject_id', $request->subject_id)
+            ->where('topic_id', $request->topic_id)
+            ->whereDate('created_at', $today)
+            ->first();
+
+        if ($quizExist) {
+            $quizExist->update([
+                'percentage' => $request->percentage,
+                'attempt'    => $quizExist->attempt + 1,
+            ]);
+
+            $message = 'Quiz attempt updated successfully!';
+            $quiz = $quizExist;
+        } else {
+
+            $quiz = QuizePractice::create([
+                'google_user_id' => $request->google_user_id,
+                'subject_id'     => $request->subject_id,
+                'topic_id'       => $request->topic_id,
+                'percentage'     => $request->percentage,
+                'attempt'        => 1,
+            ]);
+
+            $message = 'Quiz attempt created successfully!';
+        }
+
+        return response()->json([
+            'message' => $message,
+            'data'    => $quiz
+        ], 200);
     }
-
-    return response()->json([
-        'message' => $message,
-        'data'    => $quiz
-    ], 200);
-}
 
     /**
      * @OA\Get(
-     *     path="/api/quize/{googleUserId}",
+     *     path="/api/quize-practice/{google_user_id}/{sub_category_id}",
      *     summary="Get quiz attempts by Google User ID",
      *     description="Retrieve all quiz attempts for a specific Google user with related subject and topic details.",
      *     tags={"Quize"},
@@ -300,83 +299,62 @@ class ScoreBoardController extends Controller
      *     )
      * )
      */
-    // public function quizeShow($googleUserId)
-    // {
-    //     $quiz = QuizePractice::where('google_user_id', $googleUserId)
-    //         ->with(['user', 'subjects', 'topic'])
-    //         ->get();
+    public function quizeShow($googleUserId, $subCategoryId)
+    {
+        $dates = collect(range(6, 0))->map(function ($i) {
+            return now()->subDays($i)->toDateString();
+        });
 
-    //     if ($quiz->isEmpty()) {
-    //         return response()->json([
-    //             'message' => 'No quiz attempt found for this user.'
-    //         ], 404);
-    //     }
+        $records = QuizePractice::where('google_user_id', $googleUserId)
+            ->whereDate('created_at', '>=', $dates->first())
+            ->whereHas('subjects', function ($q) use ($subCategoryId) {
+                $q->where('sub_category_id', $subCategoryId);
+            })
+            ->with(['user', 'subjects', 'topic'])
+            ->get();
 
-    //     return response()->json([
-    //         'message' => 'Quiz attempts retrieved successfully!',
-    //         'data' => $quiz
-    //     ], 200);
-    // }
+        $data = $dates->map(function ($date) {
+            $dayName = Carbon::parse($date)->format('l');
+            return [
+                'day' => $dayName,
+                'date' => $date,
+                'percentage' => 0,
+                'attempts' => 0,
+            ];
+        })->keyBy('date')->toArray();
 
+        foreach ($records as $record) {
+            $date = Carbon::parse($record->created_at)->toDateString();
 
-public function quizeShow($googleUserId, $subCategoryId)
-{
-  
-    $dates = collect(range(6, 0))->map(function ($i) {
-        return now()->subDays($i)->toDateString();
-    });
+            if (isset($data[$date])) {
+                $data[$date]['attempts'] += 1;
+                $data[$date]['percentage'] += (float) $record->percentage;
+            }
+        }
 
-    $records = QuizePractice::where('google_user_id', $googleUserId)
-        ->whereDate('created_at', '>=', $dates->first())
-        ->whereHas('subjects', function ($q) use ($subCategoryId) {
-            $q->where('sub_category_id', $subCategoryId);
-        })
-        ->with(['user', 'subjects', 'topic'])
-        ->get();
+        foreach ($data as &$item) {
+            if ($item['attempts'] > 0) {
+                $item['percentage'] = round($item['percentage'] / $item['attempts'], 2);
+            }
+        }
 
-    $data = $dates->map(function ($date) {
-        $dayName = Carbon::parse($date)->format('l'); 
-        return [
-            'day' => $dayName,
-            'date' => $date,
-            'percentage' => 0,
-            'attempts' => 0,
+        $firstRecord = $records->first();
+
+        $response = [
+            "message" => "Subject-wise daily summary (all attempts included)",
+            "id" => $firstRecord?->id ?? null,
+            "google_user_id" => $firstRecord?->google_user_id ?? (int) $googleUserId,
+            "subject_id" => $firstRecord?->subject_id ?? null,
+            "topic_id" => $firstRecord?->topic_id ?? null,
+            "percentage" => $firstRecord?->percentage ?? 0,
+            "attempt" => $firstRecord?->attempt ?? 0,
+            "created_at" => $firstRecord?->created_at ?? now(),
+            "updated_at" => $firstRecord?->updated_at ?? now(),
+            "data" => array_values($data),
         ];
-    })->keyBy('date')->toArray();
 
-    foreach ($records as $record) {
-        $date = Carbon::parse($record->created_at)->toDateString();
-
-        if (isset($data[$date])) {
-       
-            $data[$date]['attempts'] += 1;
-            $data[$date]['percentage'] += (float) $record->percentage;
-        }
+        return response()->json($response, 200);
     }
-
-    foreach ($data as &$item) {
-        if ($item['attempts'] > 0) {
-            $item['percentage'] = round($item['percentage'] / $item['attempts'], 2);
-        }
-    }
-
-    $firstRecord = $records->first();
-
-    $response = [
-        "message" => "Subject-wise daily summary (all attempts included)",
-        "id" => $firstRecord?->id ?? null,
-        "google_user_id" => $firstRecord?->google_user_id ?? (int) $googleUserId,
-        "subject_id" => $firstRecord?->subject_id ?? null,
-        "topic_id" => $firstRecord?->topic_id ?? null,
-        "percentage" => $firstRecord?->percentage ?? 0,
-        "attempt" => $firstRecord?->attempt ?? 0,
-        "created_at" => $firstRecord?->created_at ?? now(),
-        "updated_at" => $firstRecord?->updated_at ?? now(),
-        "data" => array_values($data), 
-    ];
-
-    return response()->json($response, 200);
-}
 
     /**
      * @OA\Post(
@@ -433,7 +411,7 @@ public function quizeShow($googleUserId, $subCategoryId)
      *     )
      * )
      */
-    public function questioncountstore(Request $request)
+    public function questionCountStore(Request $request)
     {
         $request->validate([
             'google_user_id' => 'required|exists:google_users,id',
@@ -473,7 +451,7 @@ public function quizeShow($googleUserId, $subCategoryId)
     }
 
 
-    public function questioncountshowAllData($googleUserId)
+    public function questionCountShowAllData($googleUserId)
     {
         $records = QuestionBankCount::where('google_user_id', $googleUserId)
             ->with(['user', 'subject', 'topic'])
@@ -491,13 +469,11 @@ public function quizeShow($googleUserId, $subCategoryId)
         ], 200);
     }
 
-    public function questioncountshow($googleUserId, $subCategoryId)
+    public function questionCountShow($googleUserId, $subCategoryId)
     {
-
         $dates = collect(range(6, 0))->map(function ($i) {
             return now()->subDays($i)->toDateString();
         });
-
 
         $records = QuestionBankCount::where('google_user_id', $googleUserId)
             ->whereDate('created_at', '>=', $dates->first())
@@ -514,7 +490,6 @@ public function quizeShow($googleUserId, $subCategoryId)
                 'series' => []
             ], 200);
         }
-
 
         $grouped = $records->groupBy('subject_id');
 

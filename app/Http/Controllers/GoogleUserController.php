@@ -6,6 +6,7 @@ use App\Mail\OTP;
 use Illuminate\Http\Request;
 use App\Models\GoogleUser;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(

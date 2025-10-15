@@ -36,13 +36,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-Route::middleware('authapi')->group(function () {
-    Route::get("{userId}/{CourseId}/quiz", [QuizController::class, 'deploy']);
+Route::get("{userId}/{CourseId}/quiz", [QuizController::class, 'deploy']);
 
-    Route::get('bank-api', [QuestionBankController::class, 'deploy']);
+Route::get('{userId}/{CourseId}/bank-api', [QuestionBankController::class, 'deploy']);
 
-    Route::get('{userId}/{CourseId}/cbt', [CbtController::class, 'deploy']);
-});
+Route::get('{userId}/{CourseId}/cbt', [CbtController::class, 'deploy']);
+
+Route::middleware('authapi')->group(function () {});
 
 Route::post('reports', [ReportController::class, 'store']);
 
@@ -68,22 +68,21 @@ Route::get('offers', [OfferController::class, 'getOffersApi']);
 // get 7. Refer and Welcome Coin
 Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);
 
-// get course
-Route::get('/courses/offers/{user_id}', [CourseController::class, 'getCoursesWithOffers']);
+Route::get('courses/offers/{user_id}', [CourseController::class, 'getCoursesWithOffers']);
 
-Route::get('/user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
-Route::post('/user/courses', [UserCourseController::class, 'assignCourseToUser']);
+Route::get('user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
+Route::post('user/courses', [UserCourseController::class, 'assignCourseToUser']);
 
-Route::post('/save-payment', [PaymentController::class, 'store']);
-Route::get('/get-final-amount', [PaymentController::class, 'getFinalAmount']);
-Route::post('/quize-practice/store', [ScoreBoardController::class, 'quizestore']);
-Route::get('/quize-practice/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeshow']);
+Route::post('save-payment', [PaymentController::class, 'store']);
+Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
 
-Route::post('/question-bank-count/store', [ScoreBoardController::class, 'questioncountstore']);
-Route::get('/question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questioncountshow']);
+Route::post('quize/store', [ScoreBoardController::class, 'quizeStore']);
+Route::get('/quiz/show/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeShowData']);
 
+Route::post('question-bank-count/store', [ScoreBoardController::class, 'questionCountStore']);
+Route::get('question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questionCountShow']);
 
-Route::post('/mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
-Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
+Route::post('mock-test/store', [ScoreBoardController::class, 'mockTestStore']);
+Route::get('mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
 
-Route::post('/update/course/status', [UserCourseController::class, 'updateCourseStatus']);
+Route::post('update/course/status', [UserCourseController::class, 'updateCourseStatus']);

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 
 class Course extends Model
 {
@@ -20,7 +18,8 @@ class Course extends Model
         'language',
         'question_limit',
         'subject_limit',
-        'part_limit'
+        'part_limit',
+        'meta_data'
     ];
 
     protected $casts = [

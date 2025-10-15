@@ -54,8 +54,7 @@
                             </td>
                             @break;
                         @case ('text')
-                            <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white">    {{ Str::limit($data->$value, 50) }}
-</td>
+                            <td class="px-4 py-3 text-center font-semibold text-gray-900 dark:text-white"> {{ Str::limit($data->$value, 50) }} </td>
                             @break;
                     @endswitch
                 @endforeach
