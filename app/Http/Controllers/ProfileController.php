@@ -107,17 +107,15 @@ class ProfileController extends Controller
     public function updateCoinsAndStatus(Request $request, $id)
 {
     $request->validate([
-        'coins' => 'required|integer|min:0',
-        'status' => 'required|boolean'
+       
+        'status' => 'required'
     ]);
 
-    // GoogleUser ko dhoondein
+
     $user = GoogleUser::findOrFail($id);
 
-    // Existing coins me naye coins add karein
     $user->coins += $request->coins;
 
-    // Status update karein
     $user->status = $request->status;
 
     // Database me save karein

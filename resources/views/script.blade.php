@@ -70,7 +70,8 @@
                 document.getElementById('modal').style.display = 'none';  // hide modal
                 location.reload();
             } else if (data.errors) {
-                const errorFields = ['name', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'discount', 'valid_until', 'mode', 'status'];
+                console.log("joooo")
+                const errorFields = ['name', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'discount', 'valid_until', 'mode', 'status','video'];
                 errorFields.forEach(field => {
                     const errorContainer = document.getElementById(`error-${field}`);
                     if (errorContainer) {
