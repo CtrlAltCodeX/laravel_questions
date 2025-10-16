@@ -290,6 +290,7 @@ class ScoreBoardController extends Controller
             })
             ->with(['subjects:id,name,sub_category_id'])
             ->get();
+    $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
 
         if ($records->isEmpty()) {
             return response()->json([
@@ -297,6 +298,7 @@ class ScoreBoardController extends Controller
                 "meta" => [
                     "user_id" => (int) $googleUserId,
                     "sub_category_id" => (int) $subCategoryId,
+                    "sub_category_name" => $subCategoryName,
                     "range" => "weekly",
                 ],
                 "data" => []
@@ -342,6 +344,7 @@ class ScoreBoardController extends Controller
             "meta" => [
                 "user_id" => (int) $googleUserId,
                 "sub_category_id" => (int) $subCategoryId,
+                "sub_category_name" => $subCategoryName,
                 "range" => "weekly",
             ],
             "data" => $data
@@ -461,50 +464,66 @@ class ScoreBoardController extends Controller
         ], 200);
     }
 
-    public function questionCountShow($googleUserId, $subCategoryId)
-    {
-        $dates = collect(range(6, 0))->map(function ($i) {
-            return now()->subDays($i)->toDateString();
-        });
+   
+public function questionCountShow($googleUserId, $subCategoryId)
+{
+    $dates = collect(range(6, 0))->map(fn($i) => now()->subDays($i)->toDateString());
 
-        $records = QuestionBankCount::where('google_user_id', $googleUserId)
-            ->whereDate('created_at', '>=', $dates->first())
-            ->whereHas('subject', function ($q) use ($subCategoryId) {
-                $q->where('sub_category_id', $subCategoryId);
-            })
-            ->with(['subject'])
-            ->get();
+    $records = QuestionBankCount::where('google_user_id', $googleUserId)
+        ->whereDate('created_at', '>=', $dates->first())
+        ->whereHas('subject', fn($q) => $q->where('sub_category_id', $subCategoryId))
+        ->with(['subject:id,name,sub_category_id'])
+        ->get();
 
-        if ($records->isEmpty()) {
-            return response()->json([
-                'message' => 'No question bank records found for this user in the last 7 days.',
-                'labels' => $dates,
-                'series' => []
-            ], 200);
-        }
+   
+    $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
 
-        $grouped = $records->groupBy('subject_id');
-
-        $series = $grouped->map(function ($items, $subjectId) use ($dates) {
-            $data = $dates->map(function ($date) use ($items) {
-                return $items->whereBetween('created_at', [
-                    $date . " 00:00:00",
-                    $date . " 23:59:59"
-                ])->sum('count');
-            });
-
-            return [
-                'subject_id' => (int) $subjectId,
-                'data' => $data
-            ];
-        })->values();
-
+    if ($records->isEmpty()) {
         return response()->json([
-            'message' => 'Question bank records retrieved successfully!',
+            'message' => 'No question bank records found for this user in the last 7 days.',
+            'meta' => [
+                'user_id' => (int) $googleUserId,
+                'sub_category_id' => (int) $subCategoryId,
+                'sub_category_name' => $subCategoryName,
+                'range' => 'weekly',
+            ],
             'labels' => $dates,
-            'series' => $series
+            'series' => []
         ], 200);
     }
+
+    $grouped = $records->groupBy('subject_id');
+
+    $series = $grouped->map(function ($items, $subjectId) use ($dates) {
+        $subjectName = $items->first()->subject->name ?? 'Unknown Subject';
+
+        $data = $dates->map(function ($date) use ($items) {
+            return $items->whereBetween('created_at', [
+                $date . " 00:00:00",
+                $date . " 23:59:59"
+            ])->sum('count');
+        });
+
+        return [
+            'subject_id' => (int) $subjectId,
+            'subject_name' => $subjectName,
+            'data' => $data
+        ];
+    })->values();
+
+    return response()->json([
+        'message' => 'Question bank records retrieved successfully!',
+        'meta' => [
+            'user_id' => (int) $googleUserId,
+            'sub_category_id' => (int) $subCategoryId,
+            'sub_category_name' => $subCategoryName,
+            'range' => 'weekly',
+        ],
+        'labels' => $dates,
+        'series' => $series
+    ], 200);
+}
+
 
     // public function questioncountshow($googleUserId)
     // {
@@ -680,14 +699,23 @@ class ScoreBoardController extends Controller
 {
     $records = MockTest::where('google_user_id', $googleUserId)
         ->where('sub_category_id', $subCategoryId)
-        ->with(['user', 'subCategory'])
+        ->with(['user', 'subCategory:id,name'])
         ->get();
+
+
+            $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+
 
     if ($records->isEmpty()) {
         return response()->json([
             'status' => false,
             'message' => 'No mock test records found for this user and sub-category.',
-            'data' => null
+            'data' => null,
+             'meta' => [
+                'user_id' => (int) $googleUserId,
+                'sub_category_id' => (int) $subCategoryId,
+                'sub_category_name' => $subCategoryName,
+            ],
         ], 404);
     }
 
@@ -705,6 +733,7 @@ class ScoreBoardController extends Controller
         'id' => $latestRecord->id,
         'google_user_id' => (int) $googleUserId,
         'sub_category_id' => (int) $subCategoryId,
+        'sub_category_name' => $subCategoryName,
         'right_answer' => $rightAnswerSum,
         'wrong_answer' => $wrongAnswerSum,
         'total_questions' => $totalQuestionsSum,
