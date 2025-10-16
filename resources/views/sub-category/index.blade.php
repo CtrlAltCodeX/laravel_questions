@@ -255,6 +255,8 @@
                     <option value="{{$item->id}}">{{$item->name}}</option>
                     @endforeach
                 </select>
+
+                
                 @error('language_id')
                 <div class="text-red-500">{{ $message }}</div>
                 @enderror
