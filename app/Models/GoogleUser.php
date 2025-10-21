@@ -15,7 +15,6 @@ class GoogleUser extends Model
         'profile_image',
         'phone_number',
         'login_type',
-        'coins',
         'plan',
         'referral_code',
         'friend_code',
@@ -31,11 +30,23 @@ class GoogleUser extends Model
         return $this->belongsTo(Category::class);
     }
 
+
+    public function coinsHistory()
+    {
+        return $this->hasMany(UserCoin::class, 'user_id');
+    }
+
+    // total coins getter
+    public function getTotalCoinsAttribute()
+    {
+        return $this->coinsHistory()->sum('coin');
+    }
+
+
+
     // In GoogleUser.php model
-public function userCourses()
-{
-    return $this->hasMany(UserCourse::class, 'user_id');
-}
-
-
+    public function userCourses()
+    {
+        return $this->hasMany(UserCourse::class, 'user_id');
+    }
 }

@@ -11,57 +11,27 @@ use App\Models\Offer;
 use App\Models\UserCourse;
 use App\Models\GoogleUser;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PaymentsExport;
 
 class PaymentController extends Controller
 {
-    /**
-     * @OA\Post(
-     *     path="/api/save-payment",
-     *     summary="Store a new payment and update user course subscription",
-     *     tags={"Payments"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"payment_id","currency","status","user_id","course_id","plan_type"},
-     *             @OA\Property(property="payment_id", type="string", example="pay_123456"),
-     *             @OA\Property(property="currency", type="string", example="INR"),
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="user_id", type="integer", example=1),
-     *             @OA\Property(property="course_id", type="integer", example=5),
-     *             @OA\Property(property="plan_type", type="string", enum={"monthly","semi_annual","annual"}, example="monthly")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Payment saved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string", example="Payment saved successfully"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=10),
-     *                 @OA\Property(property="payment_id", type="string", example="pay_123456"),
-     *                 @OA\Property(property="currency", type="string", example="INR"),
-     *                 @OA\Property(property="status", type="string", example="success"),
-     *                 @OA\Property(property="user_id", type="integer", example=1),
-     *                 @OA\Property(property="course_id", type="integer", example=5),
-     *                 @OA\Property(property="plan_type", type="string", example="monthly"),
-     *                 @OA\Property(property="amount", type="number", example=899.99),
-     *                 @OA\Property(property="email", type="string", example="user@example.com"),
-     *                 @OA\Property(property="contact", type="string", example="9876543210"),
-     *                 @OA\Property(property="created_at", type="string", example="2025-09-05T10:00:00.000000Z")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid plan type or subscription data"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Course not found or User not found"
-     *     )
-     * )
-     */
+
+    public function index()
+{
+    $payments = Payment::with(['user', 'course'])
+        ->latest()
+        ->get();
+
+    return view('payment-history.index', compact('payments'));
+}
+
+
+public function exportExcel()
+{
+    return Excel::download(new PaymentsExport, 'payment-history.xlsx');
+}
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -154,42 +124,6 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/get-final-amount",
-     *     summary="Get final payable amount for a course considering offers and subscription plan",
-     *     tags={"Payments"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"user_id","course_id","plan_type"},
-     *             @OA\Property(property="user_id", type="integer", example=1),
-     *             @OA\Property(property="course_id", type="integer", example=5),
-     *             @OA\Property(property="plan_type", type="string", enum={"monthly","semi_annual","annual"}, example="annual")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Final amount calculated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="final_amount", type="number", example=750.00),
-     *             @OA\Property(property="original_amount", type="number", example=1000.00),
-     *             @OA\Property(property="discount_percentage", type="number", example=25),
-     *             @OA\Property(property="plan_type", type="string", example="annual"),
-     *             @OA\Property(property="course_name", type="string", example="Advanced Laravel Mastery")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid plan type or missing subscription data"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="User or Course not found"
-     *     )
-     * )
-     */
     public function getFinalAmount(Request $request)
     {
         $validated = $request->validate([

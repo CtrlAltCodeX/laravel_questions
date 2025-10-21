@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\GoogleUser;
 use App\Models\User;
-use App\Models\UserSession;
+use App\Models\UserCoin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,7 +92,8 @@ class ProfileController extends Controller
 {
     $query = GoogleUser::with([
         'category.language',
-        'userCourses.course' 
+        'userCourses.course' ,
+         'coinsHistory'
     ]);
 
     if ($request->filled('category_id')) {
@@ -103,25 +104,33 @@ class ProfileController extends Controller
 
     return view('users.index', compact('users'));
 }
-
-    public function updateCoinsAndStatus(Request $request, $id)
+public function updateCoinsAndStatus(Request $request, $id)
 {
     $request->validate([
-       
-        'status' => 'required'
+        'status' => 'required',
+        'coins' => 'nullable|integer',
+        'meta_data' => 'nullable|string',
     ]);
-
 
     $user = GoogleUser::findOrFail($id);
 
-    $user->coins += $request->coins;
-
+    // ✅ Update status in GoogleUser
     $user->status = $request->status;
-
-    // Database me save karein
     $user->save();
-    return response()->json(['success' => true, 'message' => 'Coins and status updated successfully.', 'user' => $user], 201);
 
+    // ✅ Add coin entry in new table
+    if ($request->coins > 0) {
+        UserCoin::create([
+            'user_id' => $user->id,
+            'coin' => $request->coins,
+            'meta_description' => $request->meta_data,
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Coins added and status updated successfully.',
+        'user' => $user
+    ], 201);
 }
-
 }

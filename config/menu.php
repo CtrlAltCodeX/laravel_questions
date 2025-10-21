@@ -109,6 +109,14 @@ return [
             'icon' => 'fa fa-home',
         ],
 
+        
+        [
+            'name' => 'Payment History',
+            'route' => 'PaymentHistory.index',
+            'icon' => 'fa fa-home',
+        ],
+
+
         [
             'name' => 'Wallet History',
             'route' => 'WalletHistory.index',

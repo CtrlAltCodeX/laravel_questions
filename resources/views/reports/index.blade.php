@@ -8,125 +8,125 @@
     <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Reports</h1>
 
     <div class="flex justify-end items-center gap-2">
-       
-      
 
-        <input type="text" id="searchFilter" placeholder="Search Offers..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
+
+
+        <input type="text" id="searchFilter" placeholder="Search Reports..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
     </div>
 
 </div>
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <form action="{{ route('reports.index') }}" method="GET">
- 
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                   Id
-                </th>
-                <th scope="col" class="px-6 py-3">
-                   Name
-                </th>
-                <th scope="col" class="px-6 py-3">
-                 Title
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  Type
-                </th>
-                <th scope="col" class="px-6 py-3">
-                   Message
-                </th>
-                <th scope="col" class="px-6 py-3">
-                   Date
-                </th>
 
-                <th scope="col" class="px-6 py-3">
-                    Action
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($reports as $report)
-            <tr class=" offerRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->id}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->name}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->title}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->type}}
-                </th>
-              
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Id
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Name
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Title
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Type
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Message
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Date
+                    </th>
 
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->message}}
-                </th>
-
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$report->date}}
-                </th>
-                <td class="px-6 py-4 flex gap-4">
-    @if ($report->type === 'Video')
-        <button class="edit-report" 
-            data-id="{{ $report->video_id }}" 
-            data-reportid="{{ $report->id }}"
-            data-type="{{ $report->type }}">
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                            <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
-                        </svg>
-        </button>
-    @else
-        <button  class="open-edit-modal"
-            data-id="{{ $report->question_id }}" 
-            data-reportid="{{ $report->id }}"
-            data-type="{{ $report->type }}">
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-                            <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
-                        </svg>
-        </button>
-    @endif
-    <form action="{{ route('reports.destroy', $report->id) }}" method="POST">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
-        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
-            <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
-        </svg>
-    </button>
-</form>
-
-</td>
+                    <th scope="col" class="px-6 py-3">
+                        Action
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($reports as $report)
+                <tr class=" offerRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->id}}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->name}}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->title}}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->type}}
+                    </th>
 
 
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->message}}
+                    </th>
+
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{$report->date}}
+                    </th>
+                    <td class="px-6 py-4 flex gap-4">
+                        @if ($report->type === 'Video')
+                        <button class="edit-report"
+                            data-id="{{ $report->video_id }}"
+                            data-reportid="{{ $report->id }}"
+                            data-type="{{ $report->type }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                                <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
+                            </svg>
+                        </button>
+                        @else
+                        <button class="open-edit-modal"
+                            data-id="{{ $report->question_id }}"
+                            data-reportid="{{ $report->id }}"
+                            data-type="{{ $report->type }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                                <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
+                            </svg>
+                        </button>
+                        @endif
+                        <form action="{{ route('reports.destroy', $report->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="font-medium text-danger dark:text-danger-500 hover:underline" onclick="return confirm('Are you sure?')">
+                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 30 30">
+                                    <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
+                                </svg>
+                            </button>
+                        </form>
+
+                    </td>
 
 
-            </tr>
-            @empty
-            <tr>
-                <td colspan="7" align="center">No Result Found</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-    @if(request()->data != 'all')
-    <div class="flex justify-between items-center">
-        <div style="width: 92%;">
-            {{ $reports->appends(request()->query())->links() }}
 
+
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" align="center">No Result Found</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+        @if(request()->data != 'all')
+        <div class="flex justify-between items-center">
+            <div style="width: 92%;">
+                {{ $reports->appends(request()->query())->links() }}
+
+            </div>
+
+            <div>
+                <a href="{{ request()->fullUrlWithQuery(['data' => 'all']) }}"
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    View All
+                </a>
+            </div>
         </div>
-
-        <div>
-            <a href="{{ request()->fullUrlWithQuery(['data' => 'all']) }}"
-                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                View All
-            </a>
-        </div>
-    </div>
-    @endif
+        @endif
 </div>
 
 @endsection
@@ -221,40 +221,40 @@
             </div>
 
             <!-- Discount & Valid Until -->
-<div class="flex justify-between mb-3">
-    <input type="text" id="v_no" placeholder="V.N." name="v_no" style="margin-right: 10px;"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
+            <div class="flex justify-between mb-3">
+                <input type="text" id="v_no" placeholder="V.N." name="v_no" style="margin-right: 10px;"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
+                    required />
 
-    <input type="text"  placeholder="Description" id="description" name="description"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
-</div>
+                <input type="text" placeholder="Description" id="description" name="description"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
+                    required />
+            </div>
 
-<div class="flex justify-between mb-3">
-    <input type="text" id="youtube_link" placeholder="Youtube Link" name="youtube_link" style="margin-right: 10px;"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
+            <div class="flex justify-between mb-3">
+                <input type="text" id="youtube_link" placeholder="Youtube Link" name="youtube_link" style="margin-right: 10px;"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
+                    required />
 
-    <input type="text"  placeholder="Upload/Video Id" id="video_id" name="video_id"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
+                <input type="text" placeholder="Upload/Video Id" id="video_id" name="video_id"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
+                    required />
 
-        <input type="text"  placeholder="pdf_link" id="pdf_link" name="pdf_link"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-        required />
-</div>
+                <input type="text" placeholder="pdf_link" id="pdf_link" name="pdf_link"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
+                    required />
+            </div>
 
 
 
-<div class="mb-3 max-auto">
-  
-    <select id="video_type" name="video_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-       <option value="">Select Type</option>
-        <option value="Free">Free</option>
-        <option value="Paid">Paid</option>
-    </select>
-</div>
+            <div class="mb-3 max-auto">
+
+                <select id="video_type" name="video_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="">Select Type</option>
+                    <option value="Free">Free</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </div>
 
 
 
@@ -310,11 +310,11 @@
 @include('script')
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.status-checkbox');
 
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
+            checkbox.addEventListener('change', function() {
                 checkboxes.forEach(cb => {
                     if (cb !== this) {
                         cb.checked = false; // Ek time pe sirf ek select ho
@@ -324,10 +324,10 @@
         });
     });
 
-    document.getElementById('searchFilter').addEventListener('input', function () {
+    document.getElementById('searchFilter').addEventListener('input', function() {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll('#offersTable .offerRow');
-        
+
         rows.forEach(row => {
             let text = row.textContent.toLowerCase();
             row.style.display = text.includes(filter) ? '' : 'none';
@@ -336,102 +336,103 @@
 
 
     document.getElementById('fileInput').addEventListener('change', function(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var output = document.getElementById('VideoImage');
-                output.src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        });
-
-
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('VideoImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
 </script>
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    
-    $(document).on("click", ".edit-report", function (e) {
-        e.preventDefault(); // Prevent default anchor behavior
+    document.addEventListener('DOMContentLoaded', function() {
 
-        var id = $(this).data("id");
-        var type = $(this).data("type");
-        const report_id = this.getAttribute('data-reportid');
-       
-        if(type==="Video"){
+        $(document).on("click", ".edit-report", function(e) {
+            e.preventDefault(); // Prevent default anchor behavior
 
-            $.ajax({
-            url: "{{ route('reports.edit') }}", // Ensure it's wrapped in quotes
-            type: "GET",
-            data: { type: type, id: id },
-            dataType: "json",
-            success: function (response) {
-                if (response.error) {
-                    alert(response.error);
-                    return;
-                }
+            var id = $(this).data("id");
+            var type = $(this).data("type");
+            const report_id = this.getAttribute('data-reportid');
 
-            
-                const data=response?.data;
-             
-            // Extract nested fields correctly
-            const languageId = data?.topic?.subject?.sub_category?.category?.language?.id || "";
-            const categoryId = data?.topic?.subject?.sub_category?.category?.id || "";
-            const subCategoryId = data?.topic?.subject?.sub_category?.id || "";
-            const subjectId = data?.topic?.subject?.id || "";
-            const topicId = data?.topic?.id || "";
+            if (type === "Video") {
 
-            // Set modal fields
-            document.getElementById('modalTitle').innerText = 'Edit Video';
-            document.getElementById('modalForm').action = `/reports/update/${id}/${report_id}`;
-            document.getElementById('modalForm').method = 'POST';
-            document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
+                $.ajax({
+                    url: "{{ route('reports.edit') }}", // Ensure it's wrapped in quotes
+                    type: "GET",
+                    data: {
+                        type: type,
+                        id: id
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.error) {
+                            alert(response.error);
+                            return;
+                        }
 
-            document.getElementById('name').value = data?.name;
-            document.getElementById('select_language').value = languageId;
-            document.getElementById('select_category').value = categoryId;
-            document.getElementById('select_sub_category').value = subCategoryId;
-            document.getElementById('select_subject').value = subjectId;
-            document.getElementById('select_topic').value = topicId;
-            document.getElementById('v_no').value = data.v_no;
-            document.getElementById('description').value = data.description;
-            document.getElementById('youtube_link').value = data.youtube_link;
-            document.getElementById('video_id').value = data.video_id;
-            document.getElementById('pdf_link').value = data.pdf_link;
-            document.getElementById('video_type').value = data.video_type;
 
-            // Handle thumbnail image
-            document.getElementById('VideoImage').src = data.thumbnail ? `/storage/${data.thumbnail}` : '/dummy.jpg';
+                        const data = response?.data;
 
-            // Handling video type checkboxes
-         
-            document.getElementById('modal').style.display = 'flex';
-            // Show modal
-            },
-            error: function (xhr) {
-                console.error("Error fetching data:", xhr.responseText);
-                alert("An error occurred while fetching the data.");
+                        // Extract nested fields correctly
+                        const languageId = data?.topic?.subject?.sub_category?.category?.language?.id || "";
+                        const categoryId = data?.topic?.subject?.sub_category?.category?.id || "";
+                        const subCategoryId = data?.topic?.subject?.sub_category?.id || "";
+                        const subjectId = data?.topic?.subject?.id || "";
+                        const topicId = data?.topic?.id || "";
+
+                        // Set modal fields
+                        document.getElementById('modalTitle').innerText = 'Edit Video';
+                        document.getElementById('modalForm').action = `/reports/update/${id}/${report_id}`;
+                        document.getElementById('modalForm').method = 'POST';
+                        document.getElementById('modalForm').querySelector('input[name="_method"]').value = 'PUT';
+
+                        document.getElementById('name').value = data?.name;
+                        document.getElementById('select_language').value = languageId;
+                        document.getElementById('select_category').value = categoryId;
+                        document.getElementById('select_sub_category').value = subCategoryId;
+                        document.getElementById('select_subject').value = subjectId;
+                        document.getElementById('select_topic').value = topicId;
+                        document.getElementById('v_no').value = data.v_no;
+                        document.getElementById('description').value = data.description;
+                        document.getElementById('youtube_link').value = data.youtube_link;
+                        document.getElementById('video_id').value = data.video_id;
+                        document.getElementById('pdf_link').value = data.pdf_link;
+                        document.getElementById('video_type').value = data.video_type;
+
+                        // Handle thumbnail image
+                        document.getElementById('VideoImage').src = data.thumbnail ? `/storage/${data.thumbnail}` : '/dummy.jpg';
+
+                        // Handling video type checkboxes
+
+                        document.getElementById('modal').style.display = 'flex';
+                        // Show modal
+                    },
+                    error: function(xhr) {
+                        console.error("Error fetching data:", xhr.responseText);
+                        alert("An error occurred while fetching the data.");
+                    }
+                });
+            } else {
+                console.log("question" + id + type + report_id)
             }
         });
-        }else{
-             console.log("question"+id+type+report_id)
-        }
+
+
+        $(document).on("click", ".open-edit-modal", function(e) {
+            e.preventDefault(); // Prevent default anchor behavior
+            document.getElementById('editModal').style.display = 'flex';
+        });
+
+
+
+        // Close modal button
+        $("#closeModal").click(function() {
+            $("#modal").hide();
+        });
+
     });
-
-    
-    $(document).on("click", ".open-edit-modal", function (e) {
-        e.preventDefault(); // Prevent default anchor behavior
-        document.getElementById('editModal').style.display = 'flex';
-    });
-
-
-    
-    // Close modal button
-    $("#closeModal").click(function () {
-        $("#modal").hide();
-    });
-
-});
 </script>
 
 <script>
@@ -442,10 +443,10 @@
         document.querySelectorAll('.open-edit-modal').forEach(button => {
             button.addEventListener('click', function() {
                 const questionId = this.dataset.id;
-      
-        const report_id = this.getAttribute('data-reportid');
 
-        console.log("question"+questionId+report_id)
+                const report_id = this.getAttribute('data-reportid');
+
+                console.log("question" + questionId + report_id)
                 // Fetch data from the server
                 const fetchUrl = editQuestionRoute.replace(':id', questionId);
 
@@ -461,8 +462,8 @@
                         console.log("edit data question data", data);
                         const modalContent = document.getElementById('modalContent');
                         document.getElementById('questioneditForm').action = `/reports/updateQuestion/${questionId}/${report_id}`;
-            document.getElementById('questioneditForm').method = 'POST';
-            document.getElementById('questioneditForm').querySelector('input[name="_method"]').value = 'PUT';   
+                        document.getElementById('questioneditForm').method = 'POST';
+                        document.getElementById('questioneditForm').querySelector('input[name="_method"]').value = 'PUT';
                         // Clear previous content
                         modalContent.innerHTML = '';
 
@@ -682,11 +683,11 @@
             document.getElementById('editModal').style.display = 'none';
         });
 
-  
-        
 
 
-    
+
+
+
     });
 </script>
 

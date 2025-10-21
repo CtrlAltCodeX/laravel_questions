@@ -13,9 +13,8 @@
             <tr>
                 <th scope="col" class="px-6 py-3">Id</th>
                 <th scope="col" class="px-6 py-3">Name / Profile Photo</th>
-                <!-- <th scope="col" class="px-6 py-3">Profile Photo</th> -->
+
                 <th scope="col" class="px-6 py-3">Phone Number / Email Id</th>
-                <!-- <th scope="col" class="px-6 py-3">Email Id</th> -->
                 <th scope="col" class="px-6 py-3">Coins</th>
                 <th scope="col" class="px-6 py-3">Login Type</th>
                 <th scope="col" class="px-6 py-3"> Courses</th>
@@ -51,7 +50,10 @@
                     </div>
                 </td>
 
-                <td class="px-6 py-4 font-semibold text-gray-600">{{ $user->coins ?? '-' }}</td>
+                <td class="px-6 py-4 font-semibold text-gray-600">
+                    {{ $user->total_coins > 0 ? $user->total_coins : '-' }}
+                </td>
+              
                 <td class="px-6 py-4">{{ $user->login_type }}</td>
                 {{-- Course Names --}}
                 <td class="px-6 py-4 text-center">
@@ -135,7 +137,15 @@
                 </select>
             </div>
 
-
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Meta Data</label>
+                <textarea id="meta_data" name="meta_data"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+                   dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Enter meta description here..."></textarea>
+            </div>
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Update
             </button>

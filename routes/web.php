@@ -13,6 +13,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\QuestionBankController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
@@ -56,7 +57,10 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/users/update-coins-status/{id}', [ProfileController::class, 'updateCoinsAndStatus'])
         ->name('users.updateCoinsAndStatus');
+Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class, 'getUserPaymentAnalytics']);
 
+    Route::get('/dashboard/user-analytics/{range}', [DashboardController::class, 'getUserAnalytics']);
+    Route::get('/dashboard/user-analytics/export/file', [DashboardController::class, 'exportUserAnalytics'])->name('dashboard.user.analytics.export');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard.total.count');
@@ -89,6 +93,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
     Route::get('/reports', [ReportController::class, 'webindex'])->name('reports.index');
+    Route::get('/PaymentHistory', [PaymentController::class, 'index'])->name('PaymentHistory.index');
+    // routes/web.php
+    Route::get('/payments/export/file', [PaymentController::class, 'exportExcel'])->name('payments.export');
+
     Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])->name('WalletHistory.index');
     Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])->name('reports.updateVideo');
     Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])->name('reports.updateQuestion');

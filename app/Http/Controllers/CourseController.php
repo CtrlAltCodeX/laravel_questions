@@ -81,8 +81,11 @@ class CourseController extends Controller
         ];
         foreach ($courses as $course) {
             // Decode JSON strings safely
-            $subCategoryIds = $course->sub_category_id ?? [];
-            $subjectIds = $course->subject_id ?? [];
+            // $subCategoryIds = $course->sub_category_id ?? [];
+            // $subjectIds = $course->subject_id ?? [];
+
+            $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
+            $subjectIds = json_decode($course->subject_id, true) ?? [];
 
             $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
             $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');
@@ -128,7 +131,7 @@ class CourseController extends Controller
         }
 
         $courseTableHeader = $this->header();
-        
+
         $courseTableRow = $this->columns();
 
         // Return view with all required data

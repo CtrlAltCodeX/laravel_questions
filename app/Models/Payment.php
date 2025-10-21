@@ -15,4 +15,18 @@ class Payment extends Model
         'payment_id', 'amount', 'currency', 'status', 'email', 'contact','user_id','course_id'
 
     ];
+
+
+     public function user()
+    {
+        return $this->belongsTo(\App\Models\GoogleUser::class, 'user_id');
+    }
+
+    // Relation with course
+    public function course()
+    {
+        return $this->belongsTo(\App\Models\Course::class, 'course_id');
+    }
+
+    
 }
