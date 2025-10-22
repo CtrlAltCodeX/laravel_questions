@@ -199,7 +199,7 @@ class ScoreBoardController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/quize-practice/store",
+     *     path="/api/store/quiz",
      *     summary="Store a new quiz attempt",
      *     description="Saves a quiz attempt for a Google user with subject, topic, percentage, and attempt count.",
      *     tags={"Quize"},
@@ -252,7 +252,7 @@ class ScoreBoardController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/quize-practice/{google_user_id}/{sub_category_id}",
+     *     path="/api/show/quiz/{google_user_id}/{sub_category_id}",
      *     summary="Get quiz attempts by Google User ID",
      *     description="Retrieve all quiz attempts for a specific Google user with related subject and topic details.",
      *     tags={"Quize"},
@@ -290,7 +290,7 @@ class ScoreBoardController extends Controller
             })
             ->with(['subjects:id,name,sub_category_id'])
             ->get();
-    $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+        $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
 
         if ($records->isEmpty()) {
             return response()->json([
@@ -353,7 +353,7 @@ class ScoreBoardController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/question-bank-count/store",
+     *     path="/api/store/question-bank-count",
      *     summary="Create or update question bank count",
      *     description="Stores or updates the count of questions solved by a user for a specific subject and topic.",
      *     operationId="questionCountStore",
@@ -464,23 +464,55 @@ class ScoreBoardController extends Controller
         ], 200);
     }
 
-   
-public function questionCountShow($googleUserId, $subCategoryId)
-{
-    $dates = collect(range(6, 0))->map(fn($i) => now()->subDays($i)->toDateString());
 
-    $records = QuestionBankCount::where('google_user_id', $googleUserId)
-        ->whereDate('created_at', '>=', $dates->first())
-        ->whereHas('subject', fn($q) => $q->where('sub_category_id', $subCategoryId))
-        ->with(['subject:id,name,sub_category_id'])
-        ->get();
+    public function questionCountShow($googleUserId, $subCategoryId)
+    {
+        $dates = collect(range(6, 0))->map(fn($i) => now()->subDays($i)->toDateString());
 
-   
-    $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+        $records = QuestionBankCount::where('google_user_id', $googleUserId)
+            ->whereDate('created_at', '>=', $dates->first())
+            ->whereHas('subject', fn($q) => $q->where('sub_category_id', $subCategoryId))
+            ->with(['subject:id,name,sub_category_id'])
+            ->get();
 
-    if ($records->isEmpty()) {
+
+        $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No question bank records found for this user in the last 7 days.',
+                'meta' => [
+                    'user_id' => (int) $googleUserId,
+                    'sub_category_id' => (int) $subCategoryId,
+                    'sub_category_name' => $subCategoryName,
+                    'range' => 'weekly',
+                ],
+                'labels' => $dates,
+                'series' => []
+            ], 200);
+        }
+
+        $grouped = $records->groupBy('subject_id');
+
+        $series = $grouped->map(function ($items, $subjectId) use ($dates) {
+            $subjectName = $items->first()->subject->name ?? 'Unknown Subject';
+
+            $data = $dates->map(function ($date) use ($items) {
+                return $items->whereBetween('created_at', [
+                    $date . " 00:00:00",
+                    $date . " 23:59:59"
+                ])->sum('count');
+            });
+
+            return [
+                'subject_id' => (int) $subjectId,
+                'subject_name' => $subjectName,
+                'data' => $data
+            ];
+        })->values();
+
         return response()->json([
-            'message' => 'No question bank records found for this user in the last 7 days.',
+            'message' => 'Question bank records retrieved successfully!',
             'meta' => [
                 'user_id' => (int) $googleUserId,
                 'sub_category_id' => (int) $subCategoryId,
@@ -488,41 +520,9 @@ public function questionCountShow($googleUserId, $subCategoryId)
                 'range' => 'weekly',
             ],
             'labels' => $dates,
-            'series' => []
+            'series' => $series
         ], 200);
     }
-
-    $grouped = $records->groupBy('subject_id');
-
-    $series = $grouped->map(function ($items, $subjectId) use ($dates) {
-        $subjectName = $items->first()->subject->name ?? 'Unknown Subject';
-
-        $data = $dates->map(function ($date) use ($items) {
-            return $items->whereBetween('created_at', [
-                $date . " 00:00:00",
-                $date . " 23:59:59"
-            ])->sum('count');
-        });
-
-        return [
-            'subject_id' => (int) $subjectId,
-            'subject_name' => $subjectName,
-            'data' => $data
-        ];
-    })->values();
-
-    return response()->json([
-        'message' => 'Question bank records retrieved successfully!',
-        'meta' => [
-            'user_id' => (int) $googleUserId,
-            'sub_category_id' => (int) $subCategoryId,
-            'sub_category_name' => $subCategoryName,
-            'range' => 'weekly',
-        ],
-        'labels' => $dates,
-        'series' => $series
-    ], 200);
-}
 
 
     // public function questioncountshow($googleUserId)
@@ -573,7 +573,7 @@ public function questionCountShow($googleUserId, $subCategoryId)
 
     /**
      * @OA\Post(
-     *     path="/api/mock-test/store",
+     *     path="/api/store/mock-test",
      *     summary="Create a mock test record",
      *     description="Store a new mock test record for a user with details like right/wrong answers, attempts, and time taken.",
      *     operationId="mockTestStore",
@@ -628,7 +628,7 @@ public function questionCountShow($googleUserId, $subCategoryId)
             'sub_category_id' => 'required|exists:sub_categories,id',
             'right_answer'    => 'required|integer|min:0',
             'wrong_answer'    => 'required|integer|min:0',
-            'total_questions' => 'required|integer|min:0', 
+            'total_questions' => 'required|integer|min:0',
             'time_taken'      => 'required|integer|min:0',
         ]);
 
@@ -651,7 +651,7 @@ public function questionCountShow($googleUserId, $subCategoryId)
 
     /**
      * @OA\Get(
-     *     path="/api/mock-test/{google_user_id}",
+     *     path="/api/show/mock-test/{google_user_id}/{sub_category_id}",
      *     summary="Get mock test records by user",
      *     description="Retrieve all mock test records for a given user, including related user and subcategory.",
      *     operationId="mockTestShow",
@@ -695,59 +695,58 @@ public function questionCountShow($googleUserId, $subCategoryId)
      *     )
      * )
      */
-  public function mockTestShow($googleUserId, $subCategoryId)
-{
-    $records = MockTest::where('google_user_id', $googleUserId)
-        ->where('sub_category_id', $subCategoryId)
-        ->with(['user', 'subCategory:id,name'])
-        ->get();
+    public function mockTestShow($googleUserId, $subCategoryId)
+    {
+        $records = MockTest::where('google_user_id', $googleUserId)
+            ->where('sub_category_id', $subCategoryId)
+            ->with(['user', 'subCategory:id,name'])
+            ->get();
 
 
-            $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+        $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
 
 
-    if ($records->isEmpty()) {
+        if ($records->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No mock test records found for this user and sub-category.',
+                'data' => null,
+                'meta' => [
+                    'user_id' => (int) $googleUserId,
+                    'sub_category_id' => (int) $subCategoryId,
+                    'sub_category_name' => $subCategoryName,
+                ],
+            ], 404);
+        }
+
+        $rightAnswerSum = $records->sum('right_answer');
+        $wrongAnswerSum = $records->sum('wrong_answer');
+        $totalQuestionsSum = $records->sum('total_questions');
+        $totalTimeTaken = $records->sum('time_taken');
+        $unanswered = $totalQuestionsSum - ($rightAnswerSum + $wrongAnswerSum);
+        $attemptNumber = $records->count();
+        $averageTimeTaken = $attemptNumber > 0 ? round($totalTimeTaken / $attemptNumber, 2) : 0;
+
+        $latestRecord = $records->sortByDesc('created_at')->first();
+
+        $data = [
+            'id' => $latestRecord->id,
+            'google_user_id' => (int) $googleUserId,
+            'sub_category_id' => (int) $subCategoryId,
+            'sub_category_name' => $subCategoryName,
+            'right_answer' => $rightAnswerSum,
+            'wrong_answer' => $wrongAnswerSum,
+            'total_questions' => $totalQuestionsSum,
+            'unanswered' => $unanswered,
+            'time_taken' => $averageTimeTaken,
+            'attempt_number' => $attemptNumber,
+            'created_at' => $latestRecord->created_at,
+        ];
+
         return response()->json([
-            'status' => false,
-            'message' => 'No mock test records found for this user and sub-category.',
-            'data' => null,
-             'meta' => [
-                'user_id' => (int) $googleUserId,
-                'sub_category_id' => (int) $subCategoryId,
-                'sub_category_name' => $subCategoryName,
-            ],
-        ], 404);
+            'status' => true,
+            'message' => 'Mock test records retrieved successfully!',
+            'data' => $data
+        ], 200);
     }
-
-    $rightAnswerSum = $records->sum('right_answer');
-    $wrongAnswerSum = $records->sum('wrong_answer');
-    $totalQuestionsSum = $records->sum('total_questions');
-    $totalTimeTaken = $records->sum('time_taken');
-    $unanswered = $totalQuestionsSum - ($rightAnswerSum + $wrongAnswerSum);
-    $attemptNumber = $records->count();
-    $averageTimeTaken = $attemptNumber > 0 ? round($totalTimeTaken / $attemptNumber, 2) : 0;
-
-    $latestRecord = $records->sortByDesc('created_at')->first();
-
-    $data = [
-        'id' => $latestRecord->id,
-        'google_user_id' => (int) $googleUserId,
-        'sub_category_id' => (int) $subCategoryId,
-        'sub_category_name' => $subCategoryName,
-        'right_answer' => $rightAnswerSum,
-        'wrong_answer' => $wrongAnswerSum,
-        'total_questions' => $totalQuestionsSum,
-        'unanswered' => $unanswered,
-        'time_taken' => $averageTimeTaken,
-        'attempt_number' => $attemptNumber,
-        'created_at' => $latestRecord->created_at,
-    ];
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Mock test records retrieved successfully!',
-        'data' => $data
-    ], 200);
-}
-
 }

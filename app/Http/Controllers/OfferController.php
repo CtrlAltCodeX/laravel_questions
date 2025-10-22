@@ -74,12 +74,11 @@ class OfferController extends Controller
             'name' => 'required',
             'course' => 'required|array',
             'course.*' => 'exists:courses,id',
-        
-          
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'banner' => 'nullable|image',
             'status' => 'required|in:0,1',
+            'meta_description' => 'nullable|string',
         ]);
 
         $subscriptions = [];
@@ -103,6 +102,7 @@ class OfferController extends Controller
             'valid_from' => $request->valid_from,
             'valid_to' => $request->valid_to,
             'status' => $request->status,
+            'meta_description' => $request->meta_description,
             'course' => json_encode($request->course), // save as JSON
             'subscription' => json_encode($request->subscription), // save as JSON
         ];
@@ -132,6 +132,7 @@ class OfferController extends Controller
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'banner' => 'nullable|image',
             'status' => 'required|in:0,1',
+            'meta_description' => 'nullable|string',
         ]);
 
         $offer = Offer::findOrFail($id);
@@ -156,7 +157,8 @@ class OfferController extends Controller
             'valid_to' => $request->valid_to,
             'status' => $request->status,
             'course' => json_encode($request->course),
-            'subscription' => json_encode($subscriptions), // ✅ fixed here
+            'subscription' => json_encode($subscriptions),
+            'meta_description' => $request->meta_description,
         ];
 
         if ($request->hasFile('banner')) {
@@ -306,7 +308,7 @@ class OfferController extends Controller
 
         $offers = $request->data == 'all' ? $query->get() : $query->paginate($request->data);
 
-          return response()->json([
+        return response()->json([
             'success' => true,
             'message' => 'Offers fetched successfully',
             'data' => $offers

@@ -13,6 +13,7 @@ use App\Models\TranslatedQuestions;
 use App\Models\UserSession;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CbtController extends Controller
 {
@@ -111,7 +112,18 @@ class CbtController extends Controller
     {
         //if (!$request->header('Authorization')) return response()->json(['error' => 'Please Provide Session Id'], 400);
 
-        //if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+        // if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
+        $validator = Validator::make($request->all(), [
+            'SubCategory'  => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $data = $request->all();
         if (!$course = Course::find($courseId)) {
             return response()->json(['error' => 'Course not found'], 404);

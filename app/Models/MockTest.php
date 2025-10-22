@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ class MockTest extends Model
         'sub_category_id',
         'right_answer',
         'wrong_answer',
-         'total_questions',
+        'total_questions',
         'time_taken',
     ];
 

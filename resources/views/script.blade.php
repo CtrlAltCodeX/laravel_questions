@@ -53,43 +53,63 @@
     // Handle form submission
     document.getElementById('modalForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const formData = new FormData(this);
-        const actionUrl = this.action;
 
+        const form = this;
+        const formData = new FormData(form);
+        const actionUrl = form.action;
+
+        // --- beforeSend equivalent ---
+        // You can disable the submit button, show a loader, etc.
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerText = 'Saving...';
+
+        // Optionally show a loading spinner
+        const loader = document.getElementById('form-loader');
+        if (loader) loader.classList.remove('hidden');
+
+        // --- actual fetch call ---
         fetch(actionUrl, {
-            method: this.method,
+            method: form.method,
             body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            },
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
         .then(response => response.json())
         .then(data => {
+            // --- success logic ---
             if (data.success) {
                 alert(data.message);
-                document.getElementById('modal').style.display = 'none';  // hide modal
+                document.getElementById('modal').style.display = 'none';
                 location.reload();
-            } else if (data.errors) {
-                console.log("joooo")
-                const errorFields = ['name', 'language_id', 'category_id', 'sub_category_id', 'subject_id', 'discount', 'valid_until', 'mode', 'status','video'];
+            } 
+            // --- validation errors ---
+            else if (data.errors) {
+                const errorFields = [
+                    'name', 'language_id', 'category_id', 'sub_category_id',
+                    'subject_id', 'discount', 'valid_until', 'mode', 'status'
+                ];
+
                 errorFields.forEach(field => {
                     const errorContainer = document.getElementById(`error-${field}`);
-                    if (errorContainer) {
-                        errorContainer.innerText = ''; // Clear old errors
-                    }
+                    if (errorContainer) errorContainer.innerText = '';
                 });
 
                 for (const [field, messages] of Object.entries(data.errors)) {
                     const errorContainer = document.getElementById(`error-${field}`);
-                    if (errorContainer) {
-                        errorContainer.innerText = messages.join(', ');
-                    }
+                    if (errorContainer) errorContainer.innerText = messages.join(', ');
                 }
             } else {
                 console.error('Unknown error:', data);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error))
+        .finally(() => {
+            // --- after completion ---
+            submitButton.disabled = false;
+            submitButton.innerText = 'Save';
+
+            if (loader) loader.classList.add('hidden');
+        });
     });
 
     document.getElementById('closeModal').addEventListener('click', function() {
@@ -182,7 +202,6 @@
             getSubjects(subCategoryId);
         })
     });
-
 
     $(document).on('change', '.select_category', function () {
         const categoryId = $(this).val();

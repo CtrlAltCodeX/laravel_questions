@@ -1,1942 +1,2042 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Wallet API",
-    "description": "API documentation for Wallet transactions",
-    "contact": {
-      "email": "support@example.com"
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Wallet API",
+        "description": "API documentation for Wallet transactions",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "version": "1.0.0"
     },
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "https://admin.online2study.in/",
-      "description": "API Server"
-    }
-  ],
-  "paths": {
-    "/api/categories/language/{language_id}": {
-      "get": {
-        "tags": ["Categories"],
-        "summary": "Get categories by language",
-        "description": "Retrieve all categories for a given language along with their subcategories, subjects, and topics.",
-        "operationId": "getCategoriesByLanguage",
-        "parameters": [
-          {
-            "name": "language_id",
-            "in": "path",
-            "description": "ID of the language",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Categories retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "id": {
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/categories/language/{language_id}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get categories by language",
+                "description": "Retrieve all categories for a given language along with their subcategories, subjects, and topics.",
+                "operationId": "getCategoriesByLanguage",
+                "parameters": [
+                    {
+                        "name": "language_id",
+                        "in": "path",
+                        "description": "ID of the language",
+                        "required": true,
+                        "schema": {
                             "type": "integer",
                             "example": 1
-                          },
-                          "name": {
-                            "type": "string",
-                            "example": "Science"
-                          },
-                          "language_id": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "subcategory": {
-                            "type": "array",
-                            "items": {
-                              "properties": {
-                                "id": {
-                                  "type": "integer",
-                                  "example": 10
-                                },
-                                "name": {
-                                  "type": "string",
-                                  "example": "Physics"
-                                },
-                                "subject": {
-                                  "type": "array",
-                                  "items": {
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categories retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
                                     "properties": {
-                                      "id": {
-                                        "type": "integer",
-                                        "example": 100
-                                      },
-                                      "name": {
-                                        "type": "string",
-                                        "example": "Mechanics"
-                                      },
-                                      "topic": {
-                                        "type": "array",
-                                        "items": {
-                                          "properties": {
-                                            "id": {
-                                              "type": "integer",
-                                              "example": 1000
-                                            },
-                                            "name": {
-                                              "type": "string",
-                                              "example": "Newton's Laws"
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Science"
+                                                    },
+                                                    "language_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "subcategory": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Physics"
+                                                                },
+                                                                "subject": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 100
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "Mechanics"
+                                                                            },
+                                                                            "topic": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "id": {
+                                                                                            "type": "integer",
+                                                                                            "example": 1000
+                                                                                        },
+                                                                                        "name": {
+                                                                                            "type": "string",
+                                                                                            "example": "Newton's Laws"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
-                                          },
-                                          "type": "object"
                                         }
-                                      }
                                     },
                                     "type": "object"
-                                  }
                                 }
-                              },
-                              "type": "object"
                             }
-                          }
-                        },
-                        "type": "object"
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No categories found for this language ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "No categories found for this language ID."
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/{id}/update": {
-      "put": {
-        "tags": ["Users"],
-        "summary": "Update user information",
-        "description": "Updates the specified user's details including name, phone number, profile image, and preferences.",
-        "operationId": "updateUser",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the user to update",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "required": [],
-                "properties": {
-                  "phone_number": {
-                    "type": "string",
-                    "example": "9876543210"
-                  },
-                  "login_type": {
-                    "type": "string",
-                    "enum": ["google", "facebook", "apple"],
-                    "example": "google"
-                  },
-                  "friend_code": {
-                    "type": "string",
-                    "example": "FRIEND123"
-                  },
-                  "profile_image": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "category_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "language_id": {
-                    "type": "integer",
-                    "example": 2
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "User updated successfully"
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "User not found"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "The given data was invalid."
-                    },
-                    "errors": {
-                      "type": "object",
-                      "example": {
-                        "profile_image": ["The profile image must be an image."]
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/{id}/user": {
-      "delete": {
-        "tags": ["Users"],
-        "summary": "Delete user",
-        "operationId": "231c3aabca02870cfc76be8c6eb68a5f",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found"
-          }
-        }
-      }
-    },
-    "/api/user/{id}/profile": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get user profile",
-        "operationId": "d5e62c81fc0d4d5f9c1099543acac7e7",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Profile fetched",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/GoogleUser"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found"
-          }
-        }
-      }
-    },
-    "/api/offers": {
-      "get": {
-        "tags": ["Offers"],
-        "summary": "Get offers with optional filters and sorting",
-        "description": "Returns a paginated list of offers with optional filters for subject, sub-category, category, and language. Supports sorting and full data retrieval.",
-        "operationId": "getOffersApi",
-        "parameters": [
-          {
-            "name": "subject_id",
-            "in": "query",
-            "description": "Filter by subject ID",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          },
-          {
-            "name": "sub_category_id",
-            "in": "query",
-            "description": "Filter by sub-category ID",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 2
-            }
-          },
-          {
-            "name": "category_id",
-            "in": "query",
-            "description": "Filter by category ID",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 3
-            }
-          },
-          {
-            "name": "language_id",
-            "in": "query",
-            "description": "Filter by language ID",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 4
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Column to sort by (id, name, language, category, sub_category, subject)",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "id"
-            }
-          },
-          {
-            "name": "direction",
-            "in": "query",
-            "description": "Sort direction (asc or desc)",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": ["asc", "desc"],
-              "example": "desc"
-            }
-          },
-          {
-            "name": "data",
-            "in": "query",
-            "description": "Pass 'all' to fetch all records, or a number for pagination limit",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "10"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response with filtered and sorted offers",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Offers fetched successfully"
-                    },
-                    "data": {
-                      "description": "Paginated offers data or full list if 'data=all'",
-                      "properties": {
-                        "current_page": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "example": 10
-                              },
-                              "name": {
-                                "type": "string",
-                                "example": "Diwali Special"
-                              },
-                              "discount": {
-                                "type": "number",
-                                "format": "float",
-                                "example": 20.5
-                              },
-                              "subject_id": {
-                                "type": "integer",
-                                "example": 1
-                              },
-                              "valid_from": {
-                                "type": "string",
-                                "format": "date",
-                                "example": "2025-06-01"
-                              },
-                              "valid_to": {
-                                "type": "string",
-                                "format": "date",
-                                "example": "2025-06-30"
-                              }
-                            },
-                            "type": "object"
-                          }
-                        },
-                        "last_page": {
-                          "type": "integer",
-                          "example": 5
-                        },
-                        "per_page": {
-                          "type": "integer",
-                          "example": 10
-                        },
-                        "total": {
-                          "type": "integer",
-                          "example": 50
                         }
-                      },
-                      "type": "object"
+                    },
+                    "404": {
+                        "description": "No categories found for this language ID",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No categories found for this language ID."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                  },
-                  "type": "object"
                 }
-              }
             }
-          }
-        }
-      }
-    },
-    "/api/save-payment": {
-      "post": {
-        "tags": ["Payments"],
-        "summary": "Store a new payment and update user course subscription",
-        "operationId": "13327def39e5116d5547c3c0392cc2c7",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "payment_id",
-                  "currency",
-                  "status",
-                  "user_id",
-                  "course_id",
-                  "plan_type"
+        },
+        "/api/user/{id}/update": {
+            "put": {
+                "tags": [
+                    "Users"
                 ],
-                "properties": {
-                  "payment_id": {
-                    "type": "string",
-                    "example": "pay_123456"
-                  },
-                  "currency": {
-                    "type": "string",
-                    "example": "INR"
-                  },
-                  "status": {
-                    "type": "string",
-                    "example": "success"
-                  },
-                  "user_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "course_id": {
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "plan_type": {
-                    "type": "string",
-                    "enum": ["monthly", "semi_annual", "annual"],
-                    "example": "monthly"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Payment saved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Payment saved successfully"
-                    },
-                    "data": {
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "example": 10
-                        },
-                        "payment_id": {
-                          "type": "string",
-                          "example": "pay_123456"
-                        },
-                        "currency": {
-                          "type": "string",
-                          "example": "INR"
-                        },
-                        "status": {
-                          "type": "string",
-                          "example": "success"
-                        },
-                        "user_id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "course_id": {
-                          "type": "integer",
-                          "example": 5
-                        },
-                        "plan_type": {
-                          "type": "string",
-                          "example": "monthly"
-                        },
-                        "amount": {
-                          "type": "number",
-                          "example": 899.99
-                        },
-                        "email": {
-                          "type": "string",
-                          "example": "user@example.com"
-                        },
-                        "contact": {
-                          "type": "string",
-                          "example": "9876543210"
-                        },
-                        "created_at": {
-                          "type": "string",
-                          "example": "2025-09-05T10:00:00.000000Z"
+                "summary": "Update user information",
+                "description": "Updates the specified user's details including name, phone number, profile image, and preferences.",
+                "operationId": "updateUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
-                      },
-                      "type": "object"
                     }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid plan type or subscription data"
-          },
-          "404": {
-            "description": "Course not found or User not found"
-          }
-        }
-      }
-    },
-    "/api/get-final-amount": {
-      "post": {
-        "tags": ["Payments"],
-        "summary": "Get final payable amount for a course considering offers and subscription plan",
-        "operationId": "c2d05fc75bc29413b1ac048cc1ffa996",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": ["user_id", "course_id", "plan_type"],
-                "properties": {
-                  "user_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "course_id": {
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "plan_type": {
-                    "type": "string",
-                    "enum": ["monthly", "semi_annual", "annual"],
-                    "example": "annual"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Final amount calculated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "final_amount": {
-                      "type": "number",
-                      "example": 750
-                    },
-                    "original_amount": {
-                      "type": "number",
-                      "example": 1000
-                    },
-                    "discount_percentage": {
-                      "type": "number",
-                      "example": 25
-                    },
-                    "plan_type": {
-                      "type": "string",
-                      "example": "annual"
-                    },
-                    "course_name": {
-                      "type": "string",
-                      "example": "Advanced Laravel Mastery"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid plan type or missing subscription data"
-          },
-          "404": {
-            "description": "User or Course not found"
-          }
-        }
-      }
-    },
-    "/api/reports": {
-      "post": {
-        "tags": ["Reports"],
-        "summary": "Create a new report",
-        "operationId": "318de4ef8123b483320dc9dbb45b6a43",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": ["name", "title", "type", "message", "date"],
-                "properties": {
-                  "user_id": {
-                    "type": "integer"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": ["Video", "Question"]
-                  },
-                  "question_id": {
-                    "type": "integer"
-                  },
-                  "video_id": {
-                    "type": "integer"
-                  },
-                  "message": {
-                    "type": "string"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Report created successfully"
-          }
-        }
-      }
-    },
-    "/api/scoreboards": {
-      "post": {
-        "tags": ["ScoreBoard"],
-        "summary": "Create a new scoreboard entry",
-        "description": "Stores a new scoreboard record for a user",
-        "operationId": "storeScoreboard",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "google_user_id",
-                  "sub_category_id",
-                  "total_videos",
-                  "quiz_practice",
-                  "test_rank"
                 ],
-                "properties": {
-                  "google_user_id": {
-                    "description": "ID of the google user",
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "sub_category_id": {
-                    "description": "ID of the sub category",
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "total_videos": {
-                    "description": "Number of videos watched",
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "quiz_practice": {
-                    "description": "Number of quizzes practiced",
-                    "type": "integer",
-                    "example": 3
-                  },
-                  "test_rank": {
-                    "description": "User's test rank",
-                    "type": "integer",
-                    "example": 1
-                  }
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [],
+                                "properties": {
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "9876543210"
+                                    },
+                                    "login_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "google",
+                                            "facebook",
+                                            "apple"
+                                        ],
+                                        "example": "google"
+                                    },
+                                    "friend_code": {
+                                        "type": "string",
+                                        "example": "FRIEND123"
+                                    },
+                                    "profile_image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "language_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
                 },
-                "type": "object"
-              }
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User updated successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "profile_image": [
+                                                    "The profile image must be an image."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "Scoreboard saved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Scoreboard saved successfully!"
-                    },
-                    "data": {
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "example": 15
-                        },
-                        "google_user_id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "sub_category_id": {
-                          "type": "integer",
-                          "example": 10
-                        },
-                        "total_videos": {
-                          "type": "integer",
-                          "example": 5
-                        },
-                        "quiz_practice": {
-                          "type": "integer",
-                          "example": 3
-                        },
-                        "test_rank": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "created_at": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2025-09-05T12:34:56Z"
-                        },
-                        "updated_at": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2025-09-05T12:34:56Z"
+        "/api/{id}/user": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "231c3aabca02870cfc76be8c6eb68a5f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
-                      },
-                      "type": "object"
                     }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "The given data was invalid."
-                    },
-                    "errors": {
-                      "properties": {
-                        "google_user_id": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "example": "The selected google user id is invalid."
-                          }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
                         }
-                      },
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/scoreboards/{userId}": {
-      "get": {
-        "tags": ["ScoreBoard"],
-        "summary": "Get a user's scoreboard",
-        "description": "Retrieve scoreboard data by Google user ID with related user and sub-category details.",
-        "operationId": "getUserScoreboard",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "description": "Google user ID",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Scoreboard retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Scoreboard retrieved successfully!"
                     },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "example": 15
-                          },
-                          "google_user_id": {
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "operationId": "d5e62c81fc0d4d5f9c1099543acac7e7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/GoogleUser"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/offers": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Get offers with optional filters and sorting",
+                "description": "Returns a paginated list of offers with optional filters for subject, sub-category, category, and language. Supports sorting and full data retrieval.",
+                "operationId": "getOffersApi",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "query",
+                        "description": "Filter by subject ID",
+                        "required": false,
+                        "schema": {
                             "type": "integer",
                             "example": 1
-                          },
-                          "sub_category_id": {
-                            "type": "integer",
-                            "example": 10
-                          },
-                          "total_videos": {
-                            "type": "integer",
-                            "example": 5
-                          },
-                          "quiz_practice": {
-                            "type": "integer",
-                            "example": 3
-                          },
-                          "test_rank": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "created_at": {
-                            "type": "string",
-                            "format": "date-time",
-                            "example": "2025-09-05T12:34:56Z"
-                          },
-                          "updated_at": {
-                            "type": "string",
-                            "format": "date-time",
-                            "example": "2025-09-05T12:34:56Z"
-                          },
-                          "user": {
-                            "description": "Associated Google user",
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "example": 1
-                              },
-                              "name": {
-                                "type": "string",
-                                "example": "John Doe"
-                              },
-                              "email": {
-                                "type": "string",
-                                "example": "john@example.com"
-                              }
-                            },
-                            "type": "object"
-                          },
-                          "subCategory": {
-                            "description": "Associated sub-category",
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "example": 10
-                              },
-                              "name": {
-                                "type": "string",
-                                "example": "Mathematics"
-                              }
-                            },
-                            "type": "object"
-                          }
-                        },
-                        "type": "object"
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No scoreboard found for this user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No scoreboard found for this user."
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/quize/store": {
-      "post": {
-        "tags": ["Quize"],
-        "summary": "Store a new quiz attempt",
-        "description": "Saves a quiz attempt for a Google user with subject, topic, percentage, and attempt count.",
-        "operationId": "a54f3a2f31d4a24878d0250650757c8e",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "google_user_id",
-                  "subject_id",
-                  "topic_id",
-                  "percentage",
-                  "attempt"
-                ],
-                "properties": {
-                  "google_user_id": {
-                    "description": "ID of the Google user",
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "subject_id": {
-                    "description": "ID of the subject",
-                    "type": "integer",
-                    "example": 2
-                  },
-                  "topic_id": {
-                    "description": "ID of the topic",
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "percentage": {
-                    "description": "Score percentage",
-                    "type": "number",
-                    "format": "float",
-                    "example": 85.5
-                  },
-                  "attempt": {
-                    "description": "Attempt number",
-                    "type": "integer",
-                    "example": 1
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Quiz attempt saved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Quiz attempt saved successfully!"
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error"
-          }
-        }
-      }
-    },
-    "/api/quize/show/{googleUserId}": {
-      "get": {
-        "tags": ["Quize"],
-        "summary": "Get quiz attempts by Google User ID",
-        "description": "Retrieve all quiz attempts for a specific Google user with related subject and topic details.",
-        "operationId": "c1e197ccf35d042540b4341f728b6bd6",
-        "parameters": [
-          {
-            "name": "googleUserId",
-            "in": "path",
-            "description": "The ID of the Google user",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Quiz attempts retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Quiz attempts retrieved successfully!"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No quiz attempt found for this user"
-          }
-        }
-      }
-    },
-    "/api/question-bank-count/store": {
-      "post": {
-        "tags": ["Question Bank"],
-        "summary": "Create or update question bank count",
-        "description": "Stores or updates the count of questions solved by a user for a specific subject and topic.",
-        "operationId": "questionCountStore",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "google_user_id",
-                  "subject_id",
-                  "topic_id",
-                  "count"
-                ],
-                "properties": {
-                  "google_user_id": {
-                    "description": "ID of the Google user",
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "subject_id": {
-                    "description": "ID of the subject",
-                    "type": "integer",
-                    "example": 2
-                  },
-                  "topic_id": {
-                    "description": "ID of the topic",
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "count": {
-                    "description": "Number of questions attempted",
-                    "type": "integer",
-                    "example": 10
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Question bank count stored successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Question bank count created successfully!"
-                    },
-                    "data": {
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "example": 12
-                        },
-                        "google_user_id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "subject_id": {
-                          "type": "integer",
-                          "example": 2
-                        },
-                        "topic_id": {
-                          "type": "integer",
-                          "example": 5
-                        },
-                        "count": {
-                          "type": "integer",
-                          "example": 10
-                        },
-                        "created_at": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2025-09-05T12:30:00Z"
-                        },
-                        "updated_at": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2025-09-05T12:30:00Z"
                         }
-                      },
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "The given data was invalid."
                     },
-                    "errors": {
-                      "properties": {
-                        "google_user_id": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "example": "The selected google user id is invalid."
-                          }
-                        },
-                        "subject_id": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "example": "The selected subject id is invalid."
-                          }
-                        },
-                        "topic_id": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "example": "The selected topic id is invalid."
-                          }
-                        },
-                        "count": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "example": "The count must be at least 0."
-                          }
-                        }
-                      },
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/question-bank-count/{google_user_id}": {
-      "get": {
-        "tags": ["Question Bank"],
-        "summary": "Get question bank counts by user",
-        "description": "Retrieve all question bank count records for a given user, including related user, subject, and topic.",
-        "operationId": "questionCountShow",
-        "parameters": [
-          {
-            "name": "google_user_id",
-            "in": "path",
-            "description": "ID of the Google user",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Records retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Question bank records retrieved successfully!"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "google_user_id": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "subject_id": {
+                    {
+                        "name": "sub_category_id",
+                        "in": "query",
+                        "description": "Filter by sub-category ID",
+                        "required": false,
+                        "schema": {
                             "type": "integer",
                             "example": 2
-                          },
-                          "topic_id": {
-                            "type": "integer",
-                            "example": 5
-                          },
-                          "count": {
-                            "type": "integer",
-                            "example": 10
-                          }
-                        },
-                        "type": "object"
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No records found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No question bank records found for this user."
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/mock-test/store": {
-      "post": {
-        "tags": ["Mock Test"],
-        "summary": "Create a mock test record",
-        "description": "Store a new mock test record for a user with details like right/wrong answers, attempts, and time taken.",
-        "operationId": "mockTestStore",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "google_user_id",
-                  "sub_category_id",
-                  "right_answer",
-                  "wrong_answer",
-                  "attempt",
-                  "time_taken"
-                ],
-                "properties": {
-                  "google_user_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "sub_category_id": {
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "right_answer": {
-                    "type": "integer",
-                    "example": 15
-                  },
-                  "wrong_answer": {
-                    "type": "integer",
-                    "example": 5
-                  },
-                  "attempt": {
-                    "type": "integer",
-                    "example": 20
-                  },
-                  "time_taken": {
-                    "description": "Time taken in seconds",
-                    "type": "integer",
-                    "example": 1200
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Mock test created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Mock test saved successfully!"
-                    },
-                    "data": {
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "google_user_id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "sub_category_id": {
-                          "type": "integer",
-                          "example": 10
-                        },
-                        "right_answer": {
-                          "type": "integer",
-                          "example": 15
-                        },
-                        "wrong_answer": {
-                          "type": "integer",
-                          "example": 5
-                        },
-                        "attempt": {
-                          "type": "integer",
-                          "example": 20
-                        },
-                        "time_taken": {
-                          "type": "integer",
-                          "example": 1200
                         }
-                      },
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "The given data was invalid."
                     },
-                    "errors": {
-                      "type": "object"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/mock-test/{google_user_id}": {
-      "get": {
-        "tags": ["Mock Test"],
-        "summary": "Get mock test records by user",
-        "description": "Retrieve all mock test records for a given user, including related user and subcategory.",
-        "operationId": "mockTestShow",
-        "parameters": [
-          {
-            "name": "google_user_id",
-            "in": "path",
-            "description": "ID of the Google user",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Mock test records retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Mock test records retrieved successfully!"
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter by category ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3
+                        }
                     },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "id": {
+                    {
+                        "name": "language_id",
+                        "in": "query",
+                        "description": "Filter by language ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 4
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Column to sort by (id, name, language, category, sub_category, subject)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "id"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "description": "Sort direction (asc or desc)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "example": "desc"
+                        }
+                    },
+                    {
+                        "name": "data",
+                        "in": "query",
+                        "description": "Pass 'all' to fetch all records, or a number for pagination limit",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "10"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with filtered and sorted offers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Offers fetched successfully"
+                                        },
+                                        "data": {
+                                            "description": "Paginated offers data or full list if 'data=all'",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Diwali Special"
+                                                            },
+                                                            "discount": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "example": 20.5
+                                                            },
+                                                            "subject_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "valid_from": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "2025-06-01"
+                                                            },
+                                                            "valid_to": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "2025-06-30"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 50
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/save-payment": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Store a new payment and update user course subscription",
+                "operationId": "13327def39e5116d5547c3c0392cc2c7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "payment_id",
+                                    "currency",
+                                    "status",
+                                    "user_id",
+                                    "course_id",
+                                    "plan_type"
+                                ],
+                                "properties": {
+                                    "payment_id": {
+                                        "type": "string",
+                                        "example": "pay_123456"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "INR"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "success"
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "course_id": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "plan_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "monthly",
+                                            "semi_annual",
+                                            "annual"
+                                        ],
+                                        "example": "monthly"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment saved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "payment_id": {
+                                                    "type": "string",
+                                                    "example": "pay_123456"
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "example": "INR"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "course_id": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "plan_type": {
+                                                    "type": "string",
+                                                    "example": "monthly"
+                                                },
+                                                "amount": {
+                                                    "type": "number",
+                                                    "example": 899.99
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "contact": {
+                                                    "type": "string",
+                                                    "example": "9876543210"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "example": "2025-09-05T10:00:00.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid plan type or subscription data"
+                    },
+                    "404": {
+                        "description": "Course not found or User not found"
+                    }
+                }
+            }
+        },
+        "/api/get-final-amount": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Get final payable amount for a course considering offers and subscription plan",
+                "operationId": "c2d05fc75bc29413b1ac048cc1ffa996",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "course_id",
+                                    "plan_type"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "course_id": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "plan_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "monthly",
+                                            "semi_annual",
+                                            "annual"
+                                        ],
+                                        "example": "annual"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Final amount calculated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "final_amount": {
+                                            "type": "number",
+                                            "example": 750
+                                        },
+                                        "original_amount": {
+                                            "type": "number",
+                                            "example": 1000
+                                        },
+                                        "discount_percentage": {
+                                            "type": "number",
+                                            "example": 25
+                                        },
+                                        "plan_type": {
+                                            "type": "string",
+                                            "example": "annual"
+                                        },
+                                        "course_name": {
+                                            "type": "string",
+                                            "example": "Advanced Laravel Mastery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid plan type or missing subscription data"
+                    },
+                    "404": {
+                        "description": "User or Course not found"
+                    }
+                }
+            }
+        },
+        "/api/reports": {
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Create a new report",
+                "operationId": "318de4ef8123b483320dc9dbb45b6a43",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "title",
+                                    "type",
+                                    "message",
+                                    "date"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Video",
+                                            "Question"
+                                        ]
+                                    },
+                                    "question_id": {
+                                        "type": "integer"
+                                    },
+                                    "video_id": {
+                                        "type": "integer"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Report created successfully"
+                    }
+                }
+            }
+        },
+        "/api/scoreboards": {
+            "post": {
+                "tags": [
+                    "ScoreBoard"
+                ],
+                "summary": "Create a new scoreboard entry",
+                "description": "Stores a new scoreboard record for a user",
+                "operationId": "storeScoreboard",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "sub_category_id",
+                                    "total_videos",
+                                    "quiz_practice",
+                                    "test_rank"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "description": "ID of the google user",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "sub_category_id": {
+                                        "description": "ID of the sub category",
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "total_videos": {
+                                        "description": "Number of videos watched",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "quiz_practice": {
+                                        "description": "Number of quizzes practiced",
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "test_rank": {
+                                        "description": "User's test rank",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Scoreboard saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Scoreboard saved successfully!"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "google_user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "sub_category_id": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total_videos": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "quiz_practice": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "test_rank": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-09-05T12:34:56Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-09-05T12:34:56Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "google_user_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected google user id is invalid."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/scoreboards/{userId}": {
+            "get": {
+                "tags": [
+                    "ScoreBoard"
+                ],
+                "summary": "Get a user's scoreboard",
+                "description": "Retrieve scoreboard data by Google user ID with related user and sub-category details.",
+                "operationId": "getUserScoreboard",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Google user ID",
+                        "required": true,
+                        "schema": {
                             "type": "integer",
                             "example": 1
-                          },
-                          "google_user_id": {
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scoreboard retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Scoreboard retrieved successfully!"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 15
+                                                    },
+                                                    "google_user_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "sub_category_id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "total_videos": {
+                                                        "type": "integer",
+                                                        "example": 5
+                                                    },
+                                                    "quiz_practice": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "test_rank": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-09-05T12:34:56Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-09-05T12:34:56Z"
+                                                    },
+                                                    "user": {
+                                                        "description": "Associated Google user",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "John Doe"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "john@example.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "subCategory": {
+                                                        "description": "Associated sub-category",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Mathematics"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No scoreboard found for this user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No scoreboard found for this user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/store/quiz": {
+            "post": {
+                "tags": [
+                    "Quize"
+                ],
+                "summary": "Store a new quiz attempt",
+                "description": "Saves a quiz attempt for a Google user with subject, topic, percentage, and attempt count.",
+                "operationId": "99d13bd05a6d833e4fdaa65918698438",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "subject_id",
+                                    "topic_id",
+                                    "percentage",
+                                    "attempt"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "description": "ID of the Google user",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subject_id": {
+                                        "description": "ID of the subject",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "topic_id": {
+                                        "description": "ID of the topic",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "percentage": {
+                                        "description": "Score percentage",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 85.5
+                                    },
+                                    "attempt": {
+                                        "description": "Attempt number",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Quiz attempt saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quiz attempt saved successfully!"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/show/quiz/{google_user_id}/{sub_category_id}": {
+            "get": {
+                "tags": [
+                    "Quize"
+                ],
+                "summary": "Get quiz attempts by Google User ID",
+                "description": "Retrieve all quiz attempts for a specific Google user with related subject and topic details.",
+                "operationId": "241ce17b061709dfd270f6cd71ab1d09",
+                "parameters": [
+                    {
+                        "name": "googleUserId",
+                        "in": "path",
+                        "description": "The ID of the Google user",
+                        "required": true,
+                        "schema": {
                             "type": "integer",
                             "example": 1
-                          },
-                          "sub_category_id": {
-                            "type": "integer",
-                            "example": 10
-                          },
-                          "right_answer": {
-                            "type": "integer",
-                            "example": 15
-                          },
-                          "wrong_answer": {
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quiz attempts retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quiz attempts retrieved successfully!"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No quiz attempt found for this user"
+                    }
+                }
+            }
+        },
+        "/api/store/question-bank-count": {
+            "post": {
+                "tags": [
+                    "Question Bank"
+                ],
+                "summary": "Create or update question bank count",
+                "description": "Stores or updates the count of questions solved by a user for a specific subject and topic.",
+                "operationId": "questionCountStore",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "subject_id",
+                                    "topic_id",
+                                    "count"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "description": "ID of the Google user",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subject_id": {
+                                        "description": "ID of the subject",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "topic_id": {
+                                        "description": "ID of the topic",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "count": {
+                                        "description": "Number of questions attempted",
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Question bank count stored successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Question bank count created successfully!"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 12
+                                                },
+                                                "google_user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "subject_id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "topic_id": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "count": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-09-05T12:30:00Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-09-05T12:30:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "google_user_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected google user id is invalid."
+                                                    }
+                                                },
+                                                "subject_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected subject id is invalid."
+                                                    }
+                                                },
+                                                "topic_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The selected topic id is invalid."
+                                                    }
+                                                },
+                                                "count": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The count must be at least 0."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/question-count/{googleUserId}/{subCategoryId}": {
+            "get": {
+                "tags": [
+                    "Question Bank"
+                ],
+                "summary": "Get question count for a user by subcategory for last 7 days",
+                "description": "Returns the count of questions attempted by a Google user within the last 7 days, grouped by subject.",
+                "operationId": "questionCountShow",
+                "parameters": [
+                    {
+                        "name": "googleUserId",
+                        "in": "path",
+                        "description": "The Google User ID of the student.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "11223344556677889900"
+                        }
+                    },
+                    {
+                        "name": "subCategoryId",
+                        "in": "path",
+                        "description": "The Sub Category ID to filter subjects.",
+                        "required": true,
+                        "schema": {
                             "type": "integer",
                             "example": 5
-                          },
-                          "attempt": {
-                            "type": "integer",
-                            "example": 20
-                          },
-                          "time_taken": {
-                            "type": "integer",
-                            "example": 1200
-                          }
-                        },
-                        "type": "object"
-                      }
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No mock test records found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No mock test records found for this user."
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sub/category/details/{id}": {
-      "get": {
-        "tags": ["Sub Categories"],
-        "summary": "Get sub-category details with associated offers",
-        "description": "Returns details of a specific sub-category along with all its related offers",
-        "operationId": "getSubCategoryDetailsWithOffers",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the sub-category",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sub Category Details with Offers",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Sub Category Details with Offers"
-                    },
-                    "data": {
-                      "properties": {
-                        "sub_category": {
-                          "description": "SubCategory object",
-                          "type": "object"
-                        },
-                        "offers": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/Offer"
-                          }
                         }
-                      },
-                      "type": "object"
                     }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Sub Category not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "boolean",
-                      "example": false
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful retrieval of question count data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Question bank records retrieved successfully!"
+                                        },
+                                        "labels": {
+                                            "description": "Dates for the last 7 days",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "2025-10-13"
+                                            }
+                                        },
+                                        "series": {
+                                            "description": "Question count grouped by subject ID",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "subject_id": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "data": {
+                                                        "description": "Question count per day for this subject",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "Sub Category not found"
+                    "404": {
+                        "description": "No question bank records found for this user in the last 7 days.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No question bank records found for this user in the last 7 days."
+                                        },
+                                        "labels": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "series": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
-                  },
-                  "type": "object"
                 }
-              }
             }
-          }
-        }
-      }
-    },
-    "/api/wallet/history": {
-      "get": {
-        "tags": ["Wallet"],
-        "summary": "Get all wallet histories",
-        "operationId": "e074c2fd13342bd3690edfb52c159a90",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/wallet/add": {
-      "post": {
-        "tags": ["Wallet"],
-        "summary": "Add coins to the wallet",
-        "operationId": "4d5a141fc4de4c0de156dde6914449d7",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "required": [
-                  "google_user_id",
-                  "coin",
-                  "method",
-                  "date",
-                  "transaction_id",
-                  "amount"
+        },
+        "/api/store/mock-test": {
+            "post": {
+                "tags": [
+                    "Mock Test"
                 ],
+                "summary": "Create a mock test record",
+                "description": "Store a new mock test record for a user with details like right/wrong answers, attempts, and time taken.",
+                "operationId": "mockTestStore",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "sub_category_id",
+                                    "right_answer",
+                                    "wrong_answer",
+                                    "attempt",
+                                    "time_taken"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "sub_category_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "right_answer": {
+                                        "type": "integer",
+                                        "example": 15
+                                    },
+                                    "wrong_answer": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "attempt": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "time_taken": {
+                                        "description": "Time taken in seconds",
+                                        "type": "integer",
+                                        "example": 1200
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mock test created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Mock test saved successfully!"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "google_user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "sub_category_id": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "right_answer": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "wrong_answer": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "attempt": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                },
+                                                "time_taken": {
+                                                    "type": "integer",
+                                                    "example": 1200
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/show/mock-test/{google_user_id}/{sub_category_id}": {
+            "get": {
+                "tags": [
+                    "Mock Test"
+                ],
+                "summary": "Get mock test records by user",
+                "description": "Retrieve all mock test records for a given user, including related user and subcategory.",
+                "operationId": "mockTestShow",
+                "parameters": [
+                    {
+                        "name": "google_user_id",
+                        "in": "path",
+                        "description": "ID of the Google user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mock test records retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Mock test records retrieved successfully!"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "google_user_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "sub_category_id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "right_answer": {
+                                                        "type": "integer",
+                                                        "example": 15
+                                                    },
+                                                    "wrong_answer": {
+                                                        "type": "integer",
+                                                        "example": 5
+                                                    },
+                                                    "attempt": {
+                                                        "type": "integer",
+                                                        "example": 20
+                                                    },
+                                                    "time_taken": {
+                                                        "type": "integer",
+                                                        "example": 1200
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No mock test records found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No mock test records found for this user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sub/category/details/{id}": {
+            "get": {
+                "tags": [
+                    "Sub Categories"
+                ],
+                "summary": "Get sub-category details with associated offers",
+                "description": "Returns details of a specific sub-category along with all its related offers",
+                "operationId": "getSubCategoryDetailsWithOffers",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the sub-category",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sub Category Details with Offers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sub Category Details with Offers"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "sub_category": {
+                                                    "description": "SubCategory object",
+                                                    "type": "object"
+                                                },
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Offer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sub Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sub Category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wallet/history": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get all wallet histories",
+                "operationId": "e074c2fd13342bd3690edfb52c159a90",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/wallet/add": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Add coins to the wallet",
+                "operationId": "4d5a141fc4de4c0de156dde6914449d7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "coin",
+                                    "method",
+                                    "date",
+                                    "transaction_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "coin": {
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "PayPal"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-03-31"
+                                    },
+                                    "transaction_id": {
+                                        "type": "string",
+                                        "example": "txn_123456"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Wallet credited successfully"
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/wallet/charges": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Deduct coins from the wallet",
+                "operationId": "3e81695396c7e6c53e279b8f37458e18",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_user_id",
+                                    "coin",
+                                    "method",
+                                    "date",
+                                    "transaction_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "google_user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "coin": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "Bank Transfer"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-03-31"
+                                    },
+                                    "transaction_id": {
+                                        "type": "string",
+                                        "example": "txn_654321"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.25
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Wallet debited successfully"
+                    },
+                    "400": {
+                        "description": "Insufficient coins or validation errors"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "GoogleUser": {
                 "properties": {
-                  "google_user_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "coin": {
-                    "type": "integer",
-                    "example": 100
-                  },
-                  "method": {
-                    "type": "string",
-                    "example": "PayPal"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "2024-03-31"
-                  },
-                  "transaction_id": {
-                    "type": "string",
-                    "example": "txn_123456"
-                  },
-                  "amount": {
-                    "type": "number",
-                    "format": "float",
-                    "example": 10.5
-                  }
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "login_type": {
+                        "type": "string"
+                    },
+                    "referral_code": {
+                        "type": "string"
+                    },
+                    "friend_code": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "login_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "profile_image": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
                 },
                 "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Wallet credited successfully"
-          },
-          "400": {
-            "description": "Validation errors"
-          }
-        }
-      }
-    },
-    "/api/wallet/charges": {
-      "post": {
-        "tags": ["Wallet"],
-        "summary": "Deduct coins from the wallet",
-        "operationId": "3e81695396c7e6c53e279b8f37458e18",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
+            },
+            "Offer": {
+                "title": "Offer",
                 "required": [
-                  "google_user_id",
-                  "coin",
-                  "method",
-                  "date",
-                  "transaction_id",
-                  "amount"
+                    "id",
+                    "title",
+                    "sub_category_id"
                 ],
                 "properties": {
-                  "google_user_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "coin": {
-                    "type": "integer",
-                    "example": 50
-                  },
-                  "method": {
-                    "type": "string",
-                    "example": "Bank Transfer"
-                  },
-                  "date": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "2024-03-31"
-                  },
-                  "transaction_id": {
-                    "type": "string",
-                    "example": "txn_654321"
-                  },
-                  "amount": {
-                    "type": "number",
-                    "format": "float",
-                    "example": 5.25
-                  }
+                    "id": {
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "20% Discount on Accessories"
+                    },
+                    "sub_category_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "valid_till": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-12-31"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T13:00:00Z"
+                    }
                 },
                 "type": "object"
-              }
             }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Wallet debited successfully"
-          },
-          "400": {
-            "description": "Insufficient coins or validation errors"
-          }
         }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "GoogleUser": {
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "phone_number": {
-            "type": "string"
-          },
-          "login_type": {
-            "type": "string"
-          },
-          "referral_code": {
-            "type": "string"
-          },
-          "friend_code": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "login_date": {
-            "type": "string",
-            "format": "date"
-          },
-          "profile_image": {
-            "type": "string"
-          },
-          "language_id": {
-            "type": "integer"
-          },
-          "category_id": {
-            "type": "integer"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
+    },
+    "tags": [
+        {
+            "name": "Categories",
+            "description": "Categories"
         },
-        "type": "object"
-      },
-      "Offer": {
-        "title": "Offer",
-        "required": ["id", "title", "sub_category_id"],
-        "properties": {
-          "id": {
-            "type": "integer",
-            "example": 101
-          },
-          "title": {
-            "type": "string",
-            "example": "20% Discount on Accessories"
-          },
-          "sub_category_id": {
-            "type": "integer",
-            "example": 1
-          },
-          "valid_till": {
-            "type": "string",
-            "format": "date",
-            "example": "2025-12-31"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2024-01-01T12:00:00Z"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2024-01-01T13:00:00Z"
-          }
+        {
+            "name": "Users",
+            "description": "Users"
         },
-        "type": "object"
-      }
-    }
-  },
-  "tags": [
-    {
-      "name": "Categories",
-      "description": "Categories"
-    },
-    {
-      "name": "Users",
-      "description": "Users"
-    },
-    {
-      "name": "Offers",
-      "description": "Offers"
-    },
-    {
-      "name": "Payments",
-      "description": "Payments"
-    },
-    {
-      "name": "Reports",
-      "description": "Reports"
-    },
-    {
-      "name": "ScoreBoard",
-      "description": "ScoreBoard"
-    },
-    {
-      "name": "Quize",
-      "description": "Quize"
-    },
-    {
-      "name": "Question Bank",
-      "description": "Question Bank"
-    },
-    {
-      "name": "Mock Test",
-      "description": "Mock Test"
-    },
-    {
-      "name": "Sub Categories",
-      "description": "Sub Categories"
-    },
-    {
-      "name": "Wallet",
-      "description": "Wallet"
-    }
-  ]
+        {
+            "name": "Offers",
+            "description": "Offers"
+        },
+        {
+            "name": "Payments",
+            "description": "Payments"
+        },
+        {
+            "name": "Reports",
+            "description": "Reports"
+        },
+        {
+            "name": "ScoreBoard",
+            "description": "ScoreBoard"
+        },
+        {
+            "name": "Quize",
+            "description": "Quize"
+        },
+        {
+            "name": "Question Bank",
+            "description": "Question Bank"
+        },
+        {
+            "name": "Mock Test",
+            "description": "Mock Test"
+        },
+        {
+            "name": "Sub Categories",
+            "description": "Sub Categories"
+        },
+        {
+            "name": "Wallet",
+            "description": "Wallet"
+        }
+    ]
 }

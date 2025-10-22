@@ -201,14 +201,12 @@
                         {{$video->topic->subject->subCategory->category->language->name }}
 
 
-                    </th>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $video->topic->subject->subCategory->category->name}}
 
-                        {{ $video->topic->subject->subCategory->category->name}}
-
-
-                    </th>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                </th>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
 
                         {{ $video->topic->subject->subCategory->name}}
                     </th>
@@ -241,19 +239,16 @@
                         </a>
                     </th>
 
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{$video->video_type}}
-                    </th>
-
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{$video->video_type}}
+                </th>
 
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <a href="{{ asset('storage/' . $video->pdf_link) }}" target="_blank" class="text-blue-500 hover:underline">
                             {{$video->pdf_link}}
                         </a>
 
-                    </th>
-
-
+                </th>
 
                     <td class="px-6 py-4 flex gap-4">
                         <button class="editvieoButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -295,12 +290,11 @@
             </tbody>
         </table>
 
-        @if(request()->data != 'all')
-        <div class="flex justify-between items-center">
-            <div style="width: 92%;">
-                {{ $videos->appends(request()->query())->links() }}
-
-            </div>
+    @if(request()->data != 'all')
+    <div class="flex justify-between items-center">
+        <div style="width: 92%;">
+            {{ $videos->appends(request()->query())->links() }}
+        </div>
 
             <div>
                 <a href="{{ request()->fullUrlWithQuery(['data' => 'all']) }}"
@@ -353,23 +347,24 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <input type="text" id="name" placeholder="Video Title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name" required />
-                    @error('name')
-                    <div class="text-danger">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="mx-auto mb-3">
-                    <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option value="">Select Language</option>
-                        @foreach($languages as $item)
-                        <option value="{{$item->id}}">{{$item->name}}</option>
-                        @endforeach
-                    </select>
-                    @error('language_id')
-                    <div class="text-red-500">{{ $message }}</div>
-                    @enderror
-                </div>
+            <div class="mb-3">
+                <input type="text" id="name" placeholder="Video Title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="name" required />
+                @error('name')
+                <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <div class="mx-auto mb-3">
+                <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="">Select Language</option>
+                    @foreach($languages as $item)
+                    <option value="{{$item->id}}">{{$item->name}}</option>
+                    @endforeach
+                </select>
+                @error('language_id')
+                <div class="text-red-500">{{ $message }}</div>
+                @enderror
+            </div>
 
                 <div class="mx-auto mb-3">
                     <select id='select_category' name="category_id" class="select_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -478,22 +473,20 @@
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('#offersTable .offerRow');
 
-            rows.forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            });
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
         });
+    });
 
-
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var output = document.getElementById('offerImage');
-                output.src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        });
-
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('offerImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
 
         $('#importButton').click(function() {
             //click in file select and save the file in hidden input
@@ -520,22 +513,21 @@
         });
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            document.getElementById('createButton').addEventListener('click', function() {
-                document.getElementById('modalTitle').innerText = 'Create Video';
-                document.getElementById('modalForm').action = "{{ route('videos.store') }}";
-                document.getElementById('modalForm').method = 'POST';
-                document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
-                document.getElementById('name').value = '';
-                document.getElementById('select_language').value = '';
-                document.getElementById('select_category').value = '';
-                document.getElementById('select_sub_category').value = '';
-                document.getElementById('select_subject').value = '';
-                document.getElementById('VideoImage').src = '/dummy.jpg';
-                document.getElementById('modal').style.display = 'flex';
-            });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('createButton').addEventListener('click', function() {
+            document.getElementById('modalTitle').innerText = 'Create Video';
+            document.getElementById('modalForm').action = "{{ route('videos.store') }}";
+            document.getElementById('modalForm').method = 'POST';
+            document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('select_language').value = '';
+            document.getElementById('select_category').value = '';
+            document.getElementById('select_sub_category').value = '';
+            document.getElementById('select_subject').value = '';
+            document.getElementById('VideoImage').src = '/dummy.jpg';
+            document.getElementById('modal').style.display = 'flex';
+        });
 
             const editButtons = document.querySelectorAll('.editvieoButton');
             editButtons.forEach(button => {
@@ -552,11 +544,10 @@
                     const description = this.getAttribute('data-description');
                     const video_type = this.getAttribute('data-video_type');
 
-                    // const youtube_link = this.getAttribute('data-youtube_link');
-                    const video_id = this.getAttribute('data-video_id');
-                    const pdf_link = this.getAttribute('data-pdf_link');
-                    const thumbnail = this.getAttribute('data-thumbnail');
-
+                const youtube_link = this.getAttribute('data-youtube_link');
+                const video_id = this.getAttribute('data-video_id');
+                const pdf_link = this.getAttribute('data-pdf_link');
+                const thumbnail = this.getAttribute('data-thumbnail');
 
                     // Set modal for editing a subcategory
                     document.getElementById('modalTitle').innerText = 'Edit Video';
@@ -574,18 +565,14 @@
                     // document.getElementById('youtube_link').value = youtube_link;
                     document.getElementById('video_id').value = video_id;
 
-                    document.getElementById('video_type').value = video_type;
-                    document.getElementById('VideoImage').src = thumbnail ? `/storage/${thumbnail}` : '/dummy.jpg';
+                document.getElementById('video_type').value = video_type;
+                document.getElementById('VideoImage').src = thumbnail ? `/storage/${thumbnail}` : '/dummy.jpg';
 
-
-                    document.getElementById('modal').style.display = 'flex';
-                });
+                // document.getElementById('topicImage').src = photo ? `/storage/${photo}` : '/dummy.jpg';
+                document.getElementById('modal').style.display = 'flex';
             });
-
-
-
-
         });
-    </script>
+    });
+</script>
 
     @endpush

@@ -92,6 +92,18 @@
         </div>
     </div>
 
+    <div id="form-loader" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto"></div>
+            <p class="text-white text-lg mt-4">Processing...</p>
+        </div>
+    </div>
+    {{-- <div id="form-loader" class="text-center mt-4">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></div>
+        <p class="text-sm text-gray-600 mt-2">Processing...</p>
+    </div> --}}
+
+
     @yield('styles')
 
     @yield('scripts')

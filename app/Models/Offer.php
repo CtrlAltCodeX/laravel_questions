@@ -12,35 +12,39 @@ class Offer extends Model
     protected $guarded = [];
 
     protected $table = 'offers';
-protected $fillable = [
-    'name', 'status', 'discount', 'banner',
-    'course', 'subscription', 'upgrade', 'valid_from', 'valid_to'
-];
 
-  
-
+    protected $fillable = [
+        'name',
+        'status',
+        'discount',
+        'banner',
+        'course',
+        'subscription',
+        'upgrade',
+        'valid_from',
+        'valid_to',
+        'meta_description'
+    ];
 
     public function language()
-{
-    return $this->belongsTo(Language::class);
-}
+    {
+        return $this->belongsTo(Language::class);
+    }
 
-public function category()
-{
-    return $this->belongsTo(Category::class);
-}
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-public function subCategory()
-{
-    return $this->belongsTo(SubCategory::class);
-}
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
 
-public function subject()
-{
-    return $this->belongsTo(Subject::class);
-}
-
-
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
 
     public function question()
     {

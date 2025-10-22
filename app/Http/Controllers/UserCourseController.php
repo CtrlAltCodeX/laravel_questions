@@ -8,7 +8,7 @@ use App\Models\Course;
 
 class UserCourseController extends Controller
 {
-   public function getUserCourses($userId)
+    public function getUserCourses($userId)
     {
         $userCourses = UserCourse::where('user_id', $userId);
 
@@ -32,7 +32,7 @@ class UserCourseController extends Controller
                     'name'          => $course->name,
                     'language_id'   => $course->language_id,
                     'category_id'   => $course->category_id,
-                    'sub_category_id'=> $course->sub_category_id,
+                    'sub_category_id' => $course->sub_category_id,
                     'subject_id'    => $course->subject_id,
                     'status'        => $course->status,
                     'subscription'  => $course->subscription,
@@ -96,5 +96,4 @@ class UserCourseController extends Controller
             'message' => 'Course status updated successfully.',
         ]);
     }
-
 }

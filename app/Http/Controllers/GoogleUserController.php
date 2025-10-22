@@ -132,6 +132,32 @@ class GoogleUserController extends Controller
         ]);
     }
 
+    public function updateUserCode(Request $request, $id)
+    {
+        $request->validate([
+            'friend_code'   => 'required|string',
+        ]);
+
+        $user = GoogleUser::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $data = $request->only('friend_code');
+
+        $user->update($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Friend code updated successfully',
+            'data' => $user
+        ]);
+    }
+
     public function generateOTP($n)
     {
         $generator = "1357902468";
