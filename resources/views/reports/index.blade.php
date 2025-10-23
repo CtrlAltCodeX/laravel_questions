@@ -12,6 +12,10 @@
 
 
         <input type="text" id="searchFilter" placeholder="Search Reports..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
+         <a href="{{ route('reports.export') }}"
+            class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded">
+            Export
+        </a>
     </div>
 
 </div>

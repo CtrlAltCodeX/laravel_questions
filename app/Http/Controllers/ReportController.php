@@ -13,7 +13,8 @@ use App\Models\Language;
 use App\Models\SubCategory;
 use App\Models\Question;
 use Illuminate\Http\UploadedFile;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReportsExport;
 class ReportController extends Controller
 {
     //  for web
@@ -34,6 +35,13 @@ class ReportController extends Controller
             'languages',
             'topics',
         ));
+    }
+
+
+
+    public function exportExcel()
+    {
+       return Excel::download(new ReportsExport, 'reports.xlsx');
     }
 
     /**

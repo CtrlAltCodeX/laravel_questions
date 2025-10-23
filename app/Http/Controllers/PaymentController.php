@@ -18,19 +18,18 @@ class PaymentController extends Controller
 {
 
     public function index()
-{
-    $payments = Payment::with(['user', 'course'])
-        ->latest()
-        ->get();
+    {
+        $payments = Payment::with(['user', 'course'])
+            ->latest()
+            ->paginate(10);
+        return view('payment-history.index', compact('payments'));
+    }
 
-    return view('payment-history.index', compact('payments'));
-}
 
-
-public function exportExcel()
-{
-    return Excel::download(new PaymentsExport, 'payment-history.xlsx');
-}
+    public function exportExcel()
+    {
+        return Excel::download(new PaymentsExport, 'payment-history.xlsx');
+    }
 
     public function store(Request $request)
     {
@@ -55,7 +54,7 @@ public function exportExcel()
             ], 404);
         }
 
-    
+
         $courseSubscription = $course->subscription;
         $plan = $validated['plan_type'];
 
@@ -69,7 +68,7 @@ public function exportExcel()
         $amount = floatval($courseSubscription[$plan]['amount']);
         $discount = 0;
 
-    
+
         $offer = Offer::whereJsonContains('course', (string) $course->id)
             ->latest('created_at')
             ->first();

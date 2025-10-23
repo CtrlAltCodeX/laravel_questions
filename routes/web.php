@@ -101,6 +101,7 @@ Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::cl
     Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])->name('reports.updateVideo');
     Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])->name('reports.updateQuestion');
     Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
+    Route::get('/reports/export/file', [ReportController::class, 'exportExcel'])->name('reports.export');
 
     Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])->name('reports.edit');
 
