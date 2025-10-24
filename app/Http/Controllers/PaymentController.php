@@ -10,19 +10,68 @@ use App\Models\Course;
 use App\Models\Offer;
 use App\Models\UserCourse;
 use App\Models\GoogleUser;
-
+use App\Models\UserCoin;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PaymentsExport;
 
 class PaymentController extends Controller
 {
-
     public function index()
     {
-        $payments = Payment::with(['user', 'course'])
-            ->latest()
-            ->paginate(10);
-        return view('payment-history.index', compact('payments'));
+       
+        $payments = Payment::with(['user', 'course'])->get();
+        $userCoins = UserCoin::with('user')->get();
+        $mergedData = $payments->map(function ($item) {
+            return [
+                'source' => 'Payment',
+                'id' => $item->id,
+                'user_name' => $item->user->name ?? '-',
+                'email' => $item->email ?? '-',
+                'contact' => $item->contact ?? '-',
+                'course_name' => $item->course->name ?? '-',
+                'amount' => $item->amount ?? '-',
+                'currency' => $item->currency ?? '-',
+                'payment_id' => $item->payment_id ?? '-',
+                'method' => $item->method ?? '-',
+                'card_network' => $item->card_network ?? '-',
+                'card_last4' => $item->card_last4 ?? '-',
+                'vpa' => $item->vpa ?? '-',
+                'status' => $item->status ?? '-',
+                'created_at' => $item->created_at,
+            ];
+        });
+
+        $userCoinData = $userCoins->map(function ($item) {
+            return [
+                'source' => 'User Coin',
+                'id' => $item->id,
+                'user_name' => $item->user->name ?? '-',
+                'email' => $item->user->email ?? '-',
+                'contact' => $item->user->phone_number ?? '-',
+                'course_name' => '-',
+                'amount' => $item->coin ?? '-',
+                'currency' => 'INR',
+                'payment_id' => $item->meta_description ?? '-',
+                'method' => '-',
+                'card_network' => '-',
+                'card_last4' => '-',
+                'vpa' => '-',
+                'status' => $item->user->status ?? '-',
+                'created_at' => $item->created_at,
+            ];
+        });
+        $merged = $mergedData->merge($userCoinData)->sortByDesc('created_at');
+        $currentPage = request()->get('page', 1);
+        $perPage = 10;
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($currentPage, $perPage),
+            $merged->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('payment-history.index', ['payments' => $paginated]);
     }
 
 
@@ -40,6 +89,10 @@ class PaymentController extends Controller
             'user_id'    => 'required|exists:google_users,id',
             'course_id'  => 'required|exists:courses,id',
             'plan_type'  => 'required|in:monthly,semi_annual,annual',
+            'method'     => 'nullable|string',
+            'card_last4' => 'nullable|string',
+            'card_network' => 'nullable|string',
+            'vpa'        => 'nullable|string',
         ]);
 
         // Get user

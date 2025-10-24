@@ -117,11 +117,11 @@ return [
         ],
 
 
-        [
-            'name' => 'Wallet History',
-            'route' => 'WalletHistory.index',
-            'icon' => 'fa fa-home',
-        ],
+        // [
+        //     'name' => 'Wallet History',
+        //     'route' => 'WalletHistory.index',
+        //     'icon' => 'fa fa-home',
+        // ],
 
         
         [

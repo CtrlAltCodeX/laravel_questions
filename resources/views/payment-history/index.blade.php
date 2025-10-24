@@ -25,62 +25,93 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">#</th>
-                <th scope="col" class="px-6 py-3">User Name</th>
+                   <th scope="col" class="px-6 py-3">Source</th>
+                <th scope="col" class="px-6 py-3">User Name / Email</th>
                 <th scope="col" class="px-6 py-3">Course Name</th>
-                     <th scope="col" class="px-6 py-3">Email</th>
-                <th scope="col" class="px-6 py-3">Amount / Contact</th>
-                <th scope="col" class="px-6 py-3">Currency</th>
-                <th scope="col" class="px-6 py-3">Status</th>
-           
+                <th scope="col" class="px-6 py-3">Contact</th>
+                <th scope="col" class="px-6 py-3">Amount / Currency</th>
+                <th scope="col" class="px-6 py-3">Payment id</th>
 
-                <th scope="col" class="px-6 py-3">Date/Time</th>
+                <th scope="col" class="px-6 py-3">Method / Card Network</th>
+                <th scope="col" class="px-6 py-3">Card last4</th>
+                <th scope="col" class="px-6 py-3">VPA</th>
+                <th scope="col" class="px-6 py-3">Status</th>
+                <th scope="col" class="px-6 py-3">Date / Time</th>
             </tr>
         </thead>
+
         <tbody>
             @forelse($payments as $payment)
             <tr class="paymentRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ $payment->id }}
+                    {{ $payment['id'] }}
                 </th>
+ <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $payment['source'] }}
+                </td>
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ $payment->user->name ?? '-' }}
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-gray-700">{{ $payment['user_name'] }}</span>
+                        <span class="text-gray-500">{{ $payment['email'] }}</span>
+                    </div>
                 </td>
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ $payment->course->name ?? '-' }}
+                    {{ $payment['course_name'] }}
                 </td>
+
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ $payment->email }}
+                    {{ $payment['contact'] }}
                 </td>
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     <div class="flex flex-col">
-                        <span class="font-semibold text-gray-600"> {{ $payment->amount ?? '-' }}</span>
-                        <span>{{ $payment->contact ?? '-' }}</span>
+                        <span class="font-semibold text-gray-700">{{ $payment['amount'] }}</span>
+                        <span class="text-gray-500">{{ $payment['currency'] }}</span>
+                    </div>
+                </td>
+
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $payment['payment_id'] }}
+                </td>
+
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-gray-700">
+                            {{ $payment['method'] }}
+                        </span>
+
+                        <span class="text-gray-500 text-xs">
+                          {{ $payment['card_network'] }}
+                        </span>
+
                     </div>
                 </td>
 
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ $payment->currency }}
-                </td>
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <span class="">
-                        {{ ucfirst($payment->status) }}
-                    </span>
+                    {{ $payment['card_last4'] }}
                 </td>
 
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $payment['vpa'] }}
+                </td>
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ \Carbon\Carbon::parse($payment->created_at)->format('d/m/Y h:i A') }}
+                    {{ $payment['status'] }}
+                </td>
+
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ \Carbon\Carbon::parse($payment['created_at'])->format('d/m/Y h:i A') }}
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="9" align="center" class="py-4">No Result Found</td>
+                <td colspan="12" align="center" class="py-4">No Result Found</td>
             </tr>
             @endforelse
         </tbody>
+
     </table>
 
     <div class="mt-4">
@@ -90,9 +121,7 @@
 
 @endsection
 
-
 @push('scripts')
-
 <script>
     document.getElementById('searchFilter').addEventListener('keyup', function() {
         const searchValue = this.value.toLowerCase();
