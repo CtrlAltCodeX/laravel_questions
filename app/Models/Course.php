@@ -29,4 +29,14 @@ class Course extends Model
         'subject_id' => 'array',
         'sub_category_id' => 'array'
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(\App\Models\Category::class, 'category_id');
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
+    }
 }

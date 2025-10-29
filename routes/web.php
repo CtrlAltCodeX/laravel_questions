@@ -106,9 +106,9 @@ Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::cl
     Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])->name('reports.edit');
 
     Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
-    Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'quizeshow']);
+    Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'webquizeShow']);
     Route::get('/question-bank-count-AllData/{google_user_id}', [ScoreBoardController::class, 'questioncountshowAllData']);
-    Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'mockTestShow']);
+    Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'webmockTestShow']);
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');

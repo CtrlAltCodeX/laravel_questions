@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserCourse;
 use App\Models\ScoreBoard;
+
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Language;
@@ -15,58 +17,6 @@ use Carbon\Carbon;
 class ScoreBoardController extends Controller
 {
 
-    /**
-     * @OA\Post(
-     *     path="/api/scoreboards",
-     *     summary="Create a new scoreboard entry",
-     *     description="Stores a new scoreboard record for a user",
-     *     operationId="storeScoreboard",
-     *     tags={"ScoreBoard"},
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"google_user_id","sub_category_id","total_videos","quiz_practice","test_rank"},
-     *             @OA\Property(property="google_user_id", type="integer", example=1, description="ID of the google user"),
-     *             @OA\Property(property="sub_category_id", type="integer", example=10, description="ID of the sub category"),
-     *             @OA\Property(property="total_videos", type="integer", example=5, description="Number of videos watched"),
-     *             @OA\Property(property="quiz_practice", type="integer", example=3, description="Number of quizzes practiced"),
-     *             @OA\Property(property="test_rank", type="integer", example=1, description="User's test rank"),
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Scoreboard saved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Scoreboard saved successfully!"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=15),
-     *                 @OA\Property(property="google_user_id", type="integer", example=1),
-     *                 @OA\Property(property="sub_category_id", type="integer", example=10),
-     *                 @OA\Property(property="total_videos", type="integer", example=5),
-     *                 @OA\Property(property="quiz_practice", type="integer", example=3),
-     *                 @OA\Property(property="test_rank", type="integer", example=1),
-     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-09-05T12:34:56Z"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2025-09-05T12:34:56Z"),
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object",
-     *                 @OA\Property(property="google_user_id", type="array",
-     *                     @OA\Items(type="string", example="The selected google user id is invalid.")
-     *                 )
-     *             )
-     *         )
-     *     )
-     * )
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -86,43 +36,62 @@ class ScoreBoardController extends Controller
     {
         $languages = Language::all();
         $categories = Category::all();
-        $subcategories = SubCategory::all();
 
-        $subcategory_id = $request->get('sub_category_id');
         $category_id = $request->get('category_id');
         $language_id = $request->get('language_id');
 
-        $sortColumn = $request->get('sort', 'score_boards.id');
+        $sortColumn = $request->get('sort', 'user_courses.id');
         $sortDirection = $request->get('direction', 'desc');
 
-        $query = ScoreBoard::with('subCategory.category.language');
+        // ✅ Main query
+        $query = UserCourse::with([
+            'user',
+            'course.category.language'
+        ])->where('status', 1);
 
-        if ($subcategory_id) {
-            $query->where('sub_category_id', $subcategory_id);
-        }
+        // ✅ Apply filters
         if ($category_id) {
-            $query->whereHas('subCategory', function ($q) use ($category_id) {
+            $query->whereHas('course', function ($q) use ($category_id) {
                 $q->where('category_id', $category_id);
             });
         }
+
         if ($language_id) {
-            $query->whereHas('subCategory.category', function ($q) use ($language_id) {
+            $query->whereHas('course.category', function ($q) use ($language_id) {
                 $q->where('language_id', $language_id);
             });
         }
 
-        $sortableColumns = ['id' => 'score_boards.id', 'sub_category' => 'sub_categories.name'];
+        // ✅ Sorting
+        $sortableColumns = [
+            'id' => 'user_courses.id',
+            'category' => 'categories.name',
+            'language' => 'languages.name',
+            'course' => 'courses.name',
+        ];
 
         if (array_key_exists($sortColumn, $sortableColumns)) {
-            $query->join('sub_categories', 'score_boards.sub_category_id', '=', 'sub_categories.id')
-                ->orderBy($sortableColumns[$sortColumn], $sortDirection);
+            $query->join('courses', 'user_courses.course_id', '=', 'courses.id')
+                ->join('categories', 'courses.category_id', '=', 'categories.id')
+                ->join('languages', 'categories.language_id', '=', 'languages.id')
+                ->orderBy($sortableColumns[$sortColumn], $sortDirection)
+                ->select('user_courses.*');
         }
 
-        $ScoreBoards = request()->data == 'all' ? $query->get() : $query->paginate(request()->data ?? 10);
+        $UserCourses = request()->data == 'all'
+            ? $query->get()
+            : $query->paginate(request()->data ?? 10);
 
-        return view('ScoreBoard.index', compact('ScoreBoards', 'categories', 'subcategories', 'languages', 'subcategory_id', 'category_id', 'language_id', 'sortColumn', 'sortDirection'));
+        return view('ScoreBoard.index', compact(
+            'UserCourses',
+            'languages',
+            'categories',
+            'language_id',
+            'category_id',
+            'sortColumn',
+            'sortDirection'
+        ));
     }
-
 
     /**
      * @OA\Get(
@@ -348,6 +317,48 @@ class ScoreBoardController extends Controller
                 "range" => "weekly",
             ],
             "data" => $data
+        ], 200);
+    }
+
+    public function webquizeShow($googleUserId)
+    {
+       
+        $records = QuizePractice::where('google_user_id', $googleUserId)
+            ->with(['subjects:id,name,sub_category_id', 'topic:id,name'])
+            ->get();
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No quiz attempt found for this user.',
+                'data' => []
+            ], 200);
+        }
+
+  
+        $groupedBySubject = $records->groupBy('subject_id');
+
+        $data = $groupedBySubject->map(function ($items, $subjectId) {
+            $subjectName = $items->first()->subjects->name ?? 'Unknown Subject';
+
+            $totalAttempts = $items->count();
+            $totalPercentage = $items->sum('percentage');
+            $avgPercentage = $totalAttempts > 0
+                ? round($totalPercentage / $totalAttempts, 2)
+                : 0;
+
+            return [
+                'subject_id' => (int) $subjectId,
+                'subject_name' => $subjectName,
+                'attempt' => $totalAttempts,
+                'percentage' => $avgPercentage,
+                'topic' => $items->first()->topic->name ?? 'N/A',
+                'created_at' => $items->last()->created_at->toDateTimeString()
+            ];
+        })->values();
+
+        return response()->json([
+            'message' => 'Quiz summary calculated successfully!',
+            'data' => $data
         ], 200);
     }
 
@@ -745,6 +756,56 @@ class ScoreBoardController extends Controller
 
         return response()->json([
             'status' => true,
+            'message' => 'Mock test records retrieved successfully!',
+            'data' => $data
+        ], 200);
+    }
+
+    public function webmockTestShow($googleUserId)
+    {
+      
+        $records = MockTest::where('google_user_id', $googleUserId)
+            ->with(['user', 'subCategory'])
+            ->get();
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'message' => 'No mock test records found for this user.'
+            ], 404);
+        }
+
+
+        $grouped = $records->groupBy('sub_category_id');
+
+        $data = $grouped->map(function ($tests, $subCategoryId) {
+            $subCategoryName = $tests->first()->subCategory->name ?? 'Unknown SubCategory';
+
+            $rightAnswerSum = $tests->sum('right_answer');
+            $wrongAnswerSum = $tests->sum('wrong_answer');
+            $totalQuestionsSum = $tests->sum('total_questions');
+            $totalTimeTaken = $tests->sum('time_taken');
+            $attemptNumber = $tests->count();
+            // $averageTimeTaken = $attemptNumber > 0 ? round($totalTimeTaken / $attemptNumber, 2) : 0;
+            $latestRecord = $tests->sortByDesc('created_at')->first();
+
+            return [
+                'id' => $latestRecord->id,
+                'google_user_id' => (int) $latestRecord->google_user_id,
+                'sub_category_id' => (int) $subCategoryId,
+                'sub_category' => [
+                    'id' => (int) $subCategoryId,
+                    'name' => $subCategoryName,
+                ],
+                'right_answer' => $rightAnswerSum,
+                'wrong_answer' => $wrongAnswerSum,
+                'total_questions' => $totalQuestionsSum,
+                'attempt' => $attemptNumber,
+                'time_taken' => $totalTimeTaken,
+                'created_at' => $latestRecord->created_at,
+            ];
+        })->values();
+
+        return response()->json([
             'message' => 'Mock test records retrieved successfully!',
             'data' => $data
         ], 200);
