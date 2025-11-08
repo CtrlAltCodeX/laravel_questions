@@ -104,6 +104,24 @@ class ProfileController extends Controller
 
     return view('users.index', compact('users'));
 }
+
+
+public function deleteUser($id)
+{
+    try {
+        // User find karein
+        $user = GoogleUser::findOrFail($id);
+
+    
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User deleted successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+    }
+}
+
+
 public function updateCoinsAndStatus(Request $request, $id)
 {
     $request->validate([

@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/users/update-coins-status/{id}', [ProfileController::class, 'updateCoinsAndStatus'])
         ->name('users.updateCoinsAndStatus');
-Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class, 'getUserPaymentAnalytics']);
+    Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class, 'getUserPaymentAnalytics']);
 
     Route::get('/dashboard/user-analytics/{range}', [DashboardController::class, 'getUserAnalytics']);
     Route::get('/dashboard/user-analytics/export/file', [DashboardController::class, 'exportUserAnalytics'])->name('dashboard.user.analytics.export');
@@ -174,6 +174,7 @@ Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::cl
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
+    Route::delete('/users/{id}', [ProfileController::class, 'deleteUser'])->name('users.delete');
 
     Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
         ->name('super-admin.index');
