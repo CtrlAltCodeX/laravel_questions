@@ -30,13 +30,14 @@ class UserCourseController extends Controller
                 'course_detail'   => $course ? [
                     'id'            => $course->id,
                     'name'          => $course->name,
+                    'meta_data'     => $course->meta_data,
                     'language_id'   => $course->language_id,
                     'category_id'   => $course->category_id,
                     'sub_category_id' => $course->sub_category_id,
                     'subject_id'    => $course->subject_id,
                     'status'        => $course->status,
                     'subscription'  => $course->subscription,
-                    'banner'        => $course->banner
+                    'banner'        => $course->banner,
                 ] : null,
             ];
         });

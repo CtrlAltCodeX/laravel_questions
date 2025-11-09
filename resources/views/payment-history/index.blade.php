@@ -28,13 +28,13 @@
                    <th scope="col" class="px-6 py-3">Source</th>
                 <th scope="col" class="px-6 py-3">User Name / Email</th>
                 <th scope="col" class="px-6 py-3">Course Name</th>
-                <th scope="col" class="px-6 py-3">Contact</th>
-                <th scope="col" class="px-6 py-3">Amount / Currency</th>
+                <!-- <th scope="col" class="px-6 py-3">Contact</th>-->
+                <th scope="col" class="px-6 py-3">Amount</th>
                 <th scope="col" class="px-6 py-3">Payment id</th>
 
-                <th scope="col" class="px-6 py-3">Method / Card Network</th>
-                <th scope="col" class="px-6 py-3">Card last4</th>
-                <th scope="col" class="px-6 py-3">VPA</th>
+                <th scope="col" class="px-6 py-3">Method</th>
+                <!--<th scope="col" class="px-6 py-3">Card last4</th>
+                 <th scope="col" class="px-6 py-3">VPA</th> -->
                 <th scope="col" class="px-6 py-3">Status</th>
                 <th scope="col" class="px-6 py-3">Date / Time</th>
             </tr>
@@ -46,13 +46,14 @@
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['id'] }}
                 </th>
- <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['source'] }}
                 </td>
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     <div class="flex flex-col">
                         <span class="font-semibold text-gray-700">{{ $payment['user_name'] }}</span>
                         <span class="text-gray-500">{{ $payment['email'] }}</span>
+                      <span class="text-gray-500">{{ $payment['contact'] }}</span>
                     </div>
                 </td>
 
@@ -60,14 +61,14 @@
                     {{ $payment['course_name'] }}
                 </td>
 
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <!--<td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['contact'] }}
-                </td>
+                </td> -->
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <div class="flex flex-col">
+                    <div class="flex">
+                      	<span class="text-gray-500">₹</span>
                         <span class="font-semibold text-gray-700">{{ $payment['amount'] }}</span>
-                        <span class="text-gray-500">{{ $payment['currency'] }}</span>
                     </div>
                 </td>
 
@@ -81,21 +82,21 @@
                             {{ $payment['method'] }}
                         </span>
 
-                        <span class="text-gray-500 text-xs">
+                        <!-- <span class="text-gray-500 text-xs">
                           {{ $payment['card_network'] }}
-                        </span>
+                        </span> -->
 
                     </div>
                 </td>
 
 
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <!--<td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['card_last4'] }}
                 </td>
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['vpa'] }}
-                </td>
+                </td>-->
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['status'] }}

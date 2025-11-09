@@ -22,7 +22,6 @@ class UserCourse extends Model
         return $this->belongsTo(\App\Models\GoogleUser::class, 'user_id');
     }
 
-    // Relation with course
     public function course()
     {
         return $this->belongsTo(\App\Models\Course::class, 'course_id');

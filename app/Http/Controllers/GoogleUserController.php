@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Mail\OTP;
 use Illuminate\Http\Request;
 use App\Models\GoogleUser;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(
@@ -132,32 +132,6 @@ class GoogleUserController extends Controller
         ]);
     }
 
-    public function updateUserCode(Request $request, $id)
-    {
-        $request->validate([
-            'friend_code'   => 'required|string',
-        ]);
-
-        $user = GoogleUser::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        $data = $request->only('friend_code');
-
-        $user->update($data);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Friend code updated successfully',
-            'data' => $user
-        ]);
-    }
-
     public function generateOTP($n)
     {
         $generator = "1357902468";
@@ -276,6 +250,47 @@ class GoogleUserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'User profile retrieved successfully',
+            'data' => $user
+        ]);
+    }
+
+    public function updateUserCode(Request $request, $id)
+    {
+        $request->validate([
+            'friend_code'   => 'nullable|string',
+        ]);
+
+        $user = GoogleUser::where('referral_code', $request->friend_code)
+            ->first();
+
+        $settings = Setting::first();
+
+        $currentUser = GoogleUser::find($id);
+
+        if (!$currentUser) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No User found'
+            ], 404);
+        }
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No Referral code not found'
+            ], 404);
+        }
+
+        $coin = $user->coins += $settings->refer_coin;
+
+        $user->update([
+            'friend_code' => $currentUser->referral_code,
+            'coins' => $coin
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Friend code updated successfully',
             'data' => $user
         ]);
     }

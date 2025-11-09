@@ -10,14 +10,22 @@ class Video extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'v_no', 'thumbnail', 'topic_id', 'description',
-        'youtube_link', 'video_id', 'duration', 'video_type', 'pdf_link'
+        'name',
+        'v_no',
+        'thumbnail',
+        'topic_id',
+        'description',
+        'youtube_link',
+        'video_id',
+        'duration',
+        'video_type',
+        'pdf_link',
+        'subject_id',
+        'sub_category_id',
     ];
 
     public function topic()
     {
         return $this->belongsTo(Topic::class);
     }
-
-   
 }

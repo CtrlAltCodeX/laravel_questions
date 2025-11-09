@@ -24,7 +24,7 @@
 
 <div class="container mx-auto p-6">
     <!-- Stats Boxes -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-blue-500 text-white rounded-lg shadow-md p-6 text-center">
             <h5 class="text-lg font-bold">Total Categories</h5>
             <p class="text-4xl font-semibold">{{ $categoriesCount }}</p>

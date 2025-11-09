@@ -15,17 +15,18 @@
                 <th scope="col" class="px-6 py-3">Name / Profile Photo</th>
 
                 <th scope="col" class="px-6 py-3">Phone Number / Email Id</th>
+                <th scope="col" class="px-6 py-3">Language / Category</th>
                 <th scope="col" class="px-6 py-3">Coins</th>
                 <th scope="col" class="px-6 py-3">Login Type</th>
-                <th scope="col" class="px-6 py-3"> Courses</th>
-                <th scope="col" class="px-6 py-3">Start Dates</th>
+                <th scope="col" class="px-6 py-3">Courses</th>
+                <th scope="col" class="px-6 py-3">Register Date</th>
 
                 <th scope="col" class="px-6 py-3">Plans</th>
                 <th scope="col" class="px-6 py-3">Referral Code</th>
                 <th scope="col" class="px-6 py-3">Friend Code</th>
                 <th scope="col" class="px-6 py-3">Status</th>
-                <th scope="col" class="px-6 py-3">Language</th>
-                <th scope="col" class="px-6 py-3">Category</th>
+                {{-- <th scope="col" class="px-6 py-3">Language</th>
+                <th scope="col" class="px-6 py-3">Category</th> --}}
                 <th scope="col" class="px-6 py-3">Action</th>
             </tr>
         </thead>
@@ -50,12 +51,15 @@
                     </div>
                 </td>
 
-                <td class="px-6 py-4 font-semibold text-gray-600">
-                    {{ $user->total_coins > 0 ? $user->total_coins : '-' }}
+                <td class="px-6 py-4">
+                    <span>{{ $user->category->language->name ?? '-' }} / {{ $user->category->name ?? '-' }}</span> 
                 </td>
 
+                <td class="px-6 py-4 font-semibold text-gray-600">
+                    {{ $user->coins > 0 ? $user->coins : '-' }}
+                </td>
+              
                 <td class="px-6 py-4">{{ $user->login_type }}</td>
-                {{-- Course Names --}}
                 <td class="px-6 py-4 text-center">
                     {!! $user->userCourses->pluck('course.name')->filter()->implode(', ') ?: '<span class="font-semibold text-gray-600">-</span>' !!}
                 </td>
@@ -76,8 +80,8 @@
                     @endif
                 </td>
 
-                <td class="px-6 py-4">{{ $user->category->language->name ?? 'N/A' }}</td>
-                <td class="px-6 py-4">{{ $user->category->name ?? 'N/A' }}</td>
+                {{-- <td class="px-6 py-4">{{ $user->category->language->name ?? 'N/A' }}</td>
+                <td class="px-6 py-4">{{ $user->category->name ?? 'N/A' }}</td> --}}
                 <td class="px-6 py-4 flex gap-4">
                     <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
                         data-id="{{ $user->id }}"
@@ -86,7 +90,6 @@
                             <path d="M 22.828125 3 C 22.316375 3 21.804562 3.1954375 21.414062 3.5859375 L 19 6 L 24 11 L 26.414062 8.5859375 C 27.195062 7.8049375 27.195062 6.5388125 26.414062 5.7578125 L 24.242188 3.5859375 C 23.851688 3.1954375 23.339875 3 22.828125 3 z M 17 8 L 5.2597656 19.740234 C 5.2597656 19.740234 6.1775313 19.658 6.5195312 20 C 6.8615312 20.342 6.58 22.58 7 23 C 7.42 23.42 9.6438906 23.124359 9.9628906 23.443359 C 10.281891 23.762359 10.259766 24.740234 10.259766 24.740234 L 22 13 L 17 8 z M 4 23 L 3.0566406 25.671875 A 1 1 0 0 0 3 26 A 1 1 0 0 0 4 27 A 1 1 0 0 0 4.328125 26.943359 A 1 1 0 0 0 4.3378906 26.939453 L 4.3632812 26.931641 A 1 1 0 0 0 4.3691406 26.927734 L 7 26 L 5.5 24.5 L 4 23 z"></path>
                         </svg>
                     </button>
-
                     <form action="{{ route('users.delete', $user->id) }}" method='POST'>
                         @csrf
                         @method('DELETE')
@@ -109,10 +112,6 @@
     {{ $users->links() }}
 </div>
 
-
-
-
-
 <div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style="
         background-color: white; 
@@ -133,14 +132,13 @@
             @csrf
             <input type="hidden" name="_method" value="">
 
-            <div class="mb-3 flex items-center space-x-4">
-                <label class="font-semibold" style="margin-right: 0px;">Add Coins:</label>
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1" style="margin-right: 0px;">Add Coins:</label>
                 <input type="number" name="coins" id="coins" class="border rounded px-2 py-1 w-full" placeholder="Enter coins">
             </div>
 
-
-            <div class="mb-3 flex items-center space-x-4">
-                <label class="font-semibold" style="margin-right: 10px;">Status:</label>
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1" style="margin-right: 10px;">Status:</label>
                 <select name="status" id="status" class="border rounded px-2 py-1 w-full">
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -153,16 +151,16 @@
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                    focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
                    dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
-                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Enter meta description here..."></textarea>
+                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter meta description here...">
+                </textarea>
             </div>
+
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Update
             </button>
         </form>
     </div>
 </div>
-
 
 @endsection
 
@@ -235,11 +233,6 @@
                 modal.style.display = 'flex';
             });
         });
-
-
-
-
-
     });
 </script>
 

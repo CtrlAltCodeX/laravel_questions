@@ -19,13 +19,12 @@ class ProfileController extends Controller
         $userToEdit = User::findOrFail($id);
 
         $currentUser = Auth::user();
-        
-        if($currentUser->isSuperAdmin()){
+
+        if ($currentUser->isSuperAdmin()) {
             return view('users.edit', [
-                'user' => $userToEdit, 
+                'user' => $userToEdit,
             ]);
         }
-        
     }
 
     /**
@@ -39,11 +38,11 @@ class ProfileController extends Controller
         //     $request->user()->email_verified_at = null;
         // }
 
-        $user=User::findOrFail($id);
-        $currentUser=Auth::user();
+        $user = User::findOrFail($id);
+        $currentUser = Auth::user();
 
-        if($currentUser->role == 'Super admin'){
-            $validatedData= $request->validate([
+        if ($currentUser->role == 'Super admin') {
+            $validatedData = $request->validate([
                 'name' => 'nullable|string|max:255',
                 'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
                 'role' => 'nullable|string|max:255',
@@ -55,11 +54,9 @@ class ProfileController extends Controller
             });
             $user->update($filteredData);
         }
-       
-        return redirect()->route('users.index')
-                         ->with('success', 'Admin profile updated successfully.');
 
-        
+        return redirect()->route('users.index')
+            ->with('success', 'Admin profile updated successfully.');
     }
 
     /**
@@ -71,9 +68,9 @@ class ProfileController extends Controller
         //     'password' => ['required', 'current_password'],
         // ]);
         // Log::info('Delete request received for user ID: ' . $id);
-        $user=User::findOrFail($id);
-        if(auth()->user()->id === $user->id){
-            return redirect()->route('users.index')->with('error','You cannot delete your own account');
+        $user = User::findOrFail($id);
+        if (auth()->user()->id === $user->id) {
+            return redirect()->route('users.index')->with('error', 'You cannot delete your own account');
         }
         // $user = $request->user();
 
@@ -85,70 +82,69 @@ class ProfileController extends Controller
         // $request->session()->regenerateToken();
 
         // return Redirect::to('/');
-        return redirect()->route('users.index')->with('success','User deleted successfully!');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
 
-  public function users(Request $request)
-{
-    $query = GoogleUser::with([
-        'category.language',
-        'userCourses.course' ,
-         'coinsHistory'
-    ]);
+    public function users(Request $request)
+    {
+        $query = GoogleUser::with([
+            'category.language',
+            'userCourses.course',
+            'coinsHistory'
+        ]);
 
-    if ($request->filled('category_id')) {
-        $query->where('category_id', $request->category_id);
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $users = $query->paginate(10);
+
+        return view('users.index', compact('users'));
     }
 
-    $users = $query->paginate(10);
 
-    return view('users.index', compact('users'));
-}
+    public function deleteUser($id)
+    {
+        try {
+            // User find karein
+            $user = GoogleUser::findOrFail($id);
 
 
-public function deleteUser($id)
-{
-    try {
-        // User find karein
+            $user->delete();
+
+            return redirect()->back()->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
+    }
+
+    public function updateCoinsAndStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required',
+            'coins' => 'nullable|integer',
+            'meta_data' => 'nullable|string',
+        ]);
+
         $user = GoogleUser::findOrFail($id);
 
-    
-        $user->delete();
+        // ✅ Update status in GoogleUser
+        $user->status = $request->status;
+        $user->save();
 
-        return redirect()->back()->with('success', 'User deleted successfully.');
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+        // ✅ Add coin entry in new table
+        if ($request->coins > 0) {
+            UserCoin::create([
+                'user_id' => $user->id,
+                'coin' => $request->coins,
+                'meta_description' => $request->meta_data,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coins added and status updated successfully.',
+            'user' => $user
+        ], 201);
     }
-}
-
-
-public function updateCoinsAndStatus(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required',
-        'coins' => 'nullable|integer',
-        'meta_data' => 'nullable|string',
-    ]);
-
-    $user = GoogleUser::findOrFail($id);
-
-    // ✅ Update status in GoogleUser
-    $user->status = $request->status;
-    $user->save();
-
-    // ✅ Add coin entry in new table
-    if ($request->coins > 0) {
-        UserCoin::create([
-            'user_id' => $user->id,
-            'coin' => $request->coins,
-            'meta_description' => $request->meta_data,
-        ]);
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Coins added and status updated successfully.',
-        'user' => $user
-    ], 201);
-}
 }

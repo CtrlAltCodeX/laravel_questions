@@ -183,23 +183,23 @@
                     {{ count($topic->question) }}
                 </th>
                 @php
-    $status = ucfirst($topic->status);
-    $statusClass = $topic->status === 'enabled' ? 'text-green-600' : 'text-red-600';
-@endphp
+                $status = ucfirst($topic->status);
+                $statusClass = $topic->status === 'enabled' ? 'text-green-600' : 'text-red-600';
+                @endphp
 
-<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
-    {{ $status }}
-</th>
+                <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $statusClass }}">
+                    {{ $status }}
+                </th>
 
 
-@php
-    $access = ucfirst($topic->access);
-    $accessClass = $topic->access === 'unlock' ? 'text-green-600' : 'text-red-600';
-@endphp
+                @php
+                $access = ucfirst($topic->access);
+                $accessClass = $topic->access === 'unlock' ? 'text-green-600' : 'text-red-600';
+                @endphp
 
-<th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $accessClass }}">
-    {{ $access }}
-</th>
+                <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap {{ $accessClass }}">
+                    {{ $access }}
+                </th>
 
                 <td class="px-6 py-4 flex gap-4">
                     <button class="editButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -338,21 +338,21 @@
             </div>
 
             <div class="form-group">
-    <label for="status">Status</label>
-    <select name="status" id="status" class="form-control">
-        <option value="enabled">Enabled</option>
-        <option value="disabled">Disabled</option>
-    </select>
-</div>
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="enabled">Enabled</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
 
-<div class="form-group">
-    <label for="access">Access</label>
-    <select name="access" id="access" class="form-control">
-    <option value="unlock">Unlock</option>
-        <option value="lock">Lock</option>
-      
-    </select>
-</div>
+            <div class="form-group">
+                <label for="access">Access</label>
+                <select name="access" id="access" class="form-control">
+                    <option value="unlock">Unlock</option>
+                    <option value="lock">Lock</option>
+
+                </select>
+            </div>
 
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Save

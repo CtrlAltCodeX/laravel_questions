@@ -36,19 +36,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-Route::get("{userId}/{CourseId}/quiz", [QuizController::class, 'deploy']);
+Route::get("{userId}/{courseId}/quiz", [QuizController::class, 'deploy']);
 
-Route::get('{userId}/{CourseId}/bank-api', [QuestionBankController::class, 'deploy']);
+Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class, 'deploy']);
 
-Route::get('{userId}/{CourseId}/cbt', [CbtController::class, 'deploy']);
+Route::get('{userId}/{courseId}/cbt', [CbtController::class, 'deploy']);
 
-Route::get('{userId}/{CourseId}/video', [VideoController::class, 'formattedAPI']);
+Route::get('{userId}/{courseId}/video', [VideoController::class, 'formattedAPI']);
 
 Route::middleware('authapi')->group(function () {});
 
 Route::post('reports', [ReportController::class, 'store']);
 
-// wallet
 Route::get('wallet/history', [WalletHistoryController::class, 'index']);
 // Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
 Route::post('wallet/charges', [WalletHistoryController::class, 'walletCharges']);

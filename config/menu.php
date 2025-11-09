@@ -55,7 +55,7 @@ return [
                     'route' => 'bank-question.index',
                     'icon' => 'fa fa-folder-open',
                 ],
-               
+
                 [
                     'name' => 'Quiz',
                     'route' => 'quiz.index',
@@ -87,7 +87,7 @@ return [
             ],
         ],
 
-          [
+        [
             'name' => 'Course',
             'route' => 'courses.index',
             'icon' => 'fa fa-home',
@@ -109,10 +109,10 @@ return [
             'icon' => 'fa fa-home',
         ],
 
-        
+
         [
             'name' => 'Payment History',
-            'route' => 'PaymentHistory.index',
+            'route' => 'paymentHistory.index',
             'icon' => 'fa fa-home',
         ],
 
@@ -123,7 +123,7 @@ return [
         //     'icon' => 'fa fa-home',
         // ],
 
-        
+
         [
             'name' => 'Score Board',
             'route' => 'ScoreBoard.index',

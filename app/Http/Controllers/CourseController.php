@@ -84,8 +84,8 @@ class CourseController extends Controller
             // $subCategoryIds = $course->sub_category_id ?? [];
             // $subjectIds = $course->subject_id ?? [];
 
-            $subCategoryIds = json_decode($course->sub_category_id, true) ?? [];
-            $subjectIds = json_decode($course->subject_id, true) ?? [];
+            $subCategoryIds = $course->sub_category_id ?? [];
+            $subjectIds = $course->subject_id ?? [];
 
             $subCategoryIds = array_filter($subCategoryIds, fn($id) => $id !== 'all');
             $subjectIds = array_filter($subjectIds, fn($id) => $id !== 'all');

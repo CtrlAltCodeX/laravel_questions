@@ -668,9 +668,9 @@ class QuestionBankController extends Controller
             $data['Subject_2'] = $data['Subject'];
 
             $data['Language'] = 1;
-            $data['Category'] = $category->parent_id;
-            $data['SubCategory'] = $subcategory->parent_id;
-            $data['Subject'] = $subject->parent_id;
+            $data['Category'] = $category->parent_id ? $category->parent_id : $categoryId;
+            $data['SubCategory'] = $subcategory->parent_id ? $subcategory->parent_id : $subcategory->id;
+            $data['Subject'] = $subject->parent_id ? $subject->parent_id : $subject->id;
             // $data['Topic_2'] = 1;
         } else {
             $data['Language'] = $course->language_id;

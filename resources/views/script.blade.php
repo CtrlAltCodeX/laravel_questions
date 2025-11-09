@@ -59,7 +59,6 @@
         const actionUrl = form.action;
 
         // --- beforeSend equivalent ---
-        // You can disable the submit button, show a loader, etc.
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         submitButton.innerText = 'Saving...';
@@ -119,7 +118,7 @@
     function getCategories(languageId, categoryId = null)
     {
         if (languageId) {
-            $.ajax({
+            return $.ajax({
                 url: '/get-categories/' + languageId,
                 method: 'GET',
                 success: function(data) {
@@ -139,7 +138,7 @@
     function getSubCategories(categoryId, subCategoryId = null)
     {
         if (categoryId) {
-            $.ajax({
+            return $.ajax({
                 url: '/get-subcategories/' + categoryId,
                 method: 'GET',
                 success: function(data) {
@@ -157,7 +156,7 @@
     function getSubjects(subCategoryId)
     {
         if (subCategoryId) {
-            $.ajax({
+            return $.ajax({
                 url: '/get-subjects/' + subCategoryId,
                 method: 'GET',
                 success: function(data) {
@@ -175,7 +174,7 @@
     function getTopics(subjectId)
     {
         if (subjectId) {
-            $.ajax({
+            return $.ajax({
                 url: '/get-topics/' + subjectId,
                 method: 'GET',
                 success: function(data) {
@@ -234,17 +233,17 @@
 
                     // Re-bind change listener for label update
                     $('.subcategory-checkbox').on('change', function () {
-                        updateSubCategoryLabel();
+                        // updateSubCategoryLabel();
                         fetchSubjects(); // if you want to fetch subjects on change
                     });
 
                     // Reset label
-                    updateSubCategoryLabel();
+                    // updateSubCategoryLabel();
                 }
             });
         } else {
             $('#dropdownMenu').html('<p class="text-sm text-gray-400 px-4 py-2">Please select a category</p>');
-            updateSubCategoryLabel(); // Clear label
+            // updateSubCategoryLabel(); // Clear label
         }
     });
 </script>

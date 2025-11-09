@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Video;
+use App\Models\Topic;
+use App\Models\Course;
+use App\Models\Subject;
+use App\Models\Question;
 use App\Models\Category;
 use App\Models\Language;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Exports\VideosExport;
 use App\Imports\VideosImport;
-use App\Models\Topic;
-use App\Models\Subject;
-use App\Models\Video;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage; // ✅ Correctly placed here
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class VideoController extends Controller
 {
@@ -22,6 +24,9 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
+        // dd(Storage::disk('minio'));
+        // dd(get_class_methods(Storage::disk('minio')));
+
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
@@ -190,11 +195,13 @@ class VideoController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'sub_category_id' => 'required',
+            'subject_id' => 'required',
             'topic_id' => 'required',
-            'video' => 'required|file|mimes:mp4,mov,avi|max:204800', // example validation
+            'video' => 'required|file|mimes:mp4,mov,avi|max:204800',
         ]);
 
-        $video = Video::create(array_merge($request->except(['thumbnail', 'pdf_link', 'video']), [
+        $video = Video::create(array_merge($request->except(['pdf_link', 'video']), [
             'duration' => now()->format('H:i:s')
         ]));
 
@@ -261,11 +268,12 @@ class VideoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-
     public function update(Request $request, string $id)
     {
         $request->validate([
             'name' => 'required',
+            'sub_category_id' => 'required',
+            'subject_id' => 'required',
             'topic_id' => 'required'
         ]);
 
@@ -327,7 +335,6 @@ class VideoController extends Controller
         ]);
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -338,5 +345,164 @@ class VideoController extends Controller
         session()->flash('success', 'Video Successfully Deleted');
 
         return redirect()->route('videos.index');
+    }
+
+    public function formattedAPI(Request $request, $userId, $courseId)
+    {
+        $validator = Validator::make($request->all(), [
+            'subcategory' => 'required',
+            'subject' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $requestData = $request->all();
+
+        if (!$course = Course::find($courseId)) return response()->json(['error' => 'Course not found'], 404);
+
+        $requestData['Language'] = $course->language_id;
+        $requestData['Category'] = $course->category_id;
+
+        $data = $this->getFirstDropdownData($requestData);
+        $language = $data['language'] ?? null;
+        $categories = $data['categories'][0];
+        $subcategories = $data['subcategories'][0];
+        $subjects = $data['subjects'][0];
+        $topics = $data['topics'];
+
+        $data2 = $this->getSecondDropdownData($requestData);
+        $language2 = $data2['language'] ?? null;
+        $categories2 = $data2['categories'] ?? [];
+        $subcategories2 = $data2['subcategories'] ?? [];
+        $subjects2 = $data2['subjects'] ?? [];
+        $topics2 = $data2['topics'] ?? [];
+
+        $jsonResponse = [];
+        $languageName = '<span class="notranslate">' . $language->name . '</span>';
+        if ($language2) {
+            $languageName .= ' | ' . $language2->name;
+        }
+
+        $categoryName = '<span class="notranslate">' . $categories->name . '</span>';
+        if (count($categories2)) {
+            $categoryName .= ' | ' . $categories2[0]->name;
+        }
+
+        $subcategoryName = '<span class="notranslate">' . $subcategories->name . '</span>';
+        if (count($subcategories2)) {
+            $subcategoryName .= ' | ' . $subcategories2[0]->name;
+        }
+
+        $subjectName = '<span class="notranslate">' . $subjects->name . '</span>';
+        if (count($subjects2)) {
+            $subjectName .= ' | ' . $subjects2[0]->name;
+        }
+
+        foreach ($topics as $outkey => $topic) {
+            $topicsName = '<span class="notranslate">' . $topic->name . "</span>";
+            if (count($topics2)) {
+                $topicsName .= ' | ' . ($topics2[$outkey]->name ?? '');
+            }
+
+            $videos = $this->getFirstDropdownData($requestData, $topic)
+                ? $this->getFirstDropdownData($requestData, $topic)['videos']
+                : [];
+
+            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topicsName] = $videos;
+        }
+
+        return response()->json($jsonResponse);
+    }
+
+    public function getQuestionsData($language_id, $category_id, $subcategory_id)
+    {
+        $subjects1 = Subject::where('sub_category_id', $subcategory_id)
+            ->get();
+
+        $subjects2 = [];
+
+        foreach ($subjects1 as $subject) {
+            $questions = Question::where('subject_id', $subject->id)
+                ->where('language_id', $language_id)
+                ->where('category_id',  $category_id)
+                ->get()
+                ->toArray();
+
+            $questions = count($questions);
+
+            $subject->questions = $questions;
+
+            $subjects2[] = Subject::where('parent_id', $subject->id)->first()?->toArray() ?? [];
+        }
+
+        return response()->json(['subjects1' => $subjects1, 'subjects2' => $subjects2]);
+    }
+
+    function getFirstDropdownData($data, $topic = null)
+    {
+        $languageId = $data['Language'] ?? null;
+
+        $categoryId = $data['Category'] ?? null;
+
+        if (!$categoryId) return response()->json(['error' => 'Category parameter is missing'], 400);
+
+        $videos = Video::where('topic_id', $topic?->id)
+            ->where('sub_category_id', $data['subcategory'])
+            ->where('subject_id', $data['subject'])
+            ->get();
+
+        $language = Language::find($languageId);
+
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+
+        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
+
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+
+        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+
+        return [
+            'language' => $language,
+            'categories' => $categories,
+            'subcategories' => $subcategories,
+            'subjects' => $subjects,
+            'topics' => $topics,
+            'videos' => $videos
+        ];
+    }
+
+    function getSecondDropdownData($data)
+    {
+        $languageId = $data['Language_2'] ?? null;
+
+        $categoryId = $data['Category_2'] ?? null;
+
+        if (!$categoryId) return null;
+
+        $videos = Video::where('sub_category_id', $data['subcategory_2'])
+            ->where('subject_id', $data['subject_2'])
+            ->get();
+
+        $language = Language::find($languageId);
+
+        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+
+        $subcategories = isset($data['SubCategory_2']) ? SubCategory::where('id', $data['SubCategory_2'])->get() : SubCategory::where('category_id', $categoryId)->get();
+
+        // Get all the subjects for the subcategories
+        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+
+        return [
+            'language' => $language,
+            'categories' => $categories,
+            'subcategories' => $subcategories,
+            'subjects' => $subjects,
+            'videos' => $videos
+        ];
     }
 }

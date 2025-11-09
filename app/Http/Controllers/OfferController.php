@@ -4,11 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Offer;
-
-use App\Models\Category;
-use App\Models\Language;
-use App\Models\SubCategory;
-use App\Models\Subject;
 use App\Models\Course;
 
 
@@ -296,12 +291,10 @@ class OfferController extends Controller
 
         $query = Offer::query();
 
-        // Filter by course if provided
         if ($course) {
             $query->where('course', $course);
         }
 
-        // Sort
         if (array_key_exists($sortColumn, $sortableColumns)) {
             $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
