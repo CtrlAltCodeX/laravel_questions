@@ -100,14 +100,26 @@ class TopicController extends Controller
 
         $topic = Topic::create(request()->all());
 
-        if ($request->hasFile('photo')) {
-            $fileName = "topic/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "topic/" . time() . "_photo.jpg";
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $topic->photo = $fileName;
+        //     $topic->save();
+        // }
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "topic/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
 
-            $topic->photo = $fileName;
+            // Create folder if not exists
+            if (!is_dir("storage/topic")) {
+                mkdir("storage/topic", 0777, true);
+            }
 
-            $topic->save();
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $topic->photo = $fileName;
+                $topic->save();
+            }
         }
 
         session()->flash('success', 'Topic Successfully Created');
@@ -210,14 +222,29 @@ class TopicController extends Controller
 
         $topic->update(request()->all());
 
-        if ($request->hasFile('photo')) {
-            $fileName = "topic/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "topic/" . time() . "_photo.jpg";
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
 
-            $topic->photo = $fileName;
+        //     $topic->photo = $fileName;
 
-            $topic->save();
+        //     $topic->save();
+        // }
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "topic/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
+
+            // Create folder if not exists
+            if (!is_dir("storage/topic")) {
+                mkdir("storage/topic", 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $topic->photo = $fileName;
+                $topic->save();
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Topic Successfully Updated', 'topic' => $topic]);

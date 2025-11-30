@@ -60,66 +60,96 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class, 'getUserPaymentAnalytics']);
 
     Route::get('/dashboard/user-analytics/{range}', [DashboardController::class, 'getUserAnalytics']);
-    Route::get('/dashboard/user-analytics/export/file', [DashboardController::class, 'exportUserAnalytics'])->name('dashboard.user.analytics.export');
+    Route::get('/dashboard/user-analytics/export/file', [DashboardController::class, 'exportUserAnalytics'])
+        ->name('dashboard.user.analytics.export');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
 
     Route::resource('category', CategoryController::class);
-    Route::get('category/export/file', [CategoryController::class, 'export'])->name('category.export');
-    Route::get('category/sample/file', [CategoryController::class, 'sample'])->name('category.sample');
-    Route::post('category/import/file', [CategoryController::class, 'import'])->name('category.import');
+    Route::get('category/export/file', [CategoryController::class, 'export'])
+        ->name('category.export');
+    Route::get('category/sample/file', [CategoryController::class, 'sample'])
+        ->name('category.sample');
+    Route::post('category/import/file', [CategoryController::class, 'import'])
+        ->name('category.import');
 
 
     Route::resource('sub-category', SubCategoryController::class);
-    Route::get('sub-category/export/file', [SubCategoryController::class, 'export'])->name('sub-category.export');
-    Route::get('sub-category/sample/file', [SubCategoryController::class, 'sample'])->name('sub-category.sample');
-    Route::post('sub-category/import/file', [SubCategoryController::class, 'import'])->name('sub-category.import');
+    Route::get('sub-category/export/file', [SubCategoryController::class, 'export'])
+        ->name('sub-category.export');
+    Route::get('sub-category/sample/file', [SubCategoryController::class, 'sample'])
+        ->name('sub-category.sample');
+    Route::post('sub-category/import/file', [SubCategoryController::class, 'import'])
+        ->name('sub-category.import');
 
 
     Route::resource('subject', SubjectController::class);
-    Route::get('subject/export/file', [SubjectController::class, 'export'])->name('subject.export');
-    Route::get('subject/sample/file', [SubjectController::class, 'sample'])->name('subject.sample');
-    Route::post('subject/import/file', [SubjectController::class, 'import'])->name('subject.import');
+    Route::get('subject/export/file', [SubjectController::class, 'export'])
+        ->name('subject.export');
+    Route::get('subject/sample/file', [SubjectController::class, 'sample'])
+        ->name('subject.sample');
+    Route::post('subject/import/file', [SubjectController::class, 'import'])
+        ->name('subject.import');
 
     Route::resource('topic', TopicController::class);
     Route::resource('offers', OfferController::class);
     Route::resource('videos', VideoController::class);
-    Route::get('videos/export/file', [VideoController::class, 'export'])->name('videos.export');
-    Route::post('videos/import/file', [VideoController::class, 'import'])->name('videos.import');
+
+    Route::get('videos/export/file', [VideoController::class, 'export'])
+        ->name('videos.export');
+    Route::post('videos/import/file', [VideoController::class, 'import'])
+        ->name('videos.import');
 
     Route::resource('/courses', CourseController::class);
 
     Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
-    Route::get('/reports', [ReportController::class, 'webindex'])->name('reports.index');
-    Route::get('/PaymentHistory', [PaymentController::class, 'index'])->name('PaymentHistory.index');
+    Route::get('/reports', [ReportController::class, 'webindex'])
+        ->name('reports.index');
+    Route::get('/PaymentHistory', [PaymentController::class, 'index'])
+        ->name('paymentHistory.index');
     // routes/web.php
-    Route::get('/payments/export/file', [PaymentController::class, 'exportExcel'])->name('payments.export');
+    Route::get('/payments/export/file', [PaymentController::class, 'exportExcel'])
+        ->name('payments.export');
 
-    Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])->name('WalletHistory.index');
-    Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])->name('reports.updateVideo');
-    Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])->name('reports.updateQuestion');
-    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
-    Route::get('/reports/export/file', [ReportController::class, 'exportExcel'])->name('reports.export');
+    Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])
+        ->name('WalletHistory.index');
+    Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])
+        ->name('reports.updateVideo');
+    Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])
+        ->name('reports.updateQuestion');
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])
+        ->name('reports.destroy');
+    Route::get('/reports/export/file', [ReportController::class, 'exportExcel'])
+        ->name('reports.export');
 
-    Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])->name('reports.edit');
+    Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])
+        ->name('reports.edit');
 
-    Route::get('/scoreboard', [ScoreBoardController::class, 'index'])->name('ScoreBoard.index');
+    Route::get('/scoreboard', [ScoreBoardController::class, 'index'])
+        ->name('ScoreBoard.index');
     Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'webquizeShow']);
     Route::get('/question-bank-count-AllData/{google_user_id}', [ScoreBoardController::class, 'questioncountshowAllData']);
     Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'webmockTestShow']);
 
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+    Route::get('/settings', [SettingController::class, 'index'])
+        ->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'store'])
+        ->name('settings.store');
 
-    Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])->name('settings.quiz.save');
+    Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])
+        ->name('settings.quiz.save');
 
-    Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])->name('settings.cbt.save');
+    Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])
+        ->name('settings.cbt.save');
 
-    Route::get('topic/export/file', [TopicController::class, 'export'])->name('topic.export');
-    Route::get('topic/sample/file', [TopicController::class, 'sample'])->name('topic.sample');
-    Route::post('topic/import/file', [TopicController::class, 'import'])->name('topic.import');
+    Route::get('topic/export/file', [TopicController::class, 'export'])
+        ->name('topic.export');
+    Route::get('topic/sample/file', [TopicController::class, 'sample'])
+        ->name('topic.sample');
+    Route::post('topic/import/file', [TopicController::class, 'import'])
+        ->name('topic.import');
 
     Route::resource('question', QuestionBankController::class);
 
@@ -174,7 +204,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('users', [ProfileController::class, 'users'])
         ->name('users.index');
-    Route::delete('/users/{id}', [ProfileController::class, 'deleteUser'])->name('users.delete');
+
+    Route::delete('/users/{id}', [ProfileController::class, 'deleteUser'])
+        ->name('users.delete');
 
     Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
         ->name('super-admin.index');

@@ -100,7 +100,6 @@ class SubjectController extends Controller
         return Excel::download(new SubjectExport($languageId, $categoryId, $subCategoryId), 'Subject.xlsx');
     }
 
-
     public function sample()
     {
         return Excel::download(new SampleSubjectExport, 'SampleSubject.xlsx');
@@ -164,14 +163,29 @@ class SubjectController extends Controller
 
         $subject = Subject::create(request()->all());
 
-        if ($request->hasFile('photo')) {
-            $fileName = "subject/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "subject/" . time() . "_photo.jpg";
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
 
-            $subject->photo = $fileName;
+        //     $subject->photo = $fileName;
 
-            $subject->save();
+        //     $subject->save();
+        // }
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "subject/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
+
+            // Create folder if not exists
+            if (!is_dir("storage/subject")) {
+                mkdir("storage/subject", 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $subject->photo = $fileName;
+                $subject->save();
+            }
         }
 
         // session()->flash('success', 'Subject Successfully Created');
@@ -215,14 +229,29 @@ class SubjectController extends Controller
         $subject = Subject::find($id);
         $subject->update(request()->all());
 
-        if ($request->hasFile('photo')) {
-            $fileName = "subject/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "subject/" . time() . "_photo.jpg";
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
 
-            $subject->photo = $fileName;
+        //     $subject->photo = $fileName;
 
-            $subject->save();
+        //     $subject->save();
+        // }
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "subject/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
+
+            // Create folder if not exists
+            if (!is_dir("storage/subject")) {
+                mkdir("storage/subject", 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $subject->photo = $fileName;
+                $subject->save();
+            }
         }
 
 

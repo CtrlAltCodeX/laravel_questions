@@ -186,11 +186,26 @@ class SubCategoryController extends Controller
         $subcategory = SubCategory::create($data);
 
         // Handle image upload if exists
-        if ($request->hasFile('photo')) {
-            $fileName = "sub_category/" . time() . "_photo.jpg";
-            $request->file('photo')->storePubliclyAs('public', $fileName);
-            $subcategory->photo = $fileName;
-            $subcategory->save();
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "sub_category/" . time() . "_photo.jpg";
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $subcategory->photo = $fileName;
+        //     $subcategory->save();
+        // }
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "sub_category/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
+
+            // Create folder if not exists
+            if (!is_dir("storage/sub_category")) {
+                mkdir("storage/sub_category", 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $subcategory->photo = $fileName;
+                $subcategory->save();
+            }
         }
 
         return response()->json([
@@ -234,12 +249,27 @@ class SubCategoryController extends Controller
         // Update subcategory
         $subcategory->update($data);
 
-        // Handle image upload if exists
-        if ($request->hasFile('photo')) {
-            $fileName = "sub_category/" . time() . "_photo.jpg";
-            $request->file('photo')->storePubliclyAs('public', $fileName);
-            $subcategory->photo = $fileName;
-            $subcategory->save();
+        // // Handle image upload if exists
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "sub_category/" . time() . "_photo.jpg";
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $subcategory->photo = $fileName;
+        //     $subcategory->save();
+        // }
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "sub_category/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
+
+            // Create folder if not exists
+            if (!is_dir("storage/sub_category")) {
+                mkdir("storage/sub_category", 0777, true);
+            }
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $subcategory->photo = $fileName;
+                $subcategory->save();
+            }
         }
 
         return response()->json([

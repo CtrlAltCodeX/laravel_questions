@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Video;
-use App\Models\Topic;
-use App\Models\Course;
-use App\Models\Subject;
-use App\Models\Question;
 use App\Models\Category;
 use App\Models\Language;
+use App\Models\Course;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Exports\VideosExport;
 use App\Imports\VideosImport;
+use App\Models\Topic;
+use App\Models\Subject;
+use App\Models\Video;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage; // ✅ Correctly placed here
 use Illuminate\Support\Facades\Validator;
+
 
 class VideoController extends Controller
 {
@@ -24,9 +24,6 @@ class VideoController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(Storage::disk('minio'));
-        // dd(get_class_methods(Storage::disk('minio')));
-
         $languages = Language::all();
         $categories = Category::all();
         $subcategories = SubCategory::all();
@@ -105,7 +102,6 @@ class VideoController extends Controller
         } else {
             $videos = $query->paginate(request()->data);
         }
-
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories,
@@ -141,9 +137,8 @@ class VideoController extends Controller
         $subjectId = $request->get('subject_id');
         $topicId = $request->get('topic_id');
 
-        return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId, $topicId), 'Videos.xlsx');
+        return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId, $topicId), 'videos.xlsx');
     }
-
 
     public function import(Request $request)
     {
@@ -198,10 +193,10 @@ class VideoController extends Controller
             'sub_category_id' => 'required',
             'subject_id' => 'required',
             'topic_id' => 'required',
-            'video' => 'required|file|mimes:mp4,mov,avi|max:204800',
+            'video' => 'required|file|mimes:mp4,mov,avi|max:204800', // example validation
         ]);
 
-        $video = Video::create(array_merge($request->except(['pdf_link', 'video']), [
+        $video = Video::create(array_merge($request->except(['thumbnail', 'pdf_link', 'video']), [
             'duration' => now()->format('H:i:s')
         ]));
 
@@ -229,6 +224,7 @@ class VideoController extends Controller
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
             $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
             Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
+            $video->video_link = $path;
         }
 
         $video->save();
@@ -247,7 +243,6 @@ class VideoController extends Controller
 
         return response()->json($urls);
     }
-
 
     /**
      * Display the specified resource.
@@ -268,6 +263,7 @@ class VideoController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, string $id)
     {
         $request->validate([
@@ -277,8 +273,8 @@ class VideoController extends Controller
             'topic_id' => 'required'
         ]);
 
-        $video = Video::find($id);
-        if (!$video) {
+        // $video = Video::find($id);
+        if (!$video = Video::find($id)) {
             return response()->json(['success' => false, 'message' => 'Video not found'], 404);
         }
 
@@ -294,16 +290,10 @@ class VideoController extends Controller
             $fileName = "thumbnail/" . time() . "_photo.jpg";
             $request->file('thumbnail')->storePubliclyAs('public', $fileName);
             $video->thumbnail = $fileName;
-
-            // $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
-            // $fileName = $path . '/thumbnails/' . time() . '_' . $request->file('thumbnail')->getClientOriginalName();
-            // Storage::disk('minio')->put($fileName, file_get_contents($request->file('thumbnail')));
-            // $video->thumbnail = $fileName;
         }
 
         // === Handle PDF ===
         if ($request->hasFile('pdf_link')) {
-            // Delete old PDF if exists
             if ($video->pdf_link && Storage::disk('minio')->exists($video->pdf_link)) {
                 Storage::disk('minio')->delete($video->pdf_link);
             }
@@ -316,7 +306,6 @@ class VideoController extends Controller
 
         // === Handle Video ===
         if ($request->hasFile('video')) {
-            // Delete old video if exists
             if ($video->video && Storage::disk('minio')->exists($video->video)) {
                 Storage::disk('minio')->delete($video->video);
             }
@@ -324,6 +313,7 @@ class VideoController extends Controller
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
             $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
             Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
+            $video->video_link = $path;
         }
 
         $video->save();
@@ -350,8 +340,8 @@ class VideoController extends Controller
     public function formattedAPI(Request $request, $userId, $courseId)
     {
         $validator = Validator::make($request->all(), [
-            'subcategory' => 'required',
-            'subject' => 'required',
+            'SubCategory' => 'required',
+            'Subject' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -365,14 +355,31 @@ class VideoController extends Controller
 
         if (!$course = Course::find($courseId)) return response()->json(['error' => 'Course not found'], 404);
 
-        $requestData['Language'] = $course->language_id;
-        $requestData['Category'] = $course->category_id;
+        if ($course->language) {
+            $categoryId = $course->category_id;
+            $category = Category::find($categoryId);
+            $subcategory = SubCategory::find($requestData['SubCategory']);
+            $subject = Subject::find($requestData['Subject']);
+
+            $requestData['Language_2'] = $course->language_id;
+            $requestData['Category_2'] = $categoryId;
+            $requestData['SubCategory_2'] = $requestData['SubCategory'];
+            $requestData['Subject_2'] = $requestData['Subject'];
+
+            $requestData['Language'] = 1;
+            $requestData['Category'] = $category->parent_id;
+            $requestData['SubCategory'] = $subcategory->parent_id ? $subcategory->parent_id : $subcategory->id;
+            $requestData['Subject'] = $subject->parent_id;
+        } else {
+            $requestData['Language'] = $course->language_id;
+            $requestData['Category'] = $course->category_id;
+        }
 
         $data = $this->getFirstDropdownData($requestData);
         $language = $data['language'] ?? null;
         $categories = $data['categories'][0];
         $subcategories = $data['subcategories'][0];
-        $subjects = $data['subjects'][0];
+        $subjects = $data['subjects'];
         $topics = $data['topics'];
 
         $data2 = $this->getSecondDropdownData($requestData);
@@ -413,7 +420,7 @@ class VideoController extends Controller
                 ? $this->getFirstDropdownData($requestData, $topic)['videos']
                 : [];
 
-            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topicsName] = $videos;
+            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;
         }
 
         return response()->json($jsonResponse);
@@ -449,12 +456,22 @@ class VideoController extends Controller
 
         $categoryId = $data['Category'] ?? null;
 
+        $subjectId = $data['Subject'] ?? null;
+
         if (!$categoryId) return response()->json(['error' => 'Category parameter is missing'], 400);
 
         $videos = Video::where('topic_id', $topic?->id)
-            ->where('sub_category_id', $data['subcategory'])
-            ->where('subject_id', $data['subject'])
-            ->get();
+            ->where('sub_category_id', $data['SubCategory'])
+            ->where('subject_id', $data['Subject'])
+            ->first();
+
+        if ($videos) {
+            $temporaryVideoUrl = Storage::disk('s3')->temporaryUrl($videos->video_name, now()->addMinutes(30));
+            $temporaryPdfUrl = Storage::disk('s3')->temporaryUrl($videos->pdf_link, now()->addMinutes(30));
+
+            $videos['videoURL'] = $temporaryVideoUrl;
+            $videos['pdfURL'] = $temporaryPdfUrl;
+        }
 
         $language = Language::find($languageId);
 
@@ -462,9 +479,9 @@ class VideoController extends Controller
 
         $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
-        $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
+        $subjects = Subject::find($subjectId);
 
-        $topics = Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+        $topics = Topic::where('subject_id', $subjects->id)->get();
 
         return [
             'language' => $language,
@@ -484,8 +501,8 @@ class VideoController extends Controller
 
         if (!$categoryId) return null;
 
-        $videos = Video::where('sub_category_id', $data['subcategory_2'])
-            ->where('subject_id', $data['subject_2'])
+        $videos = Video::where('sub_category_id', $data['SubCategory_2'])
+            ->where('subject_id', $data['Subject_2'])
             ->get();
 
         $language = Language::find($languageId);
@@ -497,11 +514,14 @@ class VideoController extends Controller
         // Get all the subjects for the subcategories
         $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();
 
+        $topics = isset($data['Topic_2']) ? Topic::where('id', $data['Topic_2'])->get() : Topic::whereIn('subject_id', $subjects->pluck('id')->toArray())->get();
+
         return [
             'language' => $language,
             'categories' => $categories,
             'subcategories' => $subcategories,
             'subjects' => $subjects,
+            'topics' => $topics,
             'videos' => $videos
         ];
     }

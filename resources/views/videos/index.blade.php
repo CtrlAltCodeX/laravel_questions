@@ -33,14 +33,18 @@
             </form>
         </div>
     </div>
+
 </div>
 
-    <div class="flex gap-2 justify-content-end">
-        <button id="createButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none">
-            Create
-        </button>
-        <input type="text" id="searchFilter" placeholder="Search Videos..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
-    </div>
+<div class="flex gap-2 justify-content-end">
+    <button id="createButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none">
+        Create
+    </button>
+    <input type='file' name='file' id='importInput' class='hidden' />
+    <button id='importButton' class='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none'>Import</button>
+    <a href='{{ route("videos.export") }}' class='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none'>Export</a>
+    <!-- <input type="text" id="searchFilter" placeholder="Search Videos..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white"> -->
+</div>
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
@@ -77,16 +81,16 @@
                     Description
                 </th>
 
-                {{-- <th scope="col" class="px-6 py-3">
-                    External Link
-                </th> --}}
-
                 <th scope="col" class="px-6 py-3">
-                    Video Id
+                    YouTube Link
                 </th>
 
                 <th scope="col" class="px-6 py-3">
                     Video Type
+                </th>
+              
+              	<th scope="col" class="px-6 py-3">
+                    External Link
                 </th>
 
                 <th scope="col" class="px-6 py-3">
@@ -114,12 +118,23 @@
                     {{$video->name}}
                 </th>
 
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$video->topic->subject->subCategory->category->language->name }} / 
-                        {{ $video->topic->subject->subCategory->category->name}} / 
-                        {{ $video->topic->subject->subCategory->name}} / 
-                        {{ $video->topic->subject->name}} / 
-                        {{ $video->topic->name}}
+                @php
+                    $fullText = $video->topic->subject->subCategory->category->language->name . ' / ' .
+                                $video->topic->subject->subCategory->category->name . ' / ' .
+                                $video->topic->subject->subCategory->name . ' / ' .
+                                $video->topic->subject->name . ' / ' .
+                                $video->topic->name;
+
+                    // limit to 50 words
+                    $shortText = Str::words($fullText, 10, '...');
+                @endphp
+
+                <th scope="row"
+                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white relative group">
+                    <span>{{ $shortText }}</span>
+                    <div class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded px-3 py-2 w-max max-w-fit z-10 -top-2 left-1/2 -translate-x-1/2">
+                        {{ $fullText }}
+                    </div>
                 </th>
                 {{-- <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></th> --}}
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -139,10 +154,32 @@
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{$video->video_type}}
                 </th>
+              
+              	<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    @php
+                        $videoLink = "";
+                        $viewBtn = '-';
+                        if($video->video_link) {
+                            $videoLink = Storage::disk('minio')->temporaryUrl($video->video_link, now()->addMinutes(30));
+                            $viewBtn = 'View';
+                        }
+                    @endphp
+                    <a href="{{ $videoLink }}" target="_blank" class="text-blue-500 hover:underline">
+                        {{ $viewBtn }}
+                    </a>
+                </th>
 
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <a href="{{ asset('storage/' . $video->pdf_link) }}" target="_blank" class="text-blue-500 hover:underline">
-                        View
+	                 @php
+                        $pdfLink = "";
+                        $viewBtn = '-';
+                        if($video->pdf_link) {
+                            $pdfLink = Storage::disk('minio')->temporaryUrl($video->pdf_link, now()->addMinutes(30));
+                            $viewBtn = 'View';
+                        }
+                    @endphp
+                    <a href="{{ $pdfLink }}" target="_blank" class="text-blue-500 hover:underline">
+                        {{ $viewBtn }}
                     </a>
                 </th>
 
@@ -185,6 +222,7 @@
         </tbody>
     </table>
 </div>
+
 @if(request()->data != 'all')
 <div class="flex justify-between items-center">
     <div style="width: 92%;">
@@ -232,14 +270,18 @@
             @endif
 
             <input type="hidden" name="_method" value="">
-            {{-- <input type="hidden" name="youtube_link" value="123`"> --}}
-
             <div class="mb-3 relative" style="height: 100px;">
                 <div class="container">
                     <input accept="image/*" type="file" class="opacity-0 w-[100] h-[100] absolute z-10 cursor-pointer" name="thumbnail" style="width: 100px; height:100px;" id='fileInput' />
                     <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white image" src="/dummy.jpg" alt="" id='VideoImage' style='width:100px;height:100px;'>
                     <div class="bg-black/[0.5] overlay absolute h-[100%] top-[0px] w-[100px] rounded-full opacity-0 flex justify-center items-center text-white">Upload Pic</div>
                 </div>
+            </div>
+            
+            <div class='mb-3'>
+                <input type="text" id="v_no" placeholder="V.N." name="v_no" style="margin-right: 10px;"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    required />
             </div>
 
             <div class="mb-3">
@@ -249,6 +291,12 @@
                 @enderror
             </div>
 
+            <div class='mb-3'>
+                <input type="text" placeholder="Description" id="description" name="description"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    required />
+            </div>
+            
             <div class="mx-auto mb-3">
                 <select id="select_language" name="language_id" class="select_language bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Select Language</option>
@@ -295,32 +343,22 @@
                 @enderror
             </div>
 
-            <div class="flex justify-between mb-3">
-                <input type="text" id="v_no" placeholder="V.N." name="v_no" style="margin-right: 10px;"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-                    required />
-
-                <input type="text" placeholder="Description" id="description" name="description"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5"
-                    required />
+            <div class='mb-3'>
+                <input type="text" placeholder="Youtube Link" id="video_id" name="youtube_link"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-full"
+                     />
             </div>
 
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <div class="mx-auto">
-                    <input type="file" name="video" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    <div id="error-video" class="text-red-500 mt-1"></div>
-                </div>
+            <div class='mb-3'>
+                <label>Video Upload</label>
+                <input type="file" name="video" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
 
-                <input type="text" placeholder="Youtube Link" id="video_id" name="video_id"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
-                    required />
+                <div id="error-video" class="text-red-500 mt-1"></div>
+            </div>
 
-                {{-- <button type="button" onclick="document.getElementById('pdf_input').click()" class="bg-blue-500 text-white px-3 py-2 rounded">Choose File</button> --}}
-
-                <input type="file" accept="application/pdf" id="pdf_input" name="pdf_link" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                
-                <input type="text" id="pdf_filename" placeholder="Upload PDF" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" />
-
+            <div class='mb-3'>
+                <label>PDF Upload</label>
+                <input type="file" accept="application/pdf" id="pdf_input" name="pdf_link" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
 
             <div class="mb-3 max-auto">
@@ -351,15 +389,15 @@
         }
     });
 
-    document.getElementById('searchFilter').addEventListener('input', function() {
-        let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll('#offersTable .offerRow');
+    // document.getElementById('searchFilter').addEventListener('input', function() {
+    //     let filter = this.value.toLowerCase();
+    //     let rows = document.querySelectorAll('#offersTable .offerRow');
 
-        rows.forEach(row => {
-            let text = row.textContent.toLowerCase();
-            row.style.display = text.includes(filter) ? '' : 'none';
-        });
-    });
+    //     rows.forEach(row => {
+    //         let text = row.textContent.toLowerCase();
+    //         row.style.display = text.includes(filter) ? '' : 'none';
+    //     });
+    // });
 
     document.getElementById('fileInput').addEventListener('change', function(event) {
         var reader = new FileReader();
@@ -371,10 +409,8 @@
     });
 
     $('#importButton').click(function() {
-        //click in file select and save the file in hidden input
         $('#importInput').click();
 
-        // when file is selected, create the form and submit 
         $('#importInput').change(function() {
             var form = $('<form>', {
                 'method': 'POST',
@@ -398,18 +434,39 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('createButton').addEventListener('click', function() {
-            document.getElementById('modalTitle').innerText = 'Create Video';
-            document.getElementById('modalForm').action = "{{ route('videos.store') }}";
-            document.getElementById('modalForm').method = 'POST';
-            document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
-            document.getElementById('name').value = '';
-            document.getElementById('select_language').value = '';
-            document.getElementById('select_category').value = '';
-            document.getElementById('select_sub_category').value = '';
-            document.getElementById('select_subject').value = '';
-            document.getElementById('VideoImage').src = '/dummy.jpg';
-            document.getElementById('modal').style.display = 'flex';
-        });
+          const modal = document.getElementById('modal');
+          const form = document.getElementById('modalForm');
+
+          // Reset title, form action, and method
+          document.getElementById('modalTitle').innerText = 'Create Video';
+          form.action = "{{ route('videos.store') }}";
+          form.method = 'POST';
+
+          const methodInput = form.querySelector('input[name="_method"]');
+          if (methodInput) methodInput.value = '';
+
+          // Reset all form fields
+          form.reset();
+
+          // Manually reset select dropdowns (if they are custom or dynamic)
+          const selects = form.querySelectorAll('select');
+          selects.forEach(select => {
+              select.value = '';
+              // Trigger change if needed (for JS plugins or custom UI)
+              select.dispatchEvent(new Event('change'));
+          });
+
+          // Reset image preview
+          const img = document.getElementById('VideoImage');
+          if (img) img.src = '/dummy.jpg';
+
+          // Clear error messages (if any)
+          const errorFields = form.querySelectorAll('[id^="error-"]');
+          errorFields.forEach(error => error.innerText = '');
+
+          // Show modal
+          modal.style.display = 'flex';
+      });
 
         const editButtons = document.querySelectorAll('.editvieoButton');
         editButtons.forEach(button => {

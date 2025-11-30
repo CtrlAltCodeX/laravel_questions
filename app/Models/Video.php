@@ -16,6 +16,7 @@ class Video extends Model
         'topic_id',
         'description',
         'youtube_link',
+        'video_link',
         'video_id',
         'duration',
         'video_type',

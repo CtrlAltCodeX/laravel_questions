@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Support\Facades\Storage;
 
 class VideosImport implements ToModel, WithHeadingRow, SkipsOnError, WithValidation
 {
@@ -16,15 +17,20 @@ class VideosImport implements ToModel, WithHeadingRow, SkipsOnError, WithValidat
     public function rules(): array
     {
         return [
+            'id' => 'nullable',
             'name' => 'required|string|max:255',
-            'v_no' => 'required|string|max:50',
-            'thumbnail' => 'nullable|string|max:255',
+            'duration' => 'required',
+            'v_no' => 'required|max:50',
+            'language_id' => 'required|integer',
+            'category_id' => 'required|integer',
+            'sub_category_id' => 'required|integer',
+            'subject_id' => 'required|integer',
             'topic_id' => 'required|integer',
             'description' => 'nullable|string',
             'youtube_link' => 'nullable|string|max:255',
-            'video_id' => 'nullable|string|max:255',
             'video_type' => 'nullable|string|max:50',
-            'pdf_link' => 'nullable|string|max:255',
+            'video_name' => 'required',
+            'pdf_link'    => 'required'
         ];
     }
 
@@ -33,30 +39,41 @@ class VideosImport implements ToModel, WithHeadingRow, SkipsOnError, WithValidat
         $video = Video::find($row['id']);
 
         if ($video) {
+            $path = $row['language_id'] . "/" . $row['category_id'] . "/" . $row['sub_category_id'] . "/" . $row['subject_id'] . "/" . $row['topic_id'];
+            $videoFileName = $path . '/videos/' . $row['video_name'];
+
+            Storage::disk('minio')->put($videoFileName, '');
+
             $video->update([
                 'name' => $row['name'],
                 'v_no' => $row['v_no'],
-                'thumbnail' => $row['thumbnail'],
+                'duration' => $row['duration'],
                 'topic_id' => $row['topic_id'],
                 'description' => $row['description'],
                 'youtube_link' => $row['youtube_link'],
-                'video_id' => $row['video_id'],
                 'video_type' => $row['video_type'],
-                'pdf_link' => $row['pdf_link'],
+                'video_link' => $videoFileName,
+                'sub_category_id' => $row['sub_category_id'],
+                'subject_id' => $row['subject_id'],
             ]);
             return null;
         } else {
-            return new Video([
+            $path = $row['language_id'] . "/" . $row['category_id'] . "/" . $row['sub_category_id'] . "/" . $row['subject_id'] . "/" . $row['topic_id'];
+            $videoFileName = $path . '/videos/' . $row['video_name'];
+
+            Storage::disk('minio')->put($videoFileName, '');
+
+            Video::create([
                 'name' => $row['name'],
                 'v_no' => $row['v_no'],
-                'thumbnail' => $row['thumbnail'],
+                'duration' => $row['duration'],
                 'topic_id' => $row['topic_id'],
                 'description' => $row['description'],
                 'youtube_link' => $row['youtube_link'],
-                'video_id' => $row['video_id'],
-                
                 'video_type' => $row['video_type'],
-                'pdf_link' => $row['pdf_link'],
+                'video_link' => $videoFileName,
+                'sub_category_id' => $row['sub_category_id'],
+                'subject_id' => $row['subject_id'],
             ]);
         }
     }

@@ -119,14 +119,26 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create(request()->all());
-        if ($request->hasFile('photo')) {
-            $fileName = "category/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        //     $fileName = "category/" . time() . "_photo.jpg";
+        //     $request->file('photo')->storePubliclyAs('public', $fileName);
+        //     $category->photo = $fileName;
+        //     $category->save();
+        // }
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "category/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
 
-            $category->photo = $fileName;
+            // Create folder if not exists
+            if (!is_dir("storage/category")) {
+                mkdir("storage/category", 0777, true);
+            }
 
-            $category->save();
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $category->photo = $fileName;
+                $category->save();
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Successfully Created', 'category' => $category]);
@@ -153,15 +165,24 @@ class CategoryController extends Controller
 
         $category->update(request()->all());
 
-        if ($request->hasFile('photo')) {
-            $fileName = "category/" . time() . "_photo.jpg";
+        // if ($request->hasFile('photo')) {
+        // $fileName = "category/" . time() . "_photo.jpg";
+        // $stored = $request->file('photo')->storeAs('public', $fileName);
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $fileName = "category/" . time() . "_photo.jpg";   // same as Laravel path format
+            $storagePath = "storage/" . $fileName;             // simulating Laravel storage/public disk
 
-            $request->file('photo')->storePubliclyAs('public', $fileName);
+            // Create folder if not exists
+            if (!is_dir("storage/category")) {
+                mkdir("storage/category", 0777, true);
+            }
 
-            $category->photo = $fileName;
-
-            $category->save();
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $storagePath)) {
+                $category->photo = $fileName;
+                $category->save();
+            }
         }
+        // }
 
         return response()->json(['success' => true, 'message' => 'Successfully Updated', 'category' => $category]);
     }

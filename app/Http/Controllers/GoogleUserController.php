@@ -281,12 +281,24 @@ class GoogleUserController extends Controller
             ], 404);
         }
 
+        if ($user->id == $id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Not allowed to add yourself'
+            ], 200);
+        }
+
         $coin = $user->coins += $settings->refer_coin;
 
-        $user->update([
-            'friend_code' => $currentUser->referral_code,
-            'coins' => $coin
-        ]);
+        $code = $user->friend_code . "," . $currentUser->referral_code;
+        $codesArr = array_filter(array_map('trim', explode(',', $code)));
+
+        if (!in_array($currentUser->referral_code, $codesArr)) {
+            $user->update([
+                'friend_code' => $code,
+                'coins' => $coin
+            ]);
+        }
 
         return response()->json([
             'status' => true,

@@ -14,8 +14,13 @@ class VideosExport implements FromCollection, WithHeadings
     protected $subjectId;
     protected $topicId;
 
-    public function __construct($languageId = null, $categoryId = null, $subCategoryId = null, $subjectId = null, $topicId = null)
-    {
+    public function __construct(
+        $languageId = null,
+        $categoryId = null,
+        $subCategoryId = null,
+        $subjectId = null,
+        $topicId = null
+    ) {
         $this->languageId = $languageId;
         $this->categoryId = $categoryId;
         $this->subCategoryId = $subCategoryId;
@@ -60,25 +65,46 @@ class VideosExport implements FromCollection, WithHeadings
             });
         }
 
+
         return $query->get()->map(function ($video) {
             return [
                 'id' => $video->id,
-                'name' => $video->name,
                 'v_no' => $video->v_no,
-                'thumbnail' => explode('/', $video->thumbnail)[1] ?? $video->thumbnail,
+                'language_id' => $video->topic->subject->subCategory->category->language->id,
+                'category_id' => $video->topic->subject->subCategory->category->id,
+                'sub_category_id' => $video->sub_category_id,
+                'subject_id' => $video->subject_id,
                 'topic_id' => $video->topic_id,
+                'name' => $video->name,
                 'description' => $video->description,
+                'thumbnail' => explode('/', $video->thumbnail)[1] ?? $video->thumbnail,
                 'youtube_link' => $video->youtube_link,
-                'video_id' => $video->video_id,
+                'video_name' => explode('/', $video->video_link)[6] ?? $video->video_link,
                 'video_type' => $video->video_type,
-                'pdf_link' => $video->pdf_link,
+                'pdf_link' => explode('/', $video->pdf_link)[6] ?? $video->pdf_link,
+                'duration' => $video->duration,
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['id', 'name', 'v_no', 'thumbnail', 'topic_id', 'description',  'youtube_link', 'video_id',  'video_type', 'pdf_link'];
+        return [
+            'id',
+            'v_no',
+            'language_id',
+            'category_id',
+            'sub_category_id',
+            'subject_id',
+            'topic_id',
+            'name',
+            'description',
+            'thumbnail',
+            'youtube_link',
+            'video_name',
+            'video_type',
+            'pdf_link',
+            'duration'
+        ];
     }
 }
-
