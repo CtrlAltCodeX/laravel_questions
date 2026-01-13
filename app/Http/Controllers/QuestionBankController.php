@@ -749,14 +749,12 @@ class QuestionBankController extends Controller
                     $combinedTopicName = $topicName;
                 }
 
-
                 $questionsFirst = $this->getFirstDropdownData($data, $course) ? $this->getFirstDropdownData($data, $course)['questions'] : [];
                 $questionsSecond = $this->getSecondDropdownData($data) ? $this->getSecondDropdownData($data)['questions'] : null;
 
                 $filteredQuestions = $questionsFirst->filter(function ($question) use ($topic, $topics2) {
                     return $question->topic_id == $topic->id || $topics2->contains('id', $question->topic_id);
                 });
-
 
                 // foreach ($filteredQuestions as $questionFirst) {
                 if (isset($questionsSecond)) {
@@ -845,8 +843,7 @@ class QuestionBankController extends Controller
         $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->first() : SubCategory::where('category_id', $categoryId)->first();
 
         // Get all the subjects for the subcategories
-        //        $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
-
+        // $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
         $subjects = Subject::find($data['Subject']);
 
         // Get all the topics for the subjects

@@ -97,27 +97,13 @@ class ProfileController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        $users = $query->paginate(10);
+        $users = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('users.index', compact('users'));
     }
-
-
-    public function deleteUser($id)
-    {
-        try {
-            // User find karein
-            $user = GoogleUser::findOrFail($id);
-
-
-            $user->delete();
-
-            return redirect()->back()->with('success', 'User deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
-        }
-    }
-
+  
     public function updateCoinsAndStatus(Request $request, $id)
     {
         $request->validate([
@@ -146,5 +132,17 @@ class ProfileController extends Controller
             'message' => 'Coins added and status updated successfully.',
             'user' => $user
         ], 201);
+    }
+  
+    public function deleteUser($id)
+    {
+        try {
+            $user = GoogleUser::findOrFail($id);
+            $user->delete();
+
+            return redirect()->back()->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
 }

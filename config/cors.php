@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://buddygaming01.blogspot.com','https://experiment-level-1.blogspot.com'],
+    'allowed_origins' => ['https://buddygaming01.blogspot.com','https://experiment-level-1.blogspot.com','https://front.online2study.in', 'http://localhost:4321'],
 
     'allowed_origins_patterns' => [],
 

@@ -32,33 +32,28 @@ class VideosExport implements FromCollection, WithHeadings
     {
         $query = Video::query();
 
-        // Filter by topic_id
         if (!is_null($this->topicId)) {
             $query->where('topic_id', $this->topicId);
         }
 
-        // Filter by subject_id
         if (!is_null($this->subjectId)) {
             $query->whereHas('topic', function ($query) {
                 $query->where('subject_id', $this->subjectId);
             });
         }
 
-        // Filter by sub_category_id
         if (!is_null($this->subCategoryId)) {
             $query->whereHas('topic.subject', function ($query) {
                 $query->where('sub_category_id', $this->subCategoryId);
             });
         }
 
-        // Filter by category_id
         if (!is_null($this->categoryId)) {
             $query->whereHas('topic.subject.subCategory', function ($query) {
                 $query->where('category_id', $this->categoryId);
             });
         }
 
-        // Filter by language_id
         if (!is_null($this->languageId)) {
             $query->whereHas('topic.subject.subCategory.category', function ($query) {
                 $query->where('language_id', $this->languageId);

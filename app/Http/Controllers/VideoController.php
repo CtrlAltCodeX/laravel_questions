@@ -15,6 +15,7 @@ use App\Models\Video;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage; // ✅ Correctly placed here
 use Illuminate\Support\Facades\Validator;
+use App\Models\VideoProgress;
 
 
 class VideoController extends Controller
@@ -98,10 +99,15 @@ class VideoController extends Controller
         }
 
         if (request()->data == 'all') {
-            $videos = $query->get();
+            $videos = $query
+              			->orderBy('desc')
+              			->get();
         } else {
-            $videos = $query->paginate(request()->data);
+            $videos = $query
+              ->orderBy('id', 'desc')
+              ->paginate(request()->data);
         }
+      
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories,
@@ -139,6 +145,7 @@ class VideoController extends Controller
 
         return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId, $topicId), 'videos.xlsx');
     }
+
 
     public function import(Request $request)
     {
@@ -188,12 +195,13 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
+//      dd(request()->all());
         $request->validate([
             'name' => 'required',
             'sub_category_id' => 'required',
             'subject_id' => 'required',
             'topic_id' => 'required',
-            'video' => 'required|file|mimes:mp4,mov,avi|max:204800', // example validation
+            'video' => 'required|file|max:204800', // example validation
         ]);
 
         $video = Video::create(array_merge($request->except(['thumbnail', 'pdf_link', 'video']), [
@@ -215,16 +223,16 @@ class VideoController extends Controller
         if ($request->hasFile('pdf_link')) {
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
 
-            $pdfFileName = $path . '/pdfs/' . time() . '_' . $request->file('pdf_link')->getClientOriginalName();
-            Storage::disk('minio')->put($pdfFileName, file_get_contents($request->file('pdf_link')));
+            $pdfFileName = $path . '/pdfs/' . $request->file('pdf_link')->getClientOriginalName();
+            Storage::disk('minio')->put($pdfFileName, '');
             $video->pdf_link = $pdfFileName;
         }
 
         if ($request->hasFile('video')) {
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
-            $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
-            Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
-            $video->video_link = $path;
+            $videoFileName = $path . '/videos/' . $request->file('video')->getClientOriginalName();
+            Storage::disk('minio')->put($videoFileName, '');
+            $video->video_link = $videoFileName;
         }
 
         $video->save();
@@ -299,8 +307,8 @@ class VideoController extends Controller
             }
 
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
-            $pdfFileName = $path . 'pdfs/' . time() . '_' . $request->file('pdf_link')->getClientOriginalName();
-            Storage::disk('minio')->put($pdfFileName, file_get_contents($request->file('pdf_link')));
+            $pdfFileName = $path . 'pdfs/' . $request->file('pdf_link')->getClientOriginalName();
+            Storage::disk('minio')->put($pdfFileName, '');
             $video->pdf_link = $pdfFileName;
         }
 
@@ -311,9 +319,13 @@ class VideoController extends Controller
             }
 
             $path = request()->language_id . "/" . request()->category_id . "/" . request()->sub_category_id . "/" . request()->subject_id . "/" . request()->topic_id;
-            $videoFileName = $path . '/videos/' . time() . '_' . $request->file('video')->getClientOriginalName();
-            Storage::disk('minio')->put($videoFileName, file_get_contents($request->file('video')));
-            $video->video_link = $path;
+            $videoFileName = $path . '/videos/' . $request->file('video')->getClientOriginalName();
+
+            // Create an empty .mp4 file
+            Storage::disk('minio')->put($videoFileName, '');
+
+            // Save the path in database
+            $video->video_link = $videoFileName;
         }
 
         $video->save();
@@ -416,8 +428,8 @@ class VideoController extends Controller
                 $topicsName .= ' | ' . ($topics2[$outkey]->name ?? '');
             }
 
-            $videos = $this->getFirstDropdownData($requestData, $topic)
-                ? $this->getFirstDropdownData($requestData, $topic)['videos']
+            $videos = $this->getFirstDropdownData($requestData, $topics2[$outkey])
+                ? $this->getFirstDropdownData($requestData, $topics2[$outkey])['videos']
                 : [];
 
             $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;
@@ -459,17 +471,20 @@ class VideoController extends Controller
         $subjectId = $data['Subject'] ?? null;
 
         if (!$categoryId) return response()->json(['error' => 'Category parameter is missing'], 400);
+      
+      	$videos = Video::where('sub_category_id', $data['SubCategory_2'])
+            ->where('subject_id', $data['Subject_2'])
+          	->where('topic_id', $topic?->id);
 
-        $videos = Video::where('topic_id', $topic?->id)
-            ->where('sub_category_id', $data['SubCategory'])
-            ->where('subject_id', $data['Subject'])
-            ->first();
-
-        if ($videos) {
-            $temporaryVideoUrl = Storage::disk('s3')->temporaryUrl($videos->video_name, now()->addMinutes(30));
-            $temporaryPdfUrl = Storage::disk('s3')->temporaryUrl($videos->pdf_link, now()->addMinutes(30));
-
+        $videos = $videos->first();
+      
+        if ($videos && $videos->video_link) {
+            $temporaryVideoUrl = Storage::disk('s3')->temporaryUrl($videos->video_link, now()->addMinutes(30));
             $videos['videoURL'] = $temporaryVideoUrl;
+        }
+      
+      	if ($videos && $videos->pdf_link) {
+            $temporaryPdfUrl = Storage::disk('s3')->temporaryUrl($videos->pdf_link, now()->addMinutes(30));
             $videos['pdfURL'] = $temporaryPdfUrl;
         }
 
@@ -524,5 +539,68 @@ class VideoController extends Controller
             'topics' => $topics,
             'videos' => $videos
         ];
+    }
+  	
+  	public function updateVideoProgress(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:google_users,id',
+            'video_id' => 'required|exists:videos,id',
+            'watched_seconds' => 'required|numeric|min:0',
+            'video_total_seconds' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $videoProgress = VideoProgress::updateOrCreate(
+            ['user_id' => $validated['user_id'], 'video_id' => $validated['video_id']],
+            ['watched_seconds' => $validated['watched_seconds'], 'video_total_seconds' => $validated['video_total_seconds']]
+        );
+
+        return response()->json(['message' => 'Video progress updated successfully', 'data' => $videoProgress]);
+    }
+  
+  	public function getVideoProgress($userId, $sub_category_id)
+    {
+        $videoProgressData = VideoProgress::join('videos', 'video_progress.video_id', '=', 'videos.id')
+            ->where('video_progress.user_id', $userId)
+            ->where('videos.sub_category_id', $sub_category_id)
+            ->select(
+                'videos.id',
+ 		        'videos.name',
+		        'videos.v_no',
+          		'videos.topic_id',
+                'videos.duration',
+          	    'videos.created_at',
+          		'videos.updated_at',
+                'video_progress.watched_seconds',
+          		'video_total_seconds'
+            )
+            ->get();
+      
+	     $totalVideos = Video::where('sub_category_id', $sub_category_id)
+            ->get();
+
+        // Total videos
+        $totalVideos = $totalVideos->count();
+
+        // Videos considered "watched" (>= 90% watch)
+        $watchedVideos = $videoProgressData->filter(function ($item) {
+            return $item->watched_seconds >= (0.9 * $item->video_total_seconds);
+        })->count();
+
+        // Sum of all video durations
+        $totalWatchTime = $videoProgressData->sum('video_total_seconds');
+
+        // Sum of watched seconds for videos >= 90% watched
+        $completedWatchTime = $videoProgressData->filter(function ($item) {
+            return $item->watched_seconds >= (0.9 * $item->video_total_seconds);
+        })->sum('watched_seconds');
+
+        return response()->json([
+            'data' => $videoProgressData,
+            'total_videos' => $totalVideos,
+            'watched_videos' => $watchedVideos,
+            'total_video_time' => $totalWatchTime,
+            'completed_watch_time' => $completedWatchTime,
+        ]);
     }
 }

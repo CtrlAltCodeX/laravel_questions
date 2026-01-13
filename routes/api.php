@@ -88,3 +88,7 @@ Route::post('store/mock-test', [ScoreBoardController::class, 'mockTestStore']);
 Route::get('show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'mockTestShow']);
 
 Route::post('update/course/status', [UserCourseController::class, 'updateCourseStatus']);
+
+Route::post('user/video-progress/save', [VideoController::class, 'updateVideoProgress']);
+
+Route::get('user/video-progress/{userId}/{subjectId}', [VideoController::class, 'getVideoProgress']);
