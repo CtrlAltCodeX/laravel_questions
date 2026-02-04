@@ -4,7 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CbtController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizSettingController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\DigitalNoteController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\GoogleUserController;
 use App\Http\Controllers\CategoryController;
@@ -37,6 +39,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
 Route::get("{userId}/{courseId}/quiz", [QuizController::class, 'deploy']);
+Route::get('{userId}/{courseId}/quiz/settings', [QuizSettingController::class, 'getSettings']);
+Route::post('{userId}/{courseId}/quiz/settings', [QuizSettingController::class, 'updateSettings']);
 
 Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class, 'deploy']);
 
@@ -66,6 +70,7 @@ Route::get('/get-categories/{language_id}', [CategoryController::class, 'getCate
 
 // get offer 
 Route::get('offers', [OfferController::class, 'getOffersApi']);
+Route::get('digital-notes', [DigitalNoteController::class, 'apiIndex']);
 
 // get 7. Refer and Welcome Coin
 Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);

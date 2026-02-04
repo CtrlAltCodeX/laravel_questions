@@ -129,6 +129,12 @@ return [
             'route' => 'ScoreBoard.index',
             'icon' => 'fa fa-home',
         ],
+
+           [
+            'name' => 'Digital Notes',
+            'route' => 'digital-notes.index',
+            'icon' => 'fa fa-home',
+        ],
         [
             'name' => 'Setting',
             'route' => 'settings.index',

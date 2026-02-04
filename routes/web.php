@@ -11,6 +11,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\DigitalNoteController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\PaymentController;
@@ -94,6 +95,8 @@ Route::middleware('auth')->group(function () {
         ->name('subject.import');
 
     Route::resource('topic', TopicController::class);
+    Route::resource('digital-notes', DigitalNoteController::class);
+    Route::resource('offers', OfferController::class);
     Route::resource('offers', OfferController::class);
     Route::resource('videos', VideoController::class);
 

@@ -9,6 +9,24 @@
 
 ## About Laravel
 
+
+Quiz Setting API - 0.5 day
+Payment History API - 0.5 day
+User List Updates - 0.5 day
+Score API - 0.5 day
+
+Live Test API - 1 Day
+Notification API - 1 Day
+Digital Notes - 1 Day
+Star Badges API (get/post): - 1-2 days
+Log in and log out.  - 0.5 day
+Razor-pay Payment System. -  0.5 day 
+
+Fixes (Bug Fixes)
+
+Total - 10days
+
+
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
