@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Exports\GoogleUsersExport;
+use App\Imports\GoogleUsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProfileController extends Controller
 {
@@ -97,6 +100,15 @@ class ProfileController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('phone_number', 'LIKE', "%{$search}%");
+            });
+        }
+
         $users = $query
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -144,5 +156,41 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
         }
+    }
+
+    public function export()
+    {
+        return Excel::download(new GoogleUsersExport, 'users.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv',
+        ]);
+
+        Excel::import(new GoogleUsersImport, $request->file('file'));
+
+        return back()->with('success', 'Users imported successfully.');
+    }
+
+    public function getUserCourses($id)
+    {
+        $user = GoogleUser::with(['userCourses.course'])->findOrFail($id);
+        
+        $courses = $user->userCourses->map(function ($userCourse) {
+            return [
+                'name' => $userCourse->course->name ?? '-',
+                'start_date' => $userCourse->valid_from ? \Carbon\Carbon::parse($userCourse->valid_from)->format('d-m-Y') : '-',
+                'end_date' => $userCourse->valid_to ? \Carbon\Carbon::parse($userCourse->valid_to)->format('d-m-Y') : '-',
+                'status' => $userCourse->status ?? 'Active',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'userName' => $user->name,
+            'courses' => $courses
+        ]);
     }
 }

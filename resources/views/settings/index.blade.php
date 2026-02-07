@@ -20,6 +20,11 @@
             <input type="number" class="form-control" id="welcome_coin" name="welcome_coin" value="{{ $setting->welcome_coin ?? '' }}" required>
         </div>
 
+        <div class="flex flex-col w-full md:w-1/3">
+            <label for="fcm_server_key" class="form-label mb-1">FCM Server Key</label>
+            <textarea class="form-control" id="fcm_server_key" name="fcm_server_key" rows="1">{{ $setting->fcm_server_key ?? '' }}</textarea>
+        </div>
+
         <div class="mt-6">
             <button type="submit" class="btn btn-primary">Save</button>
         </div>

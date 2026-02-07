@@ -3,8 +3,43 @@
 
 @section('content')
 
-<div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">User List</h1>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+    <h1 class="text-2xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">User List</h1>
+    
+    <div class="flex flex-wrap gap-4 items-center w-full md:w-auto justify-end">
+        <!-- Search Form -->
+        <form action="{{ route('users.index') }}" method="GET" class="flex gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name, email, phone..." 
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-64 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+            <button type="submit" class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <div class="flex gap-2">
+            <!-- Import Button & Form -->
+            <form id="importForm" action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data" class="hidden">
+                @csrf
+                <input type="file" id="importFile" name="file" accept=".xlsx,.csv" onchange="document.getElementById('importForm').submit()">
+            </form>
+            <button type="button" onclick="document.getElementById('importFile').click()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 text-sm font-semibold transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                Import
+            </button>
+
+            <!-- Export Button -->
+            <a href="{{ route('users.export') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 text-sm font-semibold transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Export
+            </a>
+        </div>
+    </div>
 </div>
 
 <div class="relative overflow-x-auto sm:rounded-lg">
@@ -61,7 +96,12 @@
               
                 <td class="px-6 py-4">{{ $user->login_type }}</td>
                 <td class="px-6 py-4 text-center">
-                    {!! $user->userCourses->pluck('course.name')->filter()->implode(', ') ?: '<span class="font-semibold text-gray-600">-</span>' !!}
+                    <button class="courseInfoButton text-blue-600 hover:text-blue-800" data-id="{{ $user->id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
+                        </svg>
+                    </button>
                 </td>
 
                 {{-- Start Dates --}}
@@ -112,18 +152,12 @@
     {{ $users->links() }}
 </div>
 
+    </div>
+</div>
+
+<!-- Edit Modal -->
 <div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
-    <div style="
-        background-color: white; 
-        border-radius: 10px; 
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-        width: 30%; 
-        max-height: 90vh; /* Maximum height to keep it within the viewport */
-        margin: auto; 
-        padding: 24px; 
-        position: relative; 
-        overflow-y: auto; /* Make content scrollable if it exceeds max height */
-    ">
+    <div style="background-color: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 30%; max-height: 90vh; margin: auto; padding: 24px; position: relative; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
             <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
@@ -131,34 +165,44 @@
         <form id="modalForm" method="POST" action="" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="">
-
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1" style="margin-right: 0px;">Add Coins:</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Add Coins:</label>
                 <input type="number" name="coins" id="coins" class="border rounded px-2 py-1 w-full" placeholder="Enter coins">
             </div>
-
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1" style="margin-right: 10px;">Status:</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status:</label>
                 <select name="status" id="status" class="border rounded px-2 py-1 w-full">
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
                 </select>
             </div>
-
-            <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Meta Data</label>
-                <textarea id="meta_data" name="meta_data"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
-                   dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
-                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter meta description here...">
-                </textarea>
-            </div>
-
-            <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
-                Update
-            </button>
+            <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">Update</button>
         </form>
+    </div>
+</div>
+
+<!-- Course Info Modal -->
+<div id="courseModal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 60; background-color: rgba(0, 0, 0, 0.5);">
+    <div style="background-color: white; border-radius: 10px; width: 50%; max-height: 90vh; margin: auto; padding: 24px; position: relative; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 id="courseModalTitle" style="font-size: 1.5rem; font-weight: bold;">User Courses</h2>
+            <button id="closeCourseModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
+        </div>
+        <table class="w-full text-sm text-left text-gray-500 border">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 border">Course Name</th>
+                    <th class="px-4 py-2 border">Start Date</th>
+                    <th class="px-4 py-2 border">End Date</th>
+                    <th class="px-4 py-2 border">Status</th>
+                </tr>
+            </thead>
+            <tbody id="courseTableBody">
+                <tr>
+                    <td colspan="4" class="text-center py-3">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -233,6 +277,43 @@
                 modal.style.display = 'flex';
             });
         });
+
+        // Course Info Modal Logic
+        const courseModal = document.getElementById('courseModal');
+        const closeCourseModal = document.getElementById('closeCourseModal');
+        const courseTableBody = document.getElementById('courseTableBody');
+
+        document.querySelectorAll('.courseInfoButton').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-id');
+                courseModal.style.display = 'flex';
+                courseTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Loading...</td></tr>';
+
+                fetch(`/users/${userId}/courses`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.courses.length > 0) {
+                            courseTableBody.innerHTML = data.courses.map(course => `
+                                <tr class="border-b">
+                                    <td class="px-4 py-2 border">${course.name}</td>
+                                    <td class="px-4 py-2 border">${course.start_date}</td>
+                                    <td class="px-4 py-2 border">${course.end_date}</td>
+                                    <td class="px-4 py-2 border">${course.status}</td>
+                                </tr>
+                            `).join('');
+                        } else {
+                            courseTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No active courses found.</td></tr>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        courseTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-red-500">Error loading data.</td></tr>';
+                    });
+            });
+        });
+
+        closeCourseModal.addEventListener('click', () => courseModal.style.display = 'none');
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
     });
 </script>
 

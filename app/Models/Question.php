@@ -28,6 +28,7 @@ class Question extends Model
         'option_c',
         'option_d',
         'answer',
+        'exam_years',
     ];
 
 

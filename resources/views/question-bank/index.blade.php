@@ -208,6 +208,10 @@ $levels = [
                                 Notes
                             </label>
                             <label class="block">
+                                <input type="checkbox" value="exam_years" class="mr-2">
+                                Exam Years
+                            </label>
+                            <label class="block">
                                 <input type="checkbox" value="action" class="mr-2">
                                 Action
                             </label>
@@ -329,6 +333,7 @@ $levels = [
                     </a>
                 </th>
                 <th scope="col" class="p-2" data-column="answer">Answer</th>
+                <th scope="col" class="p-2" data-column="exam_years">Exam Years</th>
                 <th scope="col" class="p-2" data-column="level">Level</th>
                 <th scope="col" class="p-2" data-column="notes">Notes</th>
                 <th scope="col" class="p-2" data-column="action">Action</th>
@@ -360,6 +365,7 @@ $levels = [
                 <td class="p-2" data-column="optionC">{{ $question->option_c }}</td>
                 <td class="p-2" data-column="optionD">{{ $question->option_d }}</td>
                 <td class="p-2" data-column="answer">{{ $question->answer }}</td>
+                <td class="p-2" data-column="exam_years">{{ $question->exam_years }}</td>
                 <td class="p-2" data-column="level">
                     @switch($question->level)
                     @case(1)
@@ -665,6 +671,16 @@ $levels = [
                             <textarea id="notes" name="notes[]" rows="3" class="block w-full p-2 border rounded" placeholder="Notes">${data.question.notes??''}</textarea>
                         `;
                         modalContent.appendChild(notesField);
+
+                        // Add the "Exam Years" field
+                        const examYearsField = document.createElement('div');
+                        examYearsField.className = 'w-full mt-4';
+                        examYearsField.innerHTML = `
+                            <label for="exam_years" class="block text-sm font-medium">Exam Years</label>
+                            <input id="exam_years" name="exam_years" type="text" class="block w-full p-2 border rounded" placeholder="e.g. 2020, 2021" value="${data.question.exam_years || ''}">
+                        `;
+                        modalContent.appendChild(examYearsField);
+
                         document.getElementById('editModal').style.display = 'flex';
                     })
                     .catch(error => console.error('Error fetching question data:', error));
@@ -1062,11 +1078,18 @@ $levels = [
                                 </div>
                             </div>
         
-                            <!-- Notes -->
-                            <div class="w-full mt-4">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
-                                <textarea id="notes" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    name="notes[]" placeholder="Notes" rows="3"></textarea>
+                            <!-- Notes and Exam Years -->
+                            <div class="flex justify-between w-full mt-4 gap-4">
+                                <div class="w-[48%]">
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+                                    <textarea id="notes" class="w-full required-field bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="notes[]" placeholder="Notes" rows="3"></textarea>
+                                </div>
+                                <div class="w-[48%]">
+                                    <label for="exam_years" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Exam Years</label>
+                                    <input type="text" id="exam_years" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        name="exam_years[]" placeholder="e.g. 2020, 2021" />
+                                </div>
                             </div>
         
                         </div>

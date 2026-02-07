@@ -22,6 +22,7 @@ use App\Http\Controllers\WalletHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ScoreBoardController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\NotificationController;
 
 
 /*
@@ -141,6 +142,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings', [SettingController::class, 'store'])
         ->name('settings.store');
 
+    Route::resource('notifications', NotificationController::class);
+    Route::get('notifications/{id}/edit', [NotificationController::class, 'edit']);
+
     Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])
         ->name('settings.quiz.save');
 
@@ -210,6 +214,13 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/users/{id}', [ProfileController::class, 'deleteUser'])
         ->name('users.delete');
+
+    Route::get('users/export', [ProfileController::class, 'export'])
+        ->name('users.export');
+    Route::post('users/import', [ProfileController::class, 'import'])
+        ->name('users.import');
+    Route::get('users/{id}/courses', [ProfileController::class, 'getUserCourses'])
+        ->name('users.courses');
 
     Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
         ->name('super-admin.index');

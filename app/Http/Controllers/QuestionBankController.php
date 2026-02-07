@@ -215,6 +215,7 @@ class QuestionBankController extends Controller
                 'sub_category_id' => $data['module']['Sub Category'][0],
                 'subject_id' => $data['module']['Subject'][0],
                 'topic_id' => $data['module']['Topic'][0],
+                'exam_years' => $data['exam_years'][0] ?? null,
             ]
         );
 
@@ -337,6 +338,7 @@ class QuestionBankController extends Controller
                 'sub_category_id' => $data['module']['select_sub_category'][0],
                 'subject_id' => $data['module']['select_subject'][0],
                 'topic_id' => $data['module']['select_topic'][0],
+                'exam_years' => $request->exam_years,
                 'question_bank_id' => null
             ]
         );
@@ -419,6 +421,7 @@ class QuestionBankController extends Controller
                     'topic' => $question->topic_id ?? '',
                     'qno' => $question->question_number,
                     'notes' => $question->notes,
+                    'exam_years' => $question->exam_years,
                     'id' => $questionId,
                     'language_id' => $question->language_id,
                 ];
@@ -459,7 +462,7 @@ class QuestionBankController extends Controller
 
         foreach ($rows[0] as $key => $row) {
             $rowCount = $key + 2;
-            $requiredKeys = ['id', 'qno', 'language_id', 'category', 'subcategory', 'subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
+            $requiredKeys = ['id', 'qno', 'language_id', 'category', 'subcategory', 'subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'exam_years', 'level', 'photo', 'photo_link'];
 
             // Check if all required keys exist in the row
             foreach ($requiredKeys as $requiredKey) {

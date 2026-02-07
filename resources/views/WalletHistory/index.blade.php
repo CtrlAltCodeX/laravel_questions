@@ -19,7 +19,7 @@
                 <tr>
                     <th scope="col" class="px-6 py-3">Id</th>
                     <th scope="col" class="px-6 py-3">Name</th>
-                    <th scope="col" class="px-6 py-3">Coin</th>
+                    <th scope="col" class="px-6 py-3">Star</th>
                     <th scope="col" class="px-6 py-3">Method</th>
                     <th scope="col" class="px-6 py-3">Amount</th>
                     <th scope="col" class="px-6 py-3">Tr ID</th>

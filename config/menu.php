@@ -136,6 +136,11 @@ return [
             'icon' => 'fa fa-home',
         ],
         [
+            'name' => 'Notification',
+            'route' => 'notifications.index',
+            'icon' => 'fa fa-bell',
+        ],
+        [
             'name' => 'Setting',
             'route' => 'settings.index',
             'icon' => 'fa fa-home',

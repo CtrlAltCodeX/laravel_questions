@@ -56,6 +56,7 @@ class QuestionsImport implements ToModel, WithHeadingRow
                 'sub_category_id' => $subCategoryId,
                 'subject_id' => $subjectId,
                 'topic_id' => $topicId,
+                'exam_years' => $row['exam_years'] ?? null,
             ]);
         } else {
             $question->update([
@@ -75,6 +76,7 @@ class QuestionsImport implements ToModel, WithHeadingRow
                 'sub_category_id' => $subCategoryId,
                 'subject_id' => $subjectId,
                 'topic_id' => $topicId,
+                'exam_years' => $row['exam_years'] ?? null,
             ]);
         }
 

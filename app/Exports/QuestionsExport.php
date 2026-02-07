@@ -61,6 +61,7 @@ class QuestionsExport implements FromCollection, WithHeadings
             // Add other fields
             $formattedQuestion[] = $question['answer'];
             $formattedQuestion[] = $question['notes'];
+            $formattedQuestion[] = $question['exam_years'] ?? '';
             $formattedQuestion[] = $question['level'];
             $formattedQuestion[] = $question['photo'];
             $formattedQuestion[] = $question['photo_link'];
@@ -105,7 +106,7 @@ class QuestionsExport implements FromCollection, WithHeadings
         //     }
         // }
 
-        $columns = ['question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'level', 'photo', 'photo_link'];
+        $columns = ['question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'notes', 'exam_years', 'level', 'photo', 'photo_link'];
 
         // Add other field headings
         $headings = array_merge($headings, $columns);

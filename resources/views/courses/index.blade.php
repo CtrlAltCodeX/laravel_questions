@@ -188,6 +188,22 @@
                 <div id="error-status" class="error-text" style="color: red;"></div>
             </div>
 
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Stars</label>
+                <input type="number" id="stars" name="stars" step="0.1" min="0" max="5" placeholder="Rating (e.g. 4.5)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Course Features</label>
+                <select id="select_features" multiple name="features[]" class="select_features bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="Videos">Videos</option>
+                    <option value="CBT Mock test">CBT Mock test</option>
+                    <option value="Practice quiz">Practice quiz</option>
+                    <option value="Digital Notes">Digital Notes</option>
+                    <option value="Question bank">Question bank</option>
+                </select>
+            </div>
+
             <button type="submit" style="background-color: #2563EB; color: white; font-size: 14px; font-weight: 500; border-radius: 8px; padding: 8px 16px; border: none; cursor: pointer;">
                 Save
             </button>
@@ -209,6 +225,11 @@
       
         $('#select_subject').select2({
             width: '100%'
+        });
+
+        $('#select_features').select2({
+            width: '100%',
+            placeholder: 'Select Features'
         });
 
         $('#select_subject').on('select2:select', function (e) {
@@ -317,6 +338,8 @@
         document.getElementById('select_language').value = '';
         document.getElementById('select_category').value = '';
         document.getElementById('status').selectedIndex = "";
+        document.getElementById('stars').value = '';
+        $('#select_features').val(null).trigger('change');
 
         // Reset checkboxes for subcategories
         document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
@@ -350,6 +373,8 @@
             const language = data.language;
             const question_limit = data.question_limit;
             const subscriptions = data.subscription;
+            const stars = data.stars;
+            const features = data.features;
             const partWise = data.part_limit;
             const subjectWise = data.subject_limit;
             const subjectName = data.subject_names.split(",");
@@ -780,6 +805,8 @@
             document.getElementById('meta_data').innerHTML = meta_data || '';
             document.getElementById('select_language').value = languageId || '';
             document.getElementById('select_category').value = categoryId || '';
+            document.getElementById('stars').value = stars || 0;
+            $('#select_features').val(features).trigger('change');
 
             const subcategoryCheckboxes = document.querySelectorAll('.subcategory-checkbox');
             subcategoryCheckboxes.forEach(checkbox => {

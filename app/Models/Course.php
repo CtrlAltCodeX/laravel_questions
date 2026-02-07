@@ -19,7 +19,9 @@ class Course extends Model
         'question_limit',
         'subject_limit',
         'part_limit',
-        'meta_data'
+        'meta_data',
+        'stars',
+        'features'
     ];
 
     protected $casts = [
@@ -27,7 +29,8 @@ class Course extends Model
         'subject_limit' => 'array',
         'part_limit' => 'array',
         'subject_id' => 'array',
-        'sub_category_id' => 'array'
+        'sub_category_id' => 'array',
+        'features' => 'array'
     ];
 
     public function category()

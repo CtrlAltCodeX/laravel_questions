@@ -241,8 +241,9 @@ class CourseController extends Controller
             'question_limit' => $request->question_limit,
             'subject_limit' => $subjectLimit,
             'part_limit' => $partLimit,
-	        'meta_data' => $request->meta_data
-
+            'meta_data' => $request->meta_data,
+            'stars' => $request->stars ?? 0,
+            'features' => $request->features
         ]);
         return response()->json(['success' => true, 'message' => 'Course created successfully']);
     }
@@ -295,6 +296,8 @@ class CourseController extends Controller
         $course->language = $request->language;
         $course->question_limit = $request->question_limit;
         $course->meta_data = $request->meta_data;
+        $course->stars = $request->stars ?? 0;
+        $course->features = $request->features;
 
         if (request()->part == 'part') {
             $course->part_limit = $request->part_limit;
