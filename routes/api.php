@@ -83,6 +83,9 @@ Route::post('user/courses', [UserCourseController::class, 'assignCourseToUser'])
 Route::post('save-payment', [PaymentController::class, 'store']);
 Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
 
+Route::get('payment/initiate', [PaymentController::class, 'initiatePayment']);
+Route::get('payment/callback', [PaymentController::class, 'handleCallback']);
+
 Route::post('store/quiz', [ScoreBoardController::class, 'quizeStore']);
 Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeShow']);
 

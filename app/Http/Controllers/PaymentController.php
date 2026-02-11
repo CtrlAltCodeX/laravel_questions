@@ -13,9 +13,115 @@ use App\Models\GoogleUser;
 use App\Models\UserCoin;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PaymentsExport;
+use Razorpay\Api\Api;
 
 class PaymentController extends Controller
 {
+    private $razorpay_key;
+    private $razorpay_secret;
+
+    public function __construct()
+    {
+        $this->razorpay_key = config('services.razorpay.key');
+        $this->razorpay_secret = config('services.razorpay.secret');
+    }
+
+    public function initiatePayment(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:google_users,id',
+            'course_id' => 'required|exists:courses,id',
+            'plan_type' => 'required|in:monthly,semi_annual,annual',
+        ]);
+
+        $amountResponse = $this->getFinalAmount($request);
+        $amountData = json_decode($amountResponse->getContent(), true);
+
+        if (!$amountData || !isset($amountData['final_amount'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to get final amount'
+            ], 400);
+        }
+
+        $finalAmountInPaise = $amountData['final_amount'] * 100;
+
+        try {
+            $api = new Api($this->razorpay_key, $this->razorpay_secret);
+
+            $callback_url = url('/api/payment/callback') . '?' . http_build_query($validated);
+
+            $paymentLink = $api->paymentLink->create([
+                'amount' => $finalAmountInPaise,
+                'currency' => 'INR',
+                'accept_partial' => false,
+                'description' => "Payment for Course: " . ($amountData['course_name'] ?? $validated['course_id']),
+                'notify' => [
+                    'sms' => true,
+                    'email' => true,
+                ],
+                'callback_url' => $callback_url,
+                'callback_method' => 'get'
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'payment_link' => $paymentLink['short_url'],
+                'amount' => $amountData['final_amount'],
+                'plan' => $validated['plan_type']
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function handleCallback(Request $request)
+    {
+        if ($request->has(['razorpay_payment_id', 'user_id', 'course_id', 'plan_type'])) {
+            
+            $payment_id = $request->razorpay_payment_id;
+            
+            try {
+                $api = new Api($this->razorpay_key, $this->razorpay_secret);
+                $payment = $api->payment->fetch($payment_id);
+
+                $data = [
+                    'payment_id' => $payment_id,
+                    'currency'   => $payment['currency'],
+                    'status'     => $payment['status'],
+                    'user_id'    => $request->user_id,
+                    'course_id'  => $request->course_id,
+                    'plan_type'  => $request->plan_type,
+                    'method'        => $payment['method'] ?? 'unknown',
+                    'card_last4'    => $payment['card']['last4'] ?? null,
+                    'card_network'  => $payment['card']['network'] ?? null,
+                    'vpa'           => $payment['vpa'] ?? null,
+                ];
+
+                // Create a new request for the store method
+                $storeRequest = new Request($data);
+                $response = $this->store($storeRequest);
+                
+                $result = json_decode($response->getContent(), true);
+
+                if (isset($result['status']) && $result['status'] == 'success') {
+                    return "<h2>Payment Successful!</h2><p>Payment ID: $payment_id</p>";
+                } else {
+                    return "<h2>Payment Verification Failed</h2><p>" . ($result['message'] ?? 'Unknown error') . "</p>";
+                }
+
+            } catch (\Exception $e) {
+                return "<h2>Error fetching payment details</h2><p>" . $e->getMessage() . "</p>";
+            }
+        }
+
+        return "<h2>Invalid Request</h2>";
+    }
+
     public function index()
     {
        
