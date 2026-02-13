@@ -176,13 +176,32 @@
     </div>
 </div>
 
+@section('styles')
+<style>
+    .ck-editor__editable_inline {
+        min-height: 300px;
+    }
+</style>
+@endsection
+
 @endsection
 
 @push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
 @include('script')
 <script>
+    let noteEditor;
     document.addEventListener('DOMContentLoaded', function() {
         
+        ClassicEditor
+            .create(document.querySelector('#content'))
+            .then(editor => {
+                noteEditor = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
         // Handle Create Button
         document.getElementById('createButton').addEventListener('click', function() {
              document.getElementById('modalTitle').innerText = 'Create Digital Notes';
@@ -192,6 +211,7 @@
              
              // Reset fields
              form.reset();
+             if (noteEditor) noteEditor.setData('');
              document.getElementById('content').value = '';
              
              // Clear dropdowns except language
@@ -214,6 +234,9 @@
             e.preventDefault();
             
             const form = this;
+            if (noteEditor) {
+                document.getElementById('content').value = noteEditor.getData();
+            }
             const formData = new FormData(form);
             
             const submitBtn = document.getElementById('submitBtn');
@@ -332,7 +355,11 @@
 
                     document.getElementById('name').value = note.name;
                     document.getElementById('status').value = note.status ? 1 : 0;
-                    document.getElementById('content').value = note.content || '';
+                    if (noteEditor) {
+                        noteEditor.setData(note.content || '');
+                    } else {
+                        document.getElementById('content').value = note.content || '';
+                    }
 
                     document.getElementById('language_id').value = note.language_id;
                     

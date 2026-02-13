@@ -190,7 +190,10 @@
 
             <div class="mb-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Stars</label>
-                <input type="number" id="stars" name="stars" step="0.1" min="0" max="5" placeholder="Rating (e.g. 4.5)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                <select id="stars" name="stars" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="0">False</option>
+                    <option value="1">True</option>
+                </select>
             </div>
 
             <div class="mb-4">
@@ -338,7 +341,7 @@
         document.getElementById('select_language').value = '';
         document.getElementById('select_category').value = '';
         document.getElementById('status').selectedIndex = "";
-        document.getElementById('stars').value = '';
+        document.getElementById('stars').value = '0';
         $('#select_features').val(null).trigger('change');
 
         // Reset checkboxes for subcategories

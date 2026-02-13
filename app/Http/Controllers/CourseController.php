@@ -197,6 +197,7 @@ class CourseController extends Controller
             'subcategories' => 'required|array',
             'subjects' => 'required|array',
             'status' => 'required|boolean',
+            'stars' => 'nullable|boolean',
         ]);
         $subscriptions = [];
 
@@ -232,8 +233,8 @@ class CourseController extends Controller
             'name' => $request->name,
             'language_id' => $request->language_id,
             'category_id' => $request->category_id,
-            'sub_category_id' => json_encode($request->subcategories),
-            'subject_id' => json_encode($request->subjects),
+            'sub_category_id' => $request->subcategories,
+            'subject_id' => $request->subjects,
             'status' => $request->status,
             'subscription' => $subscriptions,
             'banner' => $bannerFilename,
@@ -257,6 +258,7 @@ class CourseController extends Controller
             'subcategories' => 'required|array',
             'subjects' => 'required|array',
             'status' => 'required|boolean',
+            'stars' => 'nullable|boolean',
         ]);
       
       //dd(request()->all());

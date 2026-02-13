@@ -136,6 +136,11 @@ return [
             'icon' => 'fa fa-home',
         ],
         [
+            'name' => 'Live Test',
+            'route' => 'live-tests.index',
+            'icon' => 'fa fa-flask',
+        ],
+        [
             'name' => 'Notification',
             'route' => 'notifications.index',
             'icon' => 'fa fa-bell',

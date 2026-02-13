@@ -233,6 +233,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin-profile/{id}', [SuperAdminController::class, 'edit'])
         ->name('admin-profile.edit');
+
+    // Live Test Routes
+    Route::resource('live-tests', \App\Http\Controllers\LiveTestController::class);
+    Route::get('get-questions-for-live-test', [\App\Http\Controllers\LiveTestController::class, 'getQuestions'])
+        ->name('live-tests.get-questions');
 });
 
 require __DIR__ . '/auth.php';

@@ -122,7 +122,7 @@
                 </div>
 
                 <!-- Right Side: Form Fields (7/12 width) -->
-                <div class="md:col-span-7 space-y-4">
+                <div class="md:col-span-7 space-y-6 mt-6 md:mt-0">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block mb-1 text-sm font-medium text-gray-900">Type</label>
@@ -150,7 +150,7 @@
 
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer">
-                            <input type="checkbox" id="include_image" class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
+                            <input type="checkbox" id="include_image" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 accent-blue-600">
                             Include Image Upload
                         </label>
                         <div id="image_input_container" class="hidden mt-3">

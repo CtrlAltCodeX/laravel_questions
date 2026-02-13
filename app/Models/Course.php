@@ -30,7 +30,8 @@ class Course extends Model
         'part_limit' => 'array',
         'subject_id' => 'array',
         'sub_category_id' => 'array',
-        'features' => 'array'
+        'features' => 'array',
+        'stars' => 'boolean'
     ];
 
     public function category()
