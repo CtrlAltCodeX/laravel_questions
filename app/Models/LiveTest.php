@@ -15,12 +15,13 @@ class LiveTest extends Model
         'sub_category_id',
         'mode',
         'title',
-        'schedule',
+        'start_date',
+        'end_date',
+        'status',
+        'question_ids',
         'toppers_star',
         'toppers',
         'participant_star',
-        'question_ids',
-        'status',
     ];
 
     protected $casts = [
@@ -28,6 +29,8 @@ class LiveTest extends Model
         'question_ids' => 'json',
         'status' => 'boolean',
         'schedule' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     protected $appends = ['subject_count'];

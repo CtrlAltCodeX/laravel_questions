@@ -25,7 +25,8 @@
                 <th scope="col" class="px-6 py-3">Category</th>
                 <th scope="col" class="px-6 py-3">Questions</th>
                 <th scope="col" class="px-6 py-3">Subjects</th>
-                <th scope="col" class="px-6 py-3">Schedule</th>
+                <th scope="col" class="px-6 py-3">Start Date</th>
+                <th scope="col" class="px-6 py-3">End Date</th>
                 <th scope="col" class="px-6 py-3">Mode</th>
                 <th scope="col" class="px-6 py-3 text-center">Status</th>
                 <th scope="col" class="px-6 py-3">Action</th>
@@ -40,7 +41,8 @@
                 <td class="px-6 py-4">{{ $test->category->name ?? '-' }}</td>
                 <td class="px-6 py-4 text-center">{{ count($test->question_ids ?? []) }}</td>
                 <td class="px-6 py-4 text-center font-bold text-blue-600">{{ $test->subject_count }}</td>
-                <td class="px-6 py-4 text-xs">{{ $test->schedule ? $test->schedule->format('d M Y, h:i A') : 'N/A' }}</td>
+                <td class="px-6 py-4 text-xs">{{ $test->start_date ? $test->start_date->format('d M Y, h:i A') : 'N/A' }}</td>
+                <td class="px-6 py-4 text-xs">{{ $test->end_date ? $test->end_date->format('d M Y, h:i A') : 'N/A' }}</td>
                 <td class="px-6 py-4">
                     <span class="px-2 py-1 rounded text-xs {{ $test->mode == 'auto' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
                         {{ ucfirst($test->mode) }}
@@ -102,7 +104,7 @@
 
                 <div class="col-span-2 space-y-1">
                     <label class="text-sm font-semibold text-gray-700">Sub Category</label>
-                    <select id="select_sub_category" name="sub_category_ids[]" multiple="multiple" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                    <select id="select_sub_category" name="sub_category_id" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
                     </select>
                 </div>
 
@@ -124,8 +126,13 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700">Schedule Date & Time</label>
-                    <input type="datetime-local" name="schedule" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                    <label class="text-sm font-semibold text-gray-700">Start Date & Time</label>
+                    <input type="datetime-local" name="start_date" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700">End Date & Time</label>
+                    <input type="datetime-local" name="end_date" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div class="space-y-1">
@@ -148,8 +155,8 @@
             <div id="stats_area" class="mt-4 mb-4 p-4 bg-gray-50 rounded-lg hidden">
                 <div class="flex justify-between items-center text-sm font-medium">
                     <span>Subjects: <span id="subject_count">0</span></span>
-                    <span>Fetched Total Questions: <span id="question_count">0</span></span>
-                    <!-- <span class="text-blue-600">Question Limit: <span id="question_limit_val">0</span></span> -->
+                    <span>Fetched Questions: <span id="question_count">0</span></span>
+                    <span class="text-green-600">Total Selected: <span id="selected_count_val">0</span></span>
                 </div>
             </div>
 
@@ -173,7 +180,7 @@
 $(document).ready(function() {
     $('#select_sub_category').select2({
         width: '100%',
-        placeholder: 'Select Sub Categories'
+        placeholder: 'Select Sub Category'
     });
 
     $('#createButton').click(function() {
@@ -182,7 +189,7 @@ $(document).ready(function() {
         $('#modalTitle').text('Create Live Test');
         $('#saveButton').text('Save Live Test');
         $('#select_language').trigger('change');
-        $('#select_sub_category').val(null).trigger('change');
+        $('#select_sub_category').val('').trigger('change');
         $('#questions_container').addClass('hidden').empty();
         $('#stats_area').addClass('hidden');
         $('#modal').css('display', 'flex').hide().fadeIn();
@@ -208,19 +215,18 @@ $(document).ready(function() {
         });
     }
 
-    function loadSubCategories(categoryId, selectedIds = null, callback = null) {
+    function loadSubCategories(categoryId, selectedId = null, callback = null) {
         if (!categoryId) return;
         $.ajax({
             url: '/get-subcategories/' + categoryId,
             method: 'GET',
             success: function(data) {
-                $('#select_sub_category').empty();
+                $('#select_sub_category').empty().append('<option value="">Select Sub Category</option>');
                 $.each(data, function(key, value) {
                     $('#select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
                 });
-                if (selectedIds) {
-                    var ids = Array.isArray(selectedIds) ? selectedIds.map(String) : [String(selectedIds)];
-                    $('#select_sub_category').val(ids).trigger('change');
+                if (selectedId) {
+                    $('#select_sub_category').val(selectedId).trigger('change');
                 }
                 if (callback) callback();
             }
@@ -239,10 +245,16 @@ $(document).ready(function() {
                 $('#test_id').val(data.id);
                 
                 $('input[name="title"]').val(data.title);
-                if(data.schedule) {
-                    var scheduleDate = new Date(data.schedule);
-                    scheduleDate.setMinutes(scheduleDate.getMinutes() - scheduleDate.getTimezoneOffset());
-                    $('input[name="schedule"]').val(scheduleDate.toISOString().slice(0, 16));
+                
+                if(data.start_date) {
+                    var startDate = new Date(data.start_date);
+                    startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+                    $('input[name="start_date"]').val(startDate.toISOString().slice(0, 16));
+                }
+                if(data.end_date) {
+                    var endDate = new Date(data.end_date);
+                    endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+                    $('input[name="end_date"]').val(endDate.toISOString().slice(0, 16));
                 }
                 
                 $('input[name="toppers_star"]').val(data.toppers_star);
@@ -253,7 +265,9 @@ $(document).ready(function() {
                 // Re-populating Cascading selects step-by-step
                 $('#select_language').val(data.language_id);
                 loadCategories(data.language_id, data.category_id, function() {
-                    loadSubCategories(data.category_id, data.sub_category_id, function() {
+                    // sub_category_id is stored as json/array in DB but we use single select now
+                    var subCatId = Array.isArray(data.sub_category_id) ? data.sub_category_id[0] : data.sub_category_id;
+                    loadSubCategories(data.category_id, subCatId, function() {
                         // Finally fetch questions and auto-check
                         fetchQuestions(function() {
                             if (data.question_ids) {
@@ -261,6 +275,7 @@ $(document).ready(function() {
                                 $.each(qIds, function(i, qid) {
                                     $('.question-checkbox[value="' + qid + '"]').prop('checked', true);
                                 });
+                                updateSelectionCount();
                             }
                             isAutoPopulating = false; // Reset flag after all population is done
                         });
@@ -301,22 +316,23 @@ $(document).ready(function() {
     function fetchQuestions(callback = null) {
         var languageId = $('#select_language').val();
         var categoryId = $('#select_category').val();
-        var subCategoryIds = $('#select_sub_category').val();
+        var subCategoryId = $('#select_sub_category').val();
 
-        if (languageId && categoryId && subCategoryIds && subCategoryIds.length > 0) {
+        if (languageId && categoryId && subCategoryId) {
             $.ajax({
                 url: "{{ route('live-tests.get-questions') }}",
                 method: 'GET',
                 data: {
                     language_id: languageId,
                     category_id: categoryId,
-                    sub_category_ids: subCategoryIds
+                    sub_category_id: subCategoryId
                 },
                 success: function(data) {
                     $('#stats_area').removeClass('hidden');
                     $('#subject_count').text(data.subject_count);
                     $('#question_count').text(data.question_count);
                     $('#question_limit_val').text(data.limit);
+                    $('#selected_count_val').text(0);
 
                     $('#questions_container').removeClass('hidden').empty();
 
@@ -324,8 +340,12 @@ $(document).ready(function() {
                         $.each(data.subjects, function(key, subject) {
                             var accordionHtml = `
                                 <div class="subject-item border rounded-lg overflow-hidden mb-2">
-                                    <button type="button" class="subject-header w-full flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 transition-colors font-semibold text-sm">
-                                        <span>${subject.name} (<span class="count">${subject.questions.length}</span> questions)</span>
+                                    <button type="button" class="subject-header w-full flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 transition-colors font-semibold text-sm" data-subject-limit="${subject.limit}" data-subject-id="${subject.id}">
+                                        <div class="flex items-center gap-4">
+                                            <span>${subject.name} (<span class="count">${subject.questions.length}</span> questions)</span>
+                                            <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Selection Limit: ${subject.limit}</span>
+                                            <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">Selected: <span id="selected_subject_count_${subject.id}">0</span></span>
+                                        </div>
                                         <i class="fa fa-chevron-down transform transition-transform"></i>
                                     </button>
                                     <div class="subject-content hidden p-3 bg-white border-t overflow-x-auto">
@@ -369,6 +389,7 @@ $(document).ready(function() {
                             $('#questions_container').append(accordionHtml);
                         });
                         
+                        updateSelectionCount();
                         if (callback) callback();
                     } else {
                         $('#questions_container').append('<div class="text-center py-6 bg-gray-50 rounded-lg text-gray-500 font-medium">No subjects or questions found matching your criteria.</div>');
@@ -390,28 +411,97 @@ $(document).ready(function() {
         icon.toggleClass('rotate-180');
     });
 
-    // Select All for Subject
+    // Update Selection Count Logic
+    function updateSelectionCount(subjectId = null) {
+        if (subjectId) {
+            var subjectCount = $('.subject-questions-' + subjectId + ':checked').length;
+            $('#selected_subject_count_' + subjectId).text(subjectCount);
+        } else {
+            $('.subject-header').each(function() {
+                var sid = $(this).data('subject-id');
+                var scount = $('.subject-questions-' + sid + ':checked').length;
+                $('#selected_subject_count_' + sid).text(scount);
+            });
+        }
+
+        var totalCount = $('.question-checkbox:checked').length;
+        $('#selected_count_val').text(totalCount);
+    }
+
+    $(document).on('click', '.question-checkbox', function(e) {
+        var checkbox = $(this);
+        var subjectItem = checkbox.closest('.subject-item');
+        var subjectHeader = subjectItem.find('.subject-header');
+        var subjectId = subjectHeader.data('subject-id');
+        var subjectLimit = parseInt(subjectHeader.data('subject-limit'));
+        
+        var currentSubjectSelected = $('.subject-questions-' + subjectId + ':checked').length;
+
+        if (checkbox.is(':checked') && currentSubjectSelected > subjectLimit) {
+            e.preventDefault();
+            checkbox.prop('checked', false);
+            alert("Limit reached! You can only select up to " + subjectLimit + " questions in this subject.");
+            return;
+        }
+        
+        updateSelectionCount(subjectId);
+    });
+
+    // Select All for Subject (Modified for limit and alert)
     $(document).on('change', '.select-all-subject', function() {
         var subjectId = $(this).data('subject-id');
-        $('.subject-questions-' + subjectId).prop('checked', $(this).is(':checked'));
+        var subjectItem = $(this).closest('.subject-item');
+        var subjectHeader = subjectItem.find('.subject-header');
+        var limit = parseInt(subjectHeader.data('subject-limit'));
+        
+        if ($(this).is(':checked')) {
+            var subjectCheckboxes = $('.subject-questions-' + subjectId + ':not(:checked)');
+            var currentSelected = $('.subject-questions-' + subjectId + ':checked').length;
+            var availableSlots = limit - currentSelected;
+            
+            if (availableSlots <= 0) {
+                $(this).prop('checked', false);
+                alert("Limit reached! You can only select up to " + limit + " questions in this subject.");
+                return;
+            }
+
+            var selectionMade = 0;
+            subjectCheckboxes.each(function(index) {
+                if (index < availableSlots) {
+                    $(this).prop('checked', true);
+                    selectionMade++;
+                }
+            });
+            
+            if (subjectCheckboxes.length > availableSlots) {
+                alert("Only " + availableSlots + " additional questions selected to match the subject limit of " + limit);
+            }
+        } else {
+            $('.subject-questions-' + subjectId).prop('checked', false);
+        }
+        updateSelectionCount(subjectId);
     });
 
     // Form Submission
     $('#liveTestForm').submit(function(e) {
         e.preventDefault();
 
-        var totalFetched = parseInt($('#question_count').text());
-        var totalSelected = $('.question-checkbox:checked').length;
+        var hasError = false;
+        $('.subject-header').each(function() {
+            var subjectHeader = $(this);
+            var subjectId = subjectHeader.data('subject-id');
+            var limit = parseInt(subjectHeader.data('subject-limit'));
+            var selected = $('.subject-questions-' + subjectId + ':checked').length;
+            var subjectName = subjectHeader.find('span:first').text();
 
-        if (totalFetched > 0 && totalSelected < totalFetched) {
-            alert("Please select all " + totalFetched + " questions to continue.");
-            return;
-        }
+            if (selected < limit) {
+                alert("Please select exactly " + limit + " questions for subject: " + subjectName + ". Currently selected: " + selected);
+                hasError = true;
+                return false; // Break loop
+            }
+        });
 
-        if (totalFetched === 0) {
-            alert("Please select categories and sub categories to fetch questions first.");
-            return;
-        }
+        if (hasError) return;
 
         var formData = $(this).serialize();
         var testId = $('#test_id').val();

@@ -26,47 +26,75 @@ class LiveTestController extends Controller
     {
         $languageId = $request->language_id;
         $categoryId = $request->category_id;
-        $subCategoryIds = $request->sub_category_ids; // Expected as array
+        $subCategoryId = $request->sub_category_id; // Changed from sub_category_ids to sub_category_id
 
-        if (!$languageId || !$categoryId || !$subCategoryIds) {
+        if (!$languageId || !$categoryId || !$subCategoryId) {
             return response()->json(['subjects' => [], 'subject_count' => 0, 'question_count' => 0]);
         }
+
+        $subCategoryIds = (array)$subCategoryId; // Convert to array for matching logic
 
         // Get matching course to find question limit
         $allCourses = Course::where('language_id', $languageId)
             ->where('category_id', $categoryId)
             ->get();
 
-        $course = $allCourses->filter(function ($c) use ($subCategoryIds) {
+        $matchingCourses = $allCourses->filter(function ($c) use ($subCategoryIds) {
                 $courseSubs = array_map('strval', (array)$c->sub_category_id);
                 $inputSubs = array_map('strval', (array)$subCategoryIds);
-                $intersect = array_intersect($courseSubs, $inputSubs);
-                return count($intersect) > 0;
-            })
-            ->first();
+                return count(array_intersect($courseSubs, $inputSubs)) > 0;
+            });
 
-        $limit = $course ? $course->question_limit : 50;
-
-        // Get subjects for these sub categories
-        $subjects = Subject::whereIn('sub_category_id', $subCategoryIds)->get();
-        
         $subjectsWithQuestions = [];
         $totalQuestionsCount = 0;
+        $processedSubjectIds = [];
+        $globalLimit = 0;
 
-        foreach ($subjects as $subject) {
-            $questions = Question::where('language_id', $languageId)
-                ->where('category_id', $categoryId)
-                ->where('subject_id', $subject->id)
-                ->limit($limit)
-                ->get();
+        foreach ($matchingCourses as $course) {
+            // Determine which subjects this course record applies to
+            $sids = [];
+            if ($course->subject_limit) {
+                $sids = array_keys((array)$course->subject_limit);
+            } elseif ($course->subject_id) {
+                $sids = (array)$course->subject_id;
+            }
 
-            if ($questions->count() > 0) {
-                $subjectsWithQuestions[] = [
-                    'id' => $subject->id,
-                    'name' => $subject->name,
-                    'questions' => $questions
-                ];
-                $totalQuestionsCount += $questions->count();
+            foreach ($sids as $sid) {
+                // Skip if we already processed this subject (avoid duplicates)
+                if (in_array($sid, $processedSubjectIds)) continue;
+
+                $subject = Subject::find($sid);
+                if (!$subject) continue;
+
+                // Determine limit for this specific subject
+                $subjectLimit = 0;
+                if ($course->subject_limit && isset($course->subject_limit[$sid])) {
+                    $subjectLimit = (int)$course->subject_limit[$sid];
+                } else {
+                    $subjectLimit = (int)$course->question_limit;
+                }
+
+                if ($subjectLimit <= 0) $subjectLimit = (int)$course->question_limit ?: 50;
+
+                $questions = Question::where('language_id', $languageId)
+                    ->where('category_id', $categoryId)
+                    ->where('subject_id', $sid)
+                    ->get();
+
+                if ($questions->count() > 0) {
+                    $subjectsWithQuestions[] = [
+                        'id' => $subject->id,
+                        'name' => $subject->name,
+                        'questions' => $questions,
+                        'limit' => $subjectLimit
+                    ];
+                    $totalQuestionsCount += $questions->count();
+                    $processedSubjectIds[] = $sid;
+                }
+            }
+            
+            if ($course->question_limit > $globalLimit) {
+                $globalLimit = (int)$course->question_limit;
             }
         }
 
@@ -74,7 +102,7 @@ class LiveTestController extends Controller
             'subjects' => $subjectsWithQuestions,
             'subject_count' => count($subjectsWithQuestions),
             'question_count' => $totalQuestionsCount,
-            'limit' => $limit
+            'limit' => $globalLimit ?: "NO LIMIT"
         ]);
     }
 
@@ -83,10 +111,11 @@ class LiveTestController extends Controller
         $request->validate([
             'language_id' => 'required|exists:languages,id',
             'category_id' => 'required|exists:categories,id',
-            'sub_category_ids' => 'required|array',
+            'sub_category_id' => 'required', // Changed from sub_category_ids to sub_category_id
             'mode' => 'required|in:auto,manual',
             'title' => 'required|string|max:255',
-            'schedule' => 'required|date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
@@ -100,10 +129,11 @@ class LiveTestController extends Controller
         $liveTest = LiveTest::create([
             'language_id' => $request->language_id,
             'category_id' => $request->category_id,
-            'sub_category_id' => $request->sub_category_ids,
+            'sub_category_id' => (array)$request->sub_category_id,
             'mode' => $request->mode,
             'title' => $request->title,
-            'schedule' => $request->schedule,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
             'toppers_star' => $request->toppers_star,
             'toppers' => $request->toppers,
             'participant_star' => $request->participant_star,
@@ -131,10 +161,11 @@ class LiveTestController extends Controller
         $request->validate([
             'language_id' => 'required|exists:languages,id',
             'category_id' => 'required|exists:categories,id',
-            'sub_category_ids' => 'required|array',
+            'sub_category_id' => 'required',
             'mode' => 'required|in:auto,manual',
             'title' => 'required|string|max:255',
-            'schedule' => 'required|date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
@@ -145,10 +176,11 @@ class LiveTestController extends Controller
         $liveTest->update([
             'language_id' => $request->language_id,
             'category_id' => $request->category_id,
-            'sub_category_id' => $request->sub_category_ids,
+            'sub_category_id' => (array)$request->sub_category_id,
             'mode' => $request->mode,
             'title' => $request->title,
-            'schedule' => $request->schedule,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
             'toppers_star' => $request->toppers_star,
             'toppers' => $request->toppers,
             'participant_star' => $request->participant_star,
