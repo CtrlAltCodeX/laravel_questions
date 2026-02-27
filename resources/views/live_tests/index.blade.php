@@ -120,6 +120,17 @@
                     </div>
                 </div>
 
+                <!-- Manual Mode Buttons -->
+                <div id="manual_mode_actions" class="col-span-2 hidden bg-gray-50 p-4 rounded-xl border border-gray-200 flex gap-4">
+                    <button type="button" id="btn_download_template" class="flex-1 bg-white border-2 border-primary text-primary px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa fa-download"></i> Download Template
+                    </button>
+                    <button type="button" id="btn_upload_excel" class="flex-1 bg-white border-2 border-primary text-primary px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa fa-file-excel"></i> Upload Excel File
+                    </button>
+                    <input type="file" id="excel_file_input" class="hidden" accept=".xlsx, .xls">
+                </div>
+
                 <div class="space-y-1">
                     <label class="text-sm font-semibold text-gray-700">Title</label>
                     <input type="text" name="title" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter test title">
@@ -165,6 +176,38 @@
                 <!-- Subject accordions will be injected here -->
             </div>
 
+            <!-- Manual Preview Table -->
+            <div id="manual_preview_container" class="mt-4 hidden">
+                <h3 class="text-sm font-bold text-gray-800 mb-2 flex justify-between items-center">
+                    Excel Preview
+                    <span class="text-xs font-normal text-gray-500" id="manual_question_count_label">0 questions found</span>
+                </h3>
+                <div class="border rounded-lg overflow-x-auto" style="max-height: 400px;">
+                    <table class="w-full text-[11px] text-left text-gray-500 min-w-[800px]">
+                        <thead class="bg-gray-100 uppercase text-gray-700 font-bold sticky top-0">
+                            <tr>
+                                <th class="px-2 py-2">Lang ID</th>
+                                <th class="px-2 py-2">Cat ID</th>
+                                <th class="px-2 py-2">SubCat ID</th>
+                                <th class="px-2 py-2">Sub ID</th>
+                                <th class="px-2 py-2">Question</th>
+                                <th class="px-2 py-2">Option A</th>
+                                <th class="px-2 py-2">Option B</th>
+                                <th class="px-2 py-2">Option C</th>
+                                <th class="px-2 py-2">Option D</th>
+                                <th class="px-2 py-2">Answer</th>
+                                <th class="px-2 py-2">Photo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manual_preview_body">
+                            <!-- JS content here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <input type="hidden" name="manual_questions" id="manual_questions_data">
+
             <div class="mt-6 pt-4 border-t flex justify-end gap-3 bg-white">
                 <button type="button" id="cancelModal" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Cancel</button>
                 <button type="submit" id="saveButton" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-6 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800 disabled:opacity-50">Save Live Test</button>
@@ -192,10 +235,113 @@ $(document).ready(function() {
         $('#select_sub_category').val('').trigger('change');
         $('#questions_container').addClass('hidden').empty();
         $('#stats_area').addClass('hidden');
+        $('#manual_preview_container').addClass('hidden');
+        $('#manual_mode_actions').addClass('hidden');
+        $('#manual_preview_body').empty();
+        manualQuestions = [];
+        $('#manual_questions_data').val('');
         $('#modal').css('display', 'flex').hide().fadeIn();
     });
 
     var isAutoPopulating = false;
+    var manualQuestions = [];
+
+    // --- Mode Toggle Logic ---
+    $('input[name="mode"]').change(function() {
+        var mode = $(this).val();
+        if (mode === 'manual') {
+            $('#manual_mode_actions').removeClass('hidden');
+            $('#questions_container').addClass('hidden');
+            $('#stats_area').addClass('hidden');
+            // If we have manual questions already, show preview
+            if (manualQuestions.length > 0) {
+                $('#manual_preview_container').removeClass('hidden');
+            }
+        } else {
+            $('#manual_mode_actions').addClass('hidden');
+            $('#manual_preview_container').addClass('hidden');
+            // If we have auto questions container content, show it
+            if ($('#questions_container').children().length > 0) {
+                $('#questions_container').removeClass('hidden');
+                $('#stats_area').removeClass('hidden');
+            }
+        }
+    });
+
+    // --- Manual Mode: Download Template ---
+    $('#btn_download_template').click(function() {
+        var lang = $('#select_language').val();
+        var cat = $('#select_category').val();
+        var subCat = $('#select_sub_category').val();
+
+        if (!lang || !cat || !subCat) {
+            alert("Please select Language, Category and Sub Category first.");
+            return;
+        }
+
+        var url = "{{ route('live-tests.download-manual-template') }}?language_id=" + lang + "&category_id=" + cat + "&sub_category_id=" + subCat;
+        window.location.href = url;
+    });
+
+    // --- Manual Mode: Upload & Preview ---
+    $('#btn_upload_excel').click(function() {
+        $('#excel_file_input').click();
+    });
+
+    $('#excel_file_input').change(function() {
+        var file = this.files[0];
+        if (!file) return;
+
+        var formData = new FormData();
+        formData.append('excel_file', file);
+        formData.append('_token', "{{ csrf_token() }}");
+
+        $.ajax({
+            url: "{{ route('live-tests.preview-manual-data') }}",
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    renderManualPreview(response.data);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert("Error uploading file.");
+            }
+        });
+    });
+
+    function renderManualPreview(data) {
+        manualQuestions = data;
+        $('#manual_questions_data').val(JSON.stringify(data));
+        
+        var body = $('#manual_preview_body').empty();
+        $('#manual_preview_container').removeClass('hidden');
+        $('#manual_question_count_label').text(data.length + " questions found");
+
+        $.each(data, function(i, q) {
+            var row = `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-2 py-2">${q.language_id || '-'}</td>
+                    <td class="px-2 py-2">${q.category || q.category_id || '-'}</td>
+                    <td class="px-2 py-2">${q.subcategory || q.sub_category_id || '-'}</td>
+                    <td class="px-2 py-2 font-medium text-gray-900">${q.subject || q.subject_id || '-'}</td>
+                    <td class="px-2 py-2">${q.question || '-'}</td>
+                    <td class="px-2 py-2">${q.option_a || '-'}</td>
+                    <td class="px-2 py-2">${q.option_b || '-'}</td>
+                    <td class="px-2 py-2">${q.option_c || '-'}</td>
+                    <td class="px-2 py-2">${q.option_d || '-'}</td>
+                    <td class="px-2 py-2 text-center font-bold text-green-700">${q.answer || '-'}</td>
+                    <td class="px-2 py-2">${q.photo || '-'}</td>
+                </tr>
+            `;
+            body.append(row);
+        });
+    }
 
     // --- UI Logic Functions ---
     
@@ -270,12 +416,25 @@ $(document).ready(function() {
                     loadSubCategories(data.category_id, subCatId, function() {
                         // Finally fetch questions and auto-check
                         fetchQuestions(function() {
-                            if (data.question_ids) {
-                                var qIds = Array.isArray(data.question_ids) ? data.question_ids.map(String) : [];
-                                $.each(qIds, function(i, qid) {
-                                    $('.question-checkbox[value="' + qid + '"]').prop('checked', true);
-                                });
-                                updateSelectionCount();
+                            if (data.mode === 'manual') {
+                                $('#manual_mode_actions').removeClass('hidden');
+                                $('#questions_container').addClass('hidden');
+                                $('#stats_area').addClass('hidden');
+                                if (data.manual_questions) {
+                                    renderManualPreview(data.manual_questions);
+                                }
+                            } else {
+                                $('#manual_mode_actions').addClass('hidden');
+                                $('#manual_preview_container').addClass('hidden');
+                                $('#questions_container').removeClass('hidden');
+                                $('#stats_area').removeClass('hidden');
+                                if (data.question_ids) {
+                                    var qIds = Array.isArray(data.question_ids) ? data.question_ids.map(String) : [];
+                                    $.each(qIds, function(i, qid) {
+                                        $('.question-checkbox[value="' + qid + '"]').prop('checked', true);
+                                    });
+                                    updateSelectionCount();
+                                }
                             }
                             isAutoPopulating = false; // Reset flag after all population is done
                         });
@@ -306,12 +465,6 @@ $(document).ready(function() {
         if (!isAutoPopulating) fetchQuestions();
     });
 
-    $('input[name="mode"]').change(function() {
-        if ($(this).val() == 'manual') {
-            alert('Manual mode coming soon');
-            $('input[name="mode"][value="auto"]').prop('checked', true);
-        }
-    });
 
     function fetchQuestions(callback = null) {
         var languageId = $('#select_language').val();
@@ -328,13 +481,18 @@ $(document).ready(function() {
                     sub_category_id: subCategoryId
                 },
                 success: function(data) {
-                    $('#stats_area').removeClass('hidden');
+                    var currentMode = $('input[name="mode"]:checked').val();
+                    if (currentMode === 'auto') {
+                        $('#stats_area').removeClass('hidden');
+                        $('#questions_container').removeClass('hidden');
+                    }
+                    
                     $('#subject_count').text(data.subject_count);
                     $('#question_count').text(data.question_count);
                     $('#question_limit_val').text(data.limit);
                     $('#selected_count_val').text(0);
 
-                    $('#questions_container').removeClass('hidden').empty();
+                    $('#questions_container').empty();
 
                     if (data.subjects.length > 0) {
                         $.each(data.subjects, function(key, subject) {
@@ -486,20 +644,29 @@ $(document).ready(function() {
     $('#liveTestForm').submit(function(e) {
         e.preventDefault();
 
+        var mode = $('input[name="mode"]:checked').val();
         var hasError = false;
-        $('.subject-header').each(function() {
-            var subjectHeader = $(this);
-            var subjectId = subjectHeader.data('subject-id');
-            var limit = parseInt(subjectHeader.data('subject-limit'));
-            var selected = $('.subject-questions-' + subjectId + ':checked').length;
-            var subjectName = subjectHeader.find('span:first').text();
 
-            if (selected < limit) {
-                alert("Please select exactly " + limit + " questions for subject: " + subjectName + ". Currently selected: " + selected);
+        if (mode === 'auto') {
+            $('.subject-header').each(function() {
+                var subjectHeader = $(this);
+                var subjectId = subjectHeader.data('subject-id');
+                var limit = parseInt(subjectHeader.data('subject-limit'));
+                var selected = $('.subject-questions-' + subjectId + ':checked').length;
+                var subjectName = subjectHeader.find('span:first').text();
+
+                if (selected < limit) {
+                    alert("Please select exactly " + limit + " questions for subject: " + subjectName + ". Currently selected: " + selected);
+                    hasError = true;
+                    return false; // Break loop
+                }
+            });
+        } else {
+            if (manualQuestions.length === 0) {
+                alert("Please upload an Excel file with questions for Manual Mode.");
                 hasError = true;
-                return false; // Break loop
             }
-        });
+        }
 
         if (hasError) return;
 

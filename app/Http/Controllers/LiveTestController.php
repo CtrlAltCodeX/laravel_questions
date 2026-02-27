@@ -9,6 +9,10 @@ use App\Models\LiveTest;
 use App\Models\Question;
 use App\Models\SubCategory;
 use App\Models\Subject;
+use App\Models\LiveTestManualQuestion;
+use App\Exports\LiveTestManualTemplateExport;
+use App\Imports\LiveTestManualImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class LiveTestController extends Controller
@@ -119,12 +123,8 @@ class LiveTestController extends Controller
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
-            'question_ids' => 'required|array',
+            'question_ids' => 'required_if:mode,auto|array',
         ]);
-
-        if ($request->mode == 'manual') {
-            return response()->json(['success' => false, 'message' => 'Manual mode coming soon']);
-        }
 
         $liveTest = LiveTest::create([
             'language_id' => $request->language_id,
@@ -137,9 +137,30 @@ class LiveTestController extends Controller
             'toppers_star' => $request->toppers_star,
             'toppers' => $request->toppers,
             'participant_star' => $request->participant_star,
-            'question_ids' => $request->question_ids,
+            'question_ids' => $request->mode == 'auto' ? $request->question_ids : null,
             'status' => true,
         ]);
+
+        if ($request->mode == 'manual' && $request->has('manual_questions')) {
+            $questions = json_decode($request->manual_questions, true);
+            if (is_array($questions)) {
+                foreach ($questions as $q) {
+                    $liveTest->manualQuestions()->create([
+                        'language_id' => $request->language_id,
+                        'category_id' => $q['category'] ?? ($q['category_id'] ?? null),
+                        'sub_category_id' => $q['subcategory'] ?? ($q['sub_category_id'] ?? null),
+                        'subject_id' => $q['subject'] ?? ($q['subject_id'] ?? null),
+                        'question' => $q['question'] ?? null,
+                        'option_a' => $q['option_a'] ?? null,
+                        'option_b' => $q['option_b'] ?? null,
+                        'option_c' => $q['option_c'] ?? null,
+                        'option_d' => $q['option_d'] ?? null,
+                        'answer' => $q['answer'] ?? null,
+                        'photo' => $q['photo'] ?? null,
+                    ]);
+                }
+            }
+        }
 
         return response()->json(['success' => true, 'message' => 'Live Test created successfully']);
     }
@@ -152,7 +173,7 @@ class LiveTestController extends Controller
 
     public function edit($id)
     {
-        $liveTest = LiveTest::findOrFail($id);
+        $liveTest = LiveTest::with('manualQuestions')->findOrFail($id);
         return response()->json($liveTest);
     }
 
@@ -169,7 +190,7 @@ class LiveTestController extends Controller
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
-            'question_ids' => 'required|array',
+            'question_ids' => 'required_if:mode,auto|array',
         ]);
 
         $liveTest = LiveTest::findOrFail($id);
@@ -184,9 +205,104 @@ class LiveTestController extends Controller
             'toppers_star' => $request->toppers_star,
             'toppers' => $request->toppers,
             'participant_star' => $request->participant_star,
-            'question_ids' => $request->question_ids,
+            'question_ids' => $request->mode == 'auto' ? $request->question_ids : null,
         ]);
 
+        if ($request->mode == 'manual' && $request->has('manual_questions')) {
+            $liveTest->manualQuestions()->delete();
+            $questions = json_decode($request->manual_questions, true);
+            if (is_array($questions)) {
+                foreach ($questions as $q) {
+                    $liveTest->manualQuestions()->create([
+                        'language_id' => $request->language_id,
+                        'category_id' => $q['category'] ?? ($q['category_id'] ?? null),
+                        'sub_category_id' => $q['subcategory'] ?? ($q['sub_category_id'] ?? null),
+                        'subject_id' => $q['subject'] ?? ($q['subject_id'] ?? null),
+                        'question' => $q['question'] ?? null,
+                        'option_a' => $q['option_a'] ?? null,
+                        'option_b' => $q['option_b'] ?? null,
+                        'option_c' => $q['option_c'] ?? null,
+                        'option_d' => $q['option_d'] ?? null,
+                        'answer' => $q['answer'] ?? null,
+                        'photo' => $q['photo'] ?? null,
+                    ]);
+                }
+            }
+        }
+
         return response()->json(['success' => true, 'message' => 'Live Test updated successfully']);
+    }
+
+    public function downloadManualTemplate(Request $request)
+    {
+        $languageId = $request->language_id;
+        $categoryId = $request->category_id;
+        $subCategoryId = $request->sub_category_id;
+
+        $matchingCourses = Course::where('language_id', $languageId)
+            ->where('category_id', $categoryId)
+            ->get()
+            ->filter(function ($c) use ($subCategoryId) {
+                $courseSubs = array_map('strval', (array)$c->sub_category_id);
+                return in_array(strval($subCategoryId), $courseSubs);
+            });
+
+        $templateData = [];
+        $categoryName = Category::find($categoryId)?->name;
+        $subCategoryName = SubCategory::find($subCategoryId)?->name;
+
+        foreach ($matchingCourses as $course) {
+            $sids = [];
+            if ($course->subject_limit && is_array($course->subject_limit)) {
+                $sids = array_filter(array_keys($course->subject_limit), 'is_numeric');
+            } elseif ($course->subject_id) {
+                $sids = (array)$course->subject_id;
+            }
+
+            foreach ($sids as $sid) {
+                // Add one sample row per subject found in course
+                $templateData[] = [
+                    'language_id' => $languageId,
+                    'category' => $categoryId,
+                    'subcategory' => $subCategoryId,
+                    'subject' => $sid,
+                    'question' => '',
+                    'option_a' => '',
+                    'option_b' => '',
+                    'option_c' => '',
+                    'option_d' => '',
+                    'answer' => '',
+                    'photo' => ''
+                ];
+            }
+        }
+
+        if (empty($templateData)) {
+            $templateData[] = [
+                'language_id' => $languageId, 'category' => $categoryId, 
+                'subcategory' => $subCategoryId, 'subject' => '', 'question' => '', 
+                'option_a' => '', 'option_b' => '', 'option_c' => '', 'option_d' => '', 
+                'answer' => '', 'photo' => ''
+            ];
+        }
+
+        return Excel::download(new LiveTestManualTemplateExport($templateData), 'live_test_manual_template.xlsx');
+    }
+
+    public function previewManualData(Request $request)
+    {
+        if (!$request->hasFile('excel_file')) {
+            return response()->json(['success' => false, 'message' => 'No file uploaded']);
+        }
+
+        try {
+            $rows = Excel::toCollection(new LiveTestManualImport, $request->file('excel_file'))->first();
+            return response()->json([
+                'success' => true,
+                'data' => $rows
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 }

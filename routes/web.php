@@ -238,6 +238,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('live-tests', \App\Http\Controllers\LiveTestController::class);
     Route::get('get-questions-for-live-test', [\App\Http\Controllers\LiveTestController::class, 'getQuestions'])
         ->name('live-tests.get-questions');
+    Route::get('download-live-test-manual-template', [\App\Http\Controllers\LiveTestController::class, 'downloadManualTemplate'])
+        ->name('live-tests.download-manual-template');
+    Route::post('preview-live-test-manual-data', [\App\Http\Controllers\LiveTestController::class, 'previewManualData'])
+        ->name('live-tests.preview-manual-data');
 });
 
 require __DIR__ . '/auth.php';

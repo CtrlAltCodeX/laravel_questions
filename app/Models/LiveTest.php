@@ -49,4 +49,9 @@ class LiveTest extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function manualQuestions()
+    {
+        return $this->hasMany(LiveTestManualQuestion::class);
+    }
 }
