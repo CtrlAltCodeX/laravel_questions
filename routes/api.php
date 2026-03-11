@@ -20,83 +20,78 @@ use App\Http\Controllers\QuestionBankController;
 use App\Http\Controllers\WalletHistoryController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\Api\AuthController;
+/* |-------------------------------------------------------------------------- | API Routes |-------------------------------------------------------------------------- | | Here is where you can register API routes for your application. These | routes are loaded by the RouteServiceProvider and all of them will | be assigned to the "api" middleware group. Make something great! | */
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('login', [AuthenticatedSessionController::class, 'store']);
+// Route::post('login', [AuthenticatedSessionController::class, 'store']);
+Route::post('login', [AuthController::class , 'login']);
+Route::post('logout', [AuthController::class , 'logout']);
 
-Route::get("{userId}/{courseId}/quiz", [QuizController::class, 'deploy']);
-Route::get('{userId}/{courseId}/quiz/settings', [QuizSettingController::class, 'getSettings']);
-Route::post('{userId}/{courseId}/quiz/settings', [QuizSettingController::class, 'updateSettings']);
+Route::get("{userId}/{courseId}/quiz", [QuizController::class , 'deploy']);
+Route::get('{userId}/{courseId}/quiz/settings', [QuizSettingController::class , 'getSettings']);
+Route::post('{userId}/{courseId}/quiz/settings', [QuizSettingController::class , 'updateSettings']);
 
-Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class, 'deploy']);
+Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class , 'deploy']);
 
-Route::get('{userId}/{courseId}/cbt', [CbtController::class, 'deploy']);
+Route::get('{userId}/{courseId}/cbt', [CbtController::class , 'deploy']);
 
-Route::get('{userId}/{courseId}/video', [VideoController::class, 'formattedAPI']);
+Route::get('{userId}/{courseId}/video', [VideoController::class , 'formattedAPI']);
 
-Route::middleware('authapi')->group(function () {});
+Route::middleware('authapi')->group(function () { });
 
-Route::post('reports', [ReportController::class, 'store']);
+Route::post('reports', [ReportController::class , 'store']);
 
-Route::get('wallet/history', [WalletHistoryController::class, 'index']);
+Route::get('wallet/history', [WalletHistoryController::class , 'index']);
 // Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
-Route::post('wallet/charges', [WalletHistoryController::class, 'walletCharges']);
+Route::post('wallet/charges', [WalletHistoryController::class , 'walletCharges']);
 
-Route::post('scoreboard', [ScoreBoardController::class, 'store']);
-Route::get('scoreboard/{userId}', [ScoreBoardController::class, 'show']);
+Route::post('scoreboard', [ScoreBoardController::class , 'store']);
+Route::get('scoreboard/{userId}', [ScoreBoardController::class , 'show']);
 
-Route::delete('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
-Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
-Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
-Route::post('user/{id}/update/code', [GoogleUserController::class, 'updateUserCode']);
+Route::delete('user/{id}/delete', [GoogleUserController::class , 'deleteUser']);
+Route::get('user/{id}/profile', [GoogleUserController::class , 'getProfile']);
+Route::post('user/{id}/update', [GoogleUserController::class , 'updateUser']);
+Route::post('user/{id}/update/code', [GoogleUserController::class , 'updateUserCode']);
 // Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
 
 // get category 
-Route::get('/get-categories/{language_id}', [CategoryController::class, 'getCategoriesByLanguage']);
+Route::get('/get-categories/{language_id}', [CategoryController::class , 'getCategoriesByLanguage']);
 
 // get offer 
-Route::get('offers', [OfferController::class, 'getOffersApi']);
-Route::get('digital-notes', [DigitalNoteController::class, 'apiIndex']);
+Route::get('offers', [OfferController::class , 'getOffersApi']);
+Route::get('digital-notes', [DigitalNoteController::class , 'apiIndex']);
 
 // get 7. Refer and Welcome Coin
-Route::get('sub-category-details/{id}', [SubCategoryController::class, 'getSubCategoryDetailsWithOffers']);
+Route::get('sub-category-details/{id}', [SubCategoryController::class , 'getSubCategoryDetailsWithOffers']);
 
-Route::get('courses/offers/{user_id}', [CourseController::class, 'getCoursesWithOffers']);
+Route::get('courses/offers/{user_id}', [CourseController::class , 'getCoursesWithOffers']);
 
-Route::get('user/courses/{userId}', [UserCourseController::class, 'getUserCourses']);
-Route::post('user/courses', [UserCourseController::class, 'assignCourseToUser']);
+Route::get('user/courses/{userId}', [UserCourseController::class , 'getUserCourses']);
+Route::post('user/courses', [UserCourseController::class , 'assignCourseToUser']);
 
-Route::post('save-payment', [PaymentController::class, 'store']);
-Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
+Route::post('save-payment', [PaymentController::class , 'store']);
+Route::get('get-final-amount', [PaymentController::class , 'getFinalAmount']);
 
-Route::get('payment/initiate', [PaymentController::class, 'initiatePayment']);
-Route::get('payment/callback', [PaymentController::class, 'handleCallback']);
+Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
+Route::get('payment/callback', [PaymentController::class , 'handleCallback']);
 
-Route::post('store/quiz', [ScoreBoardController::class, 'quizeStore']);
-Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'quizeShow']);
+Route::post('store/quiz', [ScoreBoardController::class , 'quizeStore']);
+Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'quizeShow']);
 
-Route::post('store/question-bank-count', [ScoreBoardController::class, 'questionCountStore']);
-Route::get('show/question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'questionCountShow']);
+Route::post('store/question-bank-count', [ScoreBoardController::class , 'questionCountStore']);
+Route::get('show/question-bank-count/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'questionCountShow']);
 
-Route::post('store/mock-test', [ScoreBoardController::class, 'mockTestStore']);
-Route::get('show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class, 'mockTestShow']);
+Route::post('store/mock-test', [ScoreBoardController::class , 'mockTestStore']);
+Route::get('show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'mockTestShow']);
 
-Route::post('update/course/status', [UserCourseController::class, 'updateCourseStatus']);
+Route::post('update/course/status', [UserCourseController::class , 'updateCourseStatus']);
 
-Route::post('user/video-progress/save', [VideoController::class, 'updateVideoProgress']);
+Route::post('user/video-progress/save', [VideoController::class , 'updateVideoProgress']);
 
-Route::get('user/video-progress/{userId}/{subjectId}', [VideoController::class, 'getVideoProgress']);
+Route::get('user/video-progress/{userId}/{subjectId}', [VideoController::class , 'getVideoProgress']);

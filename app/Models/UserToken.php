@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserSession extends Model
+class UserToken extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_sessions';
-
     protected $fillable = [
-        'google_users_id',
-        'session_id',
+        'user_id',
+        'token',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(GoogleUser::class, 'user_id');
+    }
 }
