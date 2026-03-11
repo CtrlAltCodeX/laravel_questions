@@ -67,7 +67,9 @@ class LiveTestController extends Controller
                 // Skip if we already processed this subject (avoid duplicates)
                 if (in_array($sid, $processedSubjectIds)) continue;
 
-                $subject = Subject::find($sid);
+                $subject = Subject::where('id', $sid)
+                    ->whereIn('sub_category_id', $subCategoryIds)
+                    ->first();
                 if (!$subject) continue;
 
                 // Determine limit for this specific subject
@@ -260,6 +262,8 @@ class LiveTestController extends Controller
             }
 
             foreach ($sids as $sid) {
+                $subject = Subject::where('id', $sid)->where('sub_category_id', $subCategoryId)->first();
+                if (!$subject) continue;
                 // Add one sample row per subject found in course
                 $templateData[] = [
                     'language_id' => $languageId,

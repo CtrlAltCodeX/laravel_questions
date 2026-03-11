@@ -27,6 +27,16 @@ Fixes (Bug Fixes)
 Total - 10days
 
 
+[19:02, 05/11/2025] Abhishek BST: https://88.222.244.186:8443
+[19:02, 05/11/2025] Abhishek BST: akathuria
+6k8naxJAmVXZQzD6D6de
+[19:03, 05/11/2025] Abhishek BST: Admin Panel 
+===
+akathuria289@gmail.com
+P3A4GtsUZLTDyqM
+
+
+
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
