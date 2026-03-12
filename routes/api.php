@@ -47,17 +47,17 @@ Route::middleware('authapi')->group(function () { });
 
 Route::post('reports', [ReportController::class , 'store']);
 
-Route::get('wallet/history', [WalletHistoryController::class , 'index']);
+// Route::get('wallet/history', [WalletHistoryController::class, 'index']);
 // Route::post('wallet/add', [WalletHistoryController::class, 'walletAdd']);
-Route::post('wallet/charges', [WalletHistoryController::class , 'walletCharges']);
+// Route    ::post('wallet/charges', [WalletHistoryController::class, 'walletCharges']);
 
 Route::post('scoreboard', [ScoreBoardController::class , 'store']);
 Route::get('scoreboard/{userId}', [ScoreBoardController::class , 'show']);
 
-Route::delete('user/{id}/delete', [GoogleUserController::class , 'deleteUser']);
-Route::get('user/{id}/profile', [GoogleUserController::class , 'getProfile']);
-Route::post('user/{id}/update', [GoogleUserController::class , 'updateUser']);
-Route::post('user/{id}/update/code', [GoogleUserController::class , 'updateUserCode']);
+Route::delete('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
+// Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
+Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
+Route::post('user/{id}/update/code', [GoogleUserController::class, 'updateUserCode']);
 // Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
 
 // get category 
@@ -75,8 +75,8 @@ Route::get('courses/offers/{user_id}', [CourseController::class , 'getCoursesWit
 Route::get('user/courses/{userId}', [UserCourseController::class , 'getUserCourses']);
 Route::post('user/courses', [UserCourseController::class , 'assignCourseToUser']);
 
-Route::post('save-payment', [PaymentController::class , 'store']);
-Route::get('get-final-amount', [PaymentController::class , 'getFinalAmount']);
+// Route::post('save-payment', [PaymentController::class, 'store']);
+// Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
 
 Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
 Route::get('payment/callback', [PaymentController::class , 'handleCallback']);

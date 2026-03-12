@@ -155,10 +155,10 @@
                 </div>
             </div>
 
-            <div class="flex gap-4 align-items-center mb-4">
+            {{-- <div class="flex gap-4 align-items-center mb-4">
                 <label class="form-label mb-1">Question Limit</label>
                 <input type="number" class="form-control w-1/6" name="question_limit" id='question_limit' placeholder="Question Limit" required>
-            </div>
+            </div> --}}
 
             <div class="flex gap-4 mb-4">
                 <label>
@@ -244,6 +244,18 @@
                     }
                 });
                 $('#select_subject').val(allValues).trigger('change'); // Select everything
+            }
+        });
+
+        $('#select_sub_category').on('select2:select', function (e) {
+            if (e.params.data.id === "all") {
+                let allValues = [];
+                $('#select_sub_category option').each(function () {
+                    if ($(this).val() !== "all") {
+                        allValues.push($(this).val());
+                    }
+                });
+                $('#select_sub_category').val(allValues).trigger('change'); // Select everything
             }
         });
     });
@@ -374,7 +386,7 @@
             const status = data.status;
             const banner = data.banner;
             const language = data.language;
-            const question_limit = data.question_limit;
+            // const question_limit = data.question_limit;
             const subscriptions = data.subscription;
             const stars = data.stars;
             const features = data.features;
@@ -392,6 +404,7 @@
             setTimeout(() => {
                 $("#select_subject").val(subjects).trigger('change');
                 $('#select_subject').prepend('<option value="all">Select All</option>');
+                $('#select_sub_category').prepend('<option value="all">Select All</option>');
 
                 //const subjects = $(this).val();
                 let groupedData = {};
@@ -862,7 +875,7 @@
                 $('#multiple').attr('checked', 'checked');
             }
 
-            $('#question_limit').val(question_limit);
+            // $('#question_limit').val(question_limit);
 
             // Show modal
             document.getElementById('modal').style.display = 'flex';
