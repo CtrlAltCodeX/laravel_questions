@@ -85,9 +85,9 @@ class CourseController extends Controller
             // Decode JSON strings safely
             $subCategoryIds = $course->sub_category_id ?? [];
             $subjectIds = $course->subject_id ?? [];
-          
+
             $subCategoryIds = array_filter((array) $subCategoryIds, fn($id) => $id !== 'all');
-			$subjectIds = array_filter((array) $subjectIds, fn($id) => $id !== 'all');
+            $subjectIds = array_filter((array) $subjectIds, fn($id) => $id !== 'all');
 
 
             $subCategoryNames = array_filter(array_map(fn($id) => $allSubcategories[$id] ?? null, $subCategoryIds));
@@ -155,14 +155,14 @@ class CourseController extends Controller
     public function header()
     {
         return [
-            'id' => '#', 
-            'image' => 'Banner', 
-            'language' => 'Language Name', 
-            'category' => 'Category Name', 
-            'sub_category' => 'Sub-Category Name', 
-            'subject' => 'Subject Name', 
+            'id' => '#',
+            'image' => 'Banner',
+            'language' => 'Language Name',
+            'category' => 'Category Name',
+            'sub_category' => 'Sub-Category Name',
+            'subject' => 'Subject Name',
             'topic' => 'Topic',
-            'name' => 'Course name', 
+            'name' => 'Course name',
             'price' => 'Price',
             'subscription' => 'Subscription',
             'status' => 'Status',
@@ -239,7 +239,7 @@ class CourseController extends Controller
             'subscription' => $subscriptions,
             'banner' => $bannerFilename,
             'language' => $request->language == 'on' ? 1 : 0,
-            'question_limit' => $request->question_limit,
+            // 'question_limit' => $request->question_limit,
             'subject_limit' => $subjectLimit,
             'part_limit' => $partLimit,
             'meta_data' => $request->meta_data,
@@ -260,8 +260,8 @@ class CourseController extends Controller
             'status' => 'required|boolean',
             'stars' => 'nullable|boolean',
         ]);
-      
-      //dd(request()->all());
+
+        //dd(request()->all());
 
         $course = Course::findOrFail($id);
 
@@ -296,7 +296,7 @@ class CourseController extends Controller
         $course->status = $request->status;
         $course->subscription = $subscriptions;
         $course->language = $request->language;
-        $course->question_limit = $request->question_limit;
+        // $course->question_limit = $request->question_limit;
         $course->meta_data = $request->meta_data;
         $course->stars = $request->stars ?? 0;
         $course->features = $request->features;
@@ -374,13 +374,13 @@ class CourseController extends Controller
                         // Step 5: Check if user purchased this course
                         if (in_array($course->id, $purchasedCourseIds)) {
                             // Apply upgrade logic here if any
-                            $discount = isset($offerSubscription[$type]['upgrade']) 
-                                ? floatval($offerSubscription[$type]['upgrade']) 
+                            $discount = isset($offerSubscription[$type]['upgrade'])
+                                ? floatval($offerSubscription[$type]['upgrade'])
                                 : 0;
                         } else {
                             // Normal discount
-                            $discount = isset($offerSubscription[$type]['discount']) 
-                                ? floatval($offerSubscription[$type]['discount']) 
+                            $discount = isset($offerSubscription[$type]['discount'])
+                                ? floatval($offerSubscription[$type]['discount'])
                                 : 0;
                         }
 
@@ -399,7 +399,7 @@ class CourseController extends Controller
                     'status' => $course->status,
                     'subscription' => $courseSubscription,
                     'banner' => $course->banner,
-                  	'meta_data' => $course->meta_data,
+                    'meta_data' => $course->meta_data,
                     'offer' => $offer ? [
                         'id' => $offer->id,
                         'name' => $offer->name,
@@ -409,7 +409,7 @@ class CourseController extends Controller
                         'subscription' => $offerSubscription,
                         'valid_from' => $offer->valid_from,
                         'valid_to' => $offer->valid_to,
-                      	'meta_description' => $course->meta_description,
+                        'meta_description' => $course->meta_description,
                     ] : null,
                 ];
             });
