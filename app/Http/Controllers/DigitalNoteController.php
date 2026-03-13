@@ -10,6 +10,9 @@ use App\Models\Subject;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\UserCourse;
+use App\Models\GoogleUser;
+use App\Models\Course;
 
 class DigitalNoteController extends Controller
 {
@@ -88,6 +91,108 @@ class DigitalNoteController extends Controller
          if ($request->has('topic_id')) $query->where('topic_id', $request->topic_id);
          
          return response()->json($query->orderBy('id', 'desc')->get());
+    }
+
+    public function getCourseDigitalNotes(Request $request, $userId, $courseId)
+    {
+        // 1. Check User existence
+        $user = GoogleUser::find($userId);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // 2. Check Enrollment
+        $enrollment = UserCourse::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+
+        if (!$enrollment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not enrolled in this course.'
+            ], 403);
+        }
+
+        // 3. Check Course Feature "Digital Notes"
+        $course = Course::find($courseId);
+        if (!$course) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $features = $course->features ?? [];
+        if (!is_array($features) || !in_array('Digital Notes', $features)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Digital notes are not assigned to this course.'
+            ], 403);
+        }
+
+        // 4. Build Query
+        $query = DigitalNote::with(['language', 'category', 'subCategory', 'subject', 'topic']);
+
+        if ($request->has('topic_id')) {
+            $query->where('topic_id', $request->topic_id);
+        }
+
+        // 5. Sorting
+        $sort = $request->get('sort', 'id');
+        $order = $request->get('order', 'asc');
+        if (!in_array($sort, ['id', 'created_at', 'name'])) {
+            $sort = 'id';
+        }
+        if (!in_array(strtolower($order), ['asc', 'desc'])) {
+            $order = 'asc';
+        }
+        
+        $query->orderBy($sort, $order);
+
+        // 6. Pagination - Fixed to 1 as per requirements
+        $perPage = 1;
+
+        $notes = $query->paginate($perPage);
+
+        // 7. Format Response
+        $data = [
+            'current_page' => $notes->currentPage(),
+            'last_page' => $notes->lastPage(),
+            'per_page' => $notes->perPage(),
+            'total' => $notes->total(),
+            'from' => $notes->firstItem(),
+            'to' => $notes->lastItem(),
+            'notes' => $notes->getCollection()->map(function ($note) {
+                return [
+                    'id' => $note->id,
+                    'name' => $note->name,
+                    'photo_url' => $note->photo ? asset('storage/' . $note->photo) : null,
+                    'language_id' => $note->language_id,
+                    'language_name' => $note->language->name ?? null,
+                    'category_id' => $note->category_id,
+                    'category_name' => $note->category->name ?? null,
+                    'sub_category_id' => $note->sub_category_id,
+                    'sub_category_name' => $note->subCategory->name ?? null,
+                    'subject_id' => $note->subject_id,
+                    'subject_name' => $note->subject->name ?? null,
+                    'topic_id' => $note->topic_id,
+                    'topic_name' => $note->topic->name ?? null,
+                    'content' => $note->content,
+                    'status' => $note->status,
+                    'created_at' => $note->created_at,
+                    'updated_at' => $note->updated_at,
+                ];
+            }),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Digital notes retrieved successfully',
+            'data' => $data
+        ]);
     }
 
 

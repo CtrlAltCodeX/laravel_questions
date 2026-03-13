@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\GoogleUser;
 use App\Models\UserSession;
-use App\Models\UserToken;
+use App\Models\UserFcmToken;
 use App\Models\Setting;
 use Illuminate\Support\Str;
 use Exception;
@@ -53,11 +53,11 @@ class AuthController extends Controller
                 'session_id' => $sessionId,
             ]);
 
-            // Save token if provided
+            // Save FCM token if provided
             if ($token) {
-                UserToken::updateOrCreate(
-                    ['user_id' => $user->id, 'token' => $token],
-                    ['token' => $token]
+                UserFcmToken::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['fcm_token' => $token]
                 );
             }
 

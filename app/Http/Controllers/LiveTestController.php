@@ -51,56 +51,62 @@ class LiveTestController extends Controller
 
         $subjectsWithQuestions = [];
         $totalQuestionsCount = 0;
-        $processedSubjectIds = [];
-        $globalLimit = 0;
-
+        $maxGlobalLimit = 0;
+        
+        $selectedSubIds = array_map('strval', (array)$subCategoryId);
+        
+        // 1. Aggregate all Subject IDs and their highest limits from matching courses
+        $sidLimitMap = [];
         foreach ($matchingCourses as $course) {
-            // Determine which subjects this course record applies to
-            $sids = [];
-            if ($course->subject_limit) {
-                $sids = array_keys((array)$course->subject_limit);
-            } elseif ($course->subject_id) {
-                $sids = (array)$course->subject_id;
-            }
-
-            foreach ($sids as $sid) {
-                // Skip if we already processed this subject (avoid duplicates)
-                if (in_array($sid, $processedSubjectIds)) continue;
-
-                $subject = Subject::where('id', $sid)
-                    ->whereIn('sub_category_id', $subCategoryIds)
-                    ->first();
-                if (!$subject) continue;
-
-                // Determine limit for this specific subject
-                $subjectLimit = 0;
-                if ($course->subject_limit && isset($course->subject_limit[$sid])) {
-                    $subjectLimit = (int)$course->subject_limit[$sid];
-                } else {
-                    $subjectLimit = (int)$course->question_limit;
-                }
-
-                if ($subjectLimit <= 0) $subjectLimit = (int)$course->question_limit ?: 50;
-
-                $questions = Question::where('language_id', $languageId)
-                    ->where('category_id', $categoryId)
-                    ->where('subject_id', $sid)
-                    ->get();
-
-                if ($questions->count() > 0) {
-                    $subjectsWithQuestions[] = [
-                        'id' => $subject->id,
-                        'name' => $subject->name,
-                        'questions' => $questions,
-                        'limit' => $subjectLimit
-                    ];
-                    $totalQuestionsCount += $questions->count();
-                    $processedSubjectIds[] = $sid;
-                }
+            $courseSids = (array)($course->subject_id ?? []);
+            if ($course->subject_limit && is_array($course->subject_limit)) {
+                $courseSids = array_unique(array_merge($courseSids, array_keys($course->subject_limit)));
             }
             
-            if ($course->question_limit > $globalLimit) {
-                $globalLimit = (int)$course->question_limit;
+            foreach ($courseSids as $sid) {
+                if ($sid === null || $sid === '') continue;
+                $sidStr = strval($sid);
+                
+                // Determine limit for this subject in this course
+                $limit = (int)($course->subject_limit[$sid] ?? $course->question_limit);
+                if (!isset($sidLimitMap[$sidStr]) || $limit > $sidLimitMap[$sidStr]) {
+                    $sidLimitMap[$sidStr] = $limit;
+                }
+            }
+
+            if ((int)$course->question_limit > $maxGlobalLimit) {
+                $maxGlobalLimit = (int)$course->question_limit;
+            }
+        }
+
+        $uniqueSubjectIds = array_keys($sidLimitMap);
+
+        // 2. Process each unique subject
+        foreach ($uniqueSubjectIds as $sid) {
+            $subject = Subject::find($sid);
+            if (!$subject) continue;
+
+            // CRITICAL: Filter by the selected subcategory only (prevents mixed-year issues)
+            if (!in_array(strval($subject->sub_category_id), $selectedSubIds)) {
+                continue;
+            }
+
+            // Get questions for this subject and language
+            $questions = Question::where('subject_id', $sid)
+                ->where('language_id', $languageId)
+                ->get();
+
+            if ($questions->count() > 0) {
+                $limit = $sidLimitMap[$sid] ?? $maxGlobalLimit ?: 50;
+                if ($limit <= 0) $limit = 50;
+
+                $subjectsWithQuestions[] = [
+                    'id' => $subject->id,
+                    'name' => $subject->name,
+                    'questions' => $questions,
+                    'limit' => $limit
+                ];
+                $totalQuestionsCount += $questions->count();
             }
         }
 
@@ -108,7 +114,7 @@ class LiveTestController extends Controller
             'subjects' => $subjectsWithQuestions,
             'subject_count' => count($subjectsWithQuestions),
             'question_count' => $totalQuestionsCount,
-            'limit' => $globalLimit ?: "NO LIMIT"
+            'limit' => $maxGlobalLimit ?: "NO LIMIT"
         ]);
     }
 
@@ -253,17 +259,23 @@ class LiveTestController extends Controller
         $categoryName = Category::find($categoryId)?->name;
         $subCategoryName = SubCategory::find($subCategoryId)?->name;
 
+        $uniqueSids = [];
+        $selectedSubIdStr = strval($subCategoryId);
+
         foreach ($matchingCourses as $course) {
-            $sids = [];
+            $courseSids = (array)($course->subject_id ?? []);
             if ($course->subject_limit && is_array($course->subject_limit)) {
-                $sids = array_filter(array_keys($course->subject_limit), 'is_numeric');
-            } elseif ($course->subject_id) {
-                $sids = (array)$course->subject_id;
+                $courseSids = array_unique(array_merge($courseSids, array_keys($course->subject_limit)));
             }
 
-            foreach ($sids as $sid) {
-                $subject = Subject::where('id', $sid)->where('sub_category_id', $subCategoryId)->first();
-                if (!$subject) continue;
+            foreach ($courseSids as $sid) {
+                if ($sid === null || $sid === '' || in_array(strval($sid), $uniqueSids)) continue;
+                
+                $subject = Subject::find($sid);
+                if (!$subject || strval($subject->sub_category_id) !== $selectedSubIdStr) continue;
+
+                $uniqueSids[] = strval($sid);
+                
                 // Add one sample row per subject found in course
                 $templateData[] = [
                     'language_id' => $languageId,

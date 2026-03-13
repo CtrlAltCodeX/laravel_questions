@@ -66,6 +66,7 @@ Route::get('/get-categories/{language_id}', [CategoryController::class , 'getCat
 // get offer 
 Route::get('offers', [OfferController::class , 'getOffersApi']);
 Route::get('digital-notes', [DigitalNoteController::class , 'apiIndex']);
+Route::get('{userId}/{courseId}/digital-notes', [DigitalNoteController::class , 'getCourseDigitalNotes']);
 
 // get 7. Refer and Welcome Coin
 Route::get('sub-category-details/{id}', [SubCategoryController::class , 'getSubCategoryDetailsWithOffers']);
@@ -80,6 +81,7 @@ Route::get('get-final-amount', [PaymentController::class , 'getFinalAmount']);
 
 Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
 Route::get('payment/callback', [PaymentController::class , 'handleCallback']);
+Route::get('user/{userId}/payments', [PaymentController::class , 'getUserPayments']);
 
 Route::post('store/quiz', [ScoreBoardController::class , 'quizeStore']);
 Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'quizeShow']);
