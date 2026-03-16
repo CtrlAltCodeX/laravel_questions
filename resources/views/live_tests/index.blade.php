@@ -245,6 +245,7 @@ $(document).ready(function() {
 
     var isAutoPopulating = false;
     var manualQuestions = [];
+    var fetchedSubjectsWithLimits = [];
 
     // --- Mode Toggle Logic ---
     $('input[name="mode"]').change(function() {
@@ -481,6 +482,7 @@ $(document).ready(function() {
                     sub_category_id: subCategoryId
                 },
                 success: function(data) {
+                    fetchedSubjectsWithLimits = data.subjects;
                     var currentMode = $('input[name="mode"]:checked').val();
                     if (currentMode === 'auto') {
                         $('#stats_area').removeClass('hidden');
@@ -665,6 +667,29 @@ $(document).ready(function() {
             if (manualQuestions.length === 0) {
                 alert("Please upload an Excel file with questions for Manual Mode.");
                 hasError = true;
+            } else {
+                var subjectCounts = {};
+                $.each(manualQuestions, function(i, q) {
+                    var sid = q.subject || q.subject_id;
+                    if (sid) {
+                        subjectCounts[sid] = (subjectCounts[sid] || 0) + 1;
+                    }
+                });
+
+                $.each(fetchedSubjectsWithLimits, function(index, subject) {
+                    var count = subjectCounts[subject.id] || 0;
+                    var limit = parseInt(subject.limit);
+
+                    if (count < limit) {
+                        alert("Please provide exactly " + limit + " questions in Excel for subject: " + subject.name + ". Currently found: " + count);
+                        hasError = true;
+                        return false;
+                    } else if (count > limit) {
+                        alert("Limit exceeded! You can only provide up to " + limit + " questions in Excel for subject: " + subject.name + ". Found: " + count);
+                        hasError = true;
+                        return false;
+                    }
+                });
             }
         }
 

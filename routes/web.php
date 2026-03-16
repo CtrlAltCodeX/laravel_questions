@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings', [SettingController::class, 'store'])
         ->name('settings.store');
 
+    Route::get('notifications/users/search', [NotificationController::class, 'searchUsers'])->name('notifications.users.search');
     Route::resource('notifications', NotificationController::class);
     Route::get('notifications/{id}/edit', [NotificationController::class, 'edit']);
 

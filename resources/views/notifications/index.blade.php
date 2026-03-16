@@ -102,20 +102,12 @@
                         <table class="w-full text-sm text-left text-gray-500">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 z-10">
                                 <tr>
-                                    <th class="px-4 py-3 w-10"><input type="checkbox" id="selectAllUsers" class="rounded"></th>
+                                    <th class="px-4 py-3 w-10"><input type="checkbox" id="selectAllUsers" name="user_ids[]" value="all" class="rounded"></th>
                                     <th class="px-4 py-3">User Details</th>
                                 </tr>
                             </thead>
                             <tbody id="userTableBody">
-                                @foreach($users as $user)
-                                <tr class="border-b user-row hover:bg-gray-50">
-                                    <td class="px-4 py-3"><input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox rounded"></td>
-                                    <td class="px-4 py-3">
-                                        <div class="font-medium text-gray-900">{{ $user->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
-                                    </td>
-                                </tr>
-                                @endforeach
+                                <!-- Loaded via AJAX -->
                             </tbody>
                         </table>
                     </div>
@@ -182,26 +174,53 @@
         const imageInput = document.getElementById('image_input');
         const imageInputContainer = document.getElementById('image_input_container');
         const selectAllUsers = document.getElementById('selectAllUsers');
-        const userCheckboxes = document.querySelectorAll('.user-checkbox');
-        const userRows = document.querySelectorAll('.user-row');
+        const userTableBody = document.getElementById('userTableBody');
         const userSearch = document.getElementById('userSearch');
+        let debounceTimer;
+
+        function fetchUsers(query = '') {
+            userTableBody.innerHTML = '<tr><td colspan="2" class="px-4 py-3 text-center">Loading...</td></tr>';
+            
+            fetch(`/notifications/users/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(users => {
+                    userTableBody.innerHTML = '';
+                    if (users.length === 0) {
+                        userTableBody.innerHTML = '<tr><td colspan="2" class="px-4 py-3 text-center">No users found</td></tr>';
+                        return;
+                    }
+                    users.forEach(user => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b user-row hover:bg-gray-50';
+                        const isChecked = selectAllUsers.checked ? 'checked' : '';
+                        tr.innerHTML = `
+                            <td class="px-4 py-3"><input type="checkbox" name="user_ids[]" value="${user.id}" class="user-checkbox rounded" ${isChecked}></td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-gray-900">${user.name}</div>
+                                <div class="text-xs text-gray-500">${user.email}</div>
+                            </td>
+                        `;
+                        userTableBody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    userTableBody.innerHTML = '<tr><td colspan="2" class="px-4 py-3 text-center text-red-500">Error loading users</td></tr>';
+                });
+        }
 
         // Select All Users Logic
         selectAllUsers.addEventListener('change', function() {
-            userCheckboxes.forEach(cb => {
-                if (cb.closest('.user-row').style.display !== 'none') {
-                    cb.checked = this.checked;
-                }
-            });
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
         });
 
-        // User Search Logic
+        // User Search Logic with Debounce
         userSearch.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            userRows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
+            clearTimeout(debounceTimer);
+            const query = this.value;
+            debounceTimer = setTimeout(() => {
+                fetchUsers(query);
+            }, 300);
         });
 
         // Toggle Image Input
@@ -223,9 +242,8 @@
              
              // Reset checkboxes
              selectAllUsers.checked = false;
-             userCheckboxes.forEach(cb => cb.checked = false);
-             userRows.forEach(row => row.style.display = '');
              userSearch.value = '';
+             fetchUsers(); // Initial load
 
              imageInputContainer.classList.add('hidden');
              includeImageCheckbox.checked = false;

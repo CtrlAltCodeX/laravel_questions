@@ -54,10 +54,10 @@ Route::post('reports', [ReportController::class , 'store']);
 Route::post('scoreboard', [ScoreBoardController::class , 'store']);
 Route::get('scoreboard/{userId}', [ScoreBoardController::class , 'show']);
 
-Route::delete('user/{id}/delete', [GoogleUserController::class, 'deleteUser']);
+Route::delete('user/{id}/delete', [GoogleUserController::class , 'deleteUser']);
 // Route::get('user/{id}/profile', [GoogleUserController::class, 'getProfile']);
-Route::post('user/{id}/update', [GoogleUserController::class, 'updateUser']);
-Route::post('user/{id}/update/code', [GoogleUserController::class, 'updateUserCode']);
+Route::post('user/{id}/update', [GoogleUserController::class , 'updateUser']);
+Route::post('user/{id}/update/code', [GoogleUserController::class , 'updateUserCode']);
 // Route::post('user/{id}/update/language/category', [GoogleUserController::class, 'updateLanguageCategory']);
 
 // get category 
@@ -79,8 +79,8 @@ Route::post('user/courses', [UserCourseController::class , 'assignCourseToUser']
 // Route::post('save-payment', [PaymentController::class, 'store']);
 // Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
 
-Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
-Route::get('payment/callback', [PaymentController::class , 'handleCallback']);
+// Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
+// Route::get('payment/callback', [PaymentController::class , 'handleCallback']);
 Route::get('user/{userId}/payments', [PaymentController::class , 'getUserPayments']);
 
 Route::post('store/quiz', [ScoreBoardController::class , 'quizeStore']);

@@ -256,11 +256,10 @@ class LiveTestController extends Controller
             });
 
         $templateData = [];
-        $categoryName = Category::find($categoryId)?->name;
-        $subCategoryName = SubCategory::find($subCategoryId)?->name;
-
-        $uniqueSids = [];
         $selectedSubIdStr = strval($subCategoryId);
+
+        $sidLimitMap = [];
+        $maxGlobalLimit = 0;
 
         foreach ($matchingCourses as $course) {
             $courseSids = (array)($course->subject_id ?? []);
@@ -269,14 +268,29 @@ class LiveTestController extends Controller
             }
 
             foreach ($courseSids as $sid) {
-                if ($sid === null || $sid === '' || in_array(strval($sid), $uniqueSids)) continue;
-                
-                $subject = Subject::find($sid);
-                if (!$subject || strval($subject->sub_category_id) !== $selectedSubIdStr) continue;
+                if ($sid === null || $sid === '') continue;
+                $sidStr = strval($sid);
+                $limit = (int)($course->subject_limit[$sid] ?? $course->question_limit);
+                if (!isset($sidLimitMap[$sidStr]) || $limit > $sidLimitMap[$sidStr]) {
+                    $sidLimitMap[$sidStr] = $limit;
+                }
+            }
 
-                $uniqueSids[] = strval($sid);
-                
-                // Add one sample row per subject found in course
+            if ((int)$course->question_limit > $maxGlobalLimit) {
+                $maxGlobalLimit = (int)$course->question_limit;
+            }
+        }
+
+        $uniqueSubjectIds = array_keys($sidLimitMap);
+
+        foreach ($uniqueSubjectIds as $sid) {
+            $subject = Subject::find($sid);
+            if (!$subject || strval($subject->sub_category_id) !== $selectedSubIdStr) continue;
+
+            $limit = $sidLimitMap[$sid] ?? $maxGlobalLimit ?: 50;
+            if ($limit <= 0) $limit = 50;
+
+            for ($i = 0; $i < $limit; $i++) {
                 $templateData[] = [
                     'language_id' => $languageId,
                     'category' => $categoryId,

@@ -21,9 +21,8 @@ class NotificationController extends Controller
         }
 
         $notifications = $query->orderBy('id', 'desc')->paginate(10);
-        $users = GoogleUser::where('status', 'Enabled')->get();
 
-        return view('notifications.index', compact('notifications', 'users'));
+        return view('notifications.index', compact('notifications'));
     }
 
     public function store(Request $request)
@@ -134,5 +133,22 @@ class NotificationController extends Controller
         $notification->update(['sent_at' => now()]);
         
         // cURL logic...
+    }
+
+    public function searchUsers(Request $request)
+    {
+        $search = $request->get('q');
+        $users = GoogleUser::where('status', 'Enabled')
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->select('id', 'name', 'email')
+            ->limit(20)
+            ->get();
+
+        return response()->json($users);
     }
 }
