@@ -716,6 +716,8 @@ class QuestionBankController extends Controller
 
 
             foreach ($topics as $outkey => $topic) {
+                $combinedSubjectName = '';
+                $combinedSubcategoryName = '';
                 // Filter topics based on the selected topic
                 // if (isset($data['Topic']) && $topic->id != $data['Topic']) {
                 //     continue;
@@ -741,8 +743,16 @@ class QuestionBankController extends Controller
                     $combinedSubjectName = $subjectName;
                 }
 
+
                 $data['Topic'] = $topic->id;
-                $data['Topic_2'] = $topics2[$outkey]->id;
+
+                if (isset($topics2[$outkey])) {
+                    $topic2 = $topics2[$outkey]->id;
+                } else {
+                    $topic2 = 0;
+                }
+
+                $data['Topic_2'] = $topic2;
 
                 if ($topics2->isNotEmpty()) {
                     foreach ($topics2 as $topic2) {

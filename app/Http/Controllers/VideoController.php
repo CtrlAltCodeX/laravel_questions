@@ -427,12 +427,15 @@ class VideoController extends Controller
             if (count($topics2)) {
                 $topicsName .= ' | ' . ($topics2[$outkey]->name ?? '');
             }
+			
+          	if (isset($topics2[$outkey])) {
+                $videos = $this->getFirstDropdownData($requestData, $topics2[$outkey])
+                    ? $this->getFirstDropdownData($requestData, $topics2[$outkey])['videos']
+                    : [];
 
-            $videos = $this->getFirstDropdownData($requestData, $topics2[$outkey])
-                ? $this->getFirstDropdownData($requestData, $topics2[$outkey])['videos']
-                : [];
+                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;            
+            }
 
-            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;
         }
 
         return response()->json($jsonResponse);
@@ -469,11 +472,15 @@ class VideoController extends Controller
         $categoryId = $data['Category'] ?? null;
 
         $subjectId = $data['Subject'] ?? null;
+      
+        $subCategory2 = $data['SubCategory_2'] ?? null;
+      
+        $subject2 = $data['Subject_2'] ?? null;
 
         if (!$categoryId) return response()->json(['error' => 'Category parameter is missing'], 400);
       
-      	$videos = Video::where('sub_category_id', $data['SubCategory_2'])
-            ->where('subject_id', $data['Subject_2'])
+      	$videos = Video::where('sub_category_id', $subCategory2)
+            ->where('subject_id', $subject2)
           	->where('topic_id', $topic?->id);
 
         $videos = $videos->first();

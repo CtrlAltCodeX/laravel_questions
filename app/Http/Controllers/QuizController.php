@@ -130,6 +130,11 @@ class QuizController extends Controller
             $data['Category'] = $course->category_id;
         }
 
+        // $categoryId = $data['Category'] ?? null;
+        //if (!$data['Category']) {
+        //return response()->json(['error' => 'Category parameter is missing'], 400);
+        //}
+
         $language = $this->getFirstDropdownData($data, $course)['language'];
         $categories = $this->getFirstDropdownData($data, $course)['categories'][0];
         $subcategories = $this->getFirstDropdownData($data, $course)['subcategories'][0];
@@ -233,7 +238,9 @@ class QuizController extends Controller
                 ++$i;
             }
 
-            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics2[$outkey]->id][$topicsName] = $questionAccTop;
+            if (isset($topics2[$outkey])) {
+                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics2[$outkey]->id][$topicsName] = $questionAccTop;
+            }
         }
 
         return response()->json($jsonResponse);
@@ -247,9 +254,9 @@ class QuizController extends Controller
         $languageId = $data['Language'] ?? null;
 
         $categoryId = $data['Category'] ?? null;
-        if (!$categoryId) {
-            return response()->json(['error' => 'Category parameter is missing'], 400);
-        }
+        //if (!$categoryId) {
+        //  return response()->json(['error' => 'Category parameter is missing'], 400);
+        //}
 
         // Fetch questions based on the parameters
         $query = Question::query()->where('category_id', $categoryId);
