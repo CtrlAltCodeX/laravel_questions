@@ -140,6 +140,17 @@
                         <textarea id="message" name="message" rows="5" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Notification Message..." required></textarea>
                     </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-900">Link Title (Optional)</label>
+                            <input type="text" id="link_title" name="link_title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. Click Here">
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-900">Link URL (Optional)</label>
+                            <input type="url" id="link_url" name="link_url" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.com">
+                        </div>
+                    </div>
+
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer">
                             <input type="checkbox" id="include_image" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 accent-blue-600">
@@ -272,6 +283,8 @@
                     document.getElementById('title').value = n.title;
                     document.getElementById('message').value = n.message;
                     document.getElementById('type').value = n.type;
+                    document.getElementById('link_title').value = n.link_title || '';
+                    document.getElementById('link_url').value = n.link_url || '';
                     
                     if(n.schedule_at) {
                         let date = new Date(n.schedule_at);

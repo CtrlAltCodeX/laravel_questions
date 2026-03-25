@@ -13,6 +13,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\LiveTestController;
 
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\ScoreBoardController;
@@ -40,6 +41,7 @@ Route::post('{userId}/{courseId}/quiz/settings', [QuizSettingController::class ,
 Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class , 'deploy']);
 
 Route::get('{userId}/{courseId}/cbt', [CbtController::class , 'deploy']);
+Route::get('{userId}/{liveTestId}/live-test', [LiveTestController::class , 'deployApi']);
 
 Route::get('{userId}/{courseId}/video', [VideoController::class , 'formattedAPI']);
 

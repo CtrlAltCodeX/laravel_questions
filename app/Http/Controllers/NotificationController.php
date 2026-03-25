@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\UserFcmToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class NotificationController extends Controller
 {
@@ -32,6 +33,8 @@ class NotificationController extends Controller
             'message' => 'required|string',
             'type' => 'required|in:Notification,Announcement',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'link_title' => 'nullable|string|max:255',
+            'link_url' => 'nullable|url',
         ]);
 
         $data = $request->except(['image', 'user_ids']);
@@ -73,6 +76,8 @@ class NotificationController extends Controller
             'title' => 'required|string|max:255',
             'message' => 'required|string',
             'type' => 'required|in:Notification,Announcement',
+            'link_title' => 'nullable|string|max:255',
+            'link_url' => 'nullable|url',
         ]);
 
         $data = $request->except(['image', 'user_ids']);
@@ -110,8 +115,48 @@ class NotificationController extends Controller
 
     private function sendNotification($notification, $targetUserIds = null)
     {
-        $settings = Setting::first();
-        $fcmServerKey = $settings->fcm_server_key ?? 'YOUR_FCM_SERVER_KEY_PLACEHOLDER';
+        // Path to static JSON file
+        $credentialsFilePath = storage_path('app/firebase-credentials.json');
+        
+        if (!file_exists($credentialsFilePath)) {
+            \Log::error('Firebase credentials file not found at ' . $credentialsFilePath);
+            return;
+        }
+
+        // Initialize Google Client
+        $client = new \Google\Client();
+        try {
+            $client->setAuthConfig($credentialsFilePath);
+            $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+            $client->fetchAccessTokenWithAssertion();
+            $token = $client->getAccessToken();
+        } catch (\Exception $e) {
+            \Log::error('Firebase Google Client Error: ' . $e->getMessage());
+            return;
+        }
+
+        if (!isset($token['access_token'])) {
+             \Log::error('Failed to get FCM access token');
+             return;
+        }
+
+        $accessToken = $token['access_token'];
+
+        // Get Project ID from JSON
+        $credentials = json_decode(file_get_contents($credentialsFilePath), true);
+        $projectId = $credentials['project_id'] ?? null;
+
+        if (!$projectId) {
+             \Log::error('Project ID not found in firebase credentials file.');
+             return;
+        }
+
+        $apiUrl = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+        // Do not send if scheduled for future
+        if ($notification->schedule_at && $notification->schedule_at > now()) {
+            return;
+        }
 
         // Check user selection
         if ($targetUserIds && in_array('all', $targetUserIds)) {
@@ -119,10 +164,6 @@ class NotificationController extends Controller
         } elseif ($targetUserIds) {
              $tokens = UserFcmToken::whereIn('user_id', $targetUserIds)->pluck('fcm_token')->toArray();
         } else {
-             // If no users selected, maybe it was meant for all? 
-             // Requirement says "chahe to sara user select kr le ya manully kr le"
-             // Usually, a blank targeted list might mean nobody gets it unless it's a general announcement.
-             // But let's assume if no users selected, we don't send to anyone manually.
              return;
         }
 
@@ -130,9 +171,53 @@ class NotificationController extends Controller
             return;
         }
 
-        $notification->update(['sent_at' => now()]);
-        
-        // cURL logic...
+        $success = false;
+
+        // FCM HTTP v1 requires sending individual requests per token.
+        // For larger lists, we should ideally use async HTTP pooling, 
+        // but here we use a synchronous loop as a starting point.
+        foreach (array_unique($tokens) as $deviceToken) {
+            $messagePayload = [
+                'message' => [
+                    'token' => $deviceToken,
+                    'notification' => [
+                        'title' => $notification->title,
+                        'body' => $notification->message,
+                    ],
+                    'data' => [
+                        'type' => (string) $notification->type,
+                        'link_title' => (string) $notification->link_title,
+                        'link_url' => (string) $notification->link_url,
+                        'notification_id' => (string) $notification->id
+                    ]
+                ]
+            ];
+
+            if ($notification->image) {
+                $imageUrl = asset('storage/' . $notification->image);
+                $messagePayload['message']['notification']['image'] = $imageUrl;
+                $messagePayload['message']['data']['image'] = $imageUrl;
+            }
+
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ])->post($apiUrl, $messagePayload);
+
+                if ($response->successful()) {
+                    $success = true;
+                } else {
+                    \Log::error('FCM Send Error for token ' . $deviceToken . ': ' . $response->body());
+                }
+            } catch (\Exception $e) {
+                \Log::error('FCM Send Exception: ' . $e->getMessage());
+            }
+        }
+
+        if ($success) {
+            $notification->update(['sent_at' => now()]);
+        }
     }
 
     public function searchUsers(Request $request)

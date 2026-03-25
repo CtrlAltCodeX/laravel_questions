@@ -14,6 +14,8 @@ class Notification extends Model
         'message',
         'image',
         'type',
+        'link_title',
+        'link_url',
         'schedule_at',
         'sent_at',
     ];

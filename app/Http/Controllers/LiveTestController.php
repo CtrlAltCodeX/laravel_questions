@@ -335,4 +335,74 @@ class LiveTestController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    public function deployApi(Request $request, $userId, $liveTestId)
+    {
+        $liveTest = LiveTest::findOrFail($liveTestId);
+        
+        if ($liveTest->mode == 'auto') {
+            $questions = Question::with(['language', 'category', 'subCategory', 'subject'])
+                ->whereIn('id', $liveTest->question_ids ?? [])
+                ->get();
+        } else {
+            $questions = LiveTestManualQuestion::with(['language', 'category', 'subCategory', 'subject'])
+                ->where('live_test_id', $liveTest->id)
+                ->get();
+        }
+
+        $jsonResponse = [];
+
+        foreach ($questions as $q) {
+            if (!$q->language || !$q->category || !$q->subCategory || !$q->subject) continue;
+
+            $languageName = '<span class="notranslate">' . $q->language->name . '</span>';
+            $categoryName = '<span class="notranslate">' . $q->category->name . '</span>';
+            $subcategoryName = '<span class="notranslate">' . $q->subCategory->name . '</span>';
+            $subjectName = '<span class="notranslate">' . $q->subject->name . '</span>';
+
+            $img = '';
+            if (isset($q->photo) && $q->photo != '0' && $q->photo != null) {
+                $img = '<br><img src="' . url('storage/questions/' . $q->photo) . '"/>'; // Adjusted to use standard URL if possible
+                // CBT uses hardcoded https://iti.online2study.in/storage/questions/, I'll match format
+                if (str_contains($q->photo, 'http')) {
+                    $img = '<br><img src="' . $q->photo . '"/>';
+                } else {
+                    $img = '<br><img src="https://iti.online2study.in/storage/questions/' . $q->photo . '"/>';
+                }
+            } elseif (isset($q->photo_link) && $q->photo_link) {
+                $img = '<br><img src="' . $q->photo_link . '"/>';
+            }
+
+            $formattedQ = [
+                'question' => '<span class="notranslate">' . $q->question . '</span>' . $img,
+                'option_a' => '<span class="notranslate">' . $q->option_a . '</span>',
+                'option_b' => '<span class="notranslate">' . $q->option_b . '</span>',
+                'option_c' => '<span class="notranslate">' . $q->option_c . '</span>',
+                'option_d' => '<span class="notranslate">' . $q->option_d . '</span>',
+                'answer'   => trim($q->answer),
+                'notes'    => ''
+            ];
+
+            if (isset($q->notes) && !empty($q->notes)) {
+                $formattedQ['notes'] = '<span class="notranslate">' . $q->notes . '</span>';
+            }
+
+            if (!isset($jsonResponse[$languageName])) {
+                $jsonResponse[$languageName] = [];
+            }
+            if (!isset($jsonResponse[$languageName][$categoryName])) {
+                $jsonResponse[$languageName][$categoryName] = [];
+            }
+            if (!isset($jsonResponse[$languageName][$categoryName][$subcategoryName])) {
+                $jsonResponse[$languageName][$categoryName][$subcategoryName] = [];
+            }
+            if (!isset($jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName])) {
+                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName] = [];
+            }
+
+            $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][] = $formattedQ;
+        }
+
+        return response()->json($jsonResponse);
+    }
 }
