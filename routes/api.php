@@ -22,6 +22,7 @@ use App\Http\Controllers\WalletHistoryController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\GooglePlayController;
 /* |-------------------------------------------------------------------------- | API Routes |-------------------------------------------------------------------------- | | Here is where you can register API routes for your application. These | routes are loaded by the RouteServiceProvider and all of them will | be assigned to the "api" middleware group. Make something great! | */
 
 
@@ -41,7 +42,7 @@ Route::post('{userId}/{courseId}/quiz/settings', [QuizSettingController::class ,
 Route::get('{userId}/{courseId}/bank-api', [QuestionBankController::class , 'deploy']);
 
 Route::get('{userId}/{courseId}/cbt', [CbtController::class , 'deploy']);
-Route::get('{userId}/{liveTestId}/live-test', [LiveTestController::class , 'deployApi']);
+Route::get('{userId}/{courseId}/{liveTestId}/live-test', [LiveTestController::class , 'deployApi']);
 
 Route::get('{userId}/{courseId}/video', [VideoController::class , 'formattedAPI']);
 
@@ -67,8 +68,9 @@ Route::get('/get-categories/{language_id}', [CategoryController::class , 'getCat
 
 // get offer 
 Route::get('offers', [OfferController::class , 'getOffersApi']);
-Route::get('digital-notes', [DigitalNoteController::class , 'apiIndex']);
+// Route::get('digital-notes', [DigitalNoteController::class , 'apiIndex']);
 Route::get('{userId}/{courseId}/digital-notes', [DigitalNoteController::class , 'getCourseDigitalNotes']);
+Route::get('{userId}/{courseId}/live-tests', [LiveTestController::class , 'getLiveTestsByCourse']);
 
 // get 7. Refer and Welcome Coin
 Route::get('sub-category-details/{id}', [SubCategoryController::class , 'getSubCategoryDetailsWithOffers']);
@@ -99,3 +101,7 @@ Route::post('update/course/status', [UserCourseController::class , 'updateCourse
 Route::post('user/video-progress/save', [VideoController::class , 'updateVideoProgress']);
 
 Route::get('user/video-progress/{userId}/{subjectId}', [VideoController::class , 'getVideoProgress']);
+
+// Google Play Billing Routes
+Route::post('google-play/verify-subscription', [GooglePlayController::class , 'verifySubscription']);
+Route::post('google-play/verify-purchase', [GooglePlayController::class , 'verifyPurchase']);

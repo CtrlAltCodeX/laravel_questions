@@ -22,7 +22,7 @@ class LiveTestController extends Controller
         $languages = Language::all();
         $categories = Category::all();
         $liveTests = LiveTest::with(['language', 'category'])->latest()->paginate(10);
-        
+
         return view('live_tests.index', compact('languages', 'categories', 'liveTests'));
     }
 
@@ -44,17 +44,17 @@ class LiveTestController extends Controller
             ->get();
 
         $matchingCourses = $allCourses->filter(function ($c) use ($subCategoryIds) {
-                $courseSubs = array_map('strval', (array)$c->sub_category_id);
-                $inputSubs = array_map('strval', (array)$subCategoryIds);
-                return count(array_intersect($courseSubs, $inputSubs)) > 0;
-            });
+            $courseSubs = array_map('strval', (array)$c->sub_category_id);
+            $inputSubs = array_map('strval', (array)$subCategoryIds);
+            return count(array_intersect($courseSubs, $inputSubs)) > 0;
+        });
 
         $subjectsWithQuestions = [];
         $totalQuestionsCount = 0;
         $maxGlobalLimit = 0;
-        
+
         $selectedSubIds = array_map('strval', (array)$subCategoryId);
-        
+
         // 1. Aggregate all Subject IDs and their highest limits from matching courses
         $sidLimitMap = [];
         foreach ($matchingCourses as $course) {
@@ -62,11 +62,12 @@ class LiveTestController extends Controller
             if ($course->subject_limit && is_array($course->subject_limit)) {
                 $courseSids = array_unique(array_merge($courseSids, array_keys($course->subject_limit)));
             }
-            
+
             foreach ($courseSids as $sid) {
-                if ($sid === null || $sid === '') continue;
+                if ($sid === null || $sid === '')
+                    continue;
                 $sidStr = strval($sid);
-                
+
                 // Determine limit for this subject in this course
                 $limit = (int)($course->subject_limit[$sid] ?? $course->question_limit);
                 if (!isset($sidLimitMap[$sidStr]) || $limit > $sidLimitMap[$sidStr]) {
@@ -84,7 +85,8 @@ class LiveTestController extends Controller
         // 2. Process each unique subject
         foreach ($uniqueSubjectIds as $sid) {
             $subject = Subject::find($sid);
-            if (!$subject) continue;
+            if (!$subject)
+                continue;
 
             // CRITICAL: Filter by the selected subcategory only (prevents mixed-year issues)
             if (!in_array(strval($subject->sub_category_id), $selectedSubIds)) {
@@ -98,7 +100,8 @@ class LiveTestController extends Controller
 
             if ($questions->count() > 0) {
                 $limit = $sidLimitMap[$sid] ?? $maxGlobalLimit ?: 50;
-                if ($limit <= 0) $limit = 50;
+                if ($limit <= 0)
+                    $limit = 50;
 
                 $subjectsWithQuestions[] = [
                     'id' => $subject->id,
@@ -251,9 +254,9 @@ class LiveTestController extends Controller
             ->where('category_id', $categoryId)
             ->get()
             ->filter(function ($c) use ($subCategoryId) {
-                $courseSubs = array_map('strval', (array)$c->sub_category_id);
-                return in_array(strval($subCategoryId), $courseSubs);
-            });
+            $courseSubs = array_map('strval', (array)$c->sub_category_id);
+            return in_array(strval($subCategoryId), $courseSubs);
+        });
 
         $templateData = [];
         $selectedSubIdStr = strval($subCategoryId);
@@ -268,7 +271,8 @@ class LiveTestController extends Controller
             }
 
             foreach ($courseSids as $sid) {
-                if ($sid === null || $sid === '') continue;
+                if ($sid === null || $sid === '')
+                    continue;
                 $sidStr = strval($sid);
                 $limit = (int)($course->subject_limit[$sid] ?? $course->question_limit);
                 if (!isset($sidLimitMap[$sidStr]) || $limit > $sidLimitMap[$sidStr]) {
@@ -285,10 +289,12 @@ class LiveTestController extends Controller
 
         foreach ($uniqueSubjectIds as $sid) {
             $subject = Subject::find($sid);
-            if (!$subject || strval($subject->sub_category_id) !== $selectedSubIdStr) continue;
+            if (!$subject || strval($subject->sub_category_id) !== $selectedSubIdStr)
+                continue;
 
             $limit = $sidLimitMap[$sid] ?? $maxGlobalLimit ?: 50;
-            if ($limit <= 0) $limit = 50;
+            if ($limit <= 0)
+                $limit = 50;
 
             for ($i = 0; $i < $limit; $i++) {
                 $templateData[] = [
@@ -309,9 +315,9 @@ class LiveTestController extends Controller
 
         if (empty($templateData)) {
             $templateData[] = [
-                'language_id' => $languageId, 'category' => $categoryId, 
-                'subcategory' => $subCategoryId, 'subject' => '', 'question' => '', 
-                'option_a' => '', 'option_b' => '', 'option_c' => '', 'option_d' => '', 
+                'language_id' => $languageId, 'category' => $categoryId,
+                'subcategory' => $subCategoryId, 'subject' => '', 'question' => '',
+                'option_a' => '', 'option_b' => '', 'option_c' => '', 'option_d' => '',
                 'answer' => '', 'photo' => ''
             ];
         }
@@ -331,20 +337,63 @@ class LiveTestController extends Controller
                 'success' => true,
                 'data' => $rows
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function deployApi(Request $request, $userId, $liveTestId)
+    public function deployApi(Request $request, $userId, $courseId, $liveTestId)
     {
-        $liveTest = LiveTest::findOrFail($liveTestId);
+
+        $validator = Validator::make($request->all(), [
+            'SubCategory' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // 2. Check Enrollment
+        // $enrollment = UserCourse::where('user_id', $userId)
+        //     ->where('course_id', $courseId)
+        //     ->first();
+
         
+        // if (!$enrollment) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'User is not enrolled in this course.'
+        //     ], 403);
+        // }
+
+        // 3. Check Course Feature "Digital Notes"
+        $course = Course::find($courseId);
+        if (!$course) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $features = $course->features ?? [];
+        if (!is_array($features) || !in_array('Live Test', $features)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Live Test are not assigned to this course.'
+            ], 403);
+        }
+
+        $liveTest = LiveTest::findOrFail($liveTestId);
+
         if ($liveTest->mode == 'auto') {
             $questions = Question::with(['language', 'category', 'subCategory', 'subject'])
                 ->whereIn('id', $liveTest->question_ids ?? [])
                 ->get();
-        } else {
+        }
+        else {
             $questions = LiveTestManualQuestion::with(['language', 'category', 'subCategory', 'subject'])
                 ->where('live_test_id', $liveTest->id)
                 ->get();
@@ -353,7 +402,8 @@ class LiveTestController extends Controller
         $jsonResponse = [];
 
         foreach ($questions as $q) {
-            if (!$q->language || !$q->category || !$q->subCategory || !$q->subject) continue;
+            if (!$q->language || !$q->category || !$q->subCategory || !$q->subject)
+                continue;
 
             $languageName = '<span class="notranslate">' . $q->language->name . '</span>';
             $categoryName = '<span class="notranslate">' . $q->category->name . '</span>';
@@ -366,10 +416,12 @@ class LiveTestController extends Controller
                 // CBT uses hardcoded https://iti.online2study.in/storage/questions/, I'll match format
                 if (str_contains($q->photo, 'http')) {
                     $img = '<br><img src="' . $q->photo . '"/>';
-                } else {
+                }
+                else {
                     $img = '<br><img src="https://iti.online2study.in/storage/questions/' . $q->photo . '"/>';
                 }
-            } elseif (isset($q->photo_link) && $q->photo_link) {
+            }
+            elseif (isset($q->photo_link) && $q->photo_link) {
                 $img = '<br><img src="' . $q->photo_link . '"/>';
             }
 
@@ -379,8 +431,8 @@ class LiveTestController extends Controller
                 'option_b' => '<span class="notranslate">' . $q->option_b . '</span>',
                 'option_c' => '<span class="notranslate">' . $q->option_c . '</span>',
                 'option_d' => '<span class="notranslate">' . $q->option_d . '</span>',
-                'answer'   => trim($q->answer),
-                'notes'    => ''
+                'answer' => trim($q->answer),
+                'notes' => ''
             ];
 
             if (isset($q->notes) && !empty($q->notes)) {
@@ -404,5 +456,65 @@ class LiveTestController extends Controller
         }
 
         return response()->json($jsonResponse);
+    }
+
+    public function getLiveTestsByCourse(Request $request, $userId, $courseId)
+    {
+        // 1. Check User existence
+        $user = \App\Models\GoogleUser::find($userId);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // // 2. Check Enrollment
+        // $enrollment = \App\Models\UserCourse::where('user_id', $userId)
+        //     ->where('course_id', $courseId)
+        //     ->first();
+
+        // if (!$enrollment) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'User is not enrolled in this course.'
+        //     ], 403);
+        // }
+
+        // 3. Check Course Feature "Live Test"
+        $course = Course::find($courseId);
+        if (!$course) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $features = $course->features ?? [];
+        if (!is_array($features) || !in_array('Live Test', $features)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Live tests are not assigned to this course.'
+            ], 403);
+        }
+
+        // 4. Get Course SubCategory IDs
+        $courseSubCategoryIds = array_map('strval', (array)$course->sub_category_id);
+
+        // 5. Query LiveTests
+        $liveTests = LiveTest::where('status', true)
+            ->with(['language', 'category'])
+            ->get();
+
+        $matchingLiveTests = $liveTests->filter(function ($lt) use ($courseSubCategoryIds) {
+            $ltSubCategoryIds = array_map('strval', (array)$lt->sub_category_id);
+            return count(array_intersect($ltSubCategoryIds, $courseSubCategoryIds)) > 0;
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Live tests retrieved successfully',
+            'data' => $matchingLiveTests->values()
+        ]);
     }
 }

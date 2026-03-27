@@ -36,4 +36,9 @@ return [
         'secret' => env('RAZORPAY_SECRET'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'service_account_json' => env('GOOGLE_SERVICE_ACCOUNT_JSON'), // Path to JSON file
+    ],
+
 ];

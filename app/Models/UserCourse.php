@@ -15,7 +15,8 @@ class UserCourse extends Model
         'subscription_type',
         'valid_from',
         'valid_to',
-        'status'
+        'status',
+        'meta_data'
     ];
     public function user()
     {

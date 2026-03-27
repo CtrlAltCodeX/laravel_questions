@@ -200,10 +200,12 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Course Features</label>
                 <select id="select_features" multiple name="features[]" class="select_features bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                     <option value="Videos">Videos</option>
+                     <option value="Live Test">Live Test</option>
                     <option value="CBT Mock test">CBT Mock test</option>
                     <option value="Practice quiz">Practice quiz</option>
                     <option value="Digital Notes">Digital Notes</option>
                     <option value="Question bank">Question bank</option>
+                   
                 </select>
             </div>
 
