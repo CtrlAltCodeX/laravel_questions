@@ -22,6 +22,7 @@ class LiveTest extends Model
         'toppers_star',
         'toppers',
         'participant_star',
+        'photo',
     ];
 
     protected $casts = [

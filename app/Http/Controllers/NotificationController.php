@@ -18,7 +18,7 @@ class NotificationController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('message', 'like', '%' . $request->search . '%');
+                ->orWhere('message', 'like', '%' . $request->search . '%');
         }
 
         $notifications = $query->orderBy('id', 'desc')->paginate(10);
@@ -117,7 +117,7 @@ class NotificationController extends Controller
     {
         // Path to static JSON file
         $credentialsFilePath = storage_path('app/firebase-credentials.json');
-        
+
         if (!file_exists($credentialsFilePath)) {
             \Log::error('Firebase credentials file not found at ' . $credentialsFilePath);
             return;
@@ -129,15 +129,17 @@ class NotificationController extends Controller
             $client->setAuthConfig($credentialsFilePath);
             $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
             $client->fetchAccessTokenWithAssertion();
+
             $token = $client->getAccessToken();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             \Log::error('Firebase Google Client Error: ' . $e->getMessage());
             return;
         }
 
         if (!isset($token['access_token'])) {
-             \Log::error('Failed to get FCM access token');
-             return;
+            \Log::error('Failed to get FCM access token');
+            return;
         }
 
         $accessToken = $token['access_token'];
@@ -147,8 +149,8 @@ class NotificationController extends Controller
         $projectId = $credentials['project_id'] ?? null;
 
         if (!$projectId) {
-             \Log::error('Project ID not found in firebase credentials file.');
-             return;
+            \Log::error('Project ID not found in firebase credentials file.');
+            return;
         }
 
         $apiUrl = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
@@ -160,11 +162,13 @@ class NotificationController extends Controller
 
         // Check user selection
         if ($targetUserIds && in_array('all', $targetUserIds)) {
-             $tokens = UserFcmToken::pluck('fcm_token')->toArray();
-        } elseif ($targetUserIds) {
-             $tokens = UserFcmToken::whereIn('user_id', $targetUserIds)->pluck('fcm_token')->toArray();
-        } else {
-             return;
+            $tokens = UserFcmToken::pluck('fcm_token')->toArray();
+        }
+        elseif ($targetUserIds) {
+            $tokens = UserFcmToken::whereIn('user_id', $targetUserIds)->pluck('fcm_token')->toArray();
+        }
+        else {
+            return;
         }
 
         if (empty($tokens)) {
@@ -185,10 +189,10 @@ class NotificationController extends Controller
                         'body' => $notification->message,
                     ],
                     'data' => [
-                        'type' => (string) $notification->type,
-                        'link_title' => (string) $notification->link_title,
-                        'link_url' => (string) $notification->link_url,
-                        'notification_id' => (string) $notification->id
+                        'type' => (string)$notification->type,
+                        'link_title' => (string)$notification->link_title,
+                        'link_url' => (string)$notification->link_url,
+                        'notification_id' => (string)$notification->id
                     ]
                 ]
             ];
@@ -207,10 +211,12 @@ class NotificationController extends Controller
 
                 if ($response->successful()) {
                     $success = true;
-                } else {
+                }
+                else {
                     \Log::error('FCM Send Error for token ' . $deviceToken . ': ' . $response->body());
                 }
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
                 \Log::error('FCM Send Exception: ' . $e->getMessage());
             }
         }
@@ -225,10 +231,11 @@ class NotificationController extends Controller
         $search = $request->get('q');
         $users = GoogleUser::where('status', 'Enabled')
             ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
+            return $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                });
+                        ->orWhere('email', 'like', "%{$search}%");
+                }
+                );
             })
             ->select('id', 'name', 'email')
             ->limit(20)

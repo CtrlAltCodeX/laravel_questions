@@ -28,7 +28,7 @@ class AuthController extends Controller
             
             if ($payload) {
                 $email = $payload['email'];
-                $name = $payload['name'] ?? 'Google User';
+                $name = $payload['name'] ?? '';
                 $googleId = $payload['sub']; // Unique Google ID
                 $token = $request->token; // FCM Token
                 

@@ -134,8 +134,14 @@ class LiveTestController extends Controller
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'question_ids' => 'required_if:mode,auto|array',
         ]);
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('live_tests', 'public');
+        }
 
         $liveTest = LiveTest::create([
             'language_id' => $request->language_id,
@@ -143,6 +149,7 @@ class LiveTestController extends Controller
             'sub_category_id' => (array)$request->sub_category_id,
             'mode' => $request->mode,
             'title' => $request->title,
+            'photo' => $photoPath,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'toppers_star' => $request->toppers_star,
@@ -185,6 +192,7 @@ class LiveTestController extends Controller
     public function edit($id)
     {
         $liveTest = LiveTest::with('manualQuestions')->findOrFail($id);
+        $liveTest->photo_url = $liveTest->photo ? asset('storage/' . $liveTest->photo) : null;
         return response()->json($liveTest);
     }
 
@@ -201,16 +209,27 @@ class LiveTestController extends Controller
             'toppers_star' => 'nullable|integer',
             'toppers' => 'nullable|integer',
             'participant_star' => 'nullable|integer',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'question_ids' => 'required_if:mode,auto|array',
         ]);
 
         $liveTest = LiveTest::findOrFail($id);
+
+        $photoPath = $liveTest->photo;
+        if ($request->hasFile('photo')) {
+            if ($photoPath) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($photoPath);
+            }
+            $photoPath = $request->file('photo')->store('live_tests', 'public');
+        }
+
         $liveTest->update([
             'language_id' => $request->language_id,
             'category_id' => $request->category_id,
             'sub_category_id' => (array)$request->sub_category_id,
             'mode' => $request->mode,
             'title' => $request->title,
+            'photo' => $photoPath,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'toppers_star' => $request->toppers_star,
@@ -361,7 +380,7 @@ class LiveTestController extends Controller
         //     ->where('course_id', $courseId)
         //     ->first();
 
-        
+
         // if (!$enrollment) {
         //     return response()->json([
         //         'success' => false,
@@ -509,6 +528,9 @@ class LiveTestController extends Controller
         $matchingLiveTests = $liveTests->filter(function ($lt) use ($courseSubCategoryIds) {
             $ltSubCategoryIds = array_map('strval', (array)$lt->sub_category_id);
             return count(array_intersect($ltSubCategoryIds, $courseSubCategoryIds)) > 0;
+        })->map(function ($lt) {
+            $lt->photo = $lt->photo ? asset('storage/' . $lt->photo) : null;
+            return $lt;
         });
 
         return response()->json([
