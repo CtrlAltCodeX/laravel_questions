@@ -3,16 +3,16 @@
 return [
 
     /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Third Party Services
+     |--------------------------------------------------------------------------
+     |
+     | This file is for storing the credentials for third party services such
+     | as Mailgun, Postmark, AWS and more. This file provides the de facto
+     | location for this type of information, allowing packages to have
+     | a conventional file to locate the various service credentials.
+     |
+     */
 
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
@@ -39,6 +39,10 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'service_account_json' => env('GOOGLE_SERVICE_ACCOUNT_JSON'), // Path to JSON file
+    ],
+
+    'firebase' => [
+        'credentials' => env('FIREBASE_CREDENTIALS', storage_path('app/firebase-credentials.json')),
     ],
 
 ];

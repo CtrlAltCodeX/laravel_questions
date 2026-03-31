@@ -116,7 +116,7 @@ class NotificationController extends Controller
     private function sendNotification($notification, $targetUserIds = null)
     {
         // Path to static JSON file
-        $credentialsFilePath = storage_path('app/firebase-credentials.json');
+        $credentialsFilePath = config('services.firebase.credentials');
 
         if (!file_exists($credentialsFilePath)) {
             \Log::error('Firebase credentials file not found at ' . $credentialsFilePath);
