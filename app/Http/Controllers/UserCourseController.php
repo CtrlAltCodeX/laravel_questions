@@ -10,6 +10,17 @@ class UserCourseController extends Controller
 {
     public function getUserCourses($userId)
     {
+
+        $user = \App\Models\GoogleUser::find($userId);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+
+
         $userCourses = UserCourse::where('user_id', $userId);
 
         if (request()->status) {
@@ -21,10 +32,14 @@ class UserCourseController extends Controller
         $data = $userCourses->map(function ($userCourse) {
             $course = Course::find($userCourse->course_id);
 
+            $metaData = json_decode($userCourse->meta_data, true);
+            $subscriptionSource = $metaData['provider'] ?? 'unknown';
+
             return [
             'user_id' => $userCourse->user_id,
             'course_id' => $userCourse->course_id,
             'plan_type' => $userCourse->subscription_type,
+            'subscription_source' => $subscriptionSource, // Added this field
             'valid_from' => $userCourse->valid_from,
             'valid_to' => $userCourse->valid_to,
             'course_detail' => $course ? [

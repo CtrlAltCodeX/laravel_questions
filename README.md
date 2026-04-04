@@ -27,10 +27,10 @@ Fixes (Bug Fixes)
 Total - 10days
 
 
-[19:02, 05/11/2025] Abhishek BST: https://88.222.244.186:8443
-[19:02, 05/11/2025] Abhishek BST: akathuria
+ https://88.222.244.186:8443
+ akathuria
 6k8naxJAmVXZQzD6D6de
-[19:03, 05/11/2025] Abhishek BST: Admin Panel 
+ Admin Panel 
 ===
 akathuria289@gmail.com
 P3A4GtsUZLTDyqM

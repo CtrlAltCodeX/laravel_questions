@@ -12,7 +12,7 @@ use App\Http\Controllers\GoogleUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\UserCourseController;
-use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\LiveTestController;
 
 use App\Http\Controllers\SubCategoryController;
@@ -23,6 +23,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GooglePlayController;
+
 /* |-------------------------------------------------------------------------- | API Routes |-------------------------------------------------------------------------- | | Here is where you can register API routes for your application. These | routes are loaded by the RouteServiceProvider and all of them will | be assigned to the "api" middleware group. Make something great! | */
 
 
@@ -80,12 +81,12 @@ Route::get('courses/offers/{user_id}', [CourseController::class , 'getCoursesWit
 Route::get('user/courses/{userId}', [UserCourseController::class , 'getUserCourses']);
 Route::post('user/courses', [UserCourseController::class , 'assignCourseToUser']);
 
-// Route::post('save-payment', [PaymentController::class, 'store']);
-// Route::get('get-final-amount', [PaymentController::class, 'getFinalAmount']);
+// Route::post('save-payment', [RazorpayController::class, 'store']);
+// Route::get('get-final-amount', [RazorpayController::class, 'getFinalAmount']);
 
-Route::get('payment/initiate', [PaymentController::class , 'initiatePayment']);
-Route::get('payment/callback', [PaymentController::class , 'handleCallback']);
-Route::get('user/{userId}/payments', [PaymentController::class , 'getUserPayments']);
+Route::get('Razorpay/initiate', [RazorpayController::class , 'initiatePayment']);
+Route::get('Razorpay/callback', [RazorpayController::class , 'handleCallback']);
+Route::get('user/{userId}/Razorpay/payments', [RazorpayController::class , 'getUserPayments']);
 
 Route::post('store/quiz', [ScoreBoardController::class , 'quizeStore']);
 Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'quizeShow']);
