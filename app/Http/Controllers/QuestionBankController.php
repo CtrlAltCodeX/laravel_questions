@@ -727,7 +727,8 @@ class QuestionBankController extends Controller
                 $subjectName = $subjects->name;
                 $topicName = $topic->name;
 
-                if ($subcategories2) {
+
+                if ($subcategories2->isNotEmpty()) {
                     foreach ($subcategories2 as $subcategory2) {
                         $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
                     }
@@ -742,7 +743,6 @@ class QuestionBankController extends Controller
                 } else {
                     $combinedSubjectName = $subjectName;
                 }
-
 
                 $data['Topic'] = $topic->id;
 

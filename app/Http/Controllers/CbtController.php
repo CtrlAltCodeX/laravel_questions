@@ -152,12 +152,16 @@ class CbtController extends Controller
             )->getContent(), true); // decode as associative array
 
             $subjectIds2 = [];
+
             foreach ($response['subjects2'] as $index => $subject) {
-                $subjectIds2[$index][] = $subject['id'];
-                $subjectIds2[$index][] = $subject['name'];
+                if (!empty($subject)) {
+                    $subjectIds2[$index][] = $subject['id'];
+                    $subjectIds2[$index][] = $subject['name'];
+                }
             }
 
             $subjectIds1 = [];
+
             foreach ($response['subjects1'] as $index => $subject) {
                 $subjectIds1[$index][] = $subject['id'];
                 $subjectIds1[$index][] = $subject['name'];
@@ -213,10 +217,12 @@ class CbtController extends Controller
             $subcategoryName .= ' | ' . $subcategories2[0]->name;
         }
 
+        $arr1 = [];
+
         if (!$course->language) {
             if (!$course->subject_limit) {
                 $arr1 = $course->part_limit['position'];
-            } else {
+            } else if (isset($course->subject_limit['position'])) {
                 $arr1 = $course->subject_limit['position'];
             }
 
@@ -315,8 +321,6 @@ class CbtController extends Controller
                     $arr2[$subjectParentId->parent_id] = $value;
                 }
             }
-
-            //dd($arr1, $arr2);
 
             asort($arr1);
             asort($arr2);

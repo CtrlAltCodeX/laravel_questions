@@ -14,6 +14,7 @@ use App\Exports\LiveTestManualTemplateExport;
 use App\Imports\LiveTestManualImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LiveTestController extends Controller
 {

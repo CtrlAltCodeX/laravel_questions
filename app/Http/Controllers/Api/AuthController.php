@@ -22,16 +22,16 @@ class AuthController extends Controller
 
         try {
             $idToken = $request->id_token;
-            $client = new \Google\Client(['client_id' => config('services.google.client_id')]); 
-            
+            $client = new \Google\Client(['client_id' => config('services.google.client_id')]);
+
             $payload = $client->verifyIdToken($idToken);
-            
+
             if ($payload) {
                 $email = $payload['email'];
                 $name = $payload['name'] ?? '';
                 $googleId = $payload['sub']; // Unique Google ID
                 $token = $request->token; // FCM Token
-                
+
                 $user = GoogleUser::where('email', $email)->first();
 
                 if (!$user) {
@@ -71,14 +71,12 @@ class AuthController extends Controller
                     'sessionId' => $sessionId,
                     'id' => $user->id
                 ]);
-
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid ID Token'
                 ], 401);
             }
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
