@@ -56,11 +56,13 @@ class NotificationController extends Controller
 
     public function index(Request $request)
     {
-        $query = Notification::query();
+        $query = Notification::where('source', 'admin');
 
         if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('message', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhere('message', 'like', '%' . $request->search . '%');
+            });
         }
 
         $notifications = $query->orderBy('id', 'desc')->paginate(10);
