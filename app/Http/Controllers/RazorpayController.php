@@ -15,16 +15,21 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PaymentsExport;
 use Razorpay\Api\Api;
 
+use App\Services\NotificationService;
+
 class RazorpayController extends Controller
 {
     private $razorpay_key;
     private $razorpay_secret;
+    protected $notificationService;
 
-    public function __construct()
+    public function __construct(NotificationService $notificationService)
     {
         $this->razorpay_key = config('services.razorpay.key');
         $this->razorpay_secret = config('services.razorpay.secret');
+        $this->notificationService = $notificationService;
     }
+
 
     public function initiatePayment(Request $request)
     {
@@ -59,6 +64,11 @@ class RazorpayController extends Controller
                 'notify' => [
                     'sms' => true,
                     'email' => true,
+                ],
+                'notes' => [
+                    'user_id' => $validated['user_id'],
+                    'course_id' => $validated['course_id'],
+                    'plan_type' => $validated['plan_type']
                 ],
                 'callback_url' => $callback_url,
                 'callback_method' => 'get'
@@ -103,11 +113,11 @@ class RazorpayController extends Controller
                     'vpa' => $payment['vpa'] ?? null,
                 ];
 
-                // Create a new request for the store method
-                $storeRequest = new Request($data);
-                $response = $this->store($storeRequest);
+                // Removed store() call from Callback as per Best Practice (Webhook is real processor)
+                // $storeRequest = new Request($data);
+                // $this->store($storeRequest);
 
-                $result = json_decode($response->getContent(), true);
+                $result = ['status' => 'success']; // Mock for the redirect UI
 
                 if (isset($result['status']) && $result['status'] == 'success') {
                     return <<<'HTML'
@@ -307,10 +317,11 @@ class RazorpayController extends Controller
         }
     }, 1000);
 </script>
-</body>
 </html>
 HTML;
+
                 }
+
                 else {
                     return "<h2>Payment Verification Failed</h2><p>" . ($result['message'] ?? 'Unknown error') . "</p>";
                 }
@@ -322,6 +333,72 @@ HTML;
         }
 
         return "<h2>Invalid Request</h2>";
+    }
+
+    public function handleWebhook(Request $request)
+    {
+        $webhookSecret = config('services.razorpay.webhook_secret');
+        $webhookSignature = $request->header('X-Razorpay-Signature');
+        $payload = $request->getContent();
+
+        try {
+            $api = new Api($this->razorpay_key, $this->razorpay_secret);
+            $api->utility->verifyWebhookSignature($payload, $webhookSignature, $webhookSecret);
+        }
+        catch (\Exception $e) {
+            \Log::error('Razorpay Webhook Signature Verification Failed: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
+        }
+
+        $event = json_decode($payload, true);
+
+        if ($event['event'] === 'payment.captured') {
+            $payment = $event['payload']['payment']['entity'];
+            
+            if ($payment['status'] !== 'captured') {
+                return response()->json(['status' => 'ignored']);
+            }
+
+            // Extract notes or metadata if available
+            $notes = $payment['notes'] ?? [];
+
+            if (!isset($notes['user_id']) || !isset($notes['course_id'])) {
+                \Log::warning('Razorpay Webhook: Missing notes in payment entity', ['payment_id' => $payment['id']]);
+                return response()->json(['status' => 'ok']);
+            }
+
+            // Idempotency: Avoid duplicates
+            $exists = Payment::where('payment_id', $payment['id'])->exists();
+            if ($exists) {
+                return response()->json(['status' => 'already_processed']);
+            }
+
+            $data = [
+                'payment_id' => $payment['id'],
+                'currency' => $payment['currency'],
+                'status' => $payment['status'],
+                'user_id' => $notes['user_id'],
+                'course_id' => $notes['course_id'],
+                'plan_type' => $notes['plan_type'] ?? 'monthly',
+                'method' => $payment['method'] ?? 'unknown',
+            ];
+
+            // Use the existing store logic to save payment and update course
+            $storeRequest = new Request($data);
+            $this->store($storeRequest);
+
+            // Send Notification
+            $this->notificationService->send([
+                'user_id' => $notes['user_id'],
+                'title' => 'Payment Successful',
+                'message' => "Your payment of ₹" . ($payment['amount'] / 100) . " has been confirmed.",
+                'source' => 'razorpay',
+                'type' => 'payment',
+                'action_url' => '/Payments'
+            ]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function index()

@@ -10,8 +10,50 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
+use App\Services\NotificationService;
+
 class NotificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    public function apiIndex(Request $request, $userId)
+    {
+        $perPage = $request->get('limit', 10);
+        $notifications = Notification::where('user_id', $userId)
+            ->orWhereNull('user_id')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'total' => $notifications->total(),
+                'from' => $notifications->firstItem(),
+                'to' => $notifications->lastItem(),
+                'notifications' => $notifications->getCollection()->map(function ($n) {
+            return [
+                        'id' => $n->id,
+                        'type' => strtolower($n->type),
+                        'title' => $n->title,
+                        'message' => $n->message,
+                        'image_url' => $n->image ? asset('storage/' . $n->image) : null,
+                        'is_read' => $n->is_read,
+                        'created_at' => $n->created_at->toISOString(),
+                        'action_url' => $n->action_url,
+                        'source' => $n->source
+                    ];
+        })
+            ]
+        ]);
+    }
+
     public function index(Request $request)
     {
         $query = Notification::query();
@@ -46,10 +88,11 @@ class NotificationController extends Controller
             $data['image'] = 'notifications/' . $filename;
         }
 
-        $notification = Notification::create($data);
+        $data['source'] = 'admin';
+        $data['user_id'] = null; // Admin usually sends to multiple or all
 
-        // Logic to send FCM
-        $this->sendNotification($notification, $request->user_ids);
+        // Logic to send notification using service
+        $this->notificationService->send($data, $request->user_ids);
 
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Notification created and sent successfully.']);
@@ -57,6 +100,7 @@ class NotificationController extends Controller
 
         return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
     }
+
 
     public function edit($id)
     {
@@ -113,119 +157,6 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index')->with('success', 'Notification deleted successfully.');
     }
 
-    private function sendNotification($notification, $targetUserIds = null)
-    {
-        // Path to static JSON file
-        $credentialsFilePath = config('services.firebase.credentials');
-
-        if (!file_exists($credentialsFilePath)) {
-            \Log::error('Firebase credentials file not found at ' . $credentialsFilePath);
-            return;
-        }
-
-        // Initialize Google Client
-        $client = new \Google\Client();
-        try {
-            $client->setAuthConfig($credentialsFilePath);
-            $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-            $client->fetchAccessTokenWithAssertion();
-
-            $token = $client->getAccessToken();
-        }
-        catch (\Exception $e) {
-            \Log::error('Firebase Google Client Error: ' . $e->getMessage());
-            return;
-        }
-
-        if (!isset($token['access_token'])) {
-            \Log::error('Failed to get FCM access token');
-            return;
-        }
-
-        $accessToken = $token['access_token'];
-
-        // Get Project ID from JSON
-        $credentials = json_decode(file_get_contents($credentialsFilePath), true);
-        $projectId = $credentials['project_id'] ?? null;
-
-        if (!$projectId) {
-            \Log::error('Project ID not found in firebase credentials file.');
-            return;
-        }
-
-        $apiUrl = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
-
-        // Do not send if scheduled for future
-        if ($notification->schedule_at && $notification->schedule_at > now()) {
-            return;
-        }
-
-        // Check user selection
-        if ($targetUserIds && in_array('all', $targetUserIds)) {
-            $tokens = UserFcmToken::pluck('fcm_token')->toArray();
-        }
-        elseif ($targetUserIds) {
-            $tokens = UserFcmToken::whereIn('user_id', $targetUserIds)->pluck('fcm_token')->toArray();
-        }
-        else {
-            return;
-        }
-
-        if (empty($tokens)) {
-            return;
-        }
-
-        $success = false;
-
-        // FCM HTTP v1 requires sending individual requests per token.
-        // For larger lists, we should ideally use async HTTP pooling, 
-        // but here we use a synchronous loop as a starting point.
-        foreach (array_unique($tokens) as $deviceToken) {
-            $messagePayload = [
-                'message' => [
-                    'token' => $deviceToken,
-                    'notification' => [
-                        'title' => $notification->title,
-                        'body' => $notification->message,
-                    ],
-                    'data' => [
-                        'type' => (string)$notification->type,
-                        'link_title' => (string)$notification->link_title,
-                        'link_url' => (string)$notification->link_url,
-                        'notification_id' => (string)$notification->id
-                    ]
-                ]
-            ];
-
-            if ($notification->image) {
-                $imageUrl = asset('storage/' . $notification->image);
-                $messagePayload['message']['notification']['image'] = $imageUrl;
-                $messagePayload['message']['data']['image'] = $imageUrl;
-            }
-
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Content-Type' => 'application/json',
-                ])->post($apiUrl, $messagePayload);
-
-                if ($response->successful()) {
-                    $success = true;
-                }
-                else {
-                    \Log::error('FCM Send Error for token ' . $deviceToken . ': ' . $response->body());
-                }
-            }
-            catch (\Exception $e) {
-                \Log::error('FCM Send Exception: ' . $e->getMessage());
-            }
-        }
-
-        if ($success) {
-            $notification->update(['sent_at' => now()]);
-        }
-    }
-
     public function searchUsers(Request $request)
     {
         $search = $request->get('q');
@@ -242,5 +173,36 @@ class NotificationController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $request->validate([
+            'notification_ids' => 'required|array',
+            'notification_ids.*' => 'exists:notifications,id'
+        ]);
+
+        Notification::whereIn('id', $request->notification_ids)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifications marked as read successfully'
+        ]);
+    }
+
+    public function deleteNotifications(Request $request)
+    {
+        $request->validate([
+            'notification_ids' => 'required|array',
+            'notification_ids.*' => 'exists:notifications,id'
+        ]);
+
+        Notification::whereIn('id', $request->notification_ids)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifications deleted successfully'
+        ]);
     }
 }
