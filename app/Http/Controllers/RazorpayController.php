@@ -312,7 +312,7 @@ class RazorpayController extends Controller
         count--;
         if (count === 0) {
             clearInterval(interval);
-            window.location.href = "https://experiment-level-1.blogspot.com/";
+            window.location.href = "https://front.online2study.in/";
         } else {
             countdownEl.textContent = count;
             animateCountdown();

@@ -45,13 +45,14 @@ class OfferController extends Controller
         $offers->each(function ($offer) {
             $subscriptions = json_decode($offer->subscription, true);
             $offer->subscription_prepared = collect($subscriptions)->map(function ($data, $type) {
-                return [
+                    return [
                     'type' => ucfirst(str_replace('_', ' ', $type)),
                     'discount' => $data['discount'] ?? '-',
                     'upgrade' => $data['upgrade'] ?? '-',
-                ];
-            })->values(); // ensures it's a list of arrays
-        });
+                    ];
+                }
+                )->values(); // ensures it's a list of arrays
+            });
 
         return view('offers.index', compact(
             'offers',
@@ -177,7 +178,7 @@ class OfferController extends Controller
 
     public function edit(Offer $offer)
     {
-        //
+    //
     }
 
     /**
@@ -289,7 +290,7 @@ class OfferController extends Controller
             'valid_to' => 'valid_to',
         ];
 
-        $query = Offer::query();
+        $query = Offer::query()->where('status', 1);
 
         if ($course) {
             $query->where('course', $course);
