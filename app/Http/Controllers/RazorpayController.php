@@ -113,9 +113,11 @@ class RazorpayController extends Controller
                     'vpa' => $payment['vpa'] ?? null,
                 ];
 
-                // Removed store() call from Callback as per Best Practice (Webhook is real processor)
-                // $storeRequest = new Request($data);
-                // $this->store($storeRequest);
+                // Check if payment already exists (Idempotency) - Webhook might have processed it already
+                // if (!Payment::where('payment_id', $payment_id)->exists()) {
+                $storeRequest = new Request($data);
+                $this->store($storeRequest);
+                // }
 
                 $result = ['status' => 'success']; // Mock for the redirect UI
 
@@ -354,7 +356,7 @@ HTML;
 
         if ($event['event'] === 'payment.captured') {
             $payment = $event['payload']['payment']['entity'];
-            
+
             if ($payment['status'] !== 'captured') {
                 return response()->json(['status' => 'ignored']);
             }
