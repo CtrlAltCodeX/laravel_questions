@@ -100,24 +100,22 @@ class RazorpayController extends Controller
                 $api = new Api($this->razorpay_key, $this->razorpay_secret);
                 $payment = $api->payment->fetch($payment_id);
 
-                $data = [
-                    'payment_id' => $payment_id,
-                    'currency' => $payment['currency'],
-                    'status' => $payment['status'],
-                    'user_id' => $request->user_id,
-                    'course_id' => $request->course_id,
-                    'plan_type' => $request->plan_type,
-                    'method' => $payment['method'] ?? 'unknown',
-                    'card_last4' => $payment['card']['last4'] ?? null,
-                    'card_network' => $payment['card']['network'] ?? null,
-                    'vpa' => $payment['vpa'] ?? null,
-                ];
+                // $data = [
+                //     'payment_id' => $payment_id,
+                //     'currency' => $payment['currency'],
+                //     'status' => $payment['status'],
+                //     'user_id' => $request->user_id,
+                //     'course_id' => $request->course_id,
+                //     'plan_type' => $request->plan_type,
+                //     'method' => $payment['method'] ?? 'unknown',
+                //     'card_last4' => $payment['card']['last4'] ?? null,
+                //     'card_network' => $payment['card']['network'] ?? null,
+                //     'vpa' => $payment['vpa'] ?? null,
+                // ];
 
-                // Check if payment already exists (Idempotency) - Webhook might have processed it already
-                // if (!Payment::where('payment_id', $payment_id)->exists()) {
-                $storeRequest = new Request($data);
-                $this->store($storeRequest);
-                // }
+                // Removed store() call from Callback as per Best Practice (Webhook is real processor)
+                // $storeRequest = new Request($data);
+                // $this->store($storeRequest);
 
                 $result = ['status' => 'success']; // Mock for the redirect UI
 
@@ -383,6 +381,7 @@ HTML;
                 'course_id' => $notes['course_id'],
                 'plan_type' => $notes['plan_type'] ?? 'monthly',
                 'method' => $payment['method'] ?? 'unknown',
+                'source' => 'razorpay',
             ];
 
             // Use the existing store logic to save payment and update course
@@ -410,7 +409,7 @@ HTML;
         $userCoins = UserCoin::with('user')->get();
         $mergedData = $payments->map(function ($item) {
             return [
-            'source' => 'Payment',
+            'source' => $item->source ?? 'Payment',
             'id' => $item->id,
             'user_name' => $item->user->name ?? '-',
             'email' => $item->email ?? '-',
@@ -480,6 +479,7 @@ HTML;
             'card_last4' => 'nullable|string',
             'card_network' => 'nullable|string',
             'vpa' => 'nullable|string',
+            'source' => 'nullable|string',
         ]);
 
         // Get user
@@ -625,68 +625,5 @@ HTML;
         ]);
     }
 
-    public function getUserPayments(Request $request, $userId)
-    {
-        // 1. Check User existence
-        $user = GoogleUser::find($userId);
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found.'
-            ], 404);
-        }
 
-        // 2. Build Query
-        $query = Payment::with('course')->where('user_id', $userId);
-
-        // 3. Sorting
-        $sort = $request->get('sort', 'created_at');
-        $order = $request->get('order', 'desc');
-
-        // Allowed sort fields
-        if (!in_array($sort, ['id', 'amount', 'created_at', 'status'])) {
-            $sort = 'created_at';
-        }
-        if (!in_array(strtolower($order), ['asc', 'desc'])) {
-            $order = 'desc';
-        }
-
-        $query->orderBy($sort, $order);
-
-        // 4. Pagination
-        $perPage = $request->get('per_page', 10);
-        $payments = $query->paginate($perPage);
-
-        // 5. Format Response
-        $data = [
-            'current_page' => $payments->currentPage(),
-            'last_page' => $payments->lastPage(),
-            'per_page' => $payments->perPage(),
-            'total' => $payments->total(),
-            'from' => $payments->firstItem(),
-            'to' => $payments->lastItem(),
-            'payments' => $payments->getCollection()->map(function ($payment) {
-            return [
-            'id' => $payment->id,
-            'payment_id' => $payment->payment_id,
-            'amount' => $payment->amount,
-            'currency' => $payment->currency,
-            'status' => $payment->status,
-            'course_id' => $payment->course_id,
-            'course_name' => $payment->course->name ?? 'N/A',
-            'plan_type' => $payment->plan_type,
-            'method' => $payment->method,
-            'vpa' => $payment->vpa,
-            'date' => $payment->created_at->toDateTimeString(),
-            'created_at' => $payment->created_at,
-            ];
-        }),
-        ];
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User payment history retrieved successfully',
-            'data' => $data
-        ]);
-    }
 }

@@ -13,6 +13,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\RazorpayController;
+use App\Http\Controllers\PaymentController;
+
 use App\Http\Controllers\LiveTestController;
 
 use App\Http\Controllers\SubCategoryController;
@@ -84,7 +86,7 @@ Route::post('user/courses', [UserCourseController::class , 'assignCourseToUser']
 
 Route::get('Razorpay/initiate', [RazorpayController::class , 'initiatePayment']);
 Route::get('Razorpay/callback', [RazorpayController::class , 'handleCallback']);
-Route::get('user/{userId}/payments', [RazorpayController::class , 'getUserPayments']);
+Route::get('user/{userId}/payments', [PaymentController::class , 'getUserPayments']);
 
 Route::post('store/quiz', [ScoreBoardController::class , 'quizeStore']);
 Route::get('show/quiz/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'quizeShow']);
@@ -94,6 +96,9 @@ Route::get('show/question-bank-count/{google_user_id}/{sub_category_id}', [Score
 
 Route::post('store/mock-test', [ScoreBoardController::class , 'mockTestStore']);
 Route::get('show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'mockTestShow']);
+
+Route::post('store/rank', [ScoreBoardController::class , 'rankStore']);
+Route::get('show/rank/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'rankShow']);
 
 Route::post('update/course/status', [UserCourseController::class , 'updateCourseStatus']);
 

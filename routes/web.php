@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class , 'webquizeShow']);
     Route::get('/question-bank-count-AllData/{google_user_id}', [ScoreBoardController::class , 'questioncountshowAllData']);
     Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class , 'webmockTestShow']);
+    Route::get('/rank/{google_user_id}', [ScoreBoardController::class , 'webrankShow']);
 
     Route::get('/settings', [SettingController::class , 'index'])
         ->name('settings.index');

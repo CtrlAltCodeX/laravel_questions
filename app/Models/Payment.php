@@ -21,16 +21,17 @@ class Payment extends Model
         'method',
         'card_last4',
         'card_network',
-        'vpa'
+        'vpa',
+        'source'
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\GoogleUser::class, 'user_id');
+        return $this->belongsTo(\App\Models\GoogleUser::class , 'user_id');
     }
 
     public function course()
     {
-        return $this->belongsTo(\App\Models\Course::class, 'course_id');
+        return $this->belongsTo(\App\Models\Course::class , 'course_id');
     }
 }

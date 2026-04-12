@@ -4,9 +4,12 @@
 
 @section('content')
 <div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">Scoreboard</h1>
+    <h1
+        class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">
+        Scoreboard</h1>
     <div class="flex justify-end items-center gap-2">
-        <input type="text" id="searchFilter" placeholder="Search Scores..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
+        <input type="text" id="searchFilter" placeholder="Search Scores..."
+            class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white">
     </div>
 </div>
 
@@ -22,6 +25,7 @@
                 <th scope="col" class="px-6 py-3">Learning Progress</th>
                 <th scope="col" class="px-6 py-3">Quize Paractice</th>
                 <th scope="col" class="px-6 py-3">Mock Test CBT</th>
+                <th scope="col" class="px-6 py-3">Top Rank</th>
                 <th scope="col" class="px-6 py-3">Question Bank</th>
             </tr>
         </thead>
@@ -36,30 +40,27 @@
 
                 <td class="px-6 py-4">--</td>
                 <td class="px-6 py-4 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="quiz-eye cursor-pointer mx-auto"
-                        data-user="{{ $UserCourse->user->id }}"
-                        width="32" height="32" fill="blue" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="quiz-eye cursor-pointer mx-auto"
+                        data-user="{{ $UserCourse->user->id }}" width="32" height="32" fill="blue" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
-                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
+                        <path
+                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
                     </svg>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="mock-test-eye cursor-pointer mx-auto"
-                        data-user="{{ $UserCourse->user->id }}"
-                        width="32" height="32" fill="blue" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="rank-eye cursor-pointer mx-auto"
+                        data-user="{{ $UserCourse->user->id }}" width="32" height="32" fill="green" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
-                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
+                        <path
+                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
                     </svg>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="question-bank-eye cursor-pointer mx-auto"
-                        data-user="{{ $UserCourse->user->id }}"
-                        width="32" height="32" fill="blue" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="question-bank-eye cursor-pointer mx-auto"
+                        data-user="{{ $UserCourse->user->id }}" width="32" height="32" fill="blue" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
-                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
+                        <path
+                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 .935-.252 1.064-.598l.088-.416c.073-.34.134-.569.288-.569.165 0 .21.207.138.577l-.088.415c-.194.897-.728 1.319-1.532 1.319-1.2 0-1.785-.805-1.532-2.084l.738-3.468c.194-.897.728-1.319 1.532-1.319.545 0 .935.252 1.064.598l.088.416c.073.34.134.569.288.569.165 0 .21-.207.138-.577l-.088-.415c-.194-.897-.728-1.319-1.532-1.319zm-.93-2.588a.905.905 0 1 1 0 1.81.905.905 0 0 1 0-1.81" />
                     </svg>
                 </td>
 
@@ -76,7 +77,8 @@
     </table>
 </div>
 
-<div id="modal" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
+<div id="modal"
+    style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; background-color: rgba(0, 0, 0, 0.5);">
     <div style="
         background-color: white; 
         border-radius: 10px; 
@@ -91,7 +93,8 @@
     ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;"></h2>
-            <button id="closeModal" style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
+            <button id="closeModal"
+                style="background: none;border: 1px solid black;cursor: pointer;color: #6B7280;border-radius: 100%;width: 25px;">X</button>
         </div>
 
         <table class="w-full text-sm text-left text-gray-500 border">
@@ -113,7 +116,7 @@
 @push('scripts')
 @include('script')
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
 
         const quizTableHeadings = ["#", "Subject", "Topic", "Percentage", "Attempt", "Date/Time"];
         const questionBankTableHeadings = ["#", "Subject", "Topic", "Count", "Date/Time"];
@@ -125,7 +128,7 @@
 
         function handleEyeClick(selector, options) {
             document.querySelectorAll(selector).forEach(icon => {
-                icon.addEventListener("click", function() {
+                icon.addEventListener("click", function () {
                     const userId = this.getAttribute("data-user");
 
                     renderTableHead(options.headings);
@@ -212,8 +215,27 @@
         });
 
 
+        // Rank
+        handleEyeClick(".rank-eye", {
+            headings: ["#", "Sub-Category", "Right Ans.", "Wrong Ans.", "Attempt", "Time Taken", "Date/Time"],
+            url: "/rank",
+            title: "Top Rank Data",
+            renderRow: (quiz, index) => `
+     <tr class="border-b">
+            <td class="px-4 py-2">${index + 1}</td>
+            <td class="px-4 py-2">${quiz.sub_category?.name ?? 'N/A'}</td>
+            <td class="px-4 py-2">${quiz.right_answer}</td>
+            <td class="px-4 py-2">${quiz.wrong_answer}</td>
+            <td class="px-4 py-2">${quiz.attempt}</td>
+            <td class="px-4 py-2">${quiz.time_taken} sec</td>
+            <td class="px-4 py-2">${new Date(quiz.created_at).toLocaleString()}</td>
+        </tr>
+    `
+        });
+
+
         // Close modal
-        document.getElementById("closeModal").addEventListener("click", function() {
+        document.getElementById("closeModal").addEventListener("click", function () {
             document.getElementById("modal").style.display = "none";
         });
 

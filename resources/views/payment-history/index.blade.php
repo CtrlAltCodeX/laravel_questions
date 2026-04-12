@@ -5,7 +5,8 @@
 @section('content')
 
 <div class="flex justify-between">
-    <h1 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">
+    <h1
+        class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-2xl dark:text-white">
         Payment History
     </h1>
 
@@ -25,7 +26,7 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">#</th>
-                   <th scope="col" class="px-6 py-3">Source</th>
+                <th scope="col" class="px-6 py-3">Source</th>
                 <th scope="col" class="px-6 py-3">User Name / Email</th>
                 <th scope="col" class="px-6 py-3">Course Name</th>
                 <!-- <th scope="col" class="px-6 py-3">Contact</th>-->
@@ -33,6 +34,7 @@
                 <th scope="col" class="px-6 py-3">Payment id</th>
 
                 <th scope="col" class="px-6 py-3">Method</th>
+                <th scope="col" class="px-6 py-3">Source</th>
                 <!--<th scope="col" class="px-6 py-3">Card last4</th>
                  <th scope="col" class="px-6 py-3">VPA</th> -->
                 <th scope="col" class="px-6 py-3">Status</th>
@@ -42,7 +44,8 @@
 
         <tbody>
             @forelse($payments as $payment)
-            <tr class="paymentRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+            <tr
+                class="paymentRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['id'] }}
                 </th>
@@ -53,7 +56,7 @@
                     <div class="flex flex-col">
                         <span class="font-semibold text-gray-700">{{ $payment['user_name'] }}</span>
                         <span class="text-gray-500">{{ $payment['email'] }}</span>
-                      <span class="text-gray-500">{{ $payment['contact'] }}</span>
+                        <span class="text-gray-500">{{ $payment['contact'] }}</span>
                     </div>
                 </td>
 
@@ -67,7 +70,7 @@
 
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     <div class="flex">
-                      	<span class="text-gray-500">₹</span>
+                        <span class="text-gray-500">₹</span>
                         <span class="font-semibold text-gray-700">{{ $payment['amount'] }}</span>
                     </div>
                 </td>
@@ -89,7 +92,9 @@
                     </div>
                 </td>
 
-
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ $payment['source'] }}
+                </td>
                 <!--<td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ $payment['card_last4'] }}
                 </td>
@@ -124,7 +129,7 @@
 
 @push('scripts')
 <script>
-    document.getElementById('searchFilter').addEventListener('keyup', function() {
+    document.getElementById('searchFilter').addEventListener('keyup', function () {
         const searchValue = this.value.toLowerCase();
         document.querySelectorAll('.paymentRow').forEach(row => {
             const text = row.textContent.toLowerCase();
