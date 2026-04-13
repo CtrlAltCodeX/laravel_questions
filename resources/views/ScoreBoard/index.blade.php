@@ -217,13 +217,13 @@
 
         // Rank
         handleEyeClick(".rank-eye", {
-            headings: ["#", "Sub-Category", "Right Ans.", "Wrong Ans.", "Attempt", "Time Taken", "Date/Time"],
+            headings: ["#", "Live Test", "Right Ans.", "Wrong Ans.", "Attempt", "Time Taken", "Date/Time"],
             url: "/rank",
             title: "Top Rank Data",
             renderRow: (quiz, index) => `
      <tr class="border-b">
             <td class="px-4 py-2">${index + 1}</td>
-            <td class="px-4 py-2">${quiz.sub_category?.name ?? 'N/A'}</td>
+            <td class="px-4 py-2">${quiz.live_test?.name ?? 'N/A'}</td>
             <td class="px-4 py-2">${quiz.right_answer}</td>
             <td class="px-4 py-2">${quiz.wrong_answer}</td>
             <td class="px-4 py-2">${quiz.attempt}</td>

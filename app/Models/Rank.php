@@ -9,7 +9,7 @@ class Rank extends Model
 {
     protected $fillable = [
         'google_user_id',
-        'sub_category_id',
+        'live_test_id',
         'right_answer',
         'wrong_answer',
         'total_questions',
@@ -21,8 +21,8 @@ class Rank extends Model
         return $this->belongsTo(GoogleUser::class , 'google_user_id');
     }
 
-    public function subCategory()
+    public function liveTest()
     {
-        return $this->belongsTo(SubCategory::class , 'sub_category_id');
+        return $this->belongsTo(LiveTest::class , 'live_test_id');
     }
 }

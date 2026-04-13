@@ -98,7 +98,7 @@ Route::post('store/mock-test', [ScoreBoardController::class , 'mockTestStore']);
 Route::get('show/mock-test/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'mockTestShow']);
 
 Route::post('store/rank', [ScoreBoardController::class , 'rankStore']);
-Route::get('show/rank/{google_user_id}/{sub_category_id}', [ScoreBoardController::class , 'rankShow']);
+Route::get('show/rank/{google_user_id}/{live_test_id}', [ScoreBoardController::class , 'rankShow']);
 
 Route::post('update/course/status', [UserCourseController::class , 'updateCourseStatus']);
 

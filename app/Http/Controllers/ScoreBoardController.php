@@ -13,6 +13,7 @@ use App\Models\QuizePractice;
 use App\Models\QuestionBankCount;
 use App\Models\MockTest;
 use App\Models\Rank;
+use App\Models\LiveTest;
 use Carbon\Carbon;
 
 class ScoreBoardController extends Controller
@@ -820,7 +821,7 @@ class ScoreBoardController extends Controller
     {
         $request->validate([
             'google_user_id' => 'required|exists:google_users,id',
-            'sub_category_id' => 'required|exists:sub_categories,id',
+            'live_test_id' => 'required|exists:live_tests,id',
             'right_answer' => 'required|integer|min:0',
             'wrong_answer' => 'required|integer|min:0',
             'total_questions' => 'required|integer|min:0',
@@ -829,7 +830,7 @@ class ScoreBoardController extends Controller
 
         $rank = Rank::create([
             'google_user_id' => $request->google_user_id,
-            'sub_category_id' => $request->sub_category_id,
+            'live_test_id' => $request->live_test_id,
             'right_answer' => $request->right_answer,
             'wrong_answer' => $request->wrong_answer,
             'total_questions' => $request->total_questions,
@@ -842,24 +843,24 @@ class ScoreBoardController extends Controller
         ], 200);
     }
 
-    public function rankShow($googleUserId, $subCategoryId)
+    public function rankShow($googleUserId, $liveTestId)
     {
         $records = Rank::where('google_user_id', $googleUserId)
-            ->where('sub_category_id', $subCategoryId)
-            ->with(['user', 'subCategory:id,name'])
+            ->where('live_test_id', $liveTestId)
+            ->with(['user', 'liveTest:id,title'])
             ->get();
 
-        $subCategoryName = SubCategory::where('id', $subCategoryId)->value('name') ?? 'Unknown SubCategory';
+        $liveTestName = LiveTest::where('id', $liveTestId)->value('title') ?? 'Unknown Live Test';
 
         if ($records->isEmpty()) {
             return response()->json([
                 'status' => false,
-                'message' => 'No rank records found for this user and sub-category.',
+                'message' => 'No rank records found for this user and live test.',
                 'data' => null,
                 'meta' => [
                     'user_id' => (int)$googleUserId,
-                    'sub_category_id' => (int)$subCategoryId,
-                    'sub_category_name' => $subCategoryName,
+                    'live_test_id' => (int)$liveTestId,
+                    'live_test_name' => $liveTestName,
                 ],
             ], 404);
         }
@@ -878,8 +879,8 @@ class ScoreBoardController extends Controller
         $data = [
             'id' => $latestRecord->id,
             'google_user_id' => (int)$googleUserId,
-            'sub_category_id' => (int)$subCategoryId,
-            'sub_category_name' => $subCategoryName,
+            'live_test_id' => (int)$liveTestId,
+            'live_test_name' => $liveTestName,
             'right_answer' => $rightAnswerSum,
             'wrong_answer' => $wrongAnswerSum,
             'total_questions' => $totalQuestionsSum,
@@ -899,7 +900,7 @@ class ScoreBoardController extends Controller
     public function webrankShow($googleUserId)
     {
         $records = Rank::where('google_user_id', $googleUserId)
-            ->with(['user', 'subCategory'])
+            ->with(['user', 'liveTest'])
             ->get();
 
         if ($records->isEmpty()) {
@@ -908,10 +909,10 @@ class ScoreBoardController extends Controller
             ], 404);
         }
 
-        $grouped = $records->groupBy('sub_category_id');
+        $grouped = $records->groupBy('live_test_id');
 
-        $data = $grouped->map(function ($tests, $subCategoryId) {
-            $subCategoryName = $tests->first()->subCategory->name ?? 'Unknown SubCategory';
+        $data = $grouped->map(function ($tests, $liveTestId) {
+            $liveTestName = $tests->first()->liveTest->title ?? 'Unknown Live Test';
 
             $rightAnswerSum = $tests->sum('right_answer');
             $wrongAnswerSum = $tests->sum('wrong_answer');
@@ -923,10 +924,10 @@ class ScoreBoardController extends Controller
             return [
             'id' => $latestRecord->id,
             'google_user_id' => (int)$latestRecord->google_user_id,
-            'sub_category_id' => (int)$subCategoryId,
-            'sub_category' => [
-            'id' => (int)$subCategoryId,
-            'name' => $subCategoryName,
+            'live_test_id' => (int)$liveTestId,
+            'live_test' => [
+            'id' => (int)$liveTestId,
+            'name' => $liveTestName,
             ],
             'right_answer' => $rightAnswerSum,
             'wrong_answer' => $wrongAnswerSum,

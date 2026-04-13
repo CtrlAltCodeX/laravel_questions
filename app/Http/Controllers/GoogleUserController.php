@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\OTP;
 use Illuminate\Http\Request;
 use App\Models\GoogleUser;
+use App\Models\UserCourse;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
 
@@ -94,13 +95,13 @@ class GoogleUserController extends Controller
     public function updateUser(Request $request, $id)
     {
         $request->validate([
-            'name'           => 'nullable|string',
-            'phone_number'   => 'nullable|string',
-            'login_type'     => 'nullable|in:google,facebook,apple',
-            'friend_code'    => 'nullable|string',
-            'profile_image'  => 'nullable',
-            'category_id'    => 'nullable|integer|exists:categories,id',
-            'language_id'    => 'nullable|integer|exists:languages,id'
+            'name' => 'nullable|string',
+            'phone_number' => 'nullable|string',
+            'login_type' => 'nullable|in:google,facebook,apple',
+            'friend_code' => 'nullable|string',
+            'profile_image' => 'nullable',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'language_id' => 'nullable|integer|exists:languages,id'
         ]);
 
         $user = GoogleUser::find($id);
@@ -119,7 +120,8 @@ class GoogleUserController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->storeAs('public/profile_images', $filename);
             $data['profile_image'] = 'profile_images/' . $filename;
-        } elseif ($request->filled('profile_image')) {
+        }
+        elseif ($request->filled('profile_image')) {
             $data['profile_image'] = $request->profile_image;
         }
 
@@ -176,8 +178,8 @@ class GoogleUserController extends Controller
 
             Mail::to($user->email)
                 ->send(new OTP([
-                    'otp' => __($otp),
-                ]));
+                'otp' => __($otp),
+            ]));
 
             $user->update([
                 'otp' => $otp
@@ -187,7 +189,8 @@ class GoogleUserController extends Controller
                 'status' => true,
                 'message' => 'OTP successfully sent'
             ], 200);
-        } else {
+        }
+        else {
             $originalOTP = $user->otp;
 
             if ($originalOTP != request()->otp) {
@@ -236,6 +239,25 @@ class GoogleUserController extends Controller
      *     @OA\Response(response=404, description="User not found")
      * )
      */
+    // public function getProfile($id)
+    // {
+    //     $user = GoogleUser::find($id);
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'User profile retrieved successfully',
+    //         'data' => $user
+    //     ]);
+    // }
+
+
     public function getProfile($id)
     {
         $user = GoogleUser::find($id);
@@ -247,17 +269,24 @@ class GoogleUserController extends Controller
             ], 404);
         }
 
+        // Active plan fetch karo
+        $activePlan = UserCourse::where('user_id', $id)
+            ->where('status', 1)
+            ->first();
+
         return response()->json([
             'status' => true,
             'message' => 'User profile retrieved successfully',
-            'data' => $user
+            'data' => [
+                'user' => $user,
+                'active_plan' => $activePlan
+            ]
         ]);
     }
-
     public function updateUserCode(Request $request, $id)
     {
         $request->validate([
-            'friend_code'   => 'nullable|string',
+            'friend_code' => 'nullable|string',
         ]);
 
         $user = GoogleUser::where('referral_code', $request->friend_code)
