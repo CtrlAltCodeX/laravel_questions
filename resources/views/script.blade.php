@@ -122,7 +122,7 @@
                 url: '/get-categories/' + languageId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_category').empty().append('<option value="">Select Category</option>');
+                    $('.select_category').empty();
                     $.each(data, function(key, value) {
                         $('.select_category').append('<option value="' + value.id + '">' + value.name + '</option>');
                     });
@@ -142,7 +142,7 @@
                 url: '/get-subcategories/' + categoryId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_sub_category').empty().append('<option value="">Select Sub Category</option>');
+                    $('.select_sub_category').empty();
                     $.each(data, function(key, value) {
                         $('.select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
                     });
@@ -160,7 +160,7 @@
                 url: '/get-subjects/' + subCategoryId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_subject').empty().append('<option value="">Select Subject</option>');
+                    $('.select_subject').empty();
                     $.each(data, function(key, value) {
                         $('.select_subject').append('<option value="' + value.id + '">' + value.name + '</option>');
                     });
@@ -178,10 +178,10 @@
                 url: '/get-topics/' + subjectId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_topic').empty().append('<option value="">Select Topic</option>');
+                    $('.select_topic').empty();
 
                     $.each(data, function(key, value) {
-                        $('.select_topic').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        $('.select_topic').append('<option value="' + value.id + '">' + value.subject.name + ' | ' + value.name + '</option>');
                     });
                 }
             });

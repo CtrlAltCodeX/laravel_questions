@@ -44,144 +44,229 @@
     <button id='importButton' class='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none'>Import</button>
     <a href='{{ route("videos.export") }}' class='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none'>Export</a>
     <!-- <input type="text" id="searchFilter" placeholder="Search Videos..." class="border border-gray-300 rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-white"> -->
+    <div>
+        <div id="columnSelectToggle" class="block px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none cursor-pointer">
+            <svg viewBox="0 0 100 80" width="20" height="20">
+                <rect width="100" height="20"></rect>
+                <rect y="30" width="100" height="20"></rect>
+                <rect y="60" width="100" height="20"></rect>
+            </svg>
+        </div>
+        
+        <div id="columnSelectDropdown" class="absolute z-10 hidden w-[150px] right-[0px] mt-1 bg-white border border-gray-300 rounded-md shadow-lg right-[165px] h-[200px] overflow-y-auto">
+            <div class="p-2">
+                <label class="block">
+                <input type="checkbox" value="id" class="mr-2">
+                    ID
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="v_no" class="mr-2">
+                    V.N.
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="thumbnail" class="mr-2">
+                    Thumbnail
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="video_title" class="mr-2">
+                    Video Title
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="language" class="mr-2">
+                    Language
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="category" class="mr-2">
+                    Category
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="subcategory" class="mr-2">
+                    Sub Category
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="subject" class="mr-2">
+                    Subject
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="topic" class="mr-2">
+                    Topic
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="description" class="mr-2">
+                    Description
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="youtube_id" class="mr-2">
+                    YouTube ID
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="video_type" class="mr-2">
+                    Video Type
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="external_link" class="mr-2">
+                    External Link
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="pdf" class="mr-2">
+                    PDF
+                </label>
+
+                <label class="block">
+                    <input type="checkbox" value="action" class="mr-2">
+                    Action
+                </label>
+            </div>
+        </div>
+    </div>
 </div>
 
+
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg space-y-5">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="offersTable">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <table class="w-full text-sm text-left text-gray-500" id="offersTable">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-                <th scope="col" class="px-6 py-3">
-
-                    <a href="{{ route('videos.index', array_merge(request()->all(), ['sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                        #
-                        @if ($sortColumn == 'id')
-                        @if ($sortDirection == 'asc')
-                        ▲
-                        @else
-                        ▼
-                        @endif
-                        @endif
-                    </a>
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    V.N.
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Thumbnail/
-                    Video Title
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    <a href="#">
-                        Language Name / Category Name / Sub Category Name / Subject Name / Topic Name
-                    </a>
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    Description
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    YouTube Link
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    Video Type
-                </th>
-              
-              	<th scope="col" class="px-6 py-3">
-                    External Link
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    Pdf
-                </th>
-
-                <th scope="col" class="px-6 py-3">
-                    action
-                </th>
-
+                <th data-column="id" class="px-6 py-3">#</th>
+                <th data-column="v_no" class="px-6 py-3">V.N.</th>
+                <th data-column="thumbnail" class="px-6 py-3">Thumbnail</th>
+                <th data-column="video_title" class="px-6 py-3">Video Title</th>
+                <th data-column="language" class="px-6 py-3">Language</th>
+                <th data-column="category" class="px-6 py-3">Category</th>
+                <th data-column="subcategory" class="px-6 py-3">Sub Category</th>
+                <th data-column="subject" class="px-6 py-3">Subject</th>
+                <th data-column="topic" class="px-6 py-3">Topic</th>
+                <th data-column="description" class="px-6 py-3">Description</th>
+                <th data-column="youtube_id" class="px-6 py-3">YouTube ID</th>
+                <th data-column="video_type" class="px-6 py-3">Video Type</th>
+                <th data-column="external_link" class="px-6 py-3">External Link</th>
+                <th data-column="pdf" class="px-6 py-3">PDF</th>
+                <th data-column="action" class="px-6 py-3">Action</th>
             </tr>
         </thead>
+
         <tbody>
             @forelse($videos as $video)
-            <tr class="offerRow odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$video->id}}
-                </th>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$video->v_no}}
-                </th>
+            <tr class="border-b">
 
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 dark:text-white flex justify-center flex-wrap flex-col items-center">
-                    <img class='mb-2' src="{{ $video->thumbnail ? '/storage/'.$video->thumbnail : '/dummy.jpg'}}" style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border:2px solid black;' />
-                    {{$video->name}}
-                </th>
+                <td data-column="id" class="px-6 py-4">{{ $video->id }}</td>
 
-                @php
-                    $fullText = $video->topic->subject->subCategory->category->language->name . ' / ' .
-                                $video->topic->subject->subCategory->category->name . ' / ' .
-                                $video->topic->subject->subCategory->name . ' / ' .
-                                $video->topic->subject->name . ' / ' .
-                                $video->topic->name;
+                <td data-column="v_no" class="px-6 py-4">{{ $video->v_no }}</td>
 
-                    // limit to 50 words
-                    $shortText = Str::words($fullText, 10, '...');
-                @endphp
+                <td data-column="thumbnail" class="px-6 py-4">
+                    <img src="{{ $video->thumbnail ? '/storage/'.$video->thumbnail : '/dummy.jpg' }}"
+                        class="w-12 h-12 rounded-full object-cover border">
+                </td>
 
-                <th scope="row"
-                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white relative group">
-                    <span>{{ $shortText }}</span>
-                    <div class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded px-3 py-2 w-max max-w-fit z-10 -top-2 left-1/2 -translate-x-1/2">
-                        {{ $fullText }}
-                    </div>
-                </th>
-                {{-- <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></th> --}}
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$video->description}}
-                </th>
-                {{-- <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <a href="{{ $video->youtube_link }}" target="_blank" class="text-blue-500 hover:underline">
-                        {{ $video->youtube_link }}
-                    </a>
-                </th> --}}
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{-- <a href="#" target="_blank" class="text-blue-500 hover:underline"> --}}
-                        {{ $video->video_id }}
-                    {{-- </a> --}}
-                </th>
+                <td data-column="video_title" class="px-6 py-4">{{ $video->name }}</td>
 
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{$video->video_type}}
-                </th>
-              
-              	<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <td data-column="language" class="px-6 py-4">
+                    {{ $video->topic->subject->subCategory->category->language->name }}
+                </td>
+
+                <td data-column="category" class="px-6 py-4">
+                    {{ $video->topic->subject->subCategory->category->name }}
+                </td>
+
+                <td data-column="subcategory" class="px-6 py-4">
+                    {{ $video->topic->subject->subCategory->name }}
+                </td>
+
+                <td data-column="subject" class="px-6 py-4">
+                    {{ $video->topic->subject->name }}
+                </td>
+
+                <td data-column="topic" class="px-6 py-4">
+                    {{ $video->topic->name }}
+                </td>
+
+                <td data-column="description" class="px-6 py-4">
+                    {{ $video->description }}
+                </td>
+
+                <td data-column="youtube_id" class="px-6 py-4">
+                    {{ $video->video_id }}
+                </td>
+
+                <td data-column="video_type" class="px-6 py-4">
+                    {{ $video->video_type }}
+                </td>
+
+                <td data-column="external_link" class="px-6 py-4">
                     @php
-                        $videoLink = "";
-                        $viewBtn = '-';
-                        if($video->video_link) {
-                            $videoLink = Storage::disk('minio')->temporaryUrl($video->video_link, now()->addMinutes(30));
-                            $viewBtn = 'View';
-                        }
-                    @endphp
-                    <a href="{{ $videoLink }}" target="_blank" class="text-blue-500 hover:underline">
-                        {{ $viewBtn }}
-                    </a>
-                </th>
+                        $videoLinks = [];
 
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-	                 @php
-                        $pdfLink = "";
-                        $viewBtn = '-';
-                        if($video->pdf_link) {
-                            $pdfLink = Storage::disk('minio')->temporaryUrl($video->pdf_link, now()->addMinutes(30));
-                            $viewBtn = 'View';
+                        if ($video->video_link) {
+                            $paths = is_array($video->video_link)
+                                ? $video->video_link
+                                : json_decode($video->video_link, true);
+
+                            if (is_array($paths)) {
+                                foreach ($paths as $path) {
+
+                                    $quality = '-';
+
+                                    if (str_contains($path, '/720p/')) {
+                                        $quality = '720p';
+                                    } elseif (str_contains($path, '/480p/')) {
+                                        $quality = '480p';
+                                    } elseif (str_contains($path, '/320p/')) {
+                                        $quality = '320p';
+                                    }
+
+                                    $videoLinks[] = [
+                                        'quality' => $quality,
+                                        'url' => Storage::disk('minio')->temporaryUrl(
+                                            $path,
+                                            now()->addMinutes(30)
+                                        )
+                                    ];
+                                }
+                            }
                         }
                     @endphp
-                    <a href="{{ $pdfLink }}" target="_blank" class="text-blue-500 hover:underline">
-                        {{ $viewBtn }}
-                    </a>
-                </th>
+
+                    @if(count($videoLinks))
+                        <div class="flex gap-2 flex-wrap">
+                            @foreach($videoLinks as $item)
+                                <a href="{{ $item['url'] }}"
+                                target="_blank"
+                                class="px-3 py-1 bg-blue-500 text-white rounded text-xs">
+                                    {{ $item['quality'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        -
+                    @endif
+                </td>
+
+                <td data-column="pdf" class="px-6 py-4">
+                    @php
+                        $pdfLink = "";
+                        if($video->pdf_link){
+                            $pdfLink = Storage::disk('minio')->temporaryUrl($video->pdf_link, now()->addMinutes(30));
+                        }
+                    @endphp
+
+                    @if($pdfLink)
+                        <a href="{{ $pdfLink }}" target="_blank" class="text-blue-500">View</a>
+                    @else
+                        -
+                    @endif
+                </td>
 
                 <td class="px-6 py-4 flex gap-4">
                     <button class="editvieoButton font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -213,10 +298,11 @@
                         </button>
                     </form>
                 </td>
+
             </tr>
             @empty
             <tr>
-                <td colspan="8" align="center">No Result Found</td>
+                <td colspan="15" class="text-center py-4">No Result Found</td>
             </tr>
             @endforelse
         </tbody>
@@ -382,6 +468,52 @@
 @include('script')
 
 <script>
+
+    const savedColumns = localStorage.getItem('selectedColumns');
+    const selectedColumns = savedColumns ? JSON.parse(savedColumns) : [];
+
+    $('#columnSelectToggle').click(function() {
+        $('#columnSelectDropdown').toggle();
+    });
+
+    $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+        const value = $(this).val();
+        if ($.inArray(value, selectedColumns) !== -1) {
+            $(this).prop('checked', true);
+            $(`[data-column="${value}"]`).show();
+        } else {
+            $(this).prop('checked', false);
+            $(`[data-column="${value}"]`).hide();
+        }
+    });
+
+    // Handle checkbox changes
+    $('#columnSelectDropdown input[type="checkbox"]').change(function() {
+        const selectedOptions = [];
+
+        // Show/hide columns based on checked checkboxes
+        $('#columnSelectDropdown input[type="checkbox"]').each(function() {
+            const value = $(this).val();
+            if ($(this).is(':checked')) {
+                selectedOptions.push(value);
+                $(`[data-column="${value}"]`).show();
+            } else {
+                $(`[data-column="${value}"]`).hide();
+            }
+        });
+
+        // Save the selected columns to localStorage
+        localStorage.setItem('selectedColumns', JSON.stringify(selectedOptions));
+    });
+
+    // Close dropdown when clicking outside of it
+    $(document).click(function(event) {
+        if (!$(event.target).closest('#columnSelectToggle, #columnSelectDropdown').length) {
+            $('#columnSelectDropdown').hide();
+        }
+    });
+
+
     document.getElementById('pdf_input').addEventListener('change', function(event) {
         let file = event.target.files[0];
         if (file) {

@@ -9,14 +9,14 @@ use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Exports\VideosExport;
 use App\Imports\VideosImport;
+use App\Models\Question;
 use App\Models\Topic;
 use App\Models\Subject;
 use App\Models\Video;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage; // ✅ Correctly placed here
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\VideoProgress;
-
 
 class VideoController extends Controller
 {
@@ -100,14 +100,14 @@ class VideoController extends Controller
 
         if (request()->data == 'all') {
             $videos = $query
-              			->orderBy('desc')
-              			->get();
+                ->orderBy('desc')
+                ->get();
         } else {
             $videos = $query
-              ->orderBy('id', 'desc')
-              ->paginate(request()->data);
+                ->orderBy('id', 'desc')
+                ->paginate(request()->data);
         }
-      
+
         $dropdown_list = [
             'Select Language' => $languages,
             'Select Category' => $categories,
@@ -195,7 +195,6 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-//      dd(request()->all());
         $request->validate([
             'name' => 'required',
             'sub_category_id' => 'required',
@@ -427,15 +426,14 @@ class VideoController extends Controller
             if (count($topics2)) {
                 $topicsName .= ' | ' . ($topics2[$outkey]->name ?? '');
             }
-			
-          	if (isset($topics2[$outkey])) {
+
+            if (isset($topics2[$outkey])) {
                 $videos = $this->getFirstDropdownData($requestData, $topics2[$outkey])
                     ? $this->getFirstDropdownData($requestData, $topics2[$outkey])['videos']
                     : [];
 
-                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;            
+                $jsonResponse[$languageName][$categoryName][$subcategoryName][$subjectName][$topics[$outkey]->id][$topicsName] = $videos;
             }
-
         }
 
         return response()->json($jsonResponse);
@@ -472,28 +470,68 @@ class VideoController extends Controller
         $categoryId = $data['Category'] ?? null;
 
         $subjectId = $data['Subject'] ?? null;
-      
+
         $subCategory2 = $data['SubCategory_2'] ?? null;
-      
+
         $subject2 = $data['Subject_2'] ?? null;
 
         if (!$categoryId) return response()->json(['error' => 'Category parameter is missing'], 400);
-      
-      	$videos = Video::where('sub_category_id', $subCategory2)
-            ->where('subject_id', $subject2)
-          	->where('topic_id', $topic?->id);
 
-        $videos = $videos->first();
-      
-        if ($videos && $videos->video_link) {
-            $temporaryVideoUrl = Storage::disk('s3')->temporaryUrl($videos->video_link, now()->addMinutes(30));
-            $videos['videoURL'] = $temporaryVideoUrl;
-        }
-      
-      	if ($videos && $videos->pdf_link) {
-            $temporaryPdfUrl = Storage::disk('s3')->temporaryUrl($videos->pdf_link, now()->addMinutes(30));
-            $videos['pdfURL'] = $temporaryPdfUrl;
-        }
+        $videos = Video::where('sub_category_id', $subCategory2)
+            ->where('subject_id', $subject2)
+            ->where('topic_id', $topic?->id);
+
+        $videos = $videos->get();
+
+        $videos->map(function ($video) {
+            /* Video Links (720p / 480p / 320p) */
+            if ($video->video_link) {
+
+                $paths = is_array($video->video_link)
+                    ? $video->video_link
+                    : json_decode($video->video_link, true);
+
+                $videoUrls = [];
+
+                if (is_array($paths)) {
+                    foreach ($paths as $path) {
+
+                        $quality = '';
+
+                        if (str_contains($path, '/720p/')) {
+                            $quality = '720p';
+                        } elseif (str_contains($path, '/480p/')) {
+                            $quality = '480p';
+                        } elseif (str_contains($path, '/320p/')) {
+                            $quality = '320p';
+                        }
+
+                        $videoUrls[] = [
+                            'quality' => $quality,
+                            'url' => Storage::disk('s3')->temporaryUrl(
+                                $path,
+                                now()->addMinutes(30)
+                            )
+                        ];
+                    }
+                }
+
+                $video->videoURL = $videoUrls;
+            } else {
+                $video->videoURL = [];
+            }
+
+            if ($video->pdf_link) {
+                $video->pdfURL = Storage::disk('s3')->temporaryUrl(
+                    $video->pdf_link,
+                    now()->addMinutes(30)
+                );
+            } else {
+                $video->pdfURL = null;
+            }
+
+            return $video;
+        });
 
         $language = Language::find($languageId);
 
@@ -547,8 +585,8 @@ class VideoController extends Controller
             'videos' => $videos
         ];
     }
-  	
-  	public function updateVideoProgress(Request $request)
+
+    public function updateVideoProgress(Request $request)
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:google_users,id',
@@ -564,26 +602,26 @@ class VideoController extends Controller
 
         return response()->json(['message' => 'Video progress updated successfully', 'data' => $videoProgress]);
     }
-  
-  	public function getVideoProgress($userId, $sub_category_id)
+
+    public function getVideoProgress($userId, $sub_category_id)
     {
         $videoProgressData = VideoProgress::join('videos', 'video_progress.video_id', '=', 'videos.id')
             ->where('video_progress.user_id', $userId)
             ->where('videos.sub_category_id', $sub_category_id)
             ->select(
                 'videos.id',
- 		        'videos.name',
-		        'videos.v_no',
-          		'videos.topic_id',
+                'videos.name',
+                'videos.v_no',
+                'videos.topic_id',
                 'videos.duration',
-          	    'videos.created_at',
-          		'videos.updated_at',
+                'videos.created_at',
+                'videos.updated_at',
                 'video_progress.watched_seconds',
-          		'video_total_seconds'
+                'video_total_seconds'
             )
             ->get();
-      
-	     $totalVideos = Video::where('sub_category_id', $sub_category_id)
+
+        $totalVideos = Video::where('sub_category_id', $sub_category_id)
             ->get();
 
         // Total videos

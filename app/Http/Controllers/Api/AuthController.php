@@ -62,8 +62,8 @@ class AuthController extends Controller
                 // Save FCM token if provided
                 if ($token) {
                     UserFcmToken::updateOrCreate(
-                    ['user_id' => $user->id],
-                    ['fcm_token' => $token]
+                        ['user_id' => $user->id],
+                        ['fcm_token' => $token]
                     );
                 }
 
@@ -74,15 +74,13 @@ class AuthController extends Controller
                     // 'userdetails' => $payload
 
                 ]);
-            }
-            else {
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid ID Token'
                 ], 401);
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -105,8 +103,7 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Session deleted successfully.'
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting session or session not found.'

@@ -114,6 +114,23 @@
                     </select>
                 </div>
             </div>
+          
+          	<div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Topics</label>
+                <div class="mb-3 relative">
+                    <select id='select_topic' multiple name="topics[]" class="select_topic bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Choose a Topics</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mx-auto mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Paid/Free</label>
+                <select id="paid_free" name="is_paid" class="paid_free bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value=0>Free</option>
+                    <option value=1>Paid</option>
+                </select>
+            </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Subscription Plans</label>
@@ -155,11 +172,6 @@
                 </div>
             </div>
 
-            {{-- <div class="flex gap-4 align-items-center mb-4">
-                <label class="form-label mb-1">Question Limit</label>
-                <input type="number" class="form-control w-1/6" name="question_limit" id='question_limit' placeholder="Question Limit" required>
-            </div> --}}
-
             <div class="flex gap-4 mb-4">
                 <label>
                     <input type='radio' name='part' id='subject_wise' value='subject' />
@@ -189,10 +201,11 @@
             </div>
 
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Stars</label>
-                <select id="stars" name="stars" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                    <option value="0">False</option>
-                    <option value="1">True</option>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Subscription Tier</label>
+                <select id="stars" name="tier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="sub_basic">Basic</option>
+                    <option value="sub_standard">Standard</option>
+                    <option value="sub_premium">Premium</option>
                 </select>
             </div>
 
@@ -236,6 +249,10 @@
             width: '100%',
             placeholder: 'Select Features'
         });
+      
+	    $('#select_topic').select2({
+            width: '100%'
+        });
 
         $('#select_subject').on('select2:select', function (e) {
             if (e.params.data.id === "all") {
@@ -258,6 +275,18 @@
                     }
                 });
                 $('#select_sub_category').val(allValues).trigger('change'); // Select everything
+            }
+        });
+      
+	      $('#select_topic').on('select2:select', function (e) {
+            if (e.params.data.id === "all") {
+                let allValues = [];
+                $('#select_topic option').each(function () {
+                    if ($(this).val() !== "all") {
+                        allValues.push($(this).val());
+                    }
+                });
+                $('#select_topic').val(allValues).trigger('change'); // Select everything
             }
         });
     });
@@ -385,6 +414,7 @@
             const categoryId = data.category_id;
             const subcategories = (data.sub_category_id);
             const subjects = (data.subject_id);
+			const topics = (data.topic_id);
             const status = data.status;
             const banner = data.banner;
             const language = data.language;
@@ -610,6 +640,11 @@
                 //     }
                 // });
             }, 2000);
+          
+          setTimeout(() => {
+                $("#select_topic").val(topics).trigger('change');
+                $('#select_topic').prepend('<option value="all">Select All</option>');
+            }, 3000);
 
             function getSubjectWise(groupedData, requests)
             {
@@ -644,7 +679,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </button>
-                                <div id="${collapseId}" class="hidden px-4 pb-4 pt-2">
+                                <div id="${collapseId}" class="hidden px-4 pb-4 pt-2 sub-category-section" data-subcategory="${subCategoryId}">
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
                                             <thead class="bg-gray-200">
@@ -660,11 +695,33 @@
                                             </tbody>
                                         </table>
                                     </div>
+									<div class='text-center mt-2'>
+                                        <label>
+                                            Question Marks:
+                                            <input type="text" name="subject_limit[question_marks][${subCategoryId}]" id="${collapseId}-question_marks" class='w-24 border rounded px-2 py-1' />    
+                                        </label>
+                                        <label>
+                                            Negative Marks:
+                                            <input type="text" name="subject_limit[negative_marks][${subCategoryId}]" id="${collapseId}-negative_marks" class='w-24 border rounded px-2 py-1' />    
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         `;
 
                         $("#subjectAccordion").append(accordionItem);
+                      
+	                    //const subCategorySection = document.querySelector(".sub-category-section");
+                        //accordianCollapseId = subCategorySection.id;
+                      	//const subCategoryId = subCategorySection.dataset.subcategory;collapse-3-question_marks
+                      	negativeInput = document.querySelector("#collapse-"+subCategoryId + '-negative_marks');
+	                    questionInput = document.querySelector("#collapse-"+subCategoryId + '-question_marks');
+                      
+                      	console.log(negativeInput);
+                      
+                      	if (negativeInput) negativeInput.value = subjectWise.negative_marks[subCategoryId] ?? '';
+                      	if (questionInput) questionInput.value = subjectWise.question_marks[subCategoryId] ?? '';
+                        
                     });
 
                     if (typeof subjectWise !== 'undefined' && subjectWise) {
@@ -676,7 +733,7 @@
                             const input = document.querySelector(`input[data-subject="${sId}"]`);
                             const positionInput = document.querySelector(`input[data-position="${sId}"]`);
 
-                            if (input) input.value = value ?? '';
+                          	if (input) input.value = value ?? '';
                             if (positionInput) positionInput.value = subjectWise.position[sId] ?? '';
                         });
                     }

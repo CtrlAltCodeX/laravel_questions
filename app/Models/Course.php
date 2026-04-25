@@ -12,6 +12,7 @@ class Course extends Model
         'category_id',
         'sub_category_id',
         'subject_id',
+        'topic_id',
         'status',
         'subscription',
         'banner',
@@ -21,7 +22,9 @@ class Course extends Model
         'part_limit',
         'meta_data',
         'stars',
-        'features'
+        'tier',
+        'features',
+        "is_paid"
     ];
 
     protected $casts = [
@@ -29,6 +32,7 @@ class Course extends Model
         'subject_limit' => 'array',
         'part_limit' => 'array',
         'subject_id' => 'array',
+        'topic_id' => 'array',
         'sub_category_id' => 'array',
         'features' => 'array',
         'stars' => 'boolean'

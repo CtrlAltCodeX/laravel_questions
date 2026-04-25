@@ -596,7 +596,11 @@ class QuestionBankController extends Controller
 
     public function getTopics($subjectId)
     {
-        $topics = Topic::where('subject_id', $subjectId)->get();
+        $topicsIds = explode(',', $subjectId);
+
+        $topics = Topic::with('subject')
+            ->whereIn('subject_id', $topicsIds)
+            ->get();
 
         return response()->json($topics);
     }

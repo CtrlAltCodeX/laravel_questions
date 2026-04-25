@@ -30,7 +30,6 @@ class RazorpayController extends Controller
         $this->notificationService = $notificationService;
     }
 
-
     public function initiatePayment(Request $request)
     {
         $validated = $request->validate([
@@ -80,9 +79,7 @@ class RazorpayController extends Controller
                 'amount' => $amountData['final_amount'],
                 'plan' => $validated['plan_type']
             ]);
-
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -319,15 +316,10 @@ class RazorpayController extends Controller
 </script>
 </html>
 HTML;
-
-                }
-
-                else {
+                } else {
                     return "<h2>Payment Verification Failed</h2><p>" . ($result['message'] ?? 'Unknown error') . "</p>";
                 }
-
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 return "<h2>Error fetching payment details</h2><p>" . $e->getMessage() . "</p>";
             }
         }
@@ -344,8 +336,7 @@ HTML;
         try {
             $api = new Api($this->razorpay_key, $this->razorpay_secret);
             $api->utility->verifyWebhookSignature($payload, $webhookSignature, $webhookSecret);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             \Log::error('Razorpay Webhook Signature Verification Failed: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
         }
@@ -404,46 +395,45 @@ HTML;
 
     public function index()
     {
-
         $payments = Payment::with(['user', 'course'])->get();
         $userCoins = UserCoin::with('user')->get();
         $mergedData = $payments->map(function ($item) {
             return [
-            'source' => $item->source ?? 'Payment',
-            'id' => $item->id,
-            'user_name' => $item->user->name ?? '-',
-            'email' => $item->email ?? '-',
-            'contact' => $item->contact ?? '-',
-            'course_name' => $item->course->name ?? '-',
-            'amount' => $item->amount ?? '-',
-            'currency' => $item->currency ?? '-',
-            'payment_id' => $item->payment_id ?? '-',
-            'method' => $item->method ?? '-',
-            'card_network' => $item->card_network ?? '-',
-            'card_last4' => $item->card_last4 ?? '-',
-            'vpa' => $item->vpa ?? '-',
-            'status' => $item->status ?? '-',
-            'created_at' => $item->created_at,
+                'source' => $item->source ?? 'Payment',
+                'id' => $item->id,
+                'user_name' => $item->user->name ?? '-',
+                'email' => $item->email ?? '-',
+                'contact' => $item->contact ?? '-',
+                'course_name' => $item->course->name ?? '-',
+                'amount' => $item->amount ?? '-',
+                'currency' => $item->currency ?? '-',
+                'payment_id' => $item->payment_id ?? '-',
+                'method' => $item->method ?? '-',
+                'card_network' => $item->card_network ?? '-',
+                'card_last4' => $item->card_last4 ?? '-',
+                'vpa' => $item->vpa ?? '-',
+                'status' => $item->status ?? '-',
+                'created_at' => $item->created_at,
             ];
         });
 
         $userCoinData = $userCoins->map(function ($item) {
             return [
-            'source' => 'User Coin',
-            'id' => $item->id,
-            'user_name' => $item->user->name ?? '-',
-            'email' => $item->user->email ?? '-',
-            'contact' => $item->user->phone_number ?? '-',
-            'course_name' => '-',
-            'amount' => $item->coin ?? '-',
-            'currency' => 'INR',
-            'payment_id' => $item->meta_description ?? '-',
-            'method' => '-',
-            'card_network' => '-',
-            'card_last4' => '-',
-            'vpa' => '-',
-            'status' => $item->user->status ?? '-',
-            'created_at' => $item->created_at,
+                'source' => 'User Coin',
+                'id' => $item->id,
+                'user_name' => $item->user->name ?? '-',
+                'email' => $item->user->email ?? '-',
+                'contact' => $item->user->phone_number ?? '-',
+                'course_name' => '-',
+                'amount' => $item->coin ?? '-',
+                'currency' => 'INR',
+                'payment_id' => $item->meta_description ?? '-',
+                'method' => '-',
+                'card_network' => '-',
+                'card_last4' => '-',
+                'vpa' => '-',
+                'status' => $item->user->status ?? '-',
+                'created_at' => $item->created_at,
             ];
         });
         $merged = $mergedData->merge($userCoinData)->sortByDesc('created_at');
@@ -454,8 +444,8 @@ HTML;
             $merged->count(),
             $perPage,
             $currentPage,
-        ['path' => request()->url(), 'query' => request()->query()]
-            );
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('payment-history.index', ['payments' => $paginated]);
     }
@@ -486,7 +476,9 @@ HTML;
         $user = GoogleUser::find($validated['user_id']);
 
         // Get course
-        $course = Course::find($validated['course_id']);
+        $course = Course::where('is_paid', true)
+            ->find($validated['course_id']);
+
         if (!$course) {
             return response()->json([
                 'status' => false,
@@ -508,7 +500,6 @@ HTML;
         $amount = floatval($courseSubscription[$plan]['amount']);
         $discount = 0;
 
-
         $offer = Offer::whereJsonContains('course', (string)$course->id)
             ->latest('created_at')
             ->first();
@@ -522,8 +513,7 @@ HTML;
         if ($offer && isset($offerSubscription[$plan])) {
             if ($alreadyPurchased) {
                 $discount = isset($offerSubscription[$plan]['upgrade']) ? floatval($offerSubscription[$plan]['upgrade']) : 0;
-            }
-            else {
+            } else {
                 $discount = isset($offerSubscription[$plan]['discount']) ? floatval($offerSubscription[$plan]['discount']) : 0;
             }
         }
@@ -545,19 +535,19 @@ HTML;
 
         // Create or update UserCourse
         \App\Models\UserCourse::updateOrCreate(
-        [
-            'user_id' => $validated['user_id'],
-            'course_id' => $validated['course_id'],
-        ],
-        [
-            'subscription_type' => $plan,
-            'valid_from' => $validFrom,
-            'valid_to' => $validTo,
-            'meta_data' => json_encode([
-                'provider' => 'razorpay',
-                'payment_id' => $validated['payment_id']
-            ])
-        ]
+            [
+                'user_id' => $validated['user_id'],
+                'course_id' => $validated['course_id'],
+            ],
+            [
+                'subscription_type' => $plan,
+                'valid_from' => $validFrom,
+                'valid_to' => $validTo,
+                'meta_data' => json_encode([
+                    'provider' => 'razorpay',
+                    'payment_id' => $validated['payment_id']
+                ])
+            ]
         );
 
 
@@ -606,8 +596,7 @@ HTML;
         if ($offer && isset($offerSubscription[$plan])) {
             if ($alreadyPurchased) {
                 $discount = isset($offerSubscription[$plan]['upgrade']) ? floatval($offerSubscription[$plan]['upgrade']) : 0;
-            }
-            else {
+            } else {
                 $discount = isset($offerSubscription[$plan]['discount']) ? floatval($offerSubscription[$plan]['discount']) : 0;
             }
         }
@@ -624,6 +613,4 @@ HTML;
             'course_name' => $course->name,
         ]);
     }
-
-
 }

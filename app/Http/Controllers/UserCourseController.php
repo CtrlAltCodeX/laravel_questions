@@ -10,17 +10,6 @@ class UserCourseController extends Controller
 {
     public function getUserCourses($userId)
     {
-
-        $user = \App\Models\GoogleUser::find($userId);
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found.'
-            ], 404);
-        }
-
-
-
         $userCourses = UserCourse::where('user_id', $userId);
 
         if (request()->status) {
@@ -33,27 +22,30 @@ class UserCourseController extends Controller
             $course = Course::find($userCourse->course_id);
 
             $metaData = json_decode($userCourse->meta_data, true);
-            $subscriptionSource = $metaData['provider'] ?? 'unknown';
+            $provider = $metaData['provider'] ?? 'razorpay';
+            $subscriptionSource = str_contains($provider, 'google_play') ? 'google_play' : 'razorpay';
+            $autoRenewing = $metaData['auto_renewing'] ?? false;
 
             return [
-            'user_id' => $userCourse->user_id,
-            'course_id' => $userCourse->course_id,
-            'plan_type' => $userCourse->subscription_type,
-            'subscription_source' => $subscriptionSource, // Added this field
-            'valid_from' => $userCourse->valid_from,
-            'valid_to' => $userCourse->valid_to,
-            'course_detail' => $course ? [
-            'id' => $course->id,
-            'name' => $course->name,
-            'meta_data' => $course->meta_data,
-            'language_id' => $course->language_id,
-            'category_id' => $course->category_id,
-            'sub_category_id' => $course->sub_category_id,
-            'subject_id' => $course->subject_id,
-            'status' => $course->status,
-            'subscription' => $course->subscription,
-            'banner' => $course->banner,
-            ] : null,
+                'user_id' => $userCourse->user_id,
+                'course_id' => $userCourse->course_id,
+                'plan_type' => $userCourse->subscription_type,
+                'valid_from' => $userCourse->valid_from,
+                'valid_to' => $userCourse->valid_to,
+                'subscription_source' => $subscriptionSource,
+                'auto_renewing' => (bool) $autoRenewing,
+                'course_detail' => $course ? [
+                    'id' => $course->id,
+                    'name' => $course->name,
+                    'meta_data' => $course->meta_data,
+                    'language_id' => $course->language_id,
+                    'category_id' => $course->category_id,
+                    'sub_category_id' => $course->sub_category_id,
+                    'subject_id' => $course->subject_id,
+                    'status' => $course->status,
+                    'subscription' => $course->subscription,
+                    'banner' => $course->banner,
+                ] : null,
             ];
         });
 
@@ -94,13 +86,11 @@ class UserCourseController extends Controller
         $courseId = request()->course_id;
         $status = request()->status;
 
-        // Deactivate all other courses for the user if setting to active
         if ($status) {
             UserCourse::where('user_id', $userId)
                 ->update(['status' => 0]);
         }
 
-        // Update the selected course
         $userCourse = UserCourse::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->firstOrFail();

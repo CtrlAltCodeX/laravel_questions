@@ -25,6 +25,10 @@ class Video extends Model
         'sub_category_id',
     ];
 
+    protected $casts = [
+        'video_link' => 'array',
+    ];
+
     public function topic()
     {
         return $this->belongsTo(Topic::class);

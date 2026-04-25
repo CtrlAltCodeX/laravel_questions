@@ -197,7 +197,8 @@ class CourseController extends Controller
             'subcategories' => 'required|array',
             'subjects' => 'required|array',
             'status' => 'required|boolean',
-            'stars' => 'nullable|boolean',
+            // 'stars' => 'nullable|boolean',
+            'tier' => 'nullable|string',
         ]);
         $subscriptions = [];
 
@@ -235,6 +236,7 @@ class CourseController extends Controller
             'category_id' => $request->category_id,
             'sub_category_id' => $request->subcategories,
             'subject_id' => $request->subjects,
+            'topic_id' => $request->topics,
             'status' => $request->status,
             'subscription' => $subscriptions,
             'banner' => $bannerFilename,
@@ -243,8 +245,10 @@ class CourseController extends Controller
             'subject_limit' => $subjectLimit,
             'part_limit' => $partLimit,
             'meta_data' => $request->meta_data,
-            'stars' => $request->stars ?? 0,
-            'features' => $request->features
+            // 'stars' => $request->stars ?? 0,
+            'tier' => $request->tier ?? null,
+            'features' => $request->features,
+            'is_paid' => $request->is_paid ?? false,
         ]);
         return response()->json(['success' => true, 'message' => 'Course created successfully']);
     }
@@ -258,7 +262,7 @@ class CourseController extends Controller
             'subcategories' => 'required|array',
             'subjects' => 'required|array',
             'status' => 'required|boolean',
-            'stars' => 'nullable|boolean',
+            'tier' => 'nullable|string',
         ]);
 
         //dd(request()->all());
@@ -293,13 +297,15 @@ class CourseController extends Controller
         $course->category_id = $request->category_id;
         $course->sub_category_id = ($request->subcategories);
         $course->subject_id = ($request->subjects);
+        $course->topic_id = ($request->topics);
         $course->status = $request->status;
         $course->subscription = $subscriptions;
         $course->language = $request->language;
         // $course->question_limit = $request->question_limit;
         $course->meta_data = $request->meta_data;
-        $course->stars = $request->stars ?? 0;
+        $course->tier = $request->tier ?? null;
         $course->features = $request->features;
+        $course->is_paid = $request->is_paid ?? false;
 
         if (request()->part == 'part') {
             $course->part_limit = $request->part_limit;
