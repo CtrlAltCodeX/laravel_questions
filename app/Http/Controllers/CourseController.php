@@ -86,8 +86,8 @@ class CourseController extends Controller
             $subCategoryIds = $course->sub_category_id ?? [];
             $subjectIds = $course->subject_id ?? [];
 
-            $subCategoryIds = array_filter((array) $subCategoryIds, fn($id) => $id !== 'all');
-            $subjectIds = array_filter((array) $subjectIds, fn($id) => $id !== 'all');
+            $subCategoryIds = array_filter((array)$subCategoryIds, fn($id) => $id !== 'all');
+            $subjectIds = array_filter((array)$subjectIds, fn($id) => $id !== 'all');
 
 
             $subCategoryNames = array_filter(array_map(fn($id) => $allSubcategories[$id] ?? null, $subCategoryIds));
@@ -100,9 +100,11 @@ class CourseController extends Controller
 
             if (is_string($course->subscription)) {
                 $subscriptionData = json_decode($course->subscription, true);
-            } elseif (is_array($course->subscription)) {
+            }
+            elseif (is_array($course->subscription)) {
                 $subscriptionData = $course->subscription;
-            } else {
+            }
+            else {
                 $subscriptionData = [];
             }
 
@@ -123,14 +125,15 @@ class CourseController extends Controller
 
                 $course->formatted_prices = !empty($prices) ? implode('/', $prices) : '-';
                 $course->subscription_names = !empty($names) ? implode(', ', $names) : '-';
-            } else {
+            }
+            else {
                 $course->formatted_prices = '-';
                 $course->subscription_names = '-';
             }
         }
 
         $courseTableHeader = $this->header();
-        
+
         $courseTableRow = $this->columns();
 
         // Return view with all required data
@@ -224,7 +227,8 @@ class CourseController extends Controller
             foreach (request()->subjects as $subjectId) {
                 $subjectLimit[$subjectId] = null;
             }
-        } else if (request()->part == 'part') {
+        }
+        else if (request()->part == 'part') {
             foreach (request()->subjects as $subjectId) {
                 $partLimit[$subjectId] = [null, null];
             }
@@ -310,7 +314,8 @@ class CourseController extends Controller
         if (request()->part == 'part') {
             $course->part_limit = $request->part_limit;
             $course->subject_limit = null; // Clear subject limit if part limit is set
-        } else {
+        }
+        else {
             $course->subject_limit = $request->subject_limit;
             $course->part_limit = null; // Clear part limit if subject limit is set
         }
@@ -340,7 +345,7 @@ class CourseController extends Controller
 
         return response()->json($subjects);
     }
-  
+
     public function getCoursesWithOffers($user_id)
     {
         // Step 1: Get user
@@ -364,65 +369,139 @@ class CourseController extends Controller
             ->where('language_id', $language_id)
             ->get()
             ->map(function ($course) use ($user_id, $purchasedCourseIds) {
-                
-                $offer = Offer::whereJsonContains('course', (string) $course->id)
-                    ->latest('created_at')
-                    ->first();
 
-                $courseSubscription = $course->subscription;
-                $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
+            $offer = Offer::whereJsonContains('course', (string)$course->id)
+                ->where('status', 1)
+                ->latest('created_at')
+                ->first();
 
-                foreach (['monthly', 'semi_annual', 'annual'] as $type) {
-                    if (isset($courseSubscription[$type]['amount'])) {
-                        $amount = floatval($courseSubscription[$type]['amount']);
-                        $discount = 0;
+            $courseSubscription = $course->subscription;
+            $offerSubscription = $offer ? json_decode($offer->subscription, true) : [];
 
-                        // Step 5: Check if user purchased this course
-                        if (in_array($course->id, $purchasedCourseIds)) {
-                            // Apply upgrade logic here if any
-                            $discount = isset($offerSubscription[$type]['upgrade'])
-                                ? floatval($offerSubscription[$type]['upgrade'])
-                                : 0;
-                        } else {
-                            // Normal discount
-                            $discount = isset($offerSubscription[$type]['discount'])
-                                ? floatval($offerSubscription[$type]['discount'])
-                                : 0;
-                        }
+            foreach (['monthly', 'semi_annual', 'annual'] as $type) {
+                if (isset($courseSubscription[$type]['amount'])) {
+                    $amount = floatval($courseSubscription[$type]['amount']);
+                    $discount = 0;
 
-                        $finalAmount = $amount - (($discount / 100) * $amount);
-                        $courseSubscription[$type]['final_amount'] = round($finalAmount, 2);
+                    // Step 5: Check if user purchased this course
+                    if (in_array($course->id, $purchasedCourseIds)) {
+                        // Apply upgrade logic here if any
+                        $discount = isset($offerSubscription[$type]['upgrade'])
+                            ? floatval($offerSubscription[$type]['upgrade'])
+                            : 0;
                     }
-                }
+                    else {
+                        // Normal discount
+                        $discount = isset($offerSubscription[$type]['discount'])
+                            ? floatval($offerSubscription[$type]['discount'])
+                            : 0;
+                    }
 
-                return [
-                    'id' => $course->id,
-                    'name' => $course->name,
-                    'language_id' => $course->language_id,
-                    'category_id' => $course->category_id,
-                    'sub_category_id' => $course->sub_category_id,
-                    'subject_id' => $course->subject_id,
-                    'status' => $course->status,
-                    'subscription' => $courseSubscription,
-                    'banner' => $course->banner,
-                    'meta_data' => $course->meta_data,
-                    'offer' => $offer ? [
-                        'id' => $offer->id,
-                        'name' => $offer->name,
-                        'status' => $offer->status,
-                        'banner' => $offer->banner,
-                        'course' => $offer->course,
-                        'subscription' => $offerSubscription,
-                        'valid_from' => $offer->valid_from,
-                        'valid_to' => $offer->valid_to,
-                        'meta_description' => $course->meta_description,
-                    ] : null,
-                ];
-            });
+                    $finalAmount = $amount - (($discount / 100) * $amount);
+                    $courseSubscription[$type]['final_amount'] = (int)round($finalAmount);
+                }
+            }
+
+            return [
+            'id' => $course->id,
+            'name' => $course->name,
+            'language_id' => $course->language_id,
+            'category_id' => $course->category_id,
+            'sub_category_id' => $course->sub_category_id,
+            'subject_id' => $course->subject_id,
+            'status' => $course->status,
+            'subscription' => $courseSubscription,
+            'banner' => $course->banner,
+            'meta_data' => $course->meta_data,
+            'features' => $course->features,
+
+            'offer' => $offer ? [
+            'id' => $offer->id,
+            'name' => $offer->name,
+            'status' => $offer->status,
+            'banner' => $offer->banner,
+            'course' => $offer->course,
+            'subscription' => $offerSubscription,
+            'valid_from' => $offer->valid_from,
+            'valid_to' => $offer->valid_to,
+            'meta_description' => $course->meta_description,
+            ] : null,
+            ];
+        });
 
         return response()->json([
             'status' => true,
             'data' => $courses
+        ]);
+    }
+
+    public function getSyllabus(Request $request, $userId, $courseId)
+    {
+        $subCategoryId = $request->query('SubCategory');
+        if (!$subCategoryId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SubCategory parameter is required.'
+            ], 422);
+        }
+
+        $course = Course::find($courseId);
+        if (!$course) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $subCategory = SubCategory::find($subCategoryId);
+        if (!$subCategory) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SubCategory not found.'
+            ], 404);
+        }
+
+        $subjects = Subject::where('sub_category_id', $subCategoryId)->get();
+
+        // Get limits from course
+        $subjectLimitData = is_array($course->subject_limit) ? $course->subject_limit : json_decode($course->subject_limit, true);
+        if (!is_array($subjectLimitData))
+            $subjectLimitData = [];
+
+        $formattedSubjects = $subjects->map(function ($subject) use ($subjectLimitData) {
+            $id = (string)$subject->id;
+            $limit = $subjectLimitData[$id] ?? 0;
+            return [
+            'subject_id' => $subject->id,
+            'subject_name' => $subject->name,
+            'limit' => (int)$limit
+            ];
+        });
+
+        // Get marks and negative marks from the first identified subject in the data
+        $marks = 0;
+        $negativeMarks = 0;
+
+        $firstSubjectId = $subjects->first()->id ?? null;
+        if ($firstSubjectId) {
+            $id = (string)$firstSubjectId;
+            if (isset($subjectLimitData['question_marks'][$id])) {
+                $marks = $subjectLimitData['question_marks'][$id];
+            }
+            if (isset($subjectLimitData['negative_marks'][$id])) {
+                $negativeMarks = $subjectLimitData['negative_marks'][$id];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'sub_category_id' => (int)$subCategoryId,
+                'sub_category_name' => $subCategory->name,
+                'marks_per_cushion' => (float)$marks,
+                'negative_marks_per_cushion' => (float)$negativeMarks,
+                'subjects' => $formattedSubjects
+            ]
         ]);
     }
 }

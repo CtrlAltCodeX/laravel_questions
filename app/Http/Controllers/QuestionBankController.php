@@ -87,9 +87,11 @@ class QuestionBankController extends Controller
                 ->join('languages', 'questions.language_id', '=', 'languages.id')
                 ->orderBy('languages.name', $sortDirection)
                 ->select('questions.*');
-        } elseif ($sortColumn == 'question_number') {
+        }
+        elseif ($sortColumn == 'question_number') {
             $query = $query->orderBy('question_number', $sortDirection);
-        } else {
+        }
+        else {
             $query = $query->orderBy($sortColumn, $sortDirection);
         }
 
@@ -113,22 +115,22 @@ class QuestionBankController extends Controller
         return view(
             'question-bank.index',
             compact(
-                'questions',
-                'language_id',
-                'category_id',
-                'sub_category_id',
-                'subject_id',
-                'topic_id',
-                'languages',
-                'categories',
-                'subcategories',
-                'subjects',
-                'topics',
-                'sortColumn',
-                'sortDirection',
-                'dropdown_list',
-                'levels'
-            )
+            'questions',
+            'language_id',
+            'category_id',
+            'sub_category_id',
+            'subject_id',
+            'topic_id',
+            'languages',
+            'categories',
+            'subcategories',
+            'subjects',
+            'topics',
+            'sortColumn',
+            'sortDirection',
+            'dropdown_list',
+            'levels'
+        )
         );
     }
 
@@ -190,7 +192,8 @@ class QuestionBankController extends Controller
                 $file->move('storage/questions/', $profileImage);
                 // Update the hidden input value with the new file path
                 $data['photo'] = $profileImage;
-            } else {
+            }
+            else {
                 !empty($file) ? $profileImage = $file : $profileImage = null;
             }
         }
@@ -198,25 +201,25 @@ class QuestionBankController extends Controller
         // dd($data);die;
 
         $question = Question::create(
-            [
-                'question' => $data['question'][0],
-                'photo' => $data['photo'],
-                'question_number' => $data['qno'],
-                'photo_link' => $data['photo_link'],
-                'notes' => $data['notes'][0],
-                'level' => $data['level'],
-                'option_a' => $data['option_a'][0],
-                'option_b' => $data['option_b'][0],
-                'option_c' => $data['option_c'][0],
-                'option_d' => $data['option_d'][0],
-                'answer' => $data['answer'][0],
-                'language_id' => $data['language'][0],
-                'category_id' => $data['module']['Category'][0],
-                'sub_category_id' => $data['module']['Sub Category'][0],
-                'subject_id' => $data['module']['Subject'][0],
-                'topic_id' => $data['module']['Topic'][0],
-                'exam_years' => $data['exam_years'][0] ?? null,
-            ]
+        [
+            'question' => $data['question'][0],
+            'photo' => $data['photo'],
+            'question_number' => $data['qno'],
+            'photo_link' => $data['photo_link'],
+            'notes' => $data['notes'][0],
+            'level' => $data['level'],
+            'option_a' => $data['option_a'][0],
+            'option_b' => $data['option_b'][0],
+            'option_c' => $data['option_c'][0],
+            'option_d' => $data['option_d'][0],
+            'answer' => $data['answer'][0],
+            'language_id' => $data['language'][0],
+            'category_id' => $data['module']['Category'][0],
+            'sub_category_id' => $data['module']['Sub Category'][0],
+            'subject_id' => $data['module']['Subject'][0],
+            'topic_id' => $data['module']['Topic'][0],
+            'exam_years' => $data['exam_years'][0] ?? null,
+        ]
         );
 
         // session()->flash('success', 'Question created successfully!');
@@ -230,7 +233,7 @@ class QuestionBankController extends Controller
      */
     public function show(string $id)
     {
-        //
+    //
     }
 
     /**
@@ -311,39 +314,40 @@ class QuestionBankController extends Controller
                 $profileImage = time() . "." . $file->getClientOriginalExtension();
                 $file->move('storage/questions/', $profileImage);
                 $data['photo'] = $profileImage;
-            } else {
+            }
+            else {
                 !empty($file) ? $profileImage = $file : $profileImage = null;
             }
         }
 
         Question::updateOrCreate(
-            [
-                'id' => $data['id'],
-            ],
-            [
-                'id' => $data['id'],
-                'question_number' => $data['qno'][0],
-                'question' => $data['question'][0],
-                'photo' => ($data['photo'] != 'null') ? $data['photo'] : null,
-                'photo_link' => $data['photo_link'] ?? null,
-                'notes' => $data['notes'][0],
-                'level' => $data['level'],
-                'option_a' => $data['option_a'],
-                'option_b' => $data['option_b'],
-                'option_c' => $data['option_c'],
-                'option_d' => $data['option_d'],
-                'answer' => $data['answer'],
-                'language_id' => $data['module']['select_language'][0],
-                'category_id' => $data['module']['select_category'][0],
-                'sub_category_id' => $data['module']['select_sub_category'][0],
-                'subject_id' => $data['module']['select_subject'][0],
-                'topic_id' => $data['module']['select_topic'][0],
-                'exam_years' => $request->exam_years,
-                'question_bank_id' => null
-            ]
+        [
+            'id' => $data['id'],
+        ],
+        [
+            'id' => $data['id'],
+            'question_number' => $data['qno'][0],
+            'question' => $data['question'][0],
+            'photo' => ($data['photo'] != 'null') ? $data['photo'] : null,
+            'photo_link' => $data['photo_link'] ?? null,
+            'notes' => $data['notes'][0],
+            'level' => $data['level'],
+            'option_a' => $data['option_a'],
+            'option_b' => $data['option_b'],
+            'option_c' => $data['option_c'],
+            'option_d' => $data['option_d'],
+            'answer' => $data['answer'],
+            'language_id' => $data['module']['select_language'][0],
+            'category_id' => $data['module']['select_category'][0],
+            'sub_category_id' => $data['module']['select_sub_category'][0],
+            'subject_id' => $data['module']['select_subject'][0],
+            'topic_id' => $data['module']['select_topic'][0],
+            'exam_years' => $request->exam_years,
+            'question_bank_id' => null
+        ]
         );
 
-        return response()->json(['success' => true, 'message' => 'Question updated successfully!',]);
+        return response()->json(['success' => true, 'message' => 'Question updated successfully!', ]);
     }
 
     /**
@@ -406,7 +410,7 @@ class QuestionBankController extends Controller
 
             if (!isset($questions[$questionId])) {
                 $questions[$questionId] = [
-                    'question' => $question->question,  // Assuming question_text is part of the questions table
+                    'question' => $question->question, // Assuming question_text is part of the questions table
                     'option_a' => $question->option_a,
                     'option_b' => $question->option_b,
                     'option_c' => $question->option_c,
@@ -427,12 +431,12 @@ class QuestionBankController extends Controller
                 ];
             }
 
-            // $questions[$questionId]['language'][$question->language_id] = $translatedQuestion->language->name;
-            // $questions[$questionId]['question'][$question->language_id] = $translatedQuestion->question_text;
-            // $questions[$questionId]['option_a'][$question->language_id] = $translatedQuestion->option_a;
-            // $questions[$questionId]['option_b'][$question->language_id] = $translatedQuestion->option_b;
-            // $questions[$questionId]['option_c'][$question->language_id] = $translatedQuestion->option_c;
-            // $questions[$questionId]['option_d'][$question->language_id] = $translatedQuestion->option_d;
+        // $questions[$questionId]['language'][$question->language_id] = $translatedQuestion->language->name;
+        // $questions[$questionId]['question'][$question->language_id] = $translatedQuestion->question_text;
+        // $questions[$questionId]['option_a'][$question->language_id] = $translatedQuestion->option_a;
+        // $questions[$questionId]['option_b'][$question->language_id] = $translatedQuestion->option_b;
+        // $questions[$questionId]['option_c'][$question->language_id] = $translatedQuestion->option_c;
+        // $questions[$questionId]['option_d'][$question->language_id] = $translatedQuestion->option_d;
         }
 
         // Export the questions as an Excel file
@@ -629,7 +633,8 @@ class QuestionBankController extends Controller
                 ->max('question_number');
 
             return $questionNo;
-        } else {
+        }
+        else {
             $questionNoExist = Question::where('category_id', request()->category_id)
                 ->where('sub_category_id', request()->sub_category_id)
                 ->where('subject_id', request()->subject_id)
@@ -647,8 +652,8 @@ class QuestionBankController extends Controller
 
         //if (UserSession::where('session_id', explode(" ", $request->header('Authorization'))[1])->first()) {
         $validator = Validator::make($request->all(), [
-            'SubCategory'  => 'required',
-            'Subject'  => 'required',
+            'SubCategory' => 'required',
+            'Subject' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -678,8 +683,9 @@ class QuestionBankController extends Controller
             $data['Category'] = $category->parent_id ? $category->parent_id : $categoryId;
             $data['SubCategory'] = $subcategory->parent_id ? $subcategory->parent_id : $subcategory->id;
             $data['Subject'] = $subject->parent_id ? $subject->parent_id : $subject->id;
-            // $data['Topic_2'] = 1;
-        } else {
+        // $data['Topic_2'] = 1;
+        }
+        else {
             $data['Language'] = $course->language_id;
             $data['Category'] = $course->category_id;
         }
@@ -713,7 +719,8 @@ class QuestionBankController extends Controller
                 foreach ($categories2 as $category2) {
                     $combinedCategoryName = $categoryName . ' | ' . $category2->name;
                 }
-            } else {
+            }
+            else {
                 $combinedCategoryName = $categoryName;
             }
 
@@ -736,7 +743,8 @@ class QuestionBankController extends Controller
                     foreach ($subcategories2 as $subcategory2) {
                         $combinedSubcategoryName = $subcategoryName . ' | ' . $subcategory2->name;
                     }
-                } else {
+                }
+                else {
                     $combinedSubcategoryName = $subcategoryName;
                 }
 
@@ -744,7 +752,8 @@ class QuestionBankController extends Controller
                     foreach ($subjects2 as $subject2) {
                         $combinedSubjectName = $subjectName . ' | ' . $subject2->name;
                     }
-                } else {
+                }
+                else {
                     $combinedSubjectName = $subjectName;
                 }
 
@@ -752,7 +761,8 @@ class QuestionBankController extends Controller
 
                 if (isset($topics2[$outkey])) {
                     $topic2 = $topics2[$outkey]->id;
-                } else {
+                }
+                else {
                     $topic2 = 0;
                 }
 
@@ -762,7 +772,8 @@ class QuestionBankController extends Controller
                     foreach ($topics2 as $topic2) {
                         $combinedTopicName = $topicName . ' | ' . $topics2[$outkey]->name;
                     }
-                } else {
+                }
+                else {
                     $combinedTopicName = $topicName;
                 }
 
@@ -787,13 +798,14 @@ class QuestionBankController extends Controller
                             'answer' => $filteredQuestions[$key]->answer,
                         ];
                     }
-                } else {
+                }
+                else {
                     foreach ($filteredQuestions as $questionFirst) {
                         $img = isset($questionFirst->photo) && $questionFirst->photo != 0
                             ? '<br><img src="https://iti.online2study.in/storage/questions/' . $questionFirst->photo . '"/>'
                             : (isset($questionFirst->photo_link)
-                                ? '<br><img src="' . $questionFirst->photo_link . '"/>'
-                                : '');
+                            ? '<br><img src="' . $questionFirst->photo_link . '"/>'
+                            : '');
 
                         $jsonResponse[$languageName][$combinedCategoryName][$combinedSubcategoryName][$combinedSubjectName][$data['Topic']][$combinedTopicName][] = [
                             'question_id' => $questionFirst->id,
@@ -814,9 +826,9 @@ class QuestionBankController extends Controller
 
         // Function to recursively remove empty arrays
         return response()->json($jsonResponse);
-        //} else {
-        //  return response()->json(['error' => 'Session ID does not Matched'], 401);
-        //}
+    //} else {
+    //  return response()->json(['error' => 'Session ID does not Matched'], 401);
+    //}
     }
 
     function getFirstDropdownData($data, $course)
@@ -851,13 +863,13 @@ class QuestionBankController extends Controller
         //  $query->limit($course->question_limit);
         //}
 
-        $questions = $query->with(['subCategory',  'subject', 'topic'])->get();
+        $questions = $query->with(['subCategory', 'subject', 'topic'])->get();
 
         $language = Language::find($languageId);
 
-        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+        $categories = isset($categoryId) ?Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
 
-        $subcategories = isset($data['SubCategory']) ? SubCategory::where('id', $data['SubCategory'])->first() : SubCategory::where('category_id', $categoryId)->first();
+        $subcategories = isset($data['SubCategory']) ?SubCategory::where('id', $data['SubCategory'])->first() : SubCategory::where('category_id', $categoryId)->first();
 
         // Get all the subjects for the subcategories
         // $subjects = Subject::where('sub_category_id', $subcategories->id)->first();
@@ -898,13 +910,13 @@ class QuestionBankController extends Controller
             $query->where('topic_id', $data['Topic_2']);
         }
 
-        $questions = $query->with(['subCategory',  'subject', 'topic'])->get();
+        $questions = $query->with(['subCategory', 'subject', 'topic'])->get();
 
         $language = Language::find($languageId);
 
-        $categories = isset($categoryId) ? Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
+        $categories = isset($categoryId) ?Category::where('id', $categoryId)->get() : Category::where('language_id', $languageId)->get();
 
-        $subcategories = isset($data['SubCategory_2']) ? SubCategory::where('id', $data['SubCategory_2'])->get() : SubCategory::where('category_id', $categoryId)->get();
+        $subcategories = isset($data['SubCategory_2']) ?SubCategory::where('id', $data['SubCategory_2'])->get() : SubCategory::where('category_id', $categoryId)->get();
 
         // Get all the subjects for the subcategories
         $subjects = Subject::whereIn('sub_category_id', $subcategories->pluck('id')->toArray())->get();

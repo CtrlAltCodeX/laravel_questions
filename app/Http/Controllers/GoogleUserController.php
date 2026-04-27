@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\GoogleUser;
 use App\Models\UserCourse;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -92,16 +94,66 @@ class GoogleUserController extends Controller
      *     )
      * )
      */
+    // public function updateUser(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'name' => 'nullable|string',
+    //         'phone_number' => 'nullable|string',
+    //         'login_type' => 'nullable|in:google,facebook,apple',
+    //         'friend_code' => 'nullable|string',
+    //         'profile_image' => 'nullable',
+    //         'category_id' => 'nullable|integer|exists:categories,id',
+    //         'language_id' => 'nullable|integer|exists:languages,id'
+    //     ]);
+
+    //     $user = GoogleUser::find($id);
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
+
+    //     $data = $request->except('profile_image');
+
+    //     if ($request->hasFile('profile_image')) {
+    //         $file = $request->file('profile_image');
+    //         $filename = time() . '_' . $file->getClientOriginalName();
+    //         $file->storeAs('public/profile_images', $filename);
+    //         $data['profile_image'] = 'profile_images/' . $filename;
+    //     }
+    //     elseif ($request->filled('profile_image')) {
+    //         $data['profile_image'] = $request->profile_image;
+    //     }
+
+    //     $user->update($data);
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'User updated successfully',
+    //         'data' => $user,
+    //         'request' => $request->all()
+    //     ]);
+    // }
+
+
+
+
     public function updateUser(Request $request, $id)
     {
+        // 🔹 Validation - Strong & Clear
         $request->validate([
-            'name' => 'nullable|string',
-            'phone_number' => 'nullable|string',
+            'name' => 'nullable|string|max:100',
+            'phone_number' => 'nullable|string|max:20',
             'login_type' => 'nullable|in:google,facebook,apple',
-            'friend_code' => 'nullable|string',
-            'profile_image' => 'nullable',
+            'friend_code' => 'nullable|string|max:50',
+
+            // 👇 Profile Image: Either file OR base64 string OR URL
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+
             'category_id' => 'nullable|integer|exists:categories,id',
-            'language_id' => 'nullable|integer|exists:languages,id'
+            'language_id' => 'nullable|integer|exists:languages,id',
         ]);
 
         $user = GoogleUser::find($id);
@@ -115,24 +167,77 @@ class GoogleUserController extends Controller
 
         $data = $request->except('profile_image');
 
+        // 🔹 Profile Image Handling - 3 Options Support
         if ($request->hasFile('profile_image')) {
+            // ✅ Option 1: File Upload (multipart/form-data)
             $file = $request->file('profile_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/profile_images', $filename);
-            $data['profile_image'] = 'profile_images/' . $filename;
+
+            // Generate unique filename
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Store file in public disk
+            $path = $file->storeAs('profile_images', $filename, 'public');
+
+            if ($path) {
+                $data['profile_image'] = $path; // profile_images/filename.jpg
+            }
+
         }
         elseif ($request->filled('profile_image')) {
-            $data['profile_image'] = $request->profile_image;
-        }
+            $imageInput = $request->profile_image;
 
+            // ✅ Option 2: Base64 Image (data:image/png;base64,...)
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageInput, $matches)) {
+                $imageData = substr($imageInput, strpos($imageInput, ',') + 1);
+                $imageData = base64_decode($imageData);
+
+                $extension = strtolower($matches[1]); // jpg, png, webp
+                $filename = time() . '_' . uniqid() . '.' . $extension;
+
+                // Save to storage
+                $path = 'profile_images/' . $filename;
+                Storage::disk('public')->put($path, $imageData);
+
+                $data['profile_image'] = $path;
+
+            }
+            // ✅ Option 3: Direct URL (already hosted image)
+            elseif (filter_var($imageInput, FILTER_VALIDATE_URL)) {
+                $data['profile_image'] = $imageInput;
+            }
+            // ✅ Option 4: Existing path (no change)
+            else {
+                $data['profile_image'] = $imageInput;
+            }
+        }
+        // ❌ No image provided - keep existing image
+
+        // Update user
         $user->update($data);
+
+        // 🔹 Response with Full Image URL
+        $userData = $user->toArray();
+
+        if (!empty($user->profile_image)) {
+            // Agar URL hai toh as-is, warna storage URL banayein
+            if (filter_var($user->profile_image, FILTER_VALIDATE_URL)) {
+                $userData['profile_image_url'] = $user->profile_image;
+            }
+            else {
+                $userData['profile_image_url'] = asset('storage/' . $user->profile_image);
+            }
+        }
+        else {
+            $userData['profile_image_url'] = null;
+        }
 
         return response()->json([
             'status' => true,
             'message' => 'User updated successfully',
-            'data' => $user
+            'data' => $userData
         ]);
     }
+
 
     public function generateOTP($n)
     {
@@ -258,6 +363,8 @@ class GoogleUserController extends Controller
     // }
 
 
+
+
     public function getProfile($id)
     {
         $user = GoogleUser::find($id);
@@ -269,18 +376,19 @@ class GoogleUserController extends Controller
             ], 404);
         }
 
-        // Active plan fetch karo
         $activePlan = UserCourse::where('user_id', $id)
             ->where('status', 1)
             ->first();
 
+        $data = $user->toArray();
+
+        $data['plan'] = $activePlan;
+
+
         return response()->json([
             'status' => true,
             'message' => 'User profile retrieved successfully',
-            'data' => [
-                'user' => $user,
-                'active_plan' => $activePlan
-            ]
+            'data' => $data
         ]);
     }
     public function updateUserCode(Request $request, $id)

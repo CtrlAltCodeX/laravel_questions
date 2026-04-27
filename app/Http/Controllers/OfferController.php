@@ -276,7 +276,6 @@ class OfferController extends Controller
     {
         $sortColumn = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'desc');
-        $Courses = Course::all();
 
         $course = $request->get('course');
 
@@ -300,7 +299,21 @@ class OfferController extends Controller
             $query->orderBy($sortableColumns[$sortColumn], $sortDirection);
         }
 
-        $offers = $request->data == 'all' ? $query->get() : $query->paginate($request->data);
+        $offers = $request->data == 'all'
+            ? $query->get()
+            : $query->paginate($request->data);
+
+        // ✅ Check empty
+        if (
+        ($request->data == 'all' && $offers->isEmpty()) ||
+        ($request->data != 'all' && $offers->total() == 0)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No offers available right now.',
+                'data' => []
+            ]);
+        }
 
         return response()->json([
             'success' => true,

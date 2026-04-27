@@ -26,6 +26,9 @@ Fixes (Bug Fixes)
 
 Total - 10days
 
+https://admin.online2study.in/
+
+https://front.online2study.in/
 
  https://88.222.244.186:8443
  akathuria

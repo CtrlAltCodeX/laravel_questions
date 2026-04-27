@@ -17,7 +17,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'id_token' => 'required', // Google ID Token from Mobile App
+            'id_token' => 'required',
+            'name' => 'nullable|string|max:100',
+            'token' => 'nullable|string',
         ]);
 
         try {
@@ -28,9 +30,25 @@ class AuthController extends Controller
 
             if ($payload) {
                 $email = $payload['email'];
-                $name = $payload['name']
-                    ?? ($payload['given_name'] ?? '') . ' ' . ($payload['family_name'] ?? '');
+
                 $googleId = $payload['sub']; // Unique Google ID
+
+                $frontendName = trim($request->name ?? '');
+
+                if (!empty($frontendName)) {
+                    // ✅ Frontend se name aaya hai - use this (Google ko ignore karein)
+                    $name = $frontendName;
+                }
+                else {
+                    // ❌ Frontend se name nahi aaya - Google payload se try karein
+                    $name = $payload['name']
+                        ?? trim(($payload['given_name'] ?? '') . ' ' . ($payload['family_name'] ?? ''));
+
+                    // Agar phir bhi empty hai, toh email se fallback name banayein
+                    if (empty($name)) {
+                        $name = 'User_' . substr(md5($email ?? $googleId), 0, 8);
+                    }
+                }
                 $token = $request->token; // FCM Token
 
                 $user = GoogleUser::where('email', $email)->first();
@@ -62,8 +80,8 @@ class AuthController extends Controller
                 // Save FCM token if provided
                 if ($token) {
                     UserFcmToken::updateOrCreate(
-                        ['user_id' => $user->id],
-                        ['fcm_token' => $token]
+                    ['user_id' => $user->id],
+                    ['fcm_token' => $token]
                     );
                 }
 
@@ -71,16 +89,25 @@ class AuthController extends Controller
                     'success' => true,
                     'sessionId' => $sessionId,
                     'id' => $user->id,
-                    // 'userdetails' => $payload
+                    'userdetails' => [
+                        'id' => $user->id,
+                        'name' => $user->name, // 👈 Managed name
+                        'email' => $user->email,
+                        'google_id' => $googleId,
+                        'login_type' => 'google',
+                        'coins' => $user->coins ?? 0,
+                    ]
 
                 ]);
-            } else {
+            }
+            else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid ID Token'
                 ], 401);
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -103,7 +130,8 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Session deleted successfully.'
             ]);
-        } else {
+        }
+        else {
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting session or session not found.'
