@@ -11,7 +11,6 @@
 
     $(document).on('change', '.select_sub_category', function() {
         var subCategoryId = $(this).val();
-        console.log(subCategoryId);
         getSubjects(subCategoryId);
     });
 
@@ -142,12 +141,14 @@
                 url: '/get-subcategories/' + categoryId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_sub_category').empty();
+                    //$('.select_sub_category').empty();
                     $.each(data, function(key, value) {
                         $('.select_sub_category').append('<option value="' + value.id + '">' + value.name + '</option>');
                     });
+                    //$('#select_sub_category').prepend('<option value="all">Select All</option>');
                 }
             });
+        
         } else {
             $('.select_sub_category').empty().append('<option value="">Select Sub Category</option>');
         }
@@ -160,10 +161,12 @@
                 url: '/get-subjects/' + subCategoryId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_subject').empty();
+                    //$('.select_subject').empty();
                     $.each(data, function(key, value) {
                         $('.select_subject').append('<option value="' + value.id + '">' + value.name + '</option>');
                     });
+
+                    //$('#select_subject').prepend('<option value="all">Select All</option>');
                 }
             });
         } else {
@@ -178,11 +181,12 @@
                 url: '/get-topics/' + subjectId,
                 method: 'GET',
                 success: function(data) {
-                    $('.select_topic').empty();
-
+                    //$('.select_topic').empty();
                     $.each(data, function(key, value) {
                         $('.select_topic').append('<option value="' + value.id + '">' + value.subject.name + ' | ' + value.name + '</option>');
                     });
+
+                    //$('#select_topic').prepend('<option value="all">Select All</option>');
                 }
             });
         } else {

@@ -27,7 +27,7 @@
         margin: auto; 
         padding: 24px; 
         position: relative; 
-        overflow-y: auto; /* Make content scrollable if it exceeds max height */
+        overflow-y: auto;
     ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="modalTitle" style="font-size: 1.5rem; font-weight: bold;">Modal Title</h2>
@@ -73,19 +73,17 @@
             <div class="mx-auto mb-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select id='select_category' name="category_id" class="select_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="">Choose a Category</option>
-                    @foreach($categories as $item)
-                    <option value="{{$item->id}}">{{$item->name}}</option>
-                    @endforeach
+                    {{-- <option value="">Choose a Category</option> --}}
+                    
                 </select>
-                    <div id="error-category_id" class="error-text" style="color: red;"></div>
+                <div id="error-category_id" class="error-text" style="color: red;"></div>
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Sub Categories</label>
                 <div class="mb-3 relative">
                     <select id='select_sub_category' multiple name="subcategories[]" class="select_sub_category bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option value="">Choose a Sub Category</option>
+                        {{-- <option value="">Choose a Sub Category</option> --}}
                     </select>
                     {{-- <button type="button" onclick="toggleDropdown()" class=" w-full border border-gray-300 rounded-md px-4 py-2 text-left bg-white">
                         <span id="subcategoryButtonLabel">Select Sub Categories</span>
@@ -202,7 +200,7 @@
 
             <div class="mb-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Subscription Tier</label>
-                <select id="stars" name="tier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <select id="tier" name="tier" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                     <option value="sub_basic">Basic</option>
                     <option value="sub_standard">Standard</option>
                     <option value="sub_premium">Premium</option>
@@ -211,7 +209,8 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Course Features</label>
-                <select id="select_features" multiple name="features[]" class="select_features bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <select id="select_features" multiple name="features[]" class="select_features multi-select bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="all">All Features</option>
                     <option value="Videos">Videos</option>
                      <option value="Live Test">Live Test</option>
                     <option value="CBT Mock test">CBT Mock test</option>
@@ -254,41 +253,27 @@
             width: '100%'
         });
 
-        $('#select_subject').on('select2:select', function (e) {
-            if (e.params.data.id === "all") {
-                let allValues = [];
-                $('#select_subject option').each(function () {
-                    if ($(this).val() !== "all") {
-                        allValues.push($(this).val());
-                    }
-                });
-                $('#select_subject').val(allValues).trigger('change'); // Select everything
-            }
-        });
+        function handleSelectAll(selector) {
+            $(selector).on('select2:select', function (e) {
+                if (e.params.data.id === "all") {
+                    let allValues = [];
 
-        $('#select_sub_category').on('select2:select', function (e) {
-            if (e.params.data.id === "all") {
-                let allValues = [];
-                $('#select_sub_category option').each(function () {
-                    if ($(this).val() !== "all") {
-                        allValues.push($(this).val());
-                    }
-                });
-                $('#select_sub_category').val(allValues).trigger('change'); // Select everything
-            }
-        });
-      
-	      $('#select_topic').on('select2:select', function (e) {
-            if (e.params.data.id === "all") {
-                let allValues = [];
-                $('#select_topic option').each(function () {
-                    if ($(this).val() !== "all") {
-                        allValues.push($(this).val());
-                    }
-                });
-                $('#select_topic').val(allValues).trigger('change'); // Select everything
-            }
-        });
+                    $(selector + ' option').each(function () {
+                        if ($(this).val() !== "all") {
+                            allValues.push($(this).val());
+                        }
+                    });
+
+                    $(selector).val(allValues).trigger('change');
+                }
+            });
+        }
+
+        // Apply to all selects
+        handleSelectAll('#select_subject');
+        handleSelectAll('#select_sub_category');
+        handleSelectAll('#select_topic');
+        handleSelectAll('#select_features');
     });
 
     function updateSubCategoryLabel() {
@@ -376,33 +361,36 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('createButton').addEventListener('click', function() {
-        document.getElementById('modalTitle').innerText = 'Create Course';
-        document.getElementById('modalForm').action = "{{ route('courses.store') }}";
-        document.getElementById('modalForm').method = 'POST';
-        document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
-        document.getElementById('name').value = '';
-        document.getElementById('select_language').value = '';
-        document.getElementById('select_category').value = '';
-        document.getElementById('status').selectedIndex = "";
-        document.getElementById('stars').value = '0';
-        $('#select_features').val(null).trigger('change');
+            document.getElementById('modalTitle').innerText = 'Create Course';
+            document.getElementById('modalForm').action = "{{ route('courses.store') }}";
+            document.getElementById('modalForm').method = 'POST';
+            document.getElementById('modalForm').querySelector('input[name="_method"]').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('select_language').value = '';
+            document.getElementById('select_category').value = '';
+            document.getElementById('status').selectedIndex = "";
+            document.getElementById('stars').value = '0';
+            $('#select_features').val(null).trigger('change');
 
-        // Reset checkboxes for subcategories
-        document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
-        // document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
+            // Reset checkboxes for subcategories
+            document.querySelectorAll('.subcategory-checkbox').forEach(cb => cb.checked = false);
+            // document.querySelector('#subcategoryButtonLabel').textContent = 'Select Sub Categories';
 
-        // Reset checkboxes for subjects
-        document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
-        // document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
+            // Reset checkboxes for subjects
+            document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
+            // document.querySelector('#selectedSubjectsText').textContent = 'Select Subjects';
 
-        // Reset subscription checkboxes and inputs
-        document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
+            // Reset subscription checkboxes and inputs
+            document.querySelectorAll('.subscriptionCheck').forEach(cb => cb.checked = false);
 
-        // Clear error messages
-        document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
+            // Clear error messages
+            document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
             document.getElementById('offerImage').src = '/dummy.jpg';
             document.getElementById('modal').style.display = 'flex';
         });
+
+        // $('#select_sub_category').prepend('<option value="all">Select All</option>');
+        // $('#select_subject').prepend('<option value="all">Select All</option>');
 
         $(document).on('click', '.editButton', function () {
             var data = JSON.parse($(this).attr('data'));
@@ -421,7 +409,9 @@
             // const question_limit = data.question_limit;
             const subscriptions = data.subscription;
             const stars = data.stars;
+            const tier = data.tier;
             const features = data.features;
+            const isPaid = data.is_paid;
             const partWise = data.part_limit;
             const subjectWise = data.subject_limit;
             const subjectName = data.subject_names.split(",");
@@ -435,8 +425,8 @@
 
             setTimeout(() => {
                 $("#select_subject").val(subjects).trigger('change');
-                $('#select_subject').prepend('<option value="all">Select All</option>');
-                $('#select_sub_category').prepend('<option value="all">Select All</option>');
+                // $('#select_subject').prepend('<option value="all">Select All</option>');
+                // $('#select_sub_category').prepend('<option value="all">Select All</option>');
 
                 //const subjects = $(this).val();
                 let groupedData = {};
@@ -464,186 +454,11 @@
                 getSubjectWise(groupedData, requests);
 
                 getPartWise(groupedData, requests);
-
-                // Promise.all(requests).then(() => {
-                //     Object.entries(groupedData).forEach(([subCategoryId, group]) => {
-                //         const collapseId = "collapse-" + subCategoryId;
-
-                //         let rows = group.subjects.map(subject => `
-                //             <tr>
-                //                 <td class="px-3 py-2 border">${group.name}</td>
-                //                 <td class="px-3 py-2 border">${subject.name}</td>
-                //                 <td class="px-3 py-2 border">
-                //                     <input type="text" name="subject_limit[${subject.id}]" 
-                //                         data-subject="${subject.id}" 
-                //                         class="w-24 border rounded px-2 py-1" />
-                //                 </td>
-                //                 <td class="px-3 py-2 border">
-                //                     <input type="number" name="subject_limit[position][${subject.id}]" 
-                //                         data-position="${subject.id}" 
-                //                         class="w-24 border rounded px-2 py-1" />
-                //                 </td>
-                //             </tr>
-                //         `).join('');
-
-                //         let accordionItem = `
-                //             <div class="border rounded-lg">
-                //                 <button type="button" 
-                //                         class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
-                //                         data-target="#${collapseId}">
-                //                     <span>${group.name}</span>
-                //                     <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                //                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                //                     </svg>
-                //                 </button>
-                //                 <div id="${collapseId}" class="hidden px-4 pb-4 pt-2">
-                //                     <div class="overflow-x-auto">
-                //                         <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
-                //                             <thead class="bg-gray-200">
-                //                                 <tr>
-                //                                     <th class="px-3 py-2 border">Sub Category</th>
-                //                                     <th class="px-3 py-2 border">Subject Name</th>
-                //                                     <th class="px-3 py-2 border">Limit</th>
-                //                                     <th class="px-3 py-2 border">Position</th>
-                //                                 </tr>
-                //                             </thead>
-                //                             <tbody>
-                //                                 ${rows}
-                //                             </tbody>
-                //                         </table>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //         `;
-
-                //         $("#subjectAccordion").append(accordionItem);
-                //     });
-
-                //     if (typeof subjectWise !== 'undefined' && subjectWise) {
-                //         document.querySelector('#subject_wise').checked = true;
-                //         document.getElementById('part').style.display = 'none';
-                //         document.getElementById('subjectAccordion').style.display = 'block';
-
-                //         Object.entries(subjectWise).forEach(([sId, value]) => {
-                //             const input = document.querySelector(`input[data-subject="${sId}"]`);
-                //             const positionInput = document.querySelector(`input[data-position="${sId}"]`);
-
-                //             if (input) input.value = value ?? '';
-                //             if (positionInput) positionInput.value = subjectWise.position[sId] ?? '';
-                //         });
-                //     }
-                // });
-
-                // Promise.all(requests).then(() => {
-                //     Object.entries(groupedData).forEach(([subCategoryId, group]) => {
-                //         const collapseId = "collapse-" + subCategoryId;
-
-                //         // Create rows (based on your old structure)
-                //         let rows = group.subjects.map(subject => `
-                //             <tr>
-                //                 <td class="px-3 py-2 border">${group.name}</td>
-                //                 <td class="px-3 py-2 border">${subject.name}</td>
-
-                //                 <!-- Limit field 1 -->
-                //                 <td class="px-3 py-2 border">
-                //                     <input 
-                //                         type="text" 
-                //                         name="part_limit[limit][${subject.id}][]"  
-                //                         data-subject="${subject.id}" 
-                //                         data-index="0"
-                //                         class="w-24 border rounded px-2 py-1"
-                //                     />
-                //                 </td>
-
-                //                 <!-- Empty td (if you want to keep spacing consistent) -->
-                //                 <td class="px-3 py-2 border"></td>
-
-                //                 <!-- Limit field 2 -->
-                //                 <td class="px-3 py-2 border">
-                //                     <input 
-                //                         type="text" 
-                //                         name="part_limit[limit][${subject.id}][]"  
-                //                         data-subject="${subject.id}" 
-                //                         data-index="1"
-                //                         class="w-24 border rounded px-2 py-1"
-                //                     />
-                //                 </td>
-
-                //                 <!-- Position field -->
-                //                 <td class="px-3 py-2 border">
-                //                     <input 
-                //                         type="number" 
-                //                         name="part_limit[position][${subject.id}]" 
-                //                         data-position="${subject.id}"
-                //                         data-index="1"
-                //                         class="w-24 border rounded px-2 py-1"
-                //                     />
-                //                 </td>
-                //             </tr>
-                //         `).join('');
-
-                //         // Create accordion section
-                //         let accordionItem = `
-                //             <div class="border rounded-lg mb-2">
-                //                 <button type="button" 
-                //                         class="w-full flex justify-between items-center px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg accordion-toggle"
-                //                         data-target="#${collapseId}_part">
-                //                     <span>${group.name}</span>
-                //                     <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                //                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                //                     </svg>
-                //                 </button>
-                //                 <div id="${collapseId}_part" class="hidden px-4 pb-4 pt-2">
-                //                     <div class="overflow-x-auto">
-                //                         <table class="min-w-full border text-sm text-left" style="width: -webkit-fill-available;">
-                //                             <thead class="bg-gray-200">
-                //                                 <tr>
-                //                                     <th class="px-3 py-2 border">Sub Category</th>
-                //                                     <th class="px-3 py-2 border">Subject Name</th>
-                //                                     <th class="px-3 py-2 border">Limit 1</th>
-                //                                     <th class="px-3 py-2 border"></th>
-                //                                     <th class="px-3 py-2 border">Limit 2</th>
-                //                                     <th class="px-3 py-2 border">Position</th>
-                //                                 </tr>
-                //                             </thead>
-                //                             <tbody>
-                //                                 ${rows}
-                //                             </tbody>
-                //                         </table>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //         `;
-
-                //         $("#part").append(accordionItem);
-                //     });
-                    
-                //     if (typeof partWise !== 'undefined' && partWise) {
-                //         document.querySelector('#part_wise').checked = true;
-                //         document.getElementById('part').style.display = 'table';
-                //         document.getElementById('subjectAccordion').style.display = 'none';
-    
-                //         Object.entries(partWise.limit).forEach(([subjectId, values]) => {
-                //             values.forEach((value, index) => {
-                //                 const limitInput = document.querySelector(`input[data-subject="${subjectId}"][data-index="${index}"]`);
-                //                 const positionInput = document.querySelector(`input[data-position="${subjectId}"][data-index="${index}"]`);
-    
-                //                 if (limitInput) {
-                //                     limitInput.value = value ?? '';
-                //                 }
-    
-                //                 if (positionInput) {
-                //                     positionInput.value = partWise.position[subjectId] ?? '';
-                //                 }
-                //             });
-                //         });
-                //     }
-                // });
             }, 2000);
           
           setTimeout(() => {
                 $("#select_topic").val(topics).trigger('change');
-                $('#select_topic').prepend('<option value="all">Select All</option>');
+                // $('#select_topic').prepend('<option value="all">Select All</option>');
             }, 3000);
 
             function getSubjectWise(groupedData, requests)
@@ -851,8 +666,6 @@
 
             // $('#select_subject').off('change').on('change', function() {
             //     $("#subjectAccordion").empty();
-
-                
             // });
 
             // Tailwind accordion toggle
@@ -880,7 +693,9 @@
             document.getElementById('meta_data').innerHTML = meta_data || '';
             document.getElementById('select_language').value = languageId || '';
             document.getElementById('select_category').value = categoryId || '';
-            document.getElementById('stars').value = stars || 0;
+            // document.getElementById('stars').value = stars || 0;
+            document.getElementById('tier').value = tier || 0;
+            document.getElementById('paid_free').value = isPaid || 0;
             $('#select_features').val(features).trigger('change');
 
             const subcategoryCheckboxes = document.querySelectorAll('.subcategory-checkbox');

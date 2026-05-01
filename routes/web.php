@@ -45,54 +45,54 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile/{id}', [ProfileController::class , 'edit'])
+    Route::get('/profile/{id}', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
-    Route::put('/profile/{id}', [ProfileController::class , 'update'])
+    Route::put('/profile/{id}', [ProfileController::class, 'update'])
         ->name('profile.update');
 
-    Route::put('/admin-profile/{id}', [SuperAdminController::class , 'update'])
+    Route::put('/admin-profile/{id}', [SuperAdminController::class, 'update'])
         ->name('admin-profile.update');
 
-    Route::delete('/profile/{id}', [ProfileController::class , 'destroy'])
+    Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    Route::put('/users/update-coins-status/{id}', [ProfileController::class , 'updateCoinsAndStatus'])
+    Route::put('/users/update-coins-status/{id}', [ProfileController::class, 'updateCoinsAndStatus'])
         ->name('users.updateCoinsAndStatus');
-    Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class , 'getUserPaymentAnalytics']);
+    Route::get('/dashboard/user-payment-analytics/{range}', [DashboardController::class, 'getUserPaymentAnalytics']);
 
-    Route::get('/dashboard/user-analytics/{range}', [DashboardController::class , 'getUserAnalytics']);
-    Route::get('/dashboard/user-analytics/export/file', [DashboardController::class , 'exportUserAnalytics'])
+    Route::get('/dashboard/user-analytics/{range}', [DashboardController::class, 'getUserAnalytics']);
+    Route::get('/dashboard/user-analytics/export/file', [DashboardController::class, 'exportUserAnalytics'])
         ->name('dashboard.user.analytics.export');
 
-    Route::get('/dashboard', [DashboardController::class , 'index'])
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard.total.count');
     Route::resource('languages', LanguagesController::class);
 
     Route::resource('category', CategoryController::class);
-    Route::get('category/export/file', [CategoryController::class , 'export'])
+    Route::get('category/export/file', [CategoryController::class, 'export'])
         ->name('category.export');
-    Route::get('category/sample/file', [CategoryController::class , 'sample'])
+    Route::get('category/sample/file', [CategoryController::class, 'sample'])
         ->name('category.sample');
-    Route::post('category/import/file', [CategoryController::class , 'import'])
+    Route::post('category/import/file', [CategoryController::class, 'import'])
         ->name('category.import');
 
 
     Route::resource('sub-category', SubCategoryController::class);
-    Route::get('sub-category/export/file', [SubCategoryController::class , 'export'])
+    Route::get('sub-category/export/file', [SubCategoryController::class, 'export'])
         ->name('sub-category.export');
-    Route::get('sub-category/sample/file', [SubCategoryController::class , 'sample'])
+    Route::get('sub-category/sample/file', [SubCategoryController::class, 'sample'])
         ->name('sub-category.sample');
-    Route::post('sub-category/import/file', [SubCategoryController::class , 'import'])
+    Route::post('sub-category/import/file', [SubCategoryController::class, 'import'])
         ->name('sub-category.import');
 
 
     Route::resource('subject', SubjectController::class);
-    Route::get('subject/export/file', [SubjectController::class , 'export'])
+    Route::get('subject/export/file', [SubjectController::class, 'export'])
         ->name('subject.export');
-    Route::get('subject/sample/file', [SubjectController::class , 'sample'])
+    Route::get('subject/sample/file', [SubjectController::class, 'sample'])
         ->name('subject.sample');
-    Route::post('subject/import/file', [SubjectController::class , 'import'])
+    Route::post('subject/import/file', [SubjectController::class, 'import'])
         ->name('subject.import');
 
     Route::resource('topic', TopicController::class);
@@ -101,63 +101,67 @@ Route::middleware('auth')->group(function () {
     Route::resource('offers', OfferController::class);
     Route::resource('videos', VideoController::class);
 
-    Route::get('videos/export/file', [VideoController::class , 'export'])
+    Route::get('videos/export/file', [VideoController::class, 'export'])
         ->name('videos.export');
-    Route::post('videos/import/file', [VideoController::class , 'import'])
+
+    Route::get('videos/sample/file', [VideoController::class, 'sample'])
+        ->name('videos.sample');
+
+    Route::post('videos/import/file', [VideoController::class, 'import'])
         ->name('videos.import');
 
     Route::resource('/courses', CourseController::class);
 
-    Route::get('/get-subjects', [CourseController::class , 'getSubjects']);
-    Route::get('/reports', [ReportController::class , 'webindex'])
+    Route::get('/get-subjects', [CourseController::class, 'getSubjects']);
+    Route::get('/reports', [ReportController::class, 'webindex'])
         ->name('reports.index');
-    Route::get('/PaymentHistory', [RazorpayController::class , 'index'])
+    Route::get('/PaymentHistory', [RazorpayController::class, 'index'])
         ->name('paymentHistory.index');
     // routes/web.php
-    Route::get('/payments/export/file', [RazorpayController::class , 'exportExcel'])
+    Route::get('/payments/export/file', [RazorpayController::class, 'exportExcel'])
         ->name('payments.export');
 
-    Route::get('/WalletHistory', [WalletHistoryController::class , 'webindex'])
+    Route::get('/WalletHistory', [WalletHistoryController::class, 'webindex'])
         ->name('WalletHistory.index');
-    Route::put('/reports/update/{VideoId}/{id}', [ReportController::class , 'updateVideo'])
+    Route::put('/reports/update/{VideoId}/{id}', [ReportController::class, 'updateVideo'])
         ->name('reports.updateVideo');
-    Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class , 'updateQuestion'])
+    Route::put('/reports/updateQuestion/{QUestionId}/{id}', [ReportController::class, 'updateQuestion'])
         ->name('reports.updateQuestion');
-    Route::delete('/reports/{id}', [ReportController::class , 'destroy'])
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])
         ->name('reports.destroy');
-    Route::get('/reports/export/file', [ReportController::class , 'exportExcel'])
+    Route::get('/reports/export/file', [ReportController::class, 'exportExcel'])
         ->name('reports.export');
 
-    Route::get('/reports/getVideo_question', [ReportController::class , 'edit'])
+    Route::get('/reports/getVideo_question', [ReportController::class, 'edit'])
         ->name('reports.edit');
 
-    Route::get('/scoreboard', [ScoreBoardController::class , 'index'])
+    Route::get('/scoreboard', [ScoreBoardController::class, 'index'])
         ->name('ScoreBoard.index');
-    Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class , 'webquizeShow']);
-    Route::get('/question-bank-count-AllData/{google_user_id}', [ScoreBoardController::class , 'questioncountshowAllData']);
-    Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class , 'webmockTestShow']);
-    Route::get('/rank/{google_user_id}', [ScoreBoardController::class , 'webrankShow']);
+    Route::get('/quize-practice/{google_user_id}', [ScoreBoardController::class, 'webquizeShow']);
+    Route::get('/question-bank-count-AllData/{google_user_id}', [ScoreBoardController::class, 'questioncountshowAllData']);
+    Route::get('/mock-test/{google_user_id}', [ScoreBoardController::class, 'webmockTestShow']);
+    Route::get('/rank/{google_user_id}', [ScoreBoardController::class, 'webrankShow']);
 
-    Route::get('/settings', [SettingController::class , 'index'])
+    Route::get('/settings', [SettingController::class, 'index'])
         ->name('settings.index');
-    Route::post('/settings', [SettingController::class , 'store'])
+    Route::post('/settings', [SettingController::class, 'store'])
         ->name('settings.store');
 
-    Route::get('notifications/users/search', [NotificationController::class , 'searchUsers'])->name('notifications.users.search');
+    Route::get('notifications/users/search', [NotificationController::class, 'searchUsers'])->name('notifications.users.search');
     Route::resource('notifications', NotificationController::class);
-    Route::get('notifications/{id}/edit', [NotificationController::class , 'edit']);
+    Route::get('notifications/{id}/edit', [NotificationController::class, 'edit']);
 
-    Route::post('/settings/quiz/save', [SettingController::class , 'saveQuiz'])
+    Route::post('/settings/quiz/save', [SettingController::class, 'saveQuiz'])
         ->name('settings.quiz.save');
 
-    Route::post('/settings/cbt/save', [SettingController::class , 'saveCbt'])
+    Route::post('/settings/cbt/save', [SettingController::class, 'saveCbt'])
         ->name('settings.cbt.save');
 
-    Route::get('topic/export/file', [TopicController::class , 'export'])
+    Route::get('topic/export/file', [TopicController::class, 'export'])
         ->name('topic.export');
-    Route::get('topic/sample/file', [TopicController::class , 'sample'])
+    Route::get('topic/sample/file', [TopicController::class, 'sample'])
         ->name('topic.sample');
-    Route::post('topic/import/file', [TopicController::class , 'import'])
+    Route::post('topic/import/file', [TopicController::class, 'import'])
         ->name('topic.import');
 
     Route::resource('question', QuestionBankController::class);
@@ -168,88 +172,96 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('cbt', CbtController::class);
 
-    Route::get('question_no', [QuestionBankController::class , 'questionNoExist'])
+    Route::get('question_no', [QuestionBankController::class, 'questionNoExist'])
         ->name('get.question_no');
 
-    Route::get('get-categories/{languageId}', [QuestionBankController::class , 'getCategories']);
+    Route::get('get-categories/{languageId}', [QuestionBankController::class, 'getCategories']);
 
-    Route::get('get-subcategories/{categoryId}', [QuestionBankController::class , 'getSubCategories']);
+    Route::get('get-subcategories/{categoryId}', [QuestionBankController::class, 'getSubCategories']);
 
-    Route::get('get-subjects/{subCategoryId}', [QuestionBankController::class , 'getSubjects']);
+    Route::get('get-subjects/{subCategoryId}', [QuestionBankController::class, 'getSubjects']);
 
-    Route::get('get-subcategories-from-subject/{subjectId}', [QuestionBankController::class , 'getSubCategoriesFromSubject']);
+    Route::get('get-subcategories-from-subject/{subjectId}', [QuestionBankController::class, 'getSubCategoriesFromSubject']);
 
-    Route::get('get-topics/{subjectId}', [QuestionBankController::class , 'getTopics']);
+    Route::get('get-topics/{subjectId}', [QuestionBankController::class, 'getTopics']);
 
-    Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}/{language2_id}/{category2_id}/{subcategory2_id}', [CbtController::class , 'getQuestionsData']);
+    Route::get('get-questions-data/{language_id}/{category_id}/{subcategory_id}/{language2_id}/{category2_id}/{subcategory2_id}', [CbtController::class, 'getQuestionsData']);
 
-    Route::group(['prefix' => 'questions'], function () {
-            Route::get('', [QuestionBankController::class , 'getQuestions'])
+    Route::group(
+        ['prefix' => 'questions'],
+        function () {
+            Route::get('', [QuestionBankController::class, 'getQuestions'])
                 ->name("questions");
 
-            Route::get('export', [QuestionBankController::class , 'export'])
+            Route::get('export', [QuestionBankController::class, 'export'])
                 ->name('questions.export');
 
-            Route::post('import', [QuestionBankController::class , 'import'])
+            Route::post('import', [QuestionBankController::class, 'import'])
                 ->name('questions.import');
 
-            Route::post('/{id}/delete', [QuestionBankController::class , 'destroyQuestion']);
+            Route::post('/{id}/delete', [QuestionBankController::class, 'destroyQuestion']);
 
-            Route::post('/{id}/translation-delete', [QuestionBankController::class , 'destroyTranslationQuestion']);
+            Route::post('/{id}/translation-delete', [QuestionBankController::class, 'destroyTranslationQuestion']);
 
-            Route::post('bulk-delete', [QuestionBankController::class , 'bulkDelete'])
+            Route::post('bulk-delete', [QuestionBankController::class, 'bulkDelete'])
                 ->name("question.bulkDelete");
         }
-        );
+    );
 
-        Route::group(['prefix' => 'quiz'], function () {
-            Route::post('deploy', [QuizController::class , 'deploy'])
+    Route::group(
+        ['prefix' => 'quiz'],
+        function () {
+            Route::post('deploy', [QuizController::class, 'deploy'])
                 ->name('quiz.deploy');
         }
-        )->middleware('auth:sanctum');
+    )->middleware('auth:sanctum');
 
-        Route::group(['prefix' => 'cbt'], function () {
-            Route::post('deploy', [CbtController::class , 'deploy'])
+    Route::group(
+        ['prefix' => 'cbt'],
+        function () {
+            Route::post('deploy', [CbtController::class, 'deploy'])
                 ->name('cbt.deploy');
         }
-        )->middleware('auth:sanctum');
+    )->middleware('auth:sanctum');
 
-        Route::get('users', [ProfileController::class , 'users'])
-            ->name('users.index');
+    Route::get('users', [ProfileController::class, 'users'])
+        ->name('users.index');
 
-        Route::delete('/users/{id}', [ProfileController::class , 'deleteUser'])
-            ->name('users.delete');
+    Route::delete('/users/{id}', [ProfileController::class, 'deleteUser'])
+        ->name('users.delete');
 
-        Route::get('users/export', [ProfileController::class , 'export'])
-            ->name('users.export');
-        Route::post('users/import', [ProfileController::class , 'import'])
-            ->name('users.import');
-        Route::get('users/{id}/courses', [ProfileController::class , 'getUserCourses'])
-            ->name('users.courses');
+    Route::get('users/export', [ProfileController::class, 'export'])
+        ->name('users.export');
 
-        Route::get('super-admin', [SuperAdminController::class , 'super_admin'])
-            ->name('super-admin.index');
+    Route::post('users/import', [ProfileController::class, 'import'])
+        ->name('users.import');
 
-        Route::get('super-admin/create', [SuperAdminController::class , 'show'])
-            ->name('super-admin.create');
+    Route::get('users/{id}/courses', [ProfileController::class, 'getUserCourses'])
+        ->name('users.courses');
 
-        Route::post('super-admin/store', [SuperAdminController::class , 'store'])
-            ->name('super-admin.store');
+    Route::get('super-admin', [SuperAdminController::class, 'super_admin'])
+        ->name('super-admin.index');
 
-        Route::get('/admin-profile/{id}', [SuperAdminController::class , 'edit'])
-            ->name('admin-profile.edit');
+    Route::get('super-admin/create', [SuperAdminController::class, 'show'])
+        ->name('super-admin.create');
 
-        // Live Test Routes
-        Route::resource('live-tests', \App\Http\Controllers\LiveTestController::class);
+    Route::post('super-admin/store', [SuperAdminController::class, 'store'])
+        ->name('super-admin.store');
 
-        Route::get('get-questions-for-live-test', [\App\Http\Controllers\LiveTestController::class , 'getQuestions'])
-            ->name('live-tests.get-questions');
+    Route::get('/admin-profile/{id}', [SuperAdminController::class, 'edit'])
+        ->name('admin-profile.edit');
 
-        Route::get('download-live-test-manual-template', [\App\Http\Controllers\LiveTestController::class , 'downloadManualTemplate'])
-            ->name('live-tests.download-manual-template');
+    // Live Test Routes
+    Route::resource('live-tests', \App\Http\Controllers\LiveTestController::class);
 
-        Route::post('preview-live-test-manual-data', [\App\Http\Controllers\LiveTestController::class , 'previewManualData'])
-            ->name('live-tests.preview-manual-data');
-    });
+    Route::get('get-questions-for-live-test', [\App\Http\Controllers\LiveTestController::class, 'getQuestions'])
+        ->name('live-tests.get-questions');
+
+    Route::get('download-live-test-manual-template', [\App\Http\Controllers\LiveTestController::class, 'downloadManualTemplate'])
+        ->name('live-tests.download-manual-template');
+
+    Route::post('preview-live-test-manual-data', [\App\Http\Controllers\LiveTestController::class, 'previewManualData'])
+        ->name('live-tests.preview-manual-data');
+});
 
 require __DIR__ . '/auth.php';

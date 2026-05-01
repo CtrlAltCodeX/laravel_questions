@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Exports\VideosExport;
+use App\Exports\SampleVideosExport;
 use App\Imports\VideosImport;
 use App\Models\Question;
 use App\Models\Topic;
@@ -144,6 +145,11 @@ class VideoController extends Controller
         $topicId = $request->get('topic_id');
 
         return Excel::download(new VideosExport($languageId, $categoryId, $subCategoryId,  $subjectId, $topicId), 'videos.xlsx');
+    }
+
+    public function sample(Request $request)
+    {
+        return Excel::download(new SampleVideosExport(), 'sample-videos.xlsx');
     }
 
 

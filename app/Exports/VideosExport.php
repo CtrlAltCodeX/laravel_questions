@@ -61,6 +61,7 @@ class VideosExport implements FromCollection, WithHeadings
         }
 
 
+
         return $query->get()->map(function ($video) {
             return [
                 'id' => $video->id,
@@ -74,7 +75,16 @@ class VideosExport implements FromCollection, WithHeadings
                 'description' => $video->description,
                 'thumbnail' => explode('/', $video->thumbnail)[1] ?? $video->thumbnail,
                 'youtube_link' => $video->youtube_link,
-                'video_name' => explode('/', $video->video_link)[6] ?? $video->video_link,
+                'video_link' =>  is_array($video->video_link)
+                    ? collect($video->video_link)->map(function ($path) {
+
+                        preg_match('/(720p|480p|320p)\/([^\/]+)$/', $path, $matches);
+
+                        return isset($matches[1], $matches[2])
+                            ? $matches[1] . '/' . $matches[2]
+                            : '';
+                    })->filter()->implode(', ')
+                    : '',
                 'video_type' => $video->video_type,
                 'pdf_link' => explode('/', $video->pdf_link)[6] ?? $video->pdf_link,
                 'duration' => $video->duration,
@@ -96,7 +106,7 @@ class VideosExport implements FromCollection, WithHeadings
             'description',
             'thumbnail',
             'youtube_link',
-            'video_name',
+            'video_link',
             'video_type',
             'pdf_link',
             'duration'
